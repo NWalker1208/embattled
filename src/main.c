@@ -24,38 +24,51 @@ struct Registers {
 // D: | immediate (11 bits)                                                                 | opcode (5 bits) |
 
 // Instructions:
-// Instr | Layout | Opcode | Function
+// Instruction | Layout | Opcode | Function
 // Control flow:
-//   NOP | Any
-//   JMP | C or D
-//   JMZ | B or C
-//   JMN | B or C
+//   NOP       | Any    |
+//   JMP.reg   | C      | 
+//      .imm   | D      |
+//   JMZ.reg   | B      | 
+//      .imm   | C      |
+//   JMN.reg   | B      | 
+//      .imm   | C      |
 // Memory:
-//   LDM | B
-//   STM | B
-//   LIH | C
-//   LIL | C
+//   LDM       | B      |
+//   STM       | B      |
+//   LIH       | C      |
+//   LIL       | C      |
 // Math:
-//   ADD | A
-//   SUB | A
-//   MUL | A
-//   DIV | A
-//   DVS | A
-//   REM | A
-//   RMS | A
+//   ADD       | A      |
+//   SUB       | A      |
+//   MUL       | A      |
+//   DIV       | A      |
+//   DVS       | A      |
+//   REM       | A      |
+//   RMS       | A      |
 // Bitwise:
-//   AND | A
-//   IOR | A
-//   XOR | A
-//   LSH | A or B
-//   RSH | A or B
-//   RSE | A or B
+//   AND       | A      |
+//   IOR       | A      |
+//   XOR       | A      |
+//   LSH.reg   | A      |
+//      .imm   | B      |
+//   RSH.reg   | A      |
+//      .imm   | B      |
+//   RSE.reg   | A      |
+//      .imm   | B      |
 // Comparison:
-//   CEQ | A or B
-//   CLT | A or B
-//   CGE | A or B
-//   CLS | A or B
-//   CGS | A or B
+//   CEQ.reg   | A      |
+//      .imm   | B      |
+//   CNE.reg   | A      |
+//      .imm   | B      |
+//   CLT.reg   | A      |
+//      .imm   | B      |
+//   CGE.reg   | A      |
+//      .imm   | B      |
+//   CLS.reg   | A      |
+//      .imm   | B      |
+//   CGS.reg   | A      |
+//      .imm   | B      |
 
 void runCpuCycle(char* mem, struct Registers* registers);
 
