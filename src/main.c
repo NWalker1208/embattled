@@ -4,7 +4,6 @@
 
 struct Registers {
   unsigned short ip; // Instruction pointer. Can't be referenced directly.
-  unsigned short sp; // Stack pointer. Can't be referenced directly.
 
   unsigned short x0;
   unsigned short x1;
@@ -19,9 +18,43 @@ struct Registers {
 // Instructions (based on RV32C)
 
 // Layout:
-// A: | function                      | register A (3 bits) | register B (3 bits) | opcode |
-// B: | function | immediate (5 bits) | register A (3 bits) | register B (3 bits) | opcode |
-// C: | function | immediate (8 bits)                       | register (3 bits)   | opcode |
+// A: | function      | register A (3 bits) | register B (3 bits) | register C (3 bits) | opcode |
+// B: | function | immediate (5 bits)       | register A (3 bits) | register B (3 bits) | opcode |
+// C: | function | immediate (8 bits)                             | register (3 bits)   | opcode |
+// D: | function | immediate (11 bits)                                                  | opcode |
+
+// Instructions:
+// Control flow:
+//   NOP | Any
+//   JMP | C or D
+//   JMZ | B or C
+//   JMN | B or C
+// Memory:
+//   LDM | B
+//   STM | B
+//   LIH | C
+//   LIL | C
+// Math:
+//   ADD | A
+//   SUB | A
+//   MUL | A
+//   DIV | A
+//   DVS | A
+//   REM | A
+//   RMS | A
+// Bitwise:
+//   AND | A
+//   IOR | A
+//   XOR | A
+//   LSH | A or B
+//   RSH | A or B
+//   RSE | A or B
+// Comparison:
+//   CEQ | A or B
+//   CLT | A or B
+//   CGE | A or B
+//   CLS | A or B
+//   CGS | A or B
 
 void runCpuCycle(char* mem, struct Registers* registers);
 
