@@ -18,12 +18,13 @@ struct Registers {
 // Instructions (based on RV32C)
 
 // Layout:
-// A: | function      | register A (3 bits) | register B (3 bits) | register C (3 bits) | opcode |
-// B: | function | immediate (5 bits)       | register A (3 bits) | register B (3 bits) | opcode |
-// C: | function | immediate (8 bits)                             | register (3 bits)   | opcode |
-// D: | function | immediate (11 bits)                                                  | opcode |
+// A: | function (2 bits) | register A (3 bits) | register B (3 bits) | register C (3 bits) | opcode (5 bits) |
+// B: | immediate (5 bits)                      | register A (3 bits) | register B (3 bits) | opcode (5 bits) |
+// C: | immediate (8 bits)                                            | register (3 bits)   | opcode (5 bits) |
+// D: | immediate (11 bits)                                                                 | opcode (5 bits) |
 
 // Instructions:
+// Instr | Layout | Opcode | Function
 // Control flow:
 //   NOP | Any
 //   JMP | C or D
