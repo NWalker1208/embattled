@@ -1,17 +1,34 @@
 #include <stdio.h>
 
-struct Registers {
-  // System registers
-  unsigned short ip; // Instruction pointer
-  unsigned short sp; // Stack pointer
+#define MEM_SIZE 65536
 
-  // General registers
-  unsigned int a; // eax, ax, ah, al
-  unsigned int b; // ebx, bx, bh, bl
-  unsigned int c; // ecx, cx, ch, cl
-  unsigned int d; // edx, dx, dh, dl
+struct Registers {
+  unsigned short ip; // Instruction pointer. Can't be referenced directly.
+  unsigned short sp; // Stack pointer. Can't be referenced directly.
+
+  unsigned short x0;
+  unsigned short x1;
+  unsigned short x2;
+  unsigned short x3;
+  unsigned short x4;
+  unsigned short x5;
+  unsigned short x6;
+  unsigned short x7;
 };
+
+void runCpuCycle(char* mem, struct Registers* registers);
 
 int main() {
   printf("Hello, from Embattled!\n");
+
+  char mem[MEM_SIZE] = { 0 };
+  struct Registers registers = { 0 };
+
+  while (1) {
+    runCpuCycle(mem, &registers);
+  }
+}
+
+void runCpuCycle(char* mem, struct Registers* registers) {
+  
 }
