@@ -16,6 +16,13 @@ struct Registers {
   unsigned short x7;
 };
 
+// Instructions (based on RV32C)
+
+// Layout:
+// A: | function                      | register A (3 bits) | register B (3 bits) | opcode |
+// B: | function | immediate (5 bits) | register A (3 bits) | register B (3 bits) | opcode |
+// C: | function | immediate (8 bits)                       | register (3 bits)   | opcode |
+
 void runCpuCycle(char* mem, struct Registers* registers);
 
 int main() {
