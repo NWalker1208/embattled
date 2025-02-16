@@ -74,6 +74,17 @@ struct Registers {
 //   CGS.reg   | A      | 101 11 | 11
 //      .imm   | B      | 110 11 |
 
+enum RegisterCode {
+  x0 = 0b000,
+  x1 = 0b001,
+  x2 = 0b010,
+  x3 = 0b011,
+  x4 = 0b100,
+  x5 = 0b101,
+  x6 = 0b110,
+  x7 = 0x111
+};
+
 enum OpCode {
   // Control flow
   NOP     = 0b00000,
@@ -110,6 +121,7 @@ enum OpCode {
 };
 
 void runCpuCycle(char* mem, struct Registers* registers);
+unsigned short* getRegisterAddr(enum RegisterCode code, struct Registers* registers);
 
 int main() {
   printf("Hello, from Embattled!\n");
@@ -127,11 +139,15 @@ void runCpuCycle(char* mem, struct Registers* registers) {
   char* next = &(mem[ip]);
   ip += 2;
 
-  char opCode = next[0] & 0b11111;
+  enum OpCode opCode = next[0] & 0b11111;
   unsigned short imm = (next[0] >> 5) | (next[1] << 3);
-  char regA = (imm >> 2) & 0b111;
-  char regB = (imm >> 5) & 0b111;
-  char regC = (imm >> 8) & 0b111;
+  enum RegisterCode regCodeA = (imm >> 2) & 0b111;
+  enum RegisterCode regCodeB = (imm >> 5) & 0b111;
+  enum RegisterCode regCodeC = (imm >> 8) & 0b111;
+
+  unsigned short* regA = getRegisterAddr(regCodeA, registers);
+  unsigned short* regB = getRegisterAddr(regCodeB, registers);
+  unsigned short* regC = getRegisterAddr(regCodeC, registers);
 
   switch (opCode) {
     case JMP_reg:
@@ -195,4 +211,18 @@ void runCpuCycle(char* mem, struct Registers* registers) {
   }
 
   registers->ip = ip;
+}
+
+unsigned short* getRegisterAddr(enum RegisterCode code, struct Registers* registers) {
+  switch (code) {
+    case x0: return &registers->x0;
+    case x1: return &registers->x1;
+    case x2: return &registers->x2;
+    case x3: return &registers->x3;
+    case x4: return &registers->x4;
+    case x5: return &registers->x5;
+    case x6: return &registers->x6;
+    case x7: return &registers->x7;
+    default: return NULL;
+  }
 }
