@@ -2,6 +2,10 @@
 
 #define MEM_SIZE 65536
 
+#define IMM_SML 0b11111
+#define IMM_MED 0b11111111
+#define IMM_LRG 0b11111111111
+
 struct Registers {
   unsigned short ip; // Instruction pointer. Can't be referenced directly.
 
@@ -119,5 +123,76 @@ int main() {
 }
 
 void runCpuCycle(char* mem, struct Registers* registers) {
-  
+  unsigned short ip = registers->ip;
+  char* next = &(mem[ip]);
+  ip += 2;
+
+  char opCode = next[0] & 0b11111;
+  unsigned short imm = (next[0] >> 5) | (next[1] << 3);
+  char regA = (imm >> 2) & 0b111;
+  char regB = (imm >> 5) & 0b111;
+  char regC = (imm >> 8) & 0b111;
+
+  switch (opCode) {
+    case JMP_reg:
+      break;
+    case JMP_imm:
+      break;
+    case JMZ_reg:
+      break;
+    case JMZ_imm:
+      break;
+    case JMN_reg:
+      break;
+    case JMN_imm:
+      break;
+  // Memory
+    case LDM:
+      break;
+    case STM:
+      break;
+    case LIH:
+      break;
+    case LIL:
+      break;
+  // Math
+    case ADD_SUB:
+      break;
+    case MUL:
+      break;
+    case DIV_REM:
+      break;
+  // Bitwise
+    case AND_OR:
+      break;
+    case SH_reg:
+      break;
+    case LSH_imm:
+      break;
+    case RSH_imm:
+      break;
+    case RSE_imm:
+      break;
+  // Comparison
+    case CM0_reg:
+      break;
+    case CEQ_imm:
+      break;
+    case CNE_imm:
+      break;
+    case CM1_reg:
+      break;
+    case CLT_imm:
+      break;
+    case CGE_imm:
+      break;
+    case CLS_imm:
+      break;
+    case CGS_imm:
+      break;
+    default:
+      break;
+  }
+
+  registers->ip = ip;
 }
