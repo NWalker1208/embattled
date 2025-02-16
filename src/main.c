@@ -26,49 +26,49 @@ struct Registers {
 // Instructions:
 // Instruction | Layout | Opcode | Function
 // Control flow:
-//   NOP       | Any    |
-//   JMP.reg   | C      | 
-//      .imm   | D      |
-//   JMZ.reg   | B      | 
-//      .imm   | C      |
-//   JMN.reg   | B      | 
-//      .imm   | C      |
+//   NOP       | Any    | 000 00 |
+//   JMP.reg   | C      | 000 01 |
+//      .imm   | D      | 000 10 |
+//   JMZ.reg   | B      | 001 00 |
+//      .imm   | C      | 001 01 |
+//   JMN.reg   | B      | 001 10 |
+//      .imm   | C      | 001 11 |
 // Memory:
-//   LDM       | B      |
-//   STM       | B      |
-//   LIH       | C      |
-//   LIL       | C      |
+//   LDM       | B      | 010 00 |
+//   STM       | B      | 010 01 |
+//   LIH       | C      | 010 10 |
+//   LIL       | C      | 010 11 |
 // Math:
-//   ADD       | A      |
-//   SUB       | A      |
-//   MUL       | A      |
-//   DIV       | A      |
-//   DVS       | A      |
-//   REM       | A      |
-//   RMS       | A      |
+//   ADD       | A      | 011 00 | 00
+//   SUB       | A      | 011 00 | 01
+//   MUL       | A      | 011 01 | 00
+//   DIV       | A      | 011 10 | 00  
+//   DVS       | A      | 011 10 | 01
+//   REM       | A      | 011 10 | 10
+//   RMS       | A      | 011 10 | 11
 // Bitwise:
-//   AND       | A      |
-//   IOR       | A      |
-//   XOR       | A      |
-//   LSH.reg   | A      |
-//      .imm   | B      |
-//   RSH.reg   | A      |
-//      .imm   | B      |
-//   RSE.reg   | A      |
-//      .imm   | B      |
+//   AND       | A      | 011 11 | 00
+//   IOR       | A      | 011 11 | 01
+//   XOR       | A      | 011 11 | 10
+//   LSH.reg   | A      | 100 00 | 00
+//      .imm   | B      | 100 01 |
+//   RSH.reg   | A      | 100 00 | 01
+//      .imm   | B      | 100 10 |
+//   RSE.reg   | A      | 100 00 | 10
+//      .imm   | B      | 100 11 |
 // Comparison:
-//   CEQ.reg   | A      |
-//      .imm   | B      |
-//   CNE.reg   | A      |
-//      .imm   | B      |
-//   CLT.reg   | A      |
-//      .imm   | B      |
-//   CGE.reg   | A      |
-//      .imm   | B      |
-//   CLS.reg   | A      |
-//      .imm   | B      |
-//   CGS.reg   | A      |
-//      .imm   | B      |
+//   CEQ.reg   | A      | 101 00 | 00
+//      .imm   | B      | 101 01 |
+//   CNE.reg   | A      | 101 00 | 01
+//      .imm   | B      | 101 10 |
+//   CLT.reg   | A      | 101 11 | 00
+//      .imm   | B      | 110 00 |
+//   CGE.reg   | A      | 101 11 | 01
+//      .imm   | B      | 110 01 |
+//   CLS.reg   | A      | 101 11 | 10
+//      .imm   | B      | 110 10 |
+//   CGS.reg   | A      | 101 11 | 11
+//      .imm   | B      | 110 11 |
 
 void runCpuCycle(char* mem, struct Registers* registers);
 
