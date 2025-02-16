@@ -70,6 +70,41 @@ struct Registers {
 //   CGS.reg   | A      | 101 11 | 11
 //      .imm   | B      | 110 11 |
 
+enum OpCode {
+  // Control flow
+  NOP     = 0b00000,
+  JMP_reg = 0b00001,
+  JMP_imm = 0b00010,
+  JMZ_reg = 0b00100,
+  JMZ_imm = 0b00101,
+  JMN_reg = 0b00110,
+  JMN_imm = 0b00111,
+  // Memory
+  LDM     = 0b01000,
+  STM     = 0b01001,
+  LIH     = 0b01010,
+  LIL     = 0b01011,
+  // Math
+  ADD_SUB = 0b01100,
+  MUL     = 0b01101,
+  DIV_REM = 0b01110,
+  // Bitwise
+  AND_OR  = 0b01111,
+  SH_reg  = 0b10000,
+  LSH_imm = 0b10001,
+  RSH_imm = 0b10010,
+  RSE_imm = 0b10011,
+  // Comparison
+  CM0_reg = 0b10100,
+  CEQ_imm = 0b10101,
+  CNE_imm = 0b10110,
+  CM1_reg = 0b10111,
+  CLT_imm = 0b11000,
+  CGE_imm = 0b11001,
+  CLS_imm = 0b11010,
+  CGS_imm = 0b11011,
+};
+
 void runCpuCycle(char* mem, struct Registers* registers);
 
 int main() {
