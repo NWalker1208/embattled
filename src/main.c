@@ -36,30 +36,30 @@ struct Registers {
 // Memory:
 //   LDM       | C      | 001 00 |
 //   STM       | C      | 001 01 |
-//   LIH       | B      | 001 10 |
-//   LIL       | B      | 001 11 |
+//   LDIH      | B      | 001 10 |
+//   LDIL      | B      | 001 11 |
 // Math:
 //   ADD       | D      | 010 00 | 00
 //   SUB       | D      | 010 00 | 01
 //   MUL       | D      | 010 01 | 00
-//   DIV       | D      | 010 10 | 00  
-//   DVS       | D      | 010 10 | 01
-//   REM       | D      | 010 10 | 10
-//   RMS       | D      | 010 10 | 11
+//   DIVS      | D      | 010 10 | 00  
+//   DIVU      | D      | 010 10 | 01
+//   REMS      | D      | 010 10 | 10
+//   REMU      | D      | 010 10 | 11
 // Bitwise:
 //   AND       | D      | 011 00 | 00
 //   IOR       | D      | 011 00 | 01
 //   XOR       | D      | 011 00 | 10
 //   LSH       | C      | 011 01 |
-//   RSH       | C      | 011 10 |
-//   RSE       | C      | 011 11 |
+//   RSHS      | C      | 011 10 |
+//   RSHU      | C      | 011 11 |
 // Comparison:
 //   CEQ       | D      | 100 00 | 00
 //   CNE       | D      | 100 00 | 01
-//   CLT       | D      | 100 01 | 00
-//   CGE       | D      | 100 01 | 01
-//   CLS       | D      | 100 01 | 10
-//   CGS       | D      | 100 01 | 11
+//   CLTS      | D      | 100 01 | 00
+//   CLTU      | D      | 100 01 | 01
+//   CGES      | D      | 100 01 | 10
+//   CGEU      | D      | 100 01 | 11
 
 enum RegisterCode {
   x0 = 0b000,
@@ -80,8 +80,8 @@ enum OpCode {
   // Memory
   LDM     = 0b00100,
   STM     = 0b00101,
-  LIH     = 0b00110,
-  LIL     = 0b00111,
+  LDIH    = 0b00110,
+  LDIL    = 0b00111,
   // Math
   ADD_SUB = 0b01000,
   MUL     = 0b01001,
@@ -89,8 +89,8 @@ enum OpCode {
   // Bitwise
   AND_OR  = 0b01100,
   LSH     = 0b01101,
-  RSH     = 0b01110,
-  RSE     = 0b01111,
+  RSHS    = 0b01110,
+  RSEU    = 0b01111,
   // Comparison
   CEQ_CNE = 0b10000,
   CLT_CGT = 0b10001,
@@ -137,9 +137,9 @@ void runCpuCycle(char* mem, struct Registers* registers) {
       break;
     case STM:
       break;
-    case LIH:
+    case LDIH:
       break;
-    case LIL:
+    case LDIL:
       break;
   // Math
     case ADD_SUB:
@@ -156,13 +156,13 @@ void runCpuCycle(char* mem, struct Registers* registers) {
       break;
     case DIV_REM:
       switch (func) {
-        case 0b00: // DIV
+        case 0b00: // DIVS
           break;
-        case 0b01: // DVS
+        case 0b01: // DIVU
           break;
-        case 0b10: // REM
+        case 0b10: // REMS
           break;
-        case 0b11: // RMS
+        case 0b11: // REMU
           break;
       }
       break;
@@ -181,9 +181,9 @@ void runCpuCycle(char* mem, struct Registers* registers) {
       break;
     case LSH:
       break;
-    case RSH:
+    case RSHS:
       break;
-    case RSE:
+    case RSEU:
       break;
   // Comparison
     case CEQ_CNE:
@@ -198,13 +198,13 @@ void runCpuCycle(char* mem, struct Registers* registers) {
       break;
     case CLT_CGT:
       switch (func) {
-        case 0b00: // CLT
+        case 0b00: // CLTS
           break;
-        case 0b01: // CGE
+        case 0b01: // CLTU
           break;
-        case 0b10: // CLS
+        case 0b10: // CGES
           break;
-        case 0b11: // CGS
+        case 0b11: // CGEU
           break;
       }
       break;
