@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <windows.h>
 
 #define MEM_SIZE 65536
 
@@ -109,6 +110,7 @@ enum OpCode {
   CLT_CGT = 0b10101,
 };
 
+void printRegisters(struct Registers* registers);
 void runCpuCycle(char* mem, struct Registers* registers);
 unsigned short* getRegisterAddr(enum RegisterCode code, struct Registers* registers);
 
@@ -118,9 +120,25 @@ int main() {
   char mem[MEM_SIZE] = { 0 };
   struct Registers registers = { 0 };
 
+  printRegisters(&registers);
   while (1) {
+    Sleep(1000); // TODO: Replace with portable code
+    printf("\n");
     runCpuCycle(mem, &registers);
+    printRegisters(&registers);
   }
+}
+
+void printRegisters(struct Registers* registers) {
+  printf("ip = 0x%04x\n", registers->ip);
+  printf("x0 = 0x%04x\n", registers->x0);
+  printf("x1 = 0x%04x\n", registers->x1);
+  printf("x2 = 0x%04x\n", registers->x2);
+  printf("x3 = 0x%04x\n", registers->x3);
+  printf("x4 = 0x%04x\n", registers->x4);
+  printf("x5 = 0x%04x\n", registers->x5);
+  printf("x6 = 0x%04x\n", registers->x6);
+  printf("x7 = 0x%04x\n", registers->x7);
 }
 
 void runCpuCycle(char* mem, struct Registers* registers) {
