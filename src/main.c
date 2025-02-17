@@ -2,9 +2,14 @@
 
 #define MEM_SIZE 65536
 
-#define IMM_SML 0b11111
-#define IMM_MED 0b11111111
-#define IMM_LRG 0b11111111111
+#define IMM_SML_U(imm) (imm & 0b11111)
+#define IMM_SML_S(imm) (imm & 0b10000 ? (~0b11111 | IMM_SML_U(imm)) : IMM_SML_U(imm))
+
+#define IMM_MED_U(imm) (imm & 0b11111111)
+#define IMM_MED_S(imm) (imm & 0b10000000 ? (~0b11111111 | IMM_MED_U(imm)) : IMM_MED_U(imm))
+
+#define IMM_LRG_U(imm) (imm & 0b11111111111)
+#define IMM_LRG_S(imm) (imm & 0b10000000000 ? (~0b11111111111 | IMM_LRG_U(imm)) : IMM_LRG_U(imm))
 
 struct Registers {
   unsigned short ip; // Instruction pointer. Can't be referenced directly.
@@ -134,51 +139,81 @@ void runCpuCycle(char* mem, struct Registers* registers) {
   unsigned short* regB = getRegisterAddr(regCodeB, registers);
   unsigned short* regC = getRegisterAddr(regCodeC, registers);
 
+  unsigned short addrLow, addrHigh;
+
   switch (opCode) {
   // Control flow
     case JMP:
+      ip += IMM_LRG_S(imm);
       break;
     case JMZ:
+      if (*regA == 0) {
+        ip += IMM_MED_S(imm);
+      }
       break;
   // Memory
     case LDIL:
+      *regA = (*regA & (0xFF << 8)) | IMM_MED_U(imm);
       break;
     case LDIH:
+      *regA = (IMM_MED_U(imm) << 8) | (*regA & 0xFF);
       break;
     case LDML:
+      addrLow = (*regB + IMM_SML_S(imm));
+      *regA = (*regA & (0xFF << 8)) | (unsigned short)mem[addrLow];
       break;
     case LDMH:
+      addrLow = (*regB + IMM_SML_S(imm));
+      *regA = ((unsigned short)mem[addrLow] << 8) | (*regA & 0xFF);
       break;
     case LDMW:
+      addrLow = (*regB + IMM_SML_S(imm));
+      addrHigh = addrLow + 1;
+      *regA = ((unsigned short)mem[addrHigh] << 8) | (unsigned short)mem[addrLow];
       break;
     case STML:
+      addrLow = (*regB + IMM_SML_S(imm));
+      mem[addrLow] = (char)(*regA & 0xFF);
       break;
     case STMH:
+      addrLow = (*regB + IMM_SML_S(imm));
+      mem[addrLow] = (char)((*regA & 0xFF00) >> 8);
       break;
     case STMW:
+      addrLow = (*regB + IMM_SML_S(imm));
+      addrHigh = addrLow + 1;
+      mem[addrLow] = (char)(*regA & 0xFF);
+      mem[addrHigh] = (char)((*regA & 0xFF00) >> 8);
       break;
   // Math
     case ADD_SUB:
       switch (func) {
         case 0b00: // ADD
+          *regA = *regB + *regC;
           break;
         case 0b01: // SUB
+          *regA = *regB - *regC;
           break;
         default: // Invalid instruction
           break;
       }
       break;
     case MUL:
+      *regA = *regB * *regC;
       break;
     case DIV_REM:
       switch (func) {
         case 0b00: // DIVS
+          *regA = ((signed short)*regB) / ((signed short)*regC);
           break;
         case 0b01: // DIVU
+          *regA = ((unsigned short)*regB) / ((unsigned short)*regC);
           break;
         case 0b10: // REMS
+          *regA = ((signed short)*regB) % ((signed short)*regC);
           break;
         case 0b11: // REMU
+          *regA = ((unsigned short)*regB) % ((unsigned short)*regC);
           break;
       }
       break;
@@ -186,27 +221,35 @@ void runCpuCycle(char* mem, struct Registers* registers) {
     case AND_OR:
       switch (func) {
         case 0b00: // AND
+          *regA = *regB & *regC;
           break;
         case 0b01: // IOR
+          *regA = *regB | *regC;
           break;
         case 0b10: // XOR
+          *regA = *regB ^ *regC;
           break;
         default: // Invalid instruction
           break;
       }
       break;
     case LSH:
+      *regA = *regB << IMM_SML_U(imm);
       break;
     case RSHS:
+      *regA = ((signed short)*regB) >> IMM_SML_U(imm);
       break;
     case RSEU:
+      *regA = ((unsigned short)*regB) >> IMM_SML_U(imm);
       break;
   // Comparison
     case CEQ_CNE:
       switch (func) {
         case 0b00: // CEQ
+          *regA = (*regB == *regC) ? 1 : 0;
           break;
         case 0b01: // CNE
+          *regA = (*regB != *regC) ? 1 : 0;
           break;
         default: // Invalid instruction
           break;
@@ -215,12 +258,16 @@ void runCpuCycle(char* mem, struct Registers* registers) {
     case CLT_CGT:
       switch (func) {
         case 0b00: // CLTS
+          *regA = (((signed short)*regB) < ((signed short)*regC)) ? 1 : 0;
           break;
         case 0b01: // CLTU
+          *regA = (((unsigned short)*regB) < ((unsigned short)*regC)) ? 1 : 0;
           break;
         case 0b10: // CGES
+          *regA = (((signed short)*regB) >= ((signed short)*regC)) ? 1 : 0;
           break;
         case 0b11: // CGEU
+          *regA = (((unsigned short)*regB) >= ((unsigned short)*regC)) ? 1 : 0;
           break;
       }
       break;
