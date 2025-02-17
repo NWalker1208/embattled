@@ -50,7 +50,7 @@ enum Opcode {
 
 const unsigned int OPCODE_COUNT = 36;
 
-const char OPCODE_VALUES[] = {
+const unsigned char OPCODE_VALUES[] = {
   0b000000'00, // NOP
   0b000001'10, // JMP
   0b000010'10, // JMZ
@@ -130,23 +130,63 @@ const char* OPCODE_NAMES[] = {
 
 enum Register {
   // Special registers
-  NL = 0, // Null register. Always 0.
-  IP = 1, // Instruction pointer. Address of the next instruction to execute.
-  SP = 2, // Stack pointer. Address of the top of the stack.
-  AC = 3, // Accumulator. Holds the result of most instructions.
+  NL, // Null register. Always 0.
+  IP, // Instruction pointer. Address of the next instruction to execute.
+  SP, // Stack pointer. Address of the top of the stack.
+  AC, // Accumulator. Holds the result of most instructions.
   // General registers
-  X0 = 4,
-  X1 = 5,
-  X2 = 6,
-  X3 = 7,
-  X4 = 8,
-  X5 = 9,
-  X6 = 10,
-  X7 = 11,
-  X8 = 12,
-  X9 = 13,
-  X10 = 14,
-  X11 = 15,
+  X0,
+  X1,
+  X2,
+  X3,
+  X4,
+  X5,
+  X6,
+  X7,
+  X8,
+  X9,
+  X10,
+  X11,
+};
+
+const unsigned int REGISTER_COUNT = 16;
+
+const unsigned char REGISTER_IDS[] = {
+  0b0000, // NL
+  0b0001, // IP
+  0b0010, // SP
+  0b0011, // AC
+  0b0100, // X0
+  0b0101, // X1
+  0b0110, // X2
+  0b0111, // X3
+  0b1000, // X4
+  0b1001, // X5
+  0b1010, // X6
+  0b1011, // X7
+  0b1100, // X8
+  0b1101, // X9
+  0b1110, // X10
+  0b1111, // X11
+};
+
+const char* REGISTER_NAMES[] = {
+  "NL",
+  "IP",
+  "SP",
+  "AC",
+  "X0",
+  "X1",
+  "X2",
+  "X3",
+  "X4",
+  "X5",
+  "X6",
+  "X7",
+  "X8",
+  "X9",
+  "X10",
+  "X11",
 };
 
 struct Instruction {
