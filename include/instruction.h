@@ -50,23 +50,29 @@ enum Opcode {
 };
 
 enum Register {
-  IP,
-  SP,
-  AC,
-  X0 = 0,
-  X1 = 1,
-  X2 = 2,
-  X3 = 3,
-  X4 = 4,
-  X5 = 5,
-  X6 = 6,
-  X7 = 7,
+  // Special registers
+  NL = 0, // Null register. Always 0.
+  IP = 1, // Instruction pointer. Address of the next instruction to execute.
+  SP = 2, // Stack pointer. Address of the top of the stack.
+  AC = 3, // Accumulator. Holds the result of most instructions.
+  // General registers
+  X0 = 4,
+  X1 = 5,
+  X2 = 6,
+  X3 = 7,
+  X4 = 8,
+  X5 = 9,
+  X6 = 10,
+  X7 = 11,
+  X8 = 12,
+  X9 = 13,
+  X10 = 14,
+  X11 = 15,
 };
 
 struct Instruction {
   enum Opcode opcode;
   enum Register registerA;
   enum Register registerB;
-  enum Register registerC;
   unsigned short immediateValue;
 };
