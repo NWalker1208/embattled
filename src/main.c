@@ -153,6 +153,7 @@ void runCpuCycle(char* mem, struct Registers* registers) {
   enum RegisterCode regCodeC = (imm >> 2) & 0b111;
   char func = imm & 0b11;
 
+  // TODO: Add print out of current instruction.
   unsigned short* regA = getRegisterAddr(regCodeA, registers);
   unsigned short* regB = getRegisterAddr(regCodeB, registers);
   unsigned short* regC = getRegisterAddr(regCodeC, registers);
