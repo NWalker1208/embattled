@@ -1,4 +1,4 @@
-const unsigned int MEMORY_SIZE = 65536;
+#define MEMORY_SIZE 65536
 
 struct ProcessState {
   // Special registers
