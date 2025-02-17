@@ -29,6 +29,45 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   return instruction;
 }
 
+unsigned short* getRegisterAddr(struct ProcessState* processState, enum Register reg) {
+  switch (reg) {
+    case NL:
+      return 0;
+    case IP:
+      return &processState->ip;
+    case SP:
+      return &processState->sp;
+    case AC:
+      return &processState->ac;
+    case X0:
+      return &processState->x0;
+    case X1:
+      return &processState->x1;
+    case X2:
+      return &processState->x2;
+    case X3:
+      return &processState->x3;
+    case X4:
+      return &processState->x4;
+    case X5:
+      return &processState->x5;
+    case X6:
+      return &processState->x6;
+    case X7:
+      return &processState->x7;
+    case X8:
+      return &processState->x8;
+    case X9:
+      return &processState->x9;
+    case X10:
+      return &processState->x10;
+    case X11:
+      return &processState->x11;
+    default:
+      return 0;
+  }
+}
+
 void stepProcess(unsigned char* memory, struct ProcessState* processState) {
   struct Instruction instr = fetchInstruction(memory, &(processState->ip));
 }
