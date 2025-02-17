@@ -8,10 +8,11 @@ const unsigned short MEDIUM_IMM_MASK = 0xFF;
 
 struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   struct Instruction instruction = { 0 };
-  instruction.opcode = decodeOpcode(memory[*ip]);
+  unsigned char opcodeValue = memory[*ip];
+  instruction.opcode = decodeOpcode(opcodeValue);
   (*ip)++;
 
-  switch (instruction.opcode & 0b11) {
+  switch (opcodeValue & 0b11) {
     case 0b00:
       break;
     case 0b01:
