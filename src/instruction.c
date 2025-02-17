@@ -102,22 +102,22 @@ const unsigned char REGISTER_IDS[] = {
 };
 
 const char* REGISTER_NAMES[] = {
-  "NL",
-  "IP",
-  "SP",
-  "AC",
-  "X0",
-  "X1",
-  "X2",
-  "X3",
-  "X4",
-  "X5",
-  "X6",
-  "X7",
-  "X8",
-  "X9",
-  "X10",
-  "X11",
+  "nl",
+  "ip",
+  "sp",
+  "ac",
+  "x0",
+  "x1",
+  "x2",
+  "x3",
+  "x4",
+  "x5",
+  "x6",
+  "x7",
+  "x8",
+  "x9",
+  "x10",
+  "x11",
 };
 
 enum Opcode decodeOpcode(unsigned char opcodeValue) {
