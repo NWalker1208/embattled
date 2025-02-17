@@ -3,14 +3,14 @@
 
 #define MEM_SIZE 65536
 
-#define IMM_SML_U(imm) (imm & 0b11111)
-#define IMM_SML_S(imm) (imm & 0b10000 ? (~0b11111 | IMM_SML_U(imm)) : IMM_SML_U(imm))
+#define IMM_SML_U(imm) (imm & 0b1'1111)
+#define IMM_SML_S(imm) (imm & 0b1'0000 ? (~0b1'1111 | IMM_SML_U(imm)) : IMM_SML_U(imm))
 
-#define IMM_MED_U(imm) (imm & 0b11111111)
-#define IMM_MED_S(imm) (imm & 0b10000000 ? (~0b11111111 | IMM_MED_U(imm)) : IMM_MED_U(imm))
+#define IMM_MED_U(imm) (imm & 0b1111'1111)
+#define IMM_MED_S(imm) (imm & 0b1000'0000 ? (~0b1111'1111 | IMM_MED_U(imm)) : IMM_MED_U(imm))
 
-#define IMM_LRG_U(imm) (imm & 0b11111111111)
-#define IMM_LRG_S(imm) (imm & 0b10000000000 ? (~0b11111111111 | IMM_LRG_U(imm)) : IMM_LRG_U(imm))
+#define IMM_LRG_U(imm) (imm & 0b111'1111'1111)
+#define IMM_LRG_S(imm) (imm & 0b100'0000'0000 ? (~0b111'1111'1111 | IMM_LRG_U(imm)) : IMM_LRG_U(imm))
 
 struct Registers {
   unsigned short ip; // Instruction pointer. Can't be referenced directly.
@@ -79,35 +79,35 @@ enum RegisterCode {
   x4 = 0b100,
   x5 = 0b101,
   x6 = 0b110,
-  x7 = 0x111
+  x7 = 0x111,
 };
 
 enum OpCode {
   // Control flow
-  NOP     = 0b00000,
-  JMP     = 0b00001,
-  JMZ     = 0b00010,
+  NOP     = 0b000'00,
+  JMP     = 0b000'01,
+  JMZ     = 0b000'10,
   // Memory
-  LDIL    = 0b00100,
-  LDIH    = 0b00101,
-  LDML    = 0b00110,
-  LDMH    = 0b00111,
-  LDMW    = 0b01000,
-  STML    = 0b01001,
-  STMH    = 0b01010,
-  STMW    = 0b01011,
+  LDIL    = 0b001'00,
+  LDIH    = 0b001'01,
+  LDML    = 0b001'10,
+  LDMH    = 0b001'11,
+  LDMW    = 0b010'00,
+  STML    = 0b010'01,
+  STMH    = 0b010'10,
+  STMW    = 0b010'11,
   // Math
-  ADD_SUB = 0b01100,
-  MUL     = 0b01101,
-  DIV_REM = 0b01110,
+  ADD_SUB = 0b011'00,
+  MUL     = 0b011'01,
+  DIV_REM = 0b011'10,
   // Bitwise
-  AND_OR  = 0b10000,
-  LSH     = 0b10001,
-  RSHS    = 0b10010,
-  RSEU    = 0b10011,
+  AND_OR  = 0b100'00,
+  LSH     = 0b100'01,
+  RSHS    = 0b100'10,
+  RSEU    = 0b100'11,
   // Comparison
-  CEQ_CNE = 0b10100,
-  CLT_CGT = 0b10101,
+  CEQ_CNE = 0b101'00,
+  CLT_CGT = 0b101'01,
 };
 
 void printRegisters(struct Registers* registers);
