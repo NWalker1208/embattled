@@ -83,7 +83,7 @@ void stepProcess(unsigned char* memory, struct ProcessState* processState) {
   unsigned short* regB = getRegisterAddr(processState, &nullRegister, instr.registerB);
   unsigned short imm = instr.immediateValue;
 
-  printf("%s\n", OPCODE_NAMES[opcode]);
+  printf("opcode=%-4s  regA=%-3s  regB=%-3s  imm=0x%04x\n", OPCODE_NAMES[opcode], REGISTER_NAMES[instr.registerA], REGISTER_NAMES[instr.registerB], imm);
 
   unsigned short addrLow, addrHigh;
 
