@@ -103,10 +103,10 @@ void stepProcess(unsigned char* memory, struct ProcessState* processState) {
       *regA = *regB;
       break;
     case LDIB:
-      *regA = imm & MEDIUM_IMM_MASK;
+      processState->ac = imm & MEDIUM_IMM_MASK;
       break;
     case LDIW:
-      *regA = imm;
+      processState->ac = imm;
       break;
     case LDMB:
       *regA = (unsigned short)memory[*regB];
