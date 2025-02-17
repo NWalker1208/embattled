@@ -1,14 +1,8 @@
 #include "process.h"
 #include "instruction.h"
 
-#define IMM_SML_U(imm) (imm & 0b1'1111)
-#define IMM_SML_S(imm) (imm & 0b1'0000 ? (~0b1'1111 | IMM_SML_U(imm)) : IMM_SML_U(imm))
-
-#define IMM_MED_U(imm) (imm & 0b1111'1111)
-#define IMM_MED_S(imm) (imm & 0b1000'0000 ? (~0b1111'1111 | IMM_MED_U(imm)) : IMM_MED_U(imm))
-
-#define IMM_LRG_U(imm) (imm & 0b111'1111'1111)
-#define IMM_LRG_S(imm) (imm & 0b100'0000'0000 ? (~0b111'1111'1111 | IMM_LRG_U(imm)) : IMM_LRG_U(imm))
+const unsigned short SMALL_IMM_MASK = 0xF;
+const unsigned short MEDIUM_IMM_MASK = 0xFF;
 
 struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   struct Instruction instruction = { 0 };
@@ -78,7 +72,150 @@ unsigned short* getRegisterAddr(struct ProcessState* processState, enum Register
 }
 
 void stepProcess(unsigned char* memory, struct ProcessState* processState) {
-  struct Instruction instr = fetchInstruction(memory, &(processState->ip));
+  unsigned short ip = processState->ip;
+  struct Instruction instr = fetchInstruction(memory, &ip);
+
+  enum Opcode opcode = instr.opcode;
+  unsigned short* regA = getRegisterAddr(processState, instr.registerA);
+  unsigned short* regB = getRegisterAddr(processState, instr.registerB);
+  unsigned short imm = instr.immediateValue;
+
+  printf("%s\n", OPCODE_NAMES[opcode]);
+
+  unsigned short addrLow, addrHigh;
+
+  switch (opcode) {
+    // Control flow
+    case NOP:
+      break;
+    case JMP:
+      ip = imm;
+      break;
+    case JMZ:
+      if (processState->ac == 0) {
+        ip = imm;
+      }
+      break;
+    // Memory
+    case MOV:
+      *regA = *regB;
+      break;
+    case LDIB:
+      *regA = imm & MEDIUM_IMM_MASK;
+      break;
+    case LDIW:
+      *regA = imm;
+      break;
+    case LDMB:
+      *regA = (unsigned short)memory[*regB];
+      break;
+    case LDMW:
+      addrLow = *regB;
+      addrHigh = addrLow + 1;
+      *regA = ((unsigned short)memory[addrHigh] << 8) | (unsigned short)memory[addrLow];
+      break;
+    case STMB:
+      memory[*regB] = (char)(*regA & 0xFF);
+      break;
+    case STMW:
+      addrLow = *regB;
+      addrHigh = addrLow + 1;
+      memory[addrLow] = (char)(*regA & 0xFF);
+      memory[addrHigh] = (char)((*regA & 0xFF00) >> 8);
+      break;
+    case PSHB:
+      processState->sp--;
+      memory[processState->sp] = (char)(*regA & 0xFF);
+      break;
+    case PSHW:
+      processState->sp -= 2;
+      addrLow = processState->sp;
+      addrHigh = addrLow + 1;
+      memory[addrLow] = (char)(*regA & 0xFF);
+      memory[addrHigh] = (char)((*regA & 0xFF00) >> 8);
+      break;
+    case POPB:
+      *regA = (unsigned short)memory[processState->sp];
+      processState->sp++;
+      break;
+    case POPW:
+      addrLow = processState->sp;
+      addrHigh = addrLow + 1;
+      *regA = ((unsigned short)memory[addrHigh] << 8) | (unsigned short)memory[addrLow];
+      processState->sp += 2;
+      break;
+    // Math and logic
+    case ADD:
+      *regA = *regA + *regB;
+      break;
+    case SUB:
+      *regA = *regA - *regB;
+      break;
+    case MUL:
+      *regA = *regA * *regB;
+      break;
+    case DIVS:
+      *regA = ((signed short)*regA) / ((signed short)*regB);
+      break;
+    case DIVU:
+      *regA = ((unsigned short)*regA) / ((unsigned short)*regB);
+      break;
+    case REMS:
+      *regA = ((signed short)*regA) % ((signed short)*regB);
+      break;
+    case REMU:
+      *regA = ((unsigned short)*regA) % ((unsigned short)*regB);
+      break;
+    case LSH:
+      *regA = *regA << *regB;
+      break;
+    case RSHS:
+      *regA = ((signed short)*regA) >> *regB;
+      break;
+    case RSHU:
+      *regA = ((unsigned short)*regA) >> *regB;
+      break;
+    case LSI:
+      *regA = *regA << (imm & SMALL_IMM_MASK);
+      break;
+    case RSIS:
+      *regA = ((signed short)*regA) >> (imm & SMALL_IMM_MASK);
+      break;
+    case RSIU:
+      *regA = ((unsigned short)*regA) >> (imm & SMALL_IMM_MASK);
+      break;
+    case AND:
+      *regA = *regA & *regB;
+      break;
+    case IOR:
+      *regA = *regA | *regB;
+      break;
+    case XOR:
+      *regA = *regA ^ *regB;
+      break;
+    case CEQ:
+      *regA = (*regA == *regB) ? 1 : 0;
+      break;
+    case CNE:
+      *regA = (*regA != *regB) ? 1 : 0;
+      break;
+    case CLTS:
+      *regA = (((signed short)*regA) < ((signed short)*regB)) ? 1 : 0;
+      break;
+    case CLTU:
+      *regA = (((unsigned short)*regA) < ((unsigned short)*regB)) ? 1 : 0;
+      break;
+    case CGES:
+      *regA = (((signed short)*regA) >= ((signed short)*regB)) ? 1 : 0;
+      break;
+    case CGEU:
+      *regA = (((unsigned short)*regA) >= ((unsigned short)*regB)) ? 1 : 0;
+      break;
+    default: // Invalid instruction
+      break;
+  }
+
+  processState->ip = ip;
 }
 
 void printProcessState(struct ProcessState* state) {
