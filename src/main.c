@@ -34,32 +34,36 @@ struct Registers {
 //   JMP       | A      | 000 01 |
 //   JMZ       | B      | 000 10 |
 // Memory:
-//   LDM       | C      | 001 00 |
-//   STM       | C      | 001 01 |
-//   LDIH      | B      | 001 10 |
-//   LDIL      | B      | 001 11 |
+//   LDIL      | B      | 001 00 |
+//   LDIH      | B      | 001 01 |
+//   LDML      | C      | 001 10 |
+//   LDMH      | C      | 001 11 |
+//   LDMW      | C      | 010 00 |
+//   STML      | C      | 010 01 |
+//   STMH      | C      | 010 10 |
+//   STMW      | C      | 010 11 |
 // Math:
-//   ADD       | D      | 010 00 | 00
-//   SUB       | D      | 010 00 | 01
-//   MUL       | D      | 010 01 | 00
-//   DIVS      | D      | 010 10 | 00  
-//   DIVU      | D      | 010 10 | 01
-//   REMS      | D      | 010 10 | 10
-//   REMU      | D      | 010 10 | 11
+//   ADD       | D      | 011 00 | 00
+//   SUB       | D      | 011 00 | 01
+//   MUL       | D      | 011 01 | 00
+//   DIVS      | D      | 011 10 | 00  
+//   DIVU      | D      | 011 10 | 01
+//   REMS      | D      | 011 10 | 10
+//   REMU      | D      | 011 10 | 11
 // Bitwise:
-//   AND       | D      | 011 00 | 00
-//   IOR       | D      | 011 00 | 01
-//   XOR       | D      | 011 00 | 10
-//   LSH       | C      | 011 01 |
-//   RSHS      | C      | 011 10 |
-//   RSHU      | C      | 011 11 |
+//   AND       | D      | 100 00 | 00
+//   IOR       | D      | 100 00 | 01
+//   XOR       | D      | 100 00 | 10
+//   LSH       | C      | 100 01 |
+//   RSHS      | C      | 100 10 |
+//   RSHU      | C      | 100 11 |
 // Comparison:
-//   CEQ       | D      | 100 00 | 00
-//   CNE       | D      | 100 00 | 01
-//   CLTS      | D      | 100 01 | 00
-//   CLTU      | D      | 100 01 | 01
-//   CGES      | D      | 100 01 | 10
-//   CGEU      | D      | 100 01 | 11
+//   CEQ       | D      | 101 00 | 00
+//   CNE       | D      | 101 00 | 01
+//   CLTS      | D      | 101 01 | 00
+//   CLTU      | D      | 101 01 | 01
+//   CGES      | D      | 101 01 | 10
+//   CGEU      | D      | 101 01 | 11
 
 enum RegisterCode {
   x0 = 0b000,
@@ -78,22 +82,26 @@ enum OpCode {
   JMP     = 0b00001,
   JMZ     = 0b00010,
   // Memory
-  LDM     = 0b00100,
-  STM     = 0b00101,
-  LDIH    = 0b00110,
-  LDIL    = 0b00111,
+  LDIL    = 0b00100,
+  LDIH    = 0b00101,
+  LDML    = 0b00110,
+  LDMH    = 0b00111,
+  LDMW    = 0b01000,
+  STML    = 0b01001,
+  STMH    = 0b01010,
+  STMW    = 0b01011,
   // Math
-  ADD_SUB = 0b01000,
-  MUL     = 0b01001,
-  DIV_REM = 0b01010,
+  ADD_SUB = 0b01100,
+  MUL     = 0b01101,
+  DIV_REM = 0b01110,
   // Bitwise
-  AND_OR  = 0b01100,
-  LSH     = 0b01101,
-  RSHS    = 0b01110,
-  RSEU    = 0b01111,
+  AND_OR  = 0b10000,
+  LSH     = 0b10001,
+  RSHS    = 0b10010,
+  RSEU    = 0b10011,
   // Comparison
-  CEQ_CNE = 0b10000,
-  CLT_CGT = 0b10001,
+  CEQ_CNE = 0b10100,
+  CLT_CGT = 0b10101,
 };
 
 void runCpuCycle(char* mem, struct Registers* registers);
@@ -133,13 +141,21 @@ void runCpuCycle(char* mem, struct Registers* registers) {
     case JMZ:
       break;
   // Memory
-    case LDM:
-      break;
-    case STM:
+    case LDIL:
       break;
     case LDIH:
       break;
-    case LDIL:
+    case LDML:
+      break;
+    case LDMH:
+      break;
+    case LDMW:
+      break;
+    case STML:
+      break;
+    case STMH:
+      break;
+    case STMW:
       break;
   // Math
     case ADD_SUB:
