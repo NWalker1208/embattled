@@ -11,7 +11,6 @@ enum Opcode {
   NOP  = 0b000000'00, // layout 0 | no params
   JMP  = 0b000001'10, // layout 4 | imm[16]
   JMZ  = 0b000010'10, // layout 4 | imm[16]
-  JML  = 0b000011'10, // layout 4 | imm[16]
   // Memory
   MOV  = 0b000100'01, // layout 1 | reg, reg
   LDIB = 0b000110'01, // layout 3 | imm[8]
