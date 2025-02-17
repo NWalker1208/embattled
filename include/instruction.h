@@ -19,10 +19,10 @@ enum Opcode {
   LDMW, // layout 1 | reg, reg
   STMB, // layout 1 | reg, reg
   STMW, // layout 1 | reg, reg
-  PSHB, // layout 0 | no params
-  PSHW, // layout 0 | no params
-  POPB, // layout 0 | no params
-  POPW, // layout 0 | no params
+  PSHB, // layout 2 | reg
+  PSHW, // layout 2 | reg
+  POPB, // layout 2 | reg
+  POPW, // layout 2 | reg
   // Math and logic
   ADD,  // layout 1 | reg, reg
   SUB,  // layout 1 | reg, reg
@@ -61,10 +61,10 @@ const unsigned char OPCODE_VALUES[] = {
   0b001001'01, // LDMW
   0b001010'01, // STMB
   0b001011'01, // STMW
-  0b001100'00, // PSHB
-  0b001101'00, // PSHW
-  0b001110'00, // POPB
-  0b001111'00, // POPW
+  0b001100'01, // PSHB
+  0b001101'01, // PSHW
+  0b001110'01, // POPB
+  0b001111'01, // POPW
   0b010000'01, // ADD
   0b010001'01, // SUB
   0b010010'01, // MUL
@@ -195,3 +195,6 @@ struct Instruction {
   enum Register registerB;
   unsigned short immediateValue;
 };
+
+enum Opcode decodeOpcode(unsigned char opcodeValue);
+enum Register decodeRegister(unsigned char registerId);

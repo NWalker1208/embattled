@@ -3,7 +3,7 @@
 
 struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   struct Instruction instruction = { 0 };
-  instruction.opcode = memory[*ip];
+  instruction.opcode = decodeOpcode(memory[*ip]);
   (*ip)++;
 
   unsigned char addlBytes = instruction.opcode & 0b11;
@@ -13,8 +13,8 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
     case 1:
       unsigned char params = memory[*ip];
       (*ip)++;
-      instruction.registerA = params >> 4;
-      instruction.registerB = params & 0b1111;
+      instruction.registerA = decodeRegister(params >> 4);
+      instruction.registerB = decodeRegister(params & 0b1111);
       instruction.immediateValue = params; // Instructions that only use 4 bits will mask out upper bits.
       break;
     case 2:
