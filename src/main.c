@@ -157,7 +157,7 @@ void runCpuCycle(char* mem, struct Registers* registers) {
   unsigned short* regB = getRegisterAddr(regCodeB, registers);
   unsigned short* regC = getRegisterAddr(regCodeC, registers);
 
-  unsigned short addrLow, addrHigh;
+  unsigned short addr, addrLow, addrHigh;
 
   switch (opCode) {
   // Control flow
@@ -177,12 +177,12 @@ void runCpuCycle(char* mem, struct Registers* registers) {
       *regA = (IMM_MED_U(imm) << 8) | (*regA & 0xFF);
       break;
     case LDML:
-      addrLow = (*regB + IMM_SML_S(imm));
-      *regA = (*regA & (0xFF << 8)) | (unsigned short)mem[addrLow];
+      addr = (*regB + IMM_SML_S(imm));
+      *regA = (*regA & (0xFF << 8)) | (unsigned short)mem[addr];
       break;
     case LDMH:
-      addrLow = (*regB + IMM_SML_S(imm));
-      *regA = ((unsigned short)mem[addrLow] << 8) | (*regA & 0xFF);
+      addr = (*regB + IMM_SML_S(imm));
+      *regA = ((unsigned short)mem[addr] << 8) | (*regA & 0xFF);
       break;
     case LDMW:
       addrLow = (*regB + IMM_SML_S(imm));
@@ -190,12 +190,12 @@ void runCpuCycle(char* mem, struct Registers* registers) {
       *regA = ((unsigned short)mem[addrHigh] << 8) | (unsigned short)mem[addrLow];
       break;
     case STML:
-      addrLow = (*regB + IMM_SML_S(imm));
-      mem[addrLow] = (char)(*regA & 0xFF);
+      addr = (*regB + IMM_SML_S(imm));
+      mem[addr] = (char)(*regA & 0xFF);
       break;
     case STMH:
-      addrLow = (*regB + IMM_SML_S(imm));
-      mem[addrLow] = (char)((*regA & 0xFF00) >> 8);
+      addr = (*regB + IMM_SML_S(imm));
+      mem[addr] = (char)((*regA & 0xFF00) >> 8);
       break;
     case STMW:
       addrLow = (*regB + IMM_SML_S(imm));
