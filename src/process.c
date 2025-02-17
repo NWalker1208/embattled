@@ -11,18 +11,17 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   instruction.opcode = decodeOpcode(memory[*ip]);
   (*ip)++;
 
-  unsigned char addlBytes = instruction.opcode & 0b11;
-  switch (addlBytes) {
-    case 0:
+  switch (instruction.opcode & 0b11) {
+    case 0b00:
       break;
-    case 1:
+    case 0b01:
       unsigned char params = memory[*ip];
       (*ip)++;
       instruction.registerA = decodeRegister(params >> 4);
       instruction.registerB = decodeRegister(params & 0b1111);
       instruction.immediateValue = params; // Instructions that only use 4 bits will mask out upper bits.
       break;
-    case 2:
+    case 0b10:
       unsigned char immediateLower = memory[*ip];
       (*ip)++;
       unsigned char immediateUpper = memory[*ip];
