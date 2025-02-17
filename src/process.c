@@ -1,4 +1,6 @@
 #include "process.h"
+
+#include <stdio.h>
 #include "instruction.h"
 
 const unsigned short SMALL_IMM_MASK = 0xF;

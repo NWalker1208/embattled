@@ -121,7 +121,7 @@ const char* REGISTER_NAMES[] = {
 };
 
 enum Opcode decodeOpcode(unsigned char opcodeValue) {
-  for (int i = 0; i < OPCODE_COUNT; i++) {
+  for (unsigned int i = 0; i < OPCODE_COUNT; i++) {
     if (opcodeValue == OPCODE_VALUES[i]) {
       return i;
     }
@@ -130,7 +130,7 @@ enum Opcode decodeOpcode(unsigned char opcodeValue) {
 }
 
 enum Register decodeRegister(unsigned char registerId) {
-  for (int i = 0; i < REGISTER_COUNT; i++) {
+  for (unsigned int i = 0; i < REGISTER_COUNT; i++) {
     if (registerId == REGISTER_IDS[i]) {
       return i;
     }
