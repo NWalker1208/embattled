@@ -22,57 +22,44 @@ struct Registers {
 // Instructions (based on RV32C)
 
 // Layout:
-// A: | register A (3 bits) | register B (3 bits) | register C (3 bits) | function (2 bits) | opcode (5 bits) |
-// B: | register A (3 bits) | register B (3 bits) | immediate (5 bits)                      | opcode (5 bits) |
-// C: | register A (3 bits) | immediate (8 bits)                                            | opcode (5 bits) |
-// D: | immediate (11 bits)                                                                 | opcode (5 bits) |
+// A: | immediate (11 bits)                                                                 | opcode (5 bits) |
+// B: | register A (3 bits) | immediate (8 bits)                                            | opcode (5 bits) |
+// C: | register A (3 bits) | register B (3 bits) | immediate (5 bits)                      | opcode (5 bits) |
+// D: | register A (3 bits) | register B (3 bits) | register C (3 bits) | function (2 bits) | opcode (5 bits) |
 
 // Instructions:
 // Instruction | Layout | Opcode | Function
 // Control flow:
 //   NOP       | Any    | 000 00 |
-//   JMP.reg   | C      | 000 01 |
-//      .imm   | D      | 000 10 |
-//   JMZ.reg   | B      | 001 00 |
-//      .imm   | C      | 001 01 |
-//   JMN.reg   | B      | 001 10 |
-//      .imm   | C      | 001 11 |
+//   JMP       | A      | 000 01 |
+//   JMZ       | B      | 000 10 |
 // Memory:
-//   LDM       | B      | 010 00 |
-//   STM       | B      | 010 01 |
-//   LIH       | C      | 010 10 |
-//   LIL       | C      | 010 11 |
+//   LDM       | C      | 001 00 |
+//   STM       | C      | 001 01 |
+//   LIH       | B      | 001 10 |
+//   LIL       | B      | 001 11 |
 // Math:
-//   ADD       | A      | 011 00 | 00
-//   SUB       | A      | 011 00 | 01
-//   MUL       | A      | 011 01 | 00
-//   DIV       | A      | 011 10 | 00  
-//   DVS       | A      | 011 10 | 01
-//   REM       | A      | 011 10 | 10
-//   RMS       | A      | 011 10 | 11
+//   ADD       | D      | 010 00 | 00
+//   SUB       | D      | 010 00 | 01
+//   MUL       | D      | 010 01 | 00
+//   DIV       | D      | 010 10 | 00  
+//   DVS       | D      | 010 10 | 01
+//   REM       | D      | 010 10 | 10
+//   RMS       | D      | 010 10 | 11
 // Bitwise:
-//   AND       | A      | 011 11 | 00
-//   IOR       | A      | 011 11 | 01
-//   XOR       | A      | 011 11 | 10
-//   LSH.reg   | A      | 100 00 | 00
-//      .imm   | B      | 100 01 |
-//   RSH.reg   | A      | 100 00 | 01
-//      .imm   | B      | 100 10 |
-//   RSE.reg   | A      | 100 00 | 10
-//      .imm   | B      | 100 11 |
+//   AND       | D      | 011 00 | 00
+//   IOR       | D      | 011 00 | 01
+//   XOR       | D      | 011 00 | 10
+//   LSH       | C      | 011 01 |
+//   RSH       | C      | 011 10 |
+//   RSE       | C      | 011 11 |
 // Comparison:
-//   CEQ.reg   | A      | 101 00 | 00
-//      .imm   | B      | 101 01 |
-//   CNE.reg   | A      | 101 00 | 01
-//      .imm   | B      | 101 10 |
-//   CLT.reg   | A      | 101 11 | 00
-//      .imm   | B      | 110 00 |
-//   CGE.reg   | A      | 101 11 | 01
-//      .imm   | B      | 110 01 |
-//   CLS.reg   | A      | 101 11 | 10
-//      .imm   | B      | 110 10 |
-//   CGS.reg   | A      | 101 11 | 11
-//      .imm   | B      | 110 11 |
+//   CEQ       | D      | 100 00 | 00
+//   CNE       | D      | 100 00 | 01
+//   CLT       | D      | 100 01 | 00
+//   CGE       | D      | 100 01 | 01
+//   CLS       | D      | 100 01 | 10
+//   CGS       | D      | 100 01 | 11
 
 enum RegisterCode {
   x0 = 0b000,
@@ -88,36 +75,25 @@ enum RegisterCode {
 enum OpCode {
   // Control flow
   NOP     = 0b00000,
-  JMP_reg = 0b00001,
-  JMP_imm = 0b00010,
-  JMZ_reg = 0b00100,
-  JMZ_imm = 0b00101,
-  JMN_reg = 0b00110,
-  JMN_imm = 0b00111,
+  JMP     = 0b00001,
+  JMZ     = 0b00010,
   // Memory
-  LDM     = 0b01000,
-  STM     = 0b01001,
-  LIH     = 0b01010,
-  LIL     = 0b01011,
+  LDM     = 0b00100,
+  STM     = 0b00101,
+  LIH     = 0b00110,
+  LIL     = 0b00111,
   // Math
-  ADD_SUB = 0b01100,
-  MUL     = 0b01101,
-  DIV_REM = 0b01110,
+  ADD_SUB = 0b01000,
+  MUL     = 0b01001,
+  DIV_REM = 0b01010,
   // Bitwise
-  AND_OR  = 0b01111,
-  SH_reg  = 0b10000,
-  LSH_imm = 0b10001,
-  RSH_imm = 0b10010,
-  RSE_imm = 0b10011,
+  AND_OR  = 0b01100,
+  LSH     = 0b01101,
+  RSH     = 0b01110,
+  RSE     = 0b01111,
   // Comparison
-  CM0_reg = 0b10100,
-  CEQ_imm = 0b10101,
-  CNE_imm = 0b10110,
-  CM1_reg = 0b10111,
-  CLT_imm = 0b11000,
-  CGE_imm = 0b11001,
-  CLS_imm = 0b11010,
-  CGS_imm = 0b11011,
+  CEQ_CNE = 0b10000,
+  CLT_CGT = 0b10001,
 };
 
 void runCpuCycle(char* mem, struct Registers* registers);
