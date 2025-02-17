@@ -117,26 +117,20 @@ void runCpuCycle(char* mem, struct Registers* registers) {
 
   enum OpCode opCode = next[0] & 0b11111;
   unsigned short imm = (next[0] >> 5) | (next[1] << 3);
-  enum RegisterCode regCodeA = (imm >> 2) & 0b111;
+  enum RegisterCode regCodeA = (imm >> 8) & 0b111;
   enum RegisterCode regCodeB = (imm >> 5) & 0b111;
-  enum RegisterCode regCodeC = (imm >> 8) & 0b111;
+  enum RegisterCode regCodeC = (imm >> 2) & 0b111;
+  char func = imm & 0b11;
 
   unsigned short* regA = getRegisterAddr(regCodeA, registers);
   unsigned short* regB = getRegisterAddr(regCodeB, registers);
   unsigned short* regC = getRegisterAddr(regCodeC, registers);
 
   switch (opCode) {
-    case JMP_reg:
+  // Control flow
+    case JMP:
       break;
-    case JMP_imm:
-      break;
-    case JMZ_reg:
-      break;
-    case JMZ_imm:
-      break;
-    case JMN_reg:
-      break;
-    case JMN_imm:
+    case JMZ:
       break;
   // Memory
     case LDM:
@@ -149,40 +143,72 @@ void runCpuCycle(char* mem, struct Registers* registers) {
       break;
   // Math
     case ADD_SUB:
+      switch (func) {
+        case 0b00: // ADD
+          break;
+        case 0b01: // SUB
+          break;
+        default: // Invalid instruction
+          break;
+      }
       break;
     case MUL:
       break;
     case DIV_REM:
+      switch (func) {
+        case 0b00: // DIV
+          break;
+        case 0b01: // DVS
+          break;
+        case 0b10: // REM
+          break;
+        case 0b11: // RMS
+          break;
+      }
       break;
   // Bitwise
     case AND_OR:
+      switch (func) {
+        case 0b00: // AND
+          break;
+        case 0b01: // IOR
+          break;
+        case 0b10: // XOR
+          break;
+        default: // Invalid instruction
+          break;
+      }
       break;
-    case SH_reg:
+    case LSH:
       break;
-    case LSH_imm:
+    case RSH:
       break;
-    case RSH_imm:
-      break;
-    case RSE_imm:
+    case RSE:
       break;
   // Comparison
-    case CM0_reg:
+    case CEQ_CNE:
+      switch (func) {
+        case 0b00: // CEQ
+          break;
+        case 0b01: // CNE
+          break;
+        default: // Invalid instruction
+          break;
+      }
       break;
-    case CEQ_imm:
+    case CLT_CGT:
+      switch (func) {
+        case 0b00: // CLT
+          break;
+        case 0b01: // CGE
+          break;
+        case 0b10: // CLS
+          break;
+        case 0b11: // CGS
+          break;
+      }
       break;
-    case CNE_imm:
-      break;
-    case CM1_reg:
-      break;
-    case CLT_imm:
-      break;
-    case CGE_imm:
-      break;
-    case CLS_imm:
-      break;
-    case CGS_imm:
-      break;
-    default:
+    default: // NOP or invalid instruction
       break;
   }
 
