@@ -22,3 +22,5 @@ struct ProcessState {
 };
 
 void stepProcess(unsigned char* memory, struct ProcessState* processState);
+
+void printProcessState(struct ProcessState* processState);
