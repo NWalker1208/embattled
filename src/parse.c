@@ -261,7 +261,42 @@ bool tryParseInstruction(FILE* err, char** text, struct Instruction* result) {
 // and returns false.
 // Expects the text to have already advanced past the ".data" characters.
 bool tryParseData(FILE* err, char** text, struct BinaryData* result) {
+  struct BinaryData parsedData = { 0 }; // Copied to result on success, cleaned up on failure
 
+  // Skip past any in-line whitespace
+  if (!skipInlineWhitespace(text)) {
+    fprintf(err, "Error: Expected whitespace after \".data\".\n");
+    skipToEndOfLine(text);
+    return false;
+  }
+
+  // Parse the data bytes
+  while (**text != '\0' && **text != '\n' && **text != '\r') {
+    unsigned char upperNibble;
+    if (!tryHexToNibble(**text, &upperNibble)) {
+      fprintf(err, "Error: Expected a 2-digit hexadecimal byte.\n");
+      skipToEndOfLine(text);
+      free(parsedData.bytes);
+      return false;
+    }
+    (*text)++;
+    unsigned char lowerNibble;
+    if (!tryHexToNibble(**text, &lowerNibble)) {
+      fprintf(err, "Error: Expected a 2-digit hexadecimal byte.\n");
+      skipToEndOfLine(text);
+      free(parsedData.bytes);
+      return false;
+    }
+    (*text)++;
+    parsedData.length++;
+    parsedData.bytes = (unsigned char*)realloc(parsedData.bytes, parsedData.length);
+    parsedData.bytes[parsedData.length - 1] = (upperNibble << 4) | lowerNibble;
+
+    skipInlineWhitespace(text); // Allow optional whitespace between bytes
+  }
+
+  *result = parsedData;
+  return true;
 }
 
 bool tryParseNextLine(FILE* err, char** text, struct AssemblyLine* result) {
