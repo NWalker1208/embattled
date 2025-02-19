@@ -18,10 +18,11 @@
 // <immediateWord> -> '0x' <hexValue> // Must be between 0x0 and 0xFFFF
 // <labelReference> -> '@' <label>
 // <hexValue> -> [0-9a-fA-F]+
+
 // Whitespace between any two tokens is ignored.
 // Additionally, newlines between a label and the subsequent token are ignored.
 
-bool startsWithCaseInsensitive(char* text, char* prefix) {
+bool startsWithCaseInsensitive(const char* text, const char* prefix) {
   while (*text != '\0' && *prefix != '\0') {
     if (tolower(*text) != tolower(*prefix)) {
       return false;
@@ -48,8 +49,43 @@ void skipAllWhitespace(char** text) {
   }
 }
 
+// Finds the first occurence of the given character in the first line of the string.
+// If the character is not found, the function returns NULL.
+char* findCharOnLine(char* str, char c) {
+  while (*str != '\0' && *str != '\n' && *str != '\r') {
+    if (*str == c) {
+      return str;
+    }
+    str++;
+  }
+  return NULL;
+}
+
 struct AssemblyLine parseNextLine(char** text) {
   struct AssemblyLine parsedLine = { 0 };
+
+  // Skip leading whitespace and blank lines
+  skipAllWhitespace(text);
+  
+  // Check for a label
+  char* labelStart = *text;
+  char* labelEnd = findCharOnLine(*text, ':');
+  if (labelEnd != NULL) {
+    // Allocate a new string for the label
+    size_t labelLength = labelEnd - labelStart;
+    parsedLine.label = (char*)malloc(labelLength + 1);
+    memcpy(parsedLine.label, labelStart, labelLength);
+    parsedLine.label[labelLength] = '\0';
+
+    // Skip past the label, the colon, and any whitespace
+    *text = labelEnd + 1;
+    skipAllWhitespace(text);
+  }
+
+  // Check whether this is a data line or an instruction
+  if (startsWithCaseInsensitive(*text, ".data")) {
+  } else {
+  }
 
   return parsedLine;
 }
