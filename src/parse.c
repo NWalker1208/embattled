@@ -3,8 +3,6 @@
 #include <ctype.h>
 #include <string.h>
 
-#define NULL 0
-
 // Assembly Syntax:
 // <file> -> <line>*
 // <line> ->
