@@ -1,4 +1,5 @@
 #include "parse.h"
+#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 
@@ -113,8 +114,23 @@ bool tryParseNextLine(FILE* err, char** text, struct AssemblyLine* result) {
 
   // Check whether this is a data line or an instruction
   if (startsWithCaseInsensitive(*text, ".data")) {
+    parsedLine.kind = DATA;
+    *text += 5; // Skip past ".data"
+    skipAllWhitespace(text);
+
+    if (!tryParseData(err, text, &parsedLine.contents.data)) {
+      free(parsedLine.label);
+      return false;
+    }
   } else {
+    parsedLine.kind = INSTRUCTION;
+    
+    if (!tryParseInstruction(err, text, &parsedLine.contents.instruction)) {
+      free(parsedLine.label);
+      return false;
+    }
   }
 
-  return parsedLine;
+  *result = parsedLine;
+  return true;
 }
