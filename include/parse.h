@@ -6,12 +6,17 @@ enum AssemblyLineKind {
   DATA,
 };
 
+struct BinaryData {
+  unsigned int length;
+  unsigned char* bytes;
+};
+
 struct AssemblyLine {
   char* label;
   enum AssemblyLineKind kind;
   union {
     struct Instruction instruction; // kind == INSTRUCTION
-    unsigned char* data; // kind == DATA
+    struct BinaryData data; // kind == DATA
   } contents;
 };
 
