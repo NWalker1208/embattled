@@ -62,7 +62,18 @@ char* findCharOnLine(char* str, char c) {
 // If the character is a hexadecimal digit, outputs through result and returns true.
 // If the character is not a hexadecimal digit, returns false.
 bool tryHexToNibble(char c, unsigned char* result) {
-
+  if ('0' <= c && c <= '9') {
+    *result = c - '0';
+    return true;
+  } else if ('a' <= c && c <= 'f') {
+    *result = c - 'a' + 10;
+    return true;
+  } else if ('A' <= c && c <= 'F') {
+    *result = c - 'A' + 10;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 // Parses an immediate value of between 1 and 4 hexadecimal digits, stopping at the first whitespace.
