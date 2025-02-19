@@ -81,7 +81,22 @@ bool tryHexToNibble(char c, unsigned char* result) {
 // If parsing fails, advances to the next whitespace character and returns false.
 // Expects the text to have already advanced past the "0x" characters.
 bool tryParseImmediateValue(char** text, unsigned short* result) {
-
+  unsigned short value = 0;
+  unsigned char nibble;
+  int i;
+  for (i = 0; i <= 4 && **text != '\0' && !isspace(**text); i++) {
+    if (!tryHexToNibble(**text, &nibble) || i == 4) {
+      while (**text != '\0' && !isspace(**text)) { (*text)++; }
+      return false;
+    }
+    value = (value << 4) | nibble;
+    (*text)++;
+  }
+  if (i == 0) {
+    return false;
+  }
+  *result = value;
+  return true;
 }
 
 // Parses an instruction, including its opcode and any parameters.
