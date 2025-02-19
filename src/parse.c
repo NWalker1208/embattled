@@ -34,14 +34,23 @@ bool isInlineWhitespace(char c) {
   return c == ' ' || c == '\t';
 }
 
-void skipInlineWhitespace(char** text) {
+bool skipInlineWhitespace(char** text) {
+  bool skippedAny = false;
   while (isInlineWhitespace(**text)) {
     (*text)++;
+    skippedAny = true;
   }
+  return skippedAny;
 }
 
 void skipAllWhitespace(char** text) {
   while (isspace(**text)) {
+    (*text)++;
+  }
+}
+
+void skipToEndOfLine(char** text) {
+  while (**text != '\0' && **text != '\n' && **text != '\r') {
     (*text)++;
   }
 }
@@ -76,6 +85,33 @@ bool tryHexToNibble(char c, unsigned char* result) {
   }
 }
 
+// Parses a register name.
+// If parsing succeeds, outputs the register through result and returns true.
+// If parsing fails, returns false.
+// Expects the text to have already advanced past the "$" character.
+bool tryParseRegister(char** text, enum Register* result) {
+  if (startsWithCaseInsensitive(*text, "ac")) {
+    *result = AC;
+    *text += 2; // Skip past "ac"
+  } else if (startsWithCaseInsensitive(*text, "x0")) {
+    *result = X0;
+    *text += 2; // Skip past "x0"
+  } else if (startsWithCaseInsensitive(*text, "x1")) {
+    *result = X1;
+    *text += 2; // Skip past "x1"
+  } else if (startsWithCaseInsensitive(*text, "x2")) {
+    *result = X2;
+    *text += 2; // Skip past "x2"
+  } else if (startsWithCaseInsensitive(*text, "x3")) {
+    *result = X3;
+    *text += 2; // Skip past "x3"
+    // TODO: Add other registers
+  } else {
+    return false;
+  }
+  return true;
+}
+
 // Parses an immediate value of between 1 and 4 hexadecimal digits, stopping at the first whitespace.
 // If parsing succeeds, outputs the value through result and returns true.
 // If parsing fails, advances to the next whitespace character and returns false.
@@ -105,7 +141,118 @@ bool tryParseImmediateValue(char** text, unsigned short* result) {
 // and returns false.
 // Expects the text to start at the beginning of the opcode.
 bool tryParseInstruction(FILE* err, char** text, struct Instruction* result) {
+  struct Instruction parsedInstruction = { 0 }; // Copied to result on success, cleaned up on failure
 
+  // Parse the opcode
+  if (startsWithCaseInsensitive(*text, "nop")) {
+    parsedInstruction.opcode = NOP;
+    *text += 3; // Skip past "nop"
+  } else if (startsWithCaseInsensitive(*text, "jmp")) {
+    parsedInstruction.opcode = JMP;
+    *text += 3; // Skip past "jmp"
+  } else if (startsWithCaseInsensitive(*text, "jmz")) {
+    parsedInstruction.opcode = JMZ;
+    *text += 3; // Skip past "jmz"
+  } else if (startsWithCaseInsensitive(*text, "mov")) {
+    parsedInstruction.opcode = MOV;
+    *text += 3; // Skip past "mov"
+  } else if (startsWithCaseInsensitive(*text, "ldib")) {
+    parsedInstruction.opcode = LDIB;
+    *text += 4; // Skip past "ldib"
+  } else if (startsWithCaseInsensitive(*text, "ldiw")) {
+    parsedInstruction.opcode = LDIW;
+    *text += 4; // Skip past "ldiw"
+  } else if (startsWithCaseInsensitive(*text, "ldmb")) {
+    parsedInstruction.opcode = LDMB;
+    *text += 4; // Skip past "ldmb"
+  } else if (startsWithCaseInsensitive(*text, "ldmw")) {
+    parsedInstruction.opcode = LDMW;
+    *text += 4; // Skip past "ldmw"
+  } else if (startsWithCaseInsensitive(*text, "stmb")) {
+    parsedInstruction.opcode = STMB;
+    *text += 4; // Skip past "stmb"
+  } else if (startsWithCaseInsensitive(*text, "stmw")) {
+    parsedInstruction.opcode = STMW;
+    *text += 4; // Skip past "stmw"
+  } else if (startsWithCaseInsensitive(*text, "pshb")) {
+    parsedInstruction.opcode = PSHB;
+    *text += 4; // Skip past "pshb"
+  } else if (startsWithCaseInsensitive(*text, "pshw")) {
+    parsedInstruction.opcode = PSHW;
+    *text += 4; // Skip past "pshw"
+    // TODO: Add other instructions
+  } else {
+    fprintf(err, "Error: Unrecognized opcode.\n");
+    skipToEndOfLine(text);
+    return false;
+  }
+
+  // Skip past any in-line whitespace
+  if (!skipInlineWhitespace(text)) {
+    fprintf(err, "Error: Expected whitespace after the opcode.\n");
+    skipToEndOfLine(text);
+    return false;
+  }
+
+  // Parse the first parameter
+  bool canHaveSecondParameter;
+  if (**text == '$') {
+    (*text)++;
+    if (!tryParseRegister(text, &parsedInstruction.registerA)) {
+      fprintf(err, "Error: Expected a register name.\n");
+      skipToEndOfLine(text);
+      return false;
+    }
+    canHaveSecondParameter = true;
+  } else if (**text == '0' && tolower((*text)[1]) == 'x') {
+    (*text) += 2; // Skip past "0x"
+    if (!tryParseImmediateValue(text, &parsedInstruction.immediateValue)) {
+      fprintf(err, "Error: Expected a 1-4 digit hexadecimal immediate value.\n");
+      skipToEndOfLine(text);
+      return false;
+    }
+    canHaveSecondParameter = false; // Immediate value is always the last parameter.
+  } else if (**text == '@') {
+    // TODO: Pull out label name after modifying struct to hold label name.
+    canHaveSecondParameter = false; // Label reference is always the last parameter.
+  } else {
+    fprintf(err, "Error: Expected a register, immediate value, or label reference.\n");
+    skipToEndOfLine(text);
+    return false;
+  }
+
+  if (canHaveSecondParameter) {
+    // Skip past any in-line whitespace
+    if (!skipInlineWhitespace(text)) {
+      fprintf(err, "Error: Expected whitespace after the first parameter.\n");
+      skipToEndOfLine(text);
+      return false;
+    }
+  
+    // Parse the second parameter
+    if (**text == '$') {
+      (*text)++;
+      if (!tryParseRegister(text, &parsedInstruction.registerB)) {
+        fprintf(err, "Error: Expected a register name.\n");
+        skipToEndOfLine(text);
+        return false;
+      }
+    } else if (**text == '0' && tolower((*text)[1]) == 'x') {
+      (*text) += 2; // Skip past "0x"
+      if (!tryParseImmediateValue(text, &parsedInstruction.immediateValue)) {
+        fprintf(err, "Error: Expected a 1-4 digit hexadecimal immediate value.\n");
+        skipToEndOfLine(text);
+        return false;
+      }
+    } else { // Label references can only exist as the first and only parameter.
+      fprintf(err, "Error: Expected a register or immediate value.\n");
+      skipToEndOfLine(text);
+      return false;
+    }
+  }
+
+  *result = parsedInstruction;
+  return true;
 }
 
 // Parses a data line containing 1 or more hexadecimal bytes.
