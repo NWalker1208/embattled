@@ -58,6 +58,37 @@ char* findCharOnLine(char* str, char c) {
   return NULL;
 }
 
+// Converts a hexadecimal digit to its associated nibble value (0 - 15).
+// If the character is not a hexadecimal digit, returns 255.
+unsigned char hexToNibble(char c) {
+
+}
+
+
+// Parses an immediate value of between 1 and 4 hexadecimal digits, stopping at the end of the line.
+// If a character other than a hexadecimal digit is encountered, returns 0xFFFF and
+// advances to the end of the line.
+// Expects the text to have already advanced past the "0x" characters.
+unsigned short parseImmediateValue(char** text) {
+
+}
+
+// Parses an instruction, including its opcode and any parameters.
+// If the line contains invalid characters, returns an empty NOP instruction
+// and advances to the end of the line.
+// Expects the text to start at the beginning of the opcode.
+struct Instruction parseInstruction(char** text) {
+
+}
+
+// Parses a data line containing 1 or more hexadecimal bytes.
+// If the line contains invalid characters, returns BinaryData with a null bytes array
+// and advances to the end of the line.
+// Expects the text to have already advanced past the ".data" characters.
+struct BinaryData parseData(char** text) {
+
+}
+
 struct AssemblyLine parseNextLine(char** text) {
   struct AssemblyLine parsedLine = { 0 };
 
