@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdbool.h>
 #include "instruction.h"
 
 enum AssemblyLineKind {
@@ -22,5 +24,7 @@ struct AssemblyLine {
 
 // Parses the next instruction from the given text and advances the text pointer.
 // Compatible with both Unix and Windows line endings.
-// If an invalid line is encountered, advances past the next newline sequence.
-struct AssemblyLine parseNextLine(char** text);
+// If parsing succeeds, outputs the parsed line through result and returns true.
+// If parsing fails, prints one or more errors to the provided
+// err file, advances past the end of the line, and returns false.
+bool tryParseNextLine(FILE* err, char** text, struct AssemblyLine* result);

@@ -1,5 +1,4 @@
 #include "parse.h"
-#include <stdbool.h>
 #include <ctype.h>
 #include <string.h>
 
@@ -59,38 +58,40 @@ char* findCharOnLine(char* str, char c) {
 }
 
 // Converts a hexadecimal digit to its associated nibble value (0 - 15).
-// If the character is not a hexadecimal digit, returns 255.
-unsigned char hexToNibble(char c) {
+// If the character is a hexadecimal digit, outputs through result and returns true.
+// If the character is not a hexadecimal digit, returns false.
+bool tryHexToNibble(char c, unsigned char* result) {
 
 }
 
-
-// Parses an immediate value of between 1 and 4 hexadecimal digits, stopping at the end of the line.
-// If a character other than a hexadecimal digit is encountered, returns 0xFFFF and
-// advances to the end of the line.
+// Parses an immediate value of between 1 and 4 hexadecimal digits, stopping at the first whitespace.
+// If parsing succeeds, outputs the value through result and returns true.
+// If parsing fails, advances to the next whitespace character and returns false.
 // Expects the text to have already advanced past the "0x" characters.
-unsigned short parseImmediateValue(char** text) {
+bool tryParseImmediateValue(char** text, unsigned short* result) {
 
 }
 
 // Parses an instruction, including its opcode and any parameters.
-// If the line contains invalid characters, returns an empty NOP instruction
-// and advances to the end of the line.
+// If parsing succeeds, outputs the instruction through result and returns true.
+// If parsing fails, prints an error to err, advances to the end of the line,
+// and returns false.
 // Expects the text to start at the beginning of the opcode.
-struct Instruction parseInstruction(char** text) {
+bool tryParseInstruction(FILE* err, char** text, struct Instruction* result) {
 
 }
 
 // Parses a data line containing 1 or more hexadecimal bytes.
-// If the line contains invalid characters, returns BinaryData with a null bytes array
-// and advances to the end of the line.
+// If parsing succeeds, outputs the instruction through result and returns true.
+// If parsing fails, prints an error to err, advances to the end of the line,
+// and returns false.
 // Expects the text to have already advanced past the ".data" characters.
-struct BinaryData parseData(char** text) {
+bool tryParseData(FILE* err, char** text, struct BinaryData* result) {
 
 }
 
-struct AssemblyLine parseNextLine(char** text) {
-  struct AssemblyLine parsedLine = { 0 };
+bool tryParseNextLine(FILE* err, char** text, struct AssemblyLine* result) {
+  struct AssemblyLine parsedLine = { 0 }; // Copied to result on success, cleaned up on failure.
 
   // Skip leading whitespace and blank lines
   skipAllWhitespace(text);
