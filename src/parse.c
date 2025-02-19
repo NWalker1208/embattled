@@ -342,3 +342,5 @@ bool tryParseNextLine(FILE* err, char** text, struct AssemblyLine* result) {
   *result = parsedLine;
   return true;
 }
+
+// TODO: Write unit tests
