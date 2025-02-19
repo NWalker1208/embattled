@@ -9,15 +9,14 @@
 // <file> -> <line>*
 // <line> ->
 //   [<label>:] (
-//     (<opcode> [(<register> [<register> | <immediateNibble>]) | <immediateByte> | <immediateWord> | <labelReference>]) |
-//     ('.data' <hexValue>+)
+//     (<opcode> [(<register> [<register> | <immediateValue>]) | <immediateValue> | <labelReference>]) |
+//     ('.data' <hexByte>+)
 //   )
 // <register> -> '$' <registerName>
-// <immediateNibble> -> '0x' <hexValue> // Must be between 0x0 and 0xF
-// <immediateByte> -> '0x' <hexValue> // Must be between 0x0 and 0xFF
-// <immediateWord> -> '0x' <hexValue> // Must be between 0x0 and 0xFFFF
+// <immediateValue> -> '0x' <hexDigit>{1,4}
 // <labelReference> -> '@' <label>
-// <hexValue> -> [0-9a-fA-F]+
+// <hexByte> -> <hexDigit><hexDigit>
+// <hexDigit> -> [0-9a-fA-F]
 
 // Whitespace between any two tokens is ignored.
 // Additionally, newlines between a label and the subsequent token are ignored.
