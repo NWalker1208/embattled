@@ -25,6 +25,8 @@ enum Opcode {
   POPB, // layout 2 | reg         | sp += 1; regA = 0:mem[sp - 1]
   POPW, // layout 2 | reg         | sp += 2; regA = mem[sp - 1]:mem[sp - 2]; 
   // Math and logic
+  INC,  // layout 2 | reg, imm[4] | regA += imm (unsigned)
+  DEC,  // layout 2 | reg, imm[4] | regA -= imm (unsigned)
   ADD,  // layout 1 | reg, reg    | ac = regA + regB
   SUB,  // layout 1 | reg, reg    | ac = regA - regB
   MUL,  // layout 1 | reg, reg    | ac = regA * regB
