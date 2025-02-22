@@ -34,15 +34,15 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   return instruction;
 }
 
-void stepProcess(unsigned char* memory, struct ProcessState* processState) {
-  unsigned short ip = processState->ip;
-  struct Instruction instr = fetchInstruction(memory, &ip);
+void stepProcess(struct ProcessState* state) {
+  unsigned short ip = state->registers.ip;
+  struct Instruction instr = fetchInstruction(state->memory, &ip);
 
   unsigned short nullRegister = 0;
   enum Opcode opcode = instr.opcode;
-  unsigned short* regA = getRegisterAddr(processState, instr.registerA);
+  unsigned short* regA = getRegisterPtr(&state->registers, instr.registerA);
   if (regA == NULL) { regA = &nullRegister; }
-  unsigned short* regB = getRegisterAddr(processState, instr.registerB);
+  unsigned short* regB = getRegisterPtr(&state->registers, instr.registerB);
   if (regB == NULL) { regB = &nullRegister; }
   unsigned short imm = instr.immediateValue;
 
@@ -58,7 +58,7 @@ void stepProcess(unsigned char* memory, struct ProcessState* processState) {
       ip = imm;
       break;
     case JMZ:
-      if (processState->ac == 0) {
+      if (state->registers.ac == 0) {
         ip = imm;
       }
       break;
@@ -67,48 +67,48 @@ void stepProcess(unsigned char* memory, struct ProcessState* processState) {
       *regA = *regB;
       break;
     case LDIB:
-      processState->ac = imm & MEDIUM_IMM_MASK;
+      state->registers.ac = imm & MEDIUM_IMM_MASK;
       break;
     case LDIW:
-      processState->ac = imm;
+    state->registers.ac = imm;
       break;
     case LDMB:
-      *regA = (unsigned short)memory[*regB];
+      *regA = (unsigned short)state->memory[*regB];
       break;
     case LDMW:
       addrLow = *regB;
       addrHigh = addrLow + 1;
-      *regA = ((unsigned short)memory[addrHigh] << 8) | (unsigned short)memory[addrLow];
+      *regA = ((unsigned short)state->memory[addrHigh] << 8) | (unsigned short)state->memory[addrLow];
       break;
     case STMB:
-      memory[*regB] = (char)(*regA & 0xFF);
+      state->memory[*regB] = (char)(*regA & 0xFF);
       break;
     case STMW:
       addrLow = *regB;
       addrHigh = addrLow + 1;
-      memory[addrLow] = (char)(*regA & 0xFF);
-      memory[addrHigh] = (char)((*regA & 0xFF00) >> 8);
+      state->memory[addrLow] = (char)(*regA & 0xFF);
+      state->memory[addrHigh] = (char)((*regA & 0xFF00) >> 8);
       break;
     case PSHB:
-      processState->sp--;
-      memory[processState->sp] = (char)(*regA & 0xFF);
+      state->registers.sp--;
+      state->memory[state->registers.sp] = (char)(*regA & 0xFF);
       break;
     case PSHW:
-      processState->sp -= 2;
-      addrLow = processState->sp;
+      state->registers.sp -= 2;
+      addrLow = state->registers.sp;
       addrHigh = addrLow + 1;
-      memory[addrLow] = (char)(*regA & 0xFF);
-      memory[addrHigh] = (char)((*regA & 0xFF00) >> 8);
+      state->memory[addrLow] = (char)(*regA & 0xFF);
+      state->memory[addrHigh] = (char)((*regA & 0xFF00) >> 8);
       break;
     case POPB:
-      *regA = (unsigned short)memory[processState->sp];
-      processState->sp++;
+      *regA = (unsigned short)state->memory[state->registers.sp];
+      state->registers.sp++;
       break;
     case POPW:
-      addrLow = processState->sp;
+      addrLow = state->registers.sp;
       addrHigh = addrLow + 1;
-      *regA = ((unsigned short)memory[addrHigh] << 8) | (unsigned short)memory[addrLow];
-      processState->sp += 2;
+      *regA = ((unsigned short)state->memory[addrHigh] << 8) | (unsigned short)state->memory[addrLow];
+      state->registers.sp += 2;
       break;
     // Math and logic
     case ADD:
@@ -181,7 +181,7 @@ void stepProcess(unsigned char* memory, struct ProcessState* processState) {
       break;
   }
 
-  processState->ip = ip;
+  state->registers.ip = ip;
 }
 
 void printProcessState(struct ProcessState* state) {
