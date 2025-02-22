@@ -511,6 +511,92 @@ void test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp(void)
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
+void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
+  for (unsigned int i = 1; i < REGISTER_COUNT; i++) {
+    if (i == SP) { continue; }
+
+    // Arrange
+    processState.registers.sp = 0xFFFE;
+    processState.memory[0] = OPCODE_VALUES[POPB];
+    processState.memory[1] = REGISTER_CODES[i] << 4;
+    processState.memory[0xFFFE] = 0x34;
+    processState.memory[0xFFFF] = 0x12;
+  
+    initializeExpectedEndState();
+    expectedEndState.registers.ip = 0x0002;
+    expectedEndState.registers.sp = 0xFFFF;
+    *getRegisterPtr(&expectedEndState.registers, (enum Register)i) = 0x0034; // If the register is ip, this replaces the value above
+  
+    // Act
+    stepProcess(&processState);
+  
+    // Assert
+    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  }
+}
+
+void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp(void) {
+  // Arrange
+  processState.registers.sp = 0xFFFE;
+  processState.memory[0] = OPCODE_VALUES[POPB];
+  processState.memory[1] = REGISTER_CODES[SP] << 4;
+  processState.memory[0xFFFE] = 0x34;
+  processState.memory[0xFFFF] = 0x12;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.sp = 0x0034;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
+void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(void) {
+  for (unsigned int i = 1; i < REGISTER_COUNT; i++) {
+    if (i == SP) { continue; }
+
+    // Arrange
+    processState.registers.sp = 0xFFFE;
+    processState.memory[0] = OPCODE_VALUES[POPW];
+    processState.memory[1] = REGISTER_CODES[i] << 4;
+    processState.memory[0xFFFE] = 0x34;
+    processState.memory[0xFFFF] = 0x12;
+  
+    initializeExpectedEndState();
+    expectedEndState.registers.ip = 0x0002;
+    expectedEndState.registers.sp = 0x0000;
+    *getRegisterPtr(&expectedEndState.registers, (enum Register)i) = 0x1234; // If the register is ip, this replaces the value above
+  
+    // Act
+    stepProcess(&processState);
+  
+    // Assert
+    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  }
+}
+
+void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp(void) {
+  // Arrange
+  processState.registers.sp = 0xFFFE;
+  processState.memory[0] = OPCODE_VALUES[POPW];
+  processState.memory[1] = REGISTER_CODES[SP] << 4;
+  processState.memory[0xFFFE] = 0x34;
+  processState.memory[0xFFFF] = 0x12;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.sp = 0x1234;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
 #pragma endregion
 
 int main() {
@@ -541,6 +627,10 @@ int main() {
   RUN_TEST(test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp);
   RUN_TEST(test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp);
   RUN_TEST(test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp);
+  RUN_TEST(test_popb_should_popStackByteIntoRegister_when_registerIsNotSp);
+  RUN_TEST(test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp);
+  RUN_TEST(test_popw_should_popStackWordIntoRegister_when_registerIsNotSp);
+  RUN_TEST(test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp);
   return UNITY_END();
 }
 
