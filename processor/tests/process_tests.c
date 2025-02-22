@@ -34,7 +34,7 @@ void test_nop_should_doNothing() {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState)); // TODO: Create helper assertion that provides more informative messages
 }
 
 void test_jmp_should_jumpToAddressAndSaveReturnAddress() {
