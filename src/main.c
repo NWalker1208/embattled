@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
   // Run process for numberOfSteps steps
   struct ProcessState processState = { 0 };
 
-  while (1) {
+  for (int i = 0; i < numberOfSteps; i++) {
     stepProcess(memory, &processState);
     printProcessState(&processState);
     Sleep(1000);
