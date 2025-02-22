@@ -678,6 +678,8 @@ void test_dec_should_doNothing_whenRegisterAIsNull(void) {
 void test_add_should_setAcToRegisterAPlusRegisterB_when_differentRegisters(void) {
   for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
     for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
+      if (regA == regB) { continue; }
+
       // Arrange
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
@@ -721,6 +723,8 @@ void test_add_should_setAcToRegisterAPlusRegisterB_when_sameRegister(void) {
 void test_sub_should_setAcToRegisterAMinusRegisterB_when_differentRegisters(void) {
   for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
     for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
+      if (regA == regB) { continue; }
+
       // Arrange
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
@@ -764,6 +768,8 @@ void test_sub_should_setAcToRegisterAMinusRegisterB_when_sameRegister(void) {
 void test_mul_should_setAcToRegisterATimesRegisterB_when_differentRegisters(void) {
   for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
     for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
+      if (regA == regB) { continue; }
+
       // Arrange
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
