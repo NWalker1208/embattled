@@ -45,3 +45,4 @@ extern const char* REGISTER_NAMES[];
 
 enum Register decodeRegister(unsigned char registerId);
 unsigned short* getRegisterPtr(struct RegistersState* state, enum Register reg);
+void printRegistersState(struct RegistersState* state);

@@ -8,4 +8,3 @@ struct ProcessState {
 };
 
 void stepProcess(struct ProcessState* state);
-void printProcessState(struct ProcessState* state);
