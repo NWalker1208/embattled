@@ -1,66 +1,31 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <windows.h>
+#include <unity.h>
 #include "processor/process.h"
 #include "processor/instruction.h"
 
-bool tryParseInt(const char* str, int* result);
+unsigned char memory[MEMORY_SIZE];
+struct ProcessState processState;
 
-int main(int argc, char* argv[]) {
-  // Parse arguments (file name of binary, number of steps to run)
-  if (argc != 3) {
-    printf("Usage: %s <binary file> <number of steps>\n", argv[0]);
-    return 1;
-  }
-
-  char* binaryFileName = argv[1];
-  long numberOfSteps;
-  if (!tryParseInt(argv[2], &numberOfSteps)) {
-    printf("Invalid number of steps: %s\n", argv[2]);
-    return 1;
-  }
-
-  // Open binary file
-  FILE* binaryFile = fopen(binaryFileName, "rb");
-  if (binaryFile == NULL) {
-    printf("Failed to open binary file: %s\n", binaryFileName);
-    return 1;
-  }
-
-  // Read first MEMORY_SIZE bytes from binary file
-  unsigned char memory[MEMORY_SIZE] = { 0 };
-  size_t bytesRead = fread(memory, sizeof(unsigned char), MEMORY_SIZE, binaryFile);
-  if (bytesRead == 0) {
-    printf("Failed to read binary file: %s\n", binaryFileName);
-    fclose(binaryFile);
-    return 1;
-  }
-  fclose(binaryFile);
-
-  // Run process for numberOfSteps steps
-  struct ProcessState processState = { 0 };
-
-  for (int i = 0; i < numberOfSteps; i++) {
-    stepProcess(memory, &processState);
-    printProcessState(&processState);
-    Sleep(1000);
-  }
+void setUp() {
+  memset(memory, 0, sizeof(memory));
+  memset(&processState, 0, sizeof(processState));
 }
 
-bool tryParseInt(const char* str, int* result) {
-  char* end;
-  errno = 0;
-  long value = strtol(str, &end, 10);
-  if (errno == ERANGE || *end != '\0' || end == str) {
-    return false;
-  }
+void tearDown() { }
 
-  if (value < INT_MIN || value > INT_MAX) {
-    return false;
-  }
+void test_ldiw() {
+  memory[0] = OPCODE_VALUES[LDIW];
+  memory[1] = 0x01;
+  memory[2] = 0x00;
 
-  *result = (int)value;
-  return true;
+  stepProcess(memory, &processState);
+
+  TEST_ASSERT_EQUAL(0x0100, processState.ac);
+}
+
+int main() {
+  UNITY_BEGIN();
+  RUN_TEST(test_ldiw);
+  return UNITY_END();
 }
 
 /*
