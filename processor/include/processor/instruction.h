@@ -1,3 +1,6 @@
+#include "processor/opcode.h"
+#include "processor/register.h"
+
 // Layout:
 // 0: | opcode (8 bits) |
 // 1: | opcode (8 bits) | reg A (4 bits) | reg B (4 bits) |

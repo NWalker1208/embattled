@@ -87,13 +87,13 @@ Example program:
   memory[2] = 0x00;
   
   memory[3] = OPCODE_VALUES[MOV];
-  memory[4] = REGISTER_IDS[X0] << 4 | REGISTER_IDS[AC];
+  memory[4] = REGISTER_CODES[X0] << 4 | REGISTER_CODES[AC];
   
   memory[5] = OPCODE_VALUES[ADD];
-  memory[6] = REGISTER_IDS[AC] << 4 | REGISTER_IDS[X0];
+  memory[6] = REGISTER_CODES[AC] << 4 | REGISTER_CODES[X0];
 
   memory[7] = OPCODE_VALUES[PSHW];
-  memory[8] = REGISTER_IDS[AC] << 4;
+  memory[8] = REGISTER_CODES[AC] << 4;
 
   memory[9] = OPCODE_VALUES[JMP];
   memory[10] = 0x05;

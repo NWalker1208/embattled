@@ -40,7 +40,7 @@ struct Registers {
 };
 
 extern const unsigned int REGISTER_COUNT;
-extern const unsigned char REGISTER_IDS[];
+extern const unsigned char REGISTER_CODES[];
 extern const char* REGISTER_NAMES[];
 
 enum Register decodeRegister(unsigned char registerId);

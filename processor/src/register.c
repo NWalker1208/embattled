@@ -2,7 +2,7 @@
 
 const unsigned int REGISTER_COUNT = 16;
 
-const unsigned char REGISTER_IDS[] = {
+const unsigned char REGISTER_CODES[] = {
   0b0000, // NL
   0b0001, // IP
   0b0010, // SP
@@ -42,7 +42,7 @@ const char* REGISTER_NAMES[] = {
 
 enum Register decodeRegister(unsigned char registerId) {
   for (unsigned int i = 0; i < REGISTER_COUNT; i++) {
-    if (registerId == REGISTER_IDS[i]) {
+    if (registerId == REGISTER_CODES[i]) {
       return i;
     }
   }
