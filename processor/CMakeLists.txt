@@ -1,5 +1,7 @@
 project(processor LANGUAGES C)
 
+add_subdirectory(tests)
+
 add_library(
   ${PROJECT_NAME}
   src/instruction.c
