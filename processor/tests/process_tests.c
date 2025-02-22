@@ -178,8 +178,8 @@ void test_ldib_should_loadImmediateByteIntoAc(void) {
   processState.memory[1] = 0x12;
 
   initializeExpectedEndState();
-  expectedEndState.registers.ac = 0x0012;
   expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0012;
 
   // Act
   stepProcess(&processState);
@@ -195,8 +195,62 @@ void test_ldiw_should_loadImmediateWordIntoAc(void) {
   processState.memory[2] = 0x12;
 
   initializeExpectedEndState();
-  expectedEndState.registers.ac = 0x1234;
   expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.ac = 0x1234;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
+void test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero(void) {
+  // Arrange
+  processState.registers.x0 = 0x1234;
+  processState.memory[0] = OPCODE_VALUES[LDMB];
+  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x0;
+  processState.memory[0x1234] = 0x56;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0056;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
+void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsPositive(void) {
+  // Arrange
+  processState.registers.x0 = 0x1234;
+  processState.memory[0] = OPCODE_VALUES[LDMB];
+  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x7;
+  processState.memory[0x123B] = 0x56;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0056;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
+void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsNegative(void) {
+  // Arrange
+  processState.registers.x0 = 0x1234;
+  processState.memory[0] = OPCODE_VALUES[LDMB];
+  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x8; // 0x8 = -8 as a nibble
+  processState.memory[0x122C] = 0x56;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0056;
 
   // Act
   stepProcess(&processState);
