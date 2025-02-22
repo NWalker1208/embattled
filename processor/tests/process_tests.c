@@ -172,6 +172,39 @@ void test_mov_should_doNothing_when_bothRegistersAreNull() {
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
+void test_ldib_should_loadImmediateByteIntoAc() {
+  // Arrange
+  processState.memory[0] = OPCODE_VALUES[LDIB];
+  processState.memory[1] = 0x12;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ac = 0x0012;
+  expectedEndState.registers.ip = 0x0002;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
+void test_ldiw_should_loadImmediateWordIntoAc() {
+  // Arrange
+  processState.memory[0] = OPCODE_VALUES[LDIW];
+  processState.memory[1] = 0x34;
+  processState.memory[2] = 0x12;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ac = 0x1234;
+  expectedEndState.registers.ip = 0x0003;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
 #pragma endregion
 
 int main() {
@@ -184,6 +217,8 @@ int main() {
   RUN_TEST(test_mov_should_setRegisterAToZero_when_registerBIsNull);
   RUN_TEST(test_mov_should_doNothing_when_registerAIsNull);
   RUN_TEST(test_mov_should_doNothing_when_bothRegistersAreNull);
+  RUN_TEST(test_ldib_should_loadImmediateByteIntoAc);
+  RUN_TEST(test_ldiw_should_loadImmediateWordIntoAc);
   return UNITY_END();
 }
 
