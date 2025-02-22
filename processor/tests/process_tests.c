@@ -1,13 +1,13 @@
 #include <unity.h>
 #include <string.h>
 #include "processor/process.h"
+#include "processor/opcode.h"
+#include "processor/register.h"
 #include "processor/instruction.h"
 
-unsigned char memory[MEMORY_SIZE];
 struct ProcessState processState;
 
 void setUp() {
-  memset(memory, 0, sizeof(memory));
   memset(&processState, 0, sizeof(processState));
 }
 
@@ -15,60 +15,60 @@ void tearDown() { }
 
 void test_nop_should_doNothing() {
   // Arrange
-  memory[0] = OPCODE_VALUES[NOP];
+  processState.memory[0] = OPCODE_VALUES[NOP];
 
   // Act
-  stepProcess(memory, &processState);
+  stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL(0x0001, processState.ip);
-  TEST_ASSERT_EACH_EQUAL_UINT8(0x00, memory, MEMORY_SIZE);
+  TEST_ASSERT_EQUAL(0x0001, processState.registers.ip);
+  TEST_ASSERT_EACH_EQUAL_UINT8(0x00, processState.memory, MEMORY_SIZE);
 }
 
 void test_jmp_should_jumpToAddressAndSaveReturnAddress() {
   // Arrange
-  memory[0] = OPCODE_VALUES[JMP];
-  memory[1] = 0x34;
-  memory[2] = 0x12;
+  processState.memory[0] = OPCODE_VALUES[JMP];
+  processState.memory[1] = 0x34;
+  processState.memory[2] = 0x12;
 
   // Act
-  stepProcess(memory, &processState);
+  stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL(0x1234, processState.ip);
-  TEST_ASSERT_EQUAL(0x0003, processState.ac);
+  TEST_ASSERT_EQUAL(0x1234, processState.registers.ip);
+  TEST_ASSERT_EQUAL(0x0003, processState.registers.ac);
 }
 
 void test_jmz_should_jumpToAddressIfAcIsZero() {
   // Arrange
-  processState.ac = 0x0000;
+  processState.registers.ac = 0x0000;
 
-  memory[0] = OPCODE_VALUES[JMZ];
-  memory[1] = 0x34;
-  memory[2] = 0x12;
+  processState.memory[0] = OPCODE_VALUES[JMZ];
+  processState.memory[1] = 0x34;
+  processState.memory[2] = 0x12;
 
   // Act
-  stepProcess(memory, &processState);
+  stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL(0x1234, processState.ip);
-  TEST_ASSERT_EQUAL(0x0000, processState.ac);
+  TEST_ASSERT_EQUAL(0x1234, processState.registers.ip);
+  TEST_ASSERT_EQUAL(0x0000, processState.registers.ac);
 }
 
 void test_jmz_should_doNothingIfAcIsNonZero() {
   // Arrange
-  processState.ac = 0x0001;
+  processState.registers.ac = 0x0001;
 
-  memory[0] = OPCODE_VALUES[JMZ];
-  memory[1] = 0x34;
-  memory[2] = 0x12;
+  processState.memory[0] = OPCODE_VALUES[JMZ];
+  processState.memory[1] = 0x34;
+  processState.memory[2] = 0x12;
 
   // Act
-  stepProcess(memory, &processState);
+  stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL(0x0003, processState.ip);
-  TEST_ASSERT_EQUAL(0x0001, processState.ac);
+  TEST_ASSERT_EQUAL(0x0003, processState.registers.ip);
+  TEST_ASSERT_EQUAL(0x0001, processState.registers.ac);
 }
 
 int main() {
