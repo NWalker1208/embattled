@@ -9,3 +9,5 @@ add_library(
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
+
+enable_testing()

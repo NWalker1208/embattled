@@ -1,8 +1,8 @@
 project(processor-tests LANGUAGES C)
 
-add_executable(test-processor test_main.c)
+add_executable(${PROJECT_NAME} test_main.c)
 
-target_link_libraries(test-processor PRIVATE processor)
+target_link_libraries(${PROJECT_NAME} PRIVATE unity processor)
 
 enable_testing()
-add_test(NAME test-01 COMMAND test-processor test_01.bin 10)
+add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
