@@ -25,7 +25,7 @@ void tearDown() { }
 
 #pragma region Control flow instructions
 
-void test_nop_should_doNothing() {
+void test_nop_should_doNothing(void) {
   // Arrange
   processState.memory[0] = OPCODE_VALUES[NOP];
 
@@ -39,7 +39,7 @@ void test_nop_should_doNothing() {
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState)); // TODO: Create helper assertion that provides more informative messages
 }
 
-void test_jmp_should_jumpToAddressAndSaveReturnAddress() {
+void test_jmp_should_jumpToAddressAndSaveReturnAddress(void) {
   // Arrange
   processState.memory[0] = OPCODE_VALUES[JMP];
   processState.memory[1] = 0x34;
@@ -56,7 +56,7 @@ void test_jmp_should_jumpToAddressAndSaveReturnAddress() {
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_jmz_should_jumpToAddress_when_acIsZero() {
+void test_jmz_should_jumpToAddress_when_acIsZero(void) {
   // Arrange
   processState.registers.ac = 0x0000;
   processState.memory[0] = OPCODE_VALUES[JMZ];
@@ -73,7 +73,7 @@ void test_jmz_should_jumpToAddress_when_acIsZero() {
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_jmz_should_doNothing_when_acIsNonZero() {
+void test_jmz_should_doNothing_when_acIsNonZero(void) {
   // Arrange
   processState.registers.ac = 0x0001;
   processState.memory[0] = OPCODE_VALUES[JMZ];
@@ -94,7 +94,7 @@ void test_jmz_should_doNothing_when_acIsNonZero() {
 
 #pragma region Memory instructions
 
-void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNull() {
+void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNull(void) {
   for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
     for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
       // Arrange
@@ -117,7 +117,7 @@ void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNul
   }
 }
 
-void test_mov_should_setRegisterAToZero_when_registerBIsNull() {
+void test_mov_should_setRegisterAToZero_when_registerBIsNull(void) {
   for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
     // Arrange
     setUp();
@@ -137,7 +137,7 @@ void test_mov_should_setRegisterAToZero_when_registerBIsNull() {
   }
 }
 
-void test_mov_should_doNothing_when_registerAIsNull() {
+void test_mov_should_doNothing_when_registerAIsNull(void) {
   for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
     // Arrange
     setUp();
@@ -156,7 +156,7 @@ void test_mov_should_doNothing_when_registerAIsNull() {
   }
 }
 
-void test_mov_should_doNothing_when_bothRegistersAreNull() {
+void test_mov_should_doNothing_when_bothRegistersAreNull(void) {
   // Arrange
   setUp();
   processState.memory[0] = OPCODE_VALUES[MOV];
@@ -172,7 +172,7 @@ void test_mov_should_doNothing_when_bothRegistersAreNull() {
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_ldib_should_loadImmediateByteIntoAc() {
+void test_ldib_should_loadImmediateByteIntoAc(void) {
   // Arrange
   processState.memory[0] = OPCODE_VALUES[LDIB];
   processState.memory[1] = 0x12;
@@ -188,7 +188,7 @@ void test_ldib_should_loadImmediateByteIntoAc() {
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_ldiw_should_loadImmediateWordIntoAc() {
+void test_ldiw_should_loadImmediateWordIntoAc(void) {
   // Arrange
   processState.memory[0] = OPCODE_VALUES[LDIW];
   processState.memory[1] = 0x34;
