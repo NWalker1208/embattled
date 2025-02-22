@@ -46,7 +46,7 @@ enum Opcode {
 };
 
 extern const unsigned int OPCODE_COUNT;
-extern const unsigned char OPCODE_VALUES[];
+extern const unsigned char OPCODE_VALUES[]; // TODO: Remove this. Just use automatic enum values.
 extern const char* OPCODE_NAMES[];
 
 enum Opcode decodeOpcode(unsigned char opcodeValue);
