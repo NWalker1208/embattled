@@ -19,7 +19,7 @@ enum Register {
   X11,
 };
 
-struct Registers {
+struct RegistersState {
   // Special registers
   unsigned short ip;
   unsigned short sp;
@@ -44,3 +44,4 @@ extern const unsigned char REGISTER_CODES[];
 extern const char* REGISTER_NAMES[];
 
 enum Register decodeRegister(unsigned char registerId);
+unsigned short* getRegisterPtr(struct RegistersState* state, enum Register reg);

@@ -48,3 +48,42 @@ enum Register decodeRegister(unsigned char registerId) {
   }
   return NL;
 }
+
+unsigned short* getRegisterPtr(struct RegistersState* state, enum Register reg) {
+  switch (reg) {
+    case NL:
+      return 0;
+    case IP:
+      return &state->ip;
+    case SP:
+      return &state->sp;
+    case AC:
+      return &state->ac;
+    case X0:
+      return &state->x0;
+    case X1:
+      return &state->x1;
+    case X2:
+      return &state->x2;
+    case X3:
+      return &state->x3;
+    case X4:
+      return &state->x4;
+    case X5:
+      return &state->x5;
+    case X6:
+      return &state->x6;
+    case X7:
+      return &state->x7;
+    case X8:
+      return &state->x8;
+    case X9:
+      return &state->x9;
+    case X10:
+      return &state->x10;
+    case X11:
+      return &state->x11;
+    default:
+      return 0;
+  }
+}

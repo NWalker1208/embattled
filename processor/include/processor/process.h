@@ -21,8 +21,5 @@ struct ProcessState {
   unsigned short x11;
 };
 
-unsigned short* getRegisterAddr(struct ProcessState* processState, enum Register reg);
-
 void stepProcess(unsigned char* memory, struct ProcessState* processState);
-
 void printProcessState(struct ProcessState* processState);
