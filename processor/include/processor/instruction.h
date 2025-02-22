@@ -8,44 +8,42 @@
 
 enum Opcode {
   // Control flow
-  NOP,  // layout 0 | no params
-  JMP,  // layout 4 | imm[16]
-  JMZ,  // layout 4 | imm[16]
+  NOP,  // layout 0 | no params   | no effect
+  JMP,  // layout 4 | imm[16]     | ac = ip; ip = imm
+  JMZ,  // layout 4 | imm[16]     | if ac == 0, then ip = imm, else no effect
   // Memory
-  MOV,  // layout 1 | reg, reg
-  LDIB, // layout 3 | imm[8]
-  LDIW, // layout 4 | imm[16]
-  LDMB, // layout 1 | reg, reg
-  LDMW, // layout 1 | reg, reg
-  STMB, // layout 1 | reg, reg
-  STMW, // layout 1 | reg, reg
-  PSHB, // layout 2 | reg
-  PSHW, // layout 2 | reg
-  POPB, // layout 2 | reg
-  POPW, // layout 2 | reg
+  MOV,  // layout 1 | reg, reg    | regA = regB
+  LDIB, // layout 3 | imm[8]      | ac = 0:imm
+  LDIW, // layout 4 | imm[16]     | ac = imm
+  LDMB, // layout 2 | reg, imm[4] | ac = 0:mem[addr]             where addr = regA + imm (signed)
+  LDMW, // layout 2 | reg, imm[4] | ac = mem[addr + 1]:mem[addr] where addr = regA + imm (signed)
+  STMB, // layout 2 | reg, imm[4] | mem[addr] = 0xFF & ac        where addr = regA + imm (signed)
+  STMW, // layout 2 | reg, imm[4] | mem[addr + 1]:mem[addr] = ac where addr = regA + imm (signed)
+  PSH,  // layout 2 | reg, imm[4] | sp -= reg + (unsigned) imm 
+  POP,  // layout 2 | reg, imm[4] | sp += reg + (unsigned) imm
   // Math and logic
-  ADD,  // layout 1 | reg, reg
-  SUB,  // layout 1 | reg, reg
-  MUL,  // layout 1 | reg, reg
-  DIVS, // layout 1 | reg, reg
-  DIVU, // layout 1 | reg, reg
-  REMS, // layout 1 | reg, reg
-  REMU, // layout 1 | reg, reg
-  LSH,  // layout 1 | reg, reg
-  RSHS, // layout 1 | reg, reg
-  RSHU, // layout 1 | reg, reg
-  LSI,  // layout 2 | reg, imm[4]
-  RSIS, // layout 2 | reg, imm[4]
-  RSIU, // layout 2 | reg, imm[4]
-  AND,  // layout 1 | reg, reg
-  IOR,  // layout 1 | reg, reg
-  XOR,  // layout 1 | reg, reg
-  CEQ,  // layout 1 | reg, reg
-  CNE,  // layout 1 | reg, reg
-  CLTS, // layout 1 | reg, reg
-  CLTU, // layout 1 | reg, reg
-  CGES, // layout 1 | reg, reg
-  CGEU, // layout 1 | reg, reg
+  ADD,  // layout 1 | reg, reg    | ac = regA + regB
+  SUB,  // layout 1 | reg, reg    | ac = regA - regB
+  MUL,  // layout 1 | reg, reg    | ac = regA * regB
+  DIVS, // layout 1 | reg, reg    | ac = regA (signed)   / regB (signed)
+  DIVU, // layout 1 | reg, reg    | ac = regA (unsigned) / regB (unsigned)
+  REMS, // layout 1 | reg, reg    | ac = regA (signed)   % regB (signed)
+  REMU, // layout 1 | reg, reg    | ac = regA (unsigned) % regB (unsigned)
+  LSH,  // layout 1 | reg, reg    | ac = regA << regB (signed)
+  RSHS, // layout 1 | reg, reg    | ac = regA (signed)   >> regB (signed)
+  RSHU, // layout 1 | reg, reg    | ac = regA (unsigned) >> regB (signed)
+  LSI,  // layout 2 | reg, imm[4] | ac = regA << imm (unsigned)
+  RSIS, // layout 2 | reg, imm[4] | ac = regA (signed)   >> imm (unsigned)
+  RSIU, // layout 2 | reg, imm[4] | ac = regA (unsigned) >> imm (unsigned)
+  AND,  // layout 1 | reg, reg    | ac = regA & regB
+  IOR,  // layout 1 | reg, reg    | ac = regA | regB
+  XOR,  // layout 1 | reg, reg    | ac = regA ^ regB
+  CEQ,  // layout 1 | reg, reg    | ac = (regA == regB) ? 1 : 0
+  CNE,  // layout 1 | reg, reg    | ac = (regA != regB) ? 1 : 0
+  CLTS, // layout 1 | reg, reg    | ac = (regA (signed) < regB (signed)) ? 1 : 0
+  CLTU, // layout 1 | reg, reg    | ac = (regA (unsigned) < regB (unsigned)) ? 1 : 0
+  CGES, // layout 1 | reg, reg    | ac = (regA (signed) >= regB (signed)) ? 1 : 0
+  CGEU, // layout 1 | reg, reg    | ac = (regA (unsigned) >= regB (unsigned)) ? 1 : 0
 };
 
 extern const unsigned int OPCODE_COUNT;
