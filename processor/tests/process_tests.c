@@ -23,6 +23,8 @@ void initializeExpectedEndState() {
 
 void tearDown() { }
 
+#pragma region Control flow instructions
+
 void test_nop_should_doNothing() {
   // Arrange
   processState.memory[0] = OPCODE_VALUES[NOP];
@@ -87,6 +89,10 @@ void test_jmz_should_doNothing_when_acIsNonZero() {
   // Assert
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
+
+#pragma endregion
+
+#pragma region Memory instructions
 
 void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNull() {
   for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
@@ -165,6 +171,8 @@ void test_mov_should_doNothing_when_bothRegistersAreNull() {
   // Assert
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
+
+#pragma endregion
 
 int main() {
   UNITY_BEGIN();
