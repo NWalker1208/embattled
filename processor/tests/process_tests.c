@@ -761,6 +761,49 @@ void test_sub_should_setAcToRegisterAMinusRegisterB_when_sameRegister(void) {
   }
 }
 
+void test_mul_should_setAcToRegisterATimesRegisterB_when_differentRegisters(void) {
+  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
+    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
+      // Arrange
+      setUp();
+      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
+      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
+      processState.memory[0] = OPCODE_VALUES[MUL];
+      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+
+      initializeExpectedEndState();
+      expectedEndState.registers.ip = 0x0002;
+      expectedEndState.registers.ac = 0x0060;
+
+      // Act
+      stepProcess(&processState);
+
+      // Assert
+      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    }
+  }
+}
+
+void test_mul_should_setAcToRegisterATimesRegisterB_when_sameRegister(void) {
+  for (unsigned int reg = 1; reg < REGISTER_COUNT; reg++) {
+    // Arrange
+    setUp();
+    *getRegisterPtr(&processState.registers, (enum Register)reg) = 0x1234;
+    processState.memory[0] = OPCODE_VALUES[MUL];
+    processState.memory[1] = REGISTER_CODES[reg] << 4 | REGISTER_CODES[reg];
+
+    initializeExpectedEndState();
+    expectedEndState.registers.ip = 0x0002;
+    expectedEndState.registers.ac = 0x5A90;
+
+    // Act
+    stepProcess(&processState);
+
+    // Assert
+    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  }
+}
+
 #pragma endregion
 
 int main() {
@@ -803,6 +846,8 @@ int main() {
   RUN_TEST(test_add_should_setAcToRegisterAPlusRegisterB_when_differentRegisters);
   RUN_TEST(test_sub_should_setAcToRegisterAMinusRegisterB_when_sameRegister);
   RUN_TEST(test_sub_should_setAcToRegisterAMinusRegisterB_when_differentRegisters);
+  RUN_TEST(test_mul_should_setAcToRegisterATimesRegisterB_when_sameRegister);
+  RUN_TEST(test_mul_should_setAcToRegisterATimesRegisterB_when_differentRegisters);
   return UNITY_END();
 }
 
