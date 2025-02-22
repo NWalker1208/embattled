@@ -11,7 +11,7 @@ struct ProcessState expectedEndState;
 void setUp() {
   // Reset registers and memory
   memset(&processState.registers, 0, sizeof(processState.registers));
-  for (unsigned short i = 0; i < MEMORY_SIZE; i += 1) {
+  for (unsigned int i = 0; i < MEMORY_SIZE; i += 1) {
     // Fill memory with the lower 8 bits of the address as canary for memory access bugs
     processState.memory[i] = (unsigned char)(i & 0xFF);
   }
@@ -89,8 +89,8 @@ void test_jmz_should_doNothing_when_acIsNonZero() {
 }
 
 void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNull() {
-  for (int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (int regB = 1; regB < REGISTER_COUNT; regB++) {
+  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
+    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
       // Arrange
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
@@ -111,8 +111,8 @@ void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNul
   }
 }
 
-void test_mov_should_setRegisterAToZero_when_registerAIsNotNullAndRegisterBIsNull() {
-  for (int regA = 1; regA < REGISTER_COUNT; regA++) {
+void test_mov_should_setRegisterAToZero_when_registerBIsNull() {
+  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
     // Arrange
     setUp();
     *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
@@ -132,7 +132,7 @@ void test_mov_should_setRegisterAToZero_when_registerAIsNotNullAndRegisterBIsNul
 }
 
 void test_mov_should_doNothing_when_registerAIsNull() {
-  for (int regB = 0; regB < REGISTER_COUNT; regB++) {
+  for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
     // Arrange
     setUp();
     *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
@@ -150,6 +150,22 @@ void test_mov_should_doNothing_when_registerAIsNull() {
   }
 }
 
+void test_mov_should_doNothing_when_bothRegistersAreNull() {
+  // Arrange
+  setUp();
+  processState.memory[0] = OPCODE_VALUES[MOV];
+  processState.memory[1] = REGISTER_CODES[NL] << 4 | REGISTER_CODES[NL];
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_nop_should_doNothing);
@@ -157,8 +173,9 @@ int main() {
   RUN_TEST(test_jmz_should_jumpToAddress_when_acIsZero);
   RUN_TEST(test_jmz_should_doNothing_when_acIsNonZero);
   RUN_TEST(test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNull);
-  RUN_TEST(test_mov_should_setRegisterAToZero_when_registerAIsNotNullAndRegisterBIsNull);
+  RUN_TEST(test_mov_should_setRegisterAToZero_when_registerBIsNull);
   RUN_TEST(test_mov_should_doNothing_when_registerAIsNull);
+  RUN_TEST(test_mov_should_doNothing_when_bothRegistersAreNull);
   return UNITY_END();
 }
 
