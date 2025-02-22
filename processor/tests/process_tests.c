@@ -603,6 +603,80 @@ void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp(void) {
 
 #pragma endregion
 
+#pragma region Math and logic instructions
+
+void test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull(void) {
+  for (unsigned int i = 1; i < REGISTER_COUNT; i++) {
+    // Arrange
+    setUp();
+    *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
+    processState.memory[0] = OPCODE_VALUES[INC];
+    processState.memory[1] = REGISTER_CODES[i] << 4 || 0xF;
+
+    initializeExpectedEndState();
+    expectedEndState.registers.ip = 0x0002;
+    *getRegisterPtr(&expectedEndState.registers, (enum Register)i) = 0x1243;
+
+    // Act
+    stepProcess(&processState);
+
+    // Assert
+    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  }
+}
+
+void test_inc_should_doNothing_whenRegisterAIsNull(void) {
+  // Arrange
+  processState.memory[0] = OPCODE_VALUES[INC];
+  processState.memory[1] = REGISTER_CODES[NL] << 4 || 0xF;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
+void test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull(void) {
+  for (unsigned int i = 1; i < REGISTER_COUNT; i++) {
+    // Arrange
+    setUp();
+    *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
+    processState.memory[0] = OPCODE_VALUES[DEC];
+    processState.memory[1] = REGISTER_CODES[i] << 4 || 0xF;
+
+    initializeExpectedEndState();
+    expectedEndState.registers.ip = 0x0002;
+    *getRegisterPtr(&expectedEndState.registers, (enum Register)i) = 0x1225;
+
+    // Act
+    stepProcess(&processState);
+
+    // Assert
+    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  }
+}
+
+void test_dec_should_doNothing_whenRegisterAIsNull(void) {
+  // Arrange
+  processState.memory[0] = OPCODE_VALUES[DEC];
+  processState.memory[1] = REGISTER_CODES[NL] << 4 || 0xF;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
+#pragma endregion
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_nop_should_doNothing);
@@ -635,6 +709,10 @@ int main() {
   RUN_TEST(test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp);
   RUN_TEST(test_popw_should_popStackWordIntoRegister_when_registerIsNotSp);
   RUN_TEST(test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp);
+  RUN_TEST(test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull);
+  RUN_TEST(test_inc_should_doNothing_whenRegisterAIsNull);
+  RUN_TEST(test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull);
+  RUN_TEST(test_dec_should_doNothing_whenRegisterAIsNull);
   return UNITY_END();
 }
 
