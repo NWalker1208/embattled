@@ -105,8 +105,8 @@ void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNul
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
-      *getRegisterPtr(&expectedEndState.registers, (enum Register)regA) = 0x5678;
       expectedEndState.registers.ip = 0x0002;
+      *getRegisterPtr(&expectedEndState.registers, (enum Register)regA) = 0x5678; // If regA is ip, this will replace the value above
 
       // Act
       stepProcess(&processState);
