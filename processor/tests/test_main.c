@@ -1,4 +1,5 @@
 #include <unity.h>
+#include <string.h>
 #include "processor/process.h"
 #include "processor/instruction.h"
 
@@ -12,19 +13,70 @@ void setUp() {
 
 void tearDown() { }
 
-void test_ldiw() {
-  memory[0] = OPCODE_VALUES[LDIW];
-  memory[1] = 0x01;
-  memory[2] = 0x00;
+void test_nop_should_doNothing() {
+  // Arrange
+  memory[0] = OPCODE_VALUES[NOP];
 
+  // Act
   stepProcess(memory, &processState);
 
-  TEST_ASSERT_EQUAL(0x0100, processState.ac);
+  // Assert
+  TEST_ASSERT_EQUAL(0x0001, processState.ip);
+  TEST_ASSERT_EACH_EQUAL_UINT8(0x00, memory, MEMORY_SIZE);
+}
+
+void test_jmp_should_jumpToAddressAndSaveReturnAddress() {
+  // Arrange
+  memory[0] = OPCODE_VALUES[JMP];
+  memory[1] = 0x34;
+  memory[2] = 0x12;
+
+  // Act
+  stepProcess(memory, &processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL(0x1234, processState.ip);
+  TEST_ASSERT_EQUAL(0x0003, processState.ac);
+}
+
+void test_jmz_should_jumpToAddressIfAcIsZero() {
+  // Arrange
+  processState.ac = 0x0000;
+
+  memory[0] = OPCODE_VALUES[JMZ];
+  memory[1] = 0x34;
+  memory[2] = 0x12;
+
+  // Act
+  stepProcess(memory, &processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL(0x1234, processState.ip);
+  TEST_ASSERT_EQUAL(0x0000, processState.ac);
+}
+
+void test_jmz_should_doNothingIfAcIsNonZero() {
+  // Arrange
+  processState.ac = 0x0001;
+
+  memory[0] = OPCODE_VALUES[JMZ];
+  memory[1] = 0x34;
+  memory[2] = 0x12;
+
+  // Act
+  stepProcess(memory, &processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL(0x0003, processState.ip);
+  TEST_ASSERT_EQUAL(0x0001, processState.ac);
 }
 
 int main() {
   UNITY_BEGIN();
-  RUN_TEST(test_ldiw);
+  RUN_TEST(test_nop_should_doNothing);
+  RUN_TEST(test_jmp_should_jumpToAddressAndSaveReturnAddress);
+  RUN_TEST(test_jmz_should_jumpToAddressIfAcIsZero);
+  RUN_TEST(test_jmz_should_doNothingIfAcIsNonZero);
   return UNITY_END();
 }
 
