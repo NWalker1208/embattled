@@ -6,9 +6,19 @@
 #include "processor/instruction.h"
 
 struct ProcessState processState;
+struct ProcessState expectedEndState;
 
 void setUp() {
-  memset(&processState, 0, sizeof(processState));
+  // Reset registers and memory
+  memset(&processState.registers, 0, sizeof(processState.registers));
+  for (unsigned short i = 0; i < MEMORY_SIZE; i += 1) {
+    // Fill memory with the lower 8 bits of the address as canary for memory access bugs
+    processState.memory[i] = (unsigned char)(i & 0xFF);
+  }
+}
+
+void initializeExpectedEndState() {
+  memcpy(&expectedEndState, &processState, sizeof(processState));
 }
 
 void tearDown() { }
@@ -17,12 +27,14 @@ void test_nop_should_doNothing() {
   // Arrange
   processState.memory[0] = OPCODE_VALUES[NOP];
 
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0001;
+
   // Act
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL(0x0001, processState.registers.ip);
-  TEST_ASSERT_EACH_EQUAL_UINT8(0x00, processState.memory, MEMORY_SIZE);
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
 void test_jmp_should_jumpToAddressAndSaveReturnAddress() {
@@ -31,52 +43,57 @@ void test_jmp_should_jumpToAddressAndSaveReturnAddress() {
   processState.memory[1] = 0x34;
   processState.memory[2] = 0x12;
 
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x1234;
+  expectedEndState.registers.ac = 0x0003;
+
   // Act
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL(0x1234, processState.registers.ip);
-  TEST_ASSERT_EQUAL(0x0003, processState.registers.ac);
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_jmz_should_jumpToAddressIfAcIsZero() {
+void test_jmz_should_jumpToAddress_when_acIsZero() {
   // Arrange
   processState.registers.ac = 0x0000;
-
   processState.memory[0] = OPCODE_VALUES[JMZ];
   processState.memory[1] = 0x34;
   processState.memory[2] = 0x12;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x1234;
 
   // Act
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL(0x1234, processState.registers.ip);
-  TEST_ASSERT_EQUAL(0x0000, processState.registers.ac);
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_jmz_should_doNothingIfAcIsNonZero() {
+void test_jmz_should_doNothing_when_acIsNonZero() {
   // Arrange
   processState.registers.ac = 0x0001;
-
   processState.memory[0] = OPCODE_VALUES[JMZ];
   processState.memory[1] = 0x34;
   processState.memory[2] = 0x12;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0003;
 
   // Act
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL(0x0003, processState.registers.ip);
-  TEST_ASSERT_EQUAL(0x0001, processState.registers.ac);
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_nop_should_doNothing);
   RUN_TEST(test_jmp_should_jumpToAddressAndSaveReturnAddress);
-  RUN_TEST(test_jmz_should_jumpToAddressIfAcIsZero);
-  RUN_TEST(test_jmz_should_doNothingIfAcIsNonZero);
+  RUN_TEST(test_jmz_should_jumpToAddress_when_acIsZero);
+  RUN_TEST(test_jmz_should_doNothing_when_acIsNonZero);
   return UNITY_END();
 }
 
