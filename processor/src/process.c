@@ -34,10 +34,10 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   return instruction;
 }
 
-unsigned short* getRegisterAddr(struct ProcessState* processState, unsigned short* nullRegister, enum Register reg) {
+unsigned short* getRegisterAddr(struct ProcessState* processState, enum Register reg) {
   switch (reg) {
     case NL:
-      return nullRegister;
+      return NULL;
     case IP:
       return &processState->ip;
     case SP:
@@ -69,7 +69,7 @@ unsigned short* getRegisterAddr(struct ProcessState* processState, unsigned shor
     case X11:
       return &processState->x11;
     default:
-      return nullRegister;
+      return NULL;
   }
 }
 
@@ -79,8 +79,10 @@ void stepProcess(unsigned char* memory, struct ProcessState* processState) {
 
   unsigned short nullRegister = 0;
   enum Opcode opcode = instr.opcode;
-  unsigned short* regA = getRegisterAddr(processState, &nullRegister, instr.registerA);
-  unsigned short* regB = getRegisterAddr(processState, &nullRegister, instr.registerB);
+  unsigned short* regA = getRegisterAddr(processState, instr.registerA);
+  if (regA == NULL) { regA = &nullRegister; }
+  unsigned short* regB = getRegisterAddr(processState, instr.registerB);
+  if (regB == NULL) { regB = &nullRegister; }
   unsigned short imm = instr.immediateValue;
 
   printf("opcode=%-4s  regA=%-3s  regB=%-3s  imm=0x%04x\n", OPCODE_NAMES[opcode], REGISTER_NAMES[instr.registerA], REGISTER_NAMES[instr.registerB], imm);
