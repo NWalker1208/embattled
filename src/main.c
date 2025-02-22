@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <windows.h>
 #include "process.h"
 #include "instruction.h"
@@ -31,4 +32,20 @@ int main() {
     printProcessState(&processState);
     Sleep(1000);
   }
+}
+
+bool tryParseInt(const char* str, int* result) {
+  char* end;
+  errno = 0;
+  long value = strtol(str, &end, 10);
+  if (errno == ERANGE || *end != '\0' || end == str) {
+    return false;
+  }
+
+  if (value < INT_MIN || value > INT_MAX) {
+    return false;
+  }
+
+  *result = (int)value;
+  return true;
 }
