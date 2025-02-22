@@ -1,4 +1,4 @@
-#include "instruction.h"
+#include "processor/instruction.h"
 
 const unsigned int OPCODE_COUNT = 36;
 

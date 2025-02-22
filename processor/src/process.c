@@ -1,7 +1,7 @@
-#include "process.h"
+#include "processor/process.h"
 
 #include <stdio.h>
-#include "instruction.h"
+#include "processor/instruction.h"
 
 const unsigned short SMALL_IMM_MASK = 0xF;
 const unsigned short MEDIUM_IMM_MASK = 0xFF;

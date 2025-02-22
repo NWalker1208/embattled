@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include "instruction.h"
+#include "processor/instruction.h"
 
 enum AssemblyLineKind {
   INVALID = 0,
