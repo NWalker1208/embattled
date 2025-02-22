@@ -259,6 +259,63 @@ void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValu
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
+void test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero(void) {
+  // Arrange
+  processState.registers.x0 = 0x1234;
+  processState.memory[0] = OPCODE_VALUES[LDMW];
+  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x0;
+  processState.memory[0x1234] = 0x78;
+  processState.memory[0x1235] = 0x56;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x5678;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
+void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsPositive(void) {
+  // Arrange
+  processState.registers.x0 = 0x1234;
+  processState.memory[0] = OPCODE_VALUES[LDMW];
+  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x7;
+  processState.memory[0x123B] = 0x78;
+  processState.memory[0x123C] = 0x56;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x5678;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
+void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsNegative(void) {
+  // Arrange
+  processState.registers.x0 = 0x1234;
+  processState.memory[0] = OPCODE_VALUES[LDMW];
+  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x8; // 0x8 = -8 as a nibble
+  processState.memory[0x122C] = 0x78;
+  processState.memory[0x122D] = 0x56;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x5678;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+}
+
 #pragma endregion
 
 int main() {
