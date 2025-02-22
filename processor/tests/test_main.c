@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <windows.h>
-#include "process.h"
-#include "instruction.h"
+#include "processor/process.h"
+#include "processor/instruction.h"
 
 bool tryParseInt(const char* str, int* result);
 
