@@ -316,7 +316,7 @@ void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValu
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_stmb_should_storeAcIntoMemoryByteAtAddress_when_immediateValueIsZero(void) {
+void test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZero(void) {
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
@@ -334,7 +334,7 @@ void test_stmb_should_storeAcIntoMemoryByteAtAddress_when_immediateValueIsZero(v
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_stmb_should_storeAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsPositive(void) {
+void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsPositive(void) {
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
@@ -352,7 +352,7 @@ void test_stmb_should_storeAcIntoMemoryByteAtAddressWithOffset_when_immediateVal
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_stmb_should_storeAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsNegative(void) {
+void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsNegative(void) {
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
@@ -370,7 +370,7 @@ void test_stmb_should_storeAcIntoMemoryByteAtAddressWithOffset_when_immediateVal
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_stmw_should_storeAcIntoMemoryWordAtAddress_when_immediateValueIsZero(void) {
+void test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZero(void) {
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
@@ -389,7 +389,7 @@ void test_stmw_should_storeAcIntoMemoryWordAtAddress_when_immediateValueIsZero(v
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_stmw_should_storeAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsPositive(void) {
+void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsPositive(void) {
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
@@ -408,7 +408,7 @@ void test_stmw_should_storeAcIntoMemoryWordAtAddressWithOffset_when_immediateVal
   TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
 }
 
-void test_stmw_should_storeAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsNegative(void) {
+void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsNegative(void) {
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
@@ -447,12 +447,12 @@ int main() {
   RUN_TEST(test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero);
   RUN_TEST(test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsPositive);
   RUN_TEST(test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsNegative);
-  RUN_TEST(test_stmb_should_storeAcIntoMemoryByteAtAddress_when_immediateValueIsZero);
-  RUN_TEST(test_stmb_should_storeAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsPositive);
-  RUN_TEST(test_stmb_should_storeAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsNegative);
-  RUN_TEST(test_stmw_should_storeAcIntoMemoryWordAtAddress_when_immediateValueIsZero);
-  RUN_TEST(test_stmw_should_storeAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsPositive);
-  RUN_TEST(test_stmw_should_storeAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsNegative);
+  RUN_TEST(test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZero);
+  RUN_TEST(test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsPositive);
+  RUN_TEST(test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsNegative);
+  RUN_TEST(test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZero);
+  RUN_TEST(test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsPositive);
+  RUN_TEST(test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsNegative);
   return UNITY_END();
 }
 
