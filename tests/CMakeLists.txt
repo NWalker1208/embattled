@@ -17,7 +17,7 @@ set(PICKY_DEVELOPER OFF CACHE BOOL "CMocka: Build with picky developer flags" FO
 
 FetchContent_MakeAvailable(cmocka)
 
-add_executable(hello_test tests/main.c)
+add_executable(hello_test main.c)
 
 target_link_libraries(hello_test PRIVATE cmocka-static)
 

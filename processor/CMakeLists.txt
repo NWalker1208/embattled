@@ -1,5 +1,9 @@
 project(processor LANGUAGES C)
 
-add_library(${PROJECT_NAME})
+add_library(
+  ${PROJECT_NAME}
+  src/instruction.c
+  src/process.c
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
