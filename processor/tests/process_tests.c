@@ -432,6 +432,7 @@ void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) 
     if (i == SP) { continue; }
 
     // Arrange
+    setUp();
     processState.registers.sp = 0x0000;
     *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
     processState.memory[0] = OPCODE_VALUES[PSHB];
@@ -473,6 +474,7 @@ void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(void) {
     if (i == SP) { continue; }
 
     // Arrange
+    setUp();
     processState.registers.sp = 0x0000;
     *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
     processState.memory[0] = OPCODE_VALUES[PSHW];
@@ -516,6 +518,7 @@ void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
     if (i == SP) { continue; }
 
     // Arrange
+    setUp();
     processState.registers.sp = 0xFFFE;
     processState.memory[0] = OPCODE_VALUES[POPB];
     processState.memory[1] = REGISTER_CODES[i] << 4;
@@ -559,6 +562,7 @@ void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(void) {
     if (i == SP) { continue; }
 
     // Arrange
+    setUp();
     processState.registers.sp = 0xFFFE;
     processState.memory[0] = OPCODE_VALUES[POPW];
     processState.memory[1] = REGISTER_CODES[i] << 4;
