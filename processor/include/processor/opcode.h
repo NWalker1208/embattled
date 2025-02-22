@@ -1,3 +1,5 @@
+#pragma once
+
 enum Opcode {
   // Control flow
   NOP,  // layout 0 | no params   | no effect

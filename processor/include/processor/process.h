@@ -1,3 +1,4 @@
+#pragma once
 #include "processor/register.h"
 
 #define MEMORY_SIZE 65536

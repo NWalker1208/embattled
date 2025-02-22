@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "processor/register.h"
 
 const unsigned int REGISTER_COUNT = 16;

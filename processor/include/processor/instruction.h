@@ -1,3 +1,4 @@
+#pragma once
 #include "processor/opcode.h"
 #include "processor/register.h"
 

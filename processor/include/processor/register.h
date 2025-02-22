@@ -1,3 +1,5 @@
+#pragma once
+
 enum Register {
   // Special registers
   NL, // Null register. Always 0.
