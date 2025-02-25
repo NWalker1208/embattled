@@ -34,8 +34,7 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
 }
 
 void stepProcess(struct ProcessState* state) {
-  unsigned short ip = state->registers.ip;
-  struct Instruction instr = fetchInstruction(state->memory, &ip);
+  struct Instruction instr = fetchInstruction(state->memory, &state->registers.ip);
 
   unsigned short nullRegister = 0;
   enum Opcode opcode = instr.opcode;
@@ -54,11 +53,12 @@ void stepProcess(struct ProcessState* state) {
     case NOP:
       break;
     case JMP:
-      ip = imm;
+      state->registers.ac = state->registers.ip;
+      state->registers.ip = imm;
       break;
     case JMZ:
       if (state->registers.ac == 0) {
-        ip = imm;
+        state->registers.ip = imm;
       }
       break;
     // Memory
@@ -179,6 +179,4 @@ void stepProcess(struct ProcessState* state) {
     default: // Invalid instruction
       break;
   }
-
-  state->registers.ip = ip;
 }
