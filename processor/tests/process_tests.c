@@ -1112,6 +1112,8 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
   }
 }
 
+// TODO: Write tests for other instructions
+
 #pragma endregion
 
 int main() {
