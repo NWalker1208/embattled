@@ -119,7 +119,7 @@ void stepProcess(struct ProcessState* state) {
     case MUL:
       *regA = *regA * *regB;
       break;
-    case DIVS:
+    case DIVS: // TODO: Handle division by zero
       *regA = ((signed short)*regA) / ((signed short)*regB);
       break;
     case DIVU:

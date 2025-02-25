@@ -16,3 +16,5 @@ struct Instruction {
   enum Register registerB;
   unsigned short immediateValue;
 };
+
+// Next step: Refactor opcodes to store info for each opcode in a struct, remove hand-written values

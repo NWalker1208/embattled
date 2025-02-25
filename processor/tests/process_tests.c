@@ -118,6 +118,8 @@ void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNul
   }
 }
 
+// TODO: Special case mov test on ip register
+
 void test_mov_should_setRegisterAToZero_when_registerBIsNull(void) {
   for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
     // Arrange
