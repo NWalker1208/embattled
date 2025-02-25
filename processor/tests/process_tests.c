@@ -836,6 +836,98 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegisters
   }
 }
 
+void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet(void) {
+  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
+    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
+      // Arrange
+      setUp();
+      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
+      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
+      processState.memory[0] = OPCODE_VALUES[DIVU];
+      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+
+      initializeExpectedEndState();
+      expectedEndState.registers.ip = 0x0002;
+      expectedEndState.registers.ac = (regA != regB) ? 0x0004 : 0x0001;
+
+      // Act
+      stepProcess(&processState);
+
+      // Assert
+      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    }
+  }
+}
+
+void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet(void) {
+  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
+    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
+      // Arrange
+      setUp();
+      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
+      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
+      processState.memory[0] = OPCODE_VALUES[DIVU];
+      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+
+      initializeExpectedEndState();
+      expectedEndState.registers.ip = 0x0002;
+      expectedEndState.registers.ac = (regA != regB) ? 0x0007 : 0x0001;
+
+      // Act
+      stepProcess(&processState);
+
+      // Assert
+      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    }
+  }
+}
+
+void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet(void) {
+  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
+    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
+      // Arrange
+      setUp();
+      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
+      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
+      processState.memory[0] = OPCODE_VALUES[DIVU];
+      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+
+      initializeExpectedEndState();
+      expectedEndState.registers.ip = 0x0002;
+      expectedEndState.registers.ac = (regA != regB) ? 0x0000 : 0x0001;
+
+      // Act
+      stepProcess(&processState);
+
+      // Assert
+      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    }
+  }
+}
+
+void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet(void) {
+  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
+    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
+      // Arrange
+      setUp();
+      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
+      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
+      processState.memory[0] = OPCODE_VALUES[DIVU];
+      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+
+      initializeExpectedEndState();
+      expectedEndState.registers.ip = 0x0002;
+      expectedEndState.registers.ac = (regA != regB) ? 0x0000 : 0x0001;
+
+      // Act
+      stepProcess(&processState);
+
+      // Assert
+      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    }
+  }
+}
+
 #pragma endregion
 
 int main() {
@@ -881,6 +973,10 @@ int main() {
   RUN_TEST(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet);
   RUN_TEST(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet);
   RUN_TEST(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet);
+  RUN_TEST(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet);
+  RUN_TEST(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet);
+  RUN_TEST(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet);
+  RUN_TEST(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet);
   return UNITY_END();
 }
 
