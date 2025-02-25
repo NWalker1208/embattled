@@ -1,5 +1,6 @@
 #include <unity.h>
 #include <string.h>
+#include "custom_assertions.h"
 #include "processor/process.h"
 #include "processor/opcode.h"
 #include "processor/register.h"
@@ -36,7 +37,7 @@ void test_nop_should_doNothing(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState)); // TODO: Create helper assertion that provides more informative messages
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_jmp_should_jumpToAddressAndSaveReturnAddress(void) {
@@ -53,7 +54,7 @@ void test_jmp_should_jumpToAddressAndSaveReturnAddress(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_jmz_should_jumpToAddress_when_acIsZero(void) {
@@ -70,7 +71,7 @@ void test_jmz_should_jumpToAddress_when_acIsZero(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_jmz_should_doNothing_when_acIsNonZero(void) {
@@ -87,7 +88,7 @@ void test_jmz_should_doNothing_when_acIsNonZero(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 #pragma endregion
@@ -112,7 +113,7 @@ void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNul
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -133,7 +134,7 @@ void test_mov_should_setRegisterAToZero_when_registerBIsNull(void) {
     stepProcess(&processState);
 
     // Assert
-    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
   }
 }
 
@@ -152,7 +153,7 @@ void test_mov_should_doNothing_when_registerAIsNull(void) {
     stepProcess(&processState);
 
     // Assert
-    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
   }
 }
 
@@ -169,7 +170,7 @@ void test_mov_should_doNothing_when_bothRegistersAreNull(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_ldib_should_loadImmediateByteIntoAc(void) {
@@ -185,7 +186,7 @@ void test_ldib_should_loadImmediateByteIntoAc(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_ldiw_should_loadImmediateWordIntoAc(void) {
@@ -202,7 +203,7 @@ void test_ldiw_should_loadImmediateWordIntoAc(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero(void) {
@@ -220,7 +221,7 @@ void test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero(vo
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsPositive(void) {
@@ -238,7 +239,7 @@ void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValu
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsNegative(void) {
@@ -256,7 +257,7 @@ void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValu
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero(void) {
@@ -275,7 +276,7 @@ void test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero(vo
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsPositive(void) {
@@ -294,7 +295,7 @@ void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValu
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsNegative(void) {
@@ -313,7 +314,7 @@ void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValu
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZero(void) {
@@ -331,7 +332,7 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZ
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsPositive(void) {
@@ -349,7 +350,7 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immedia
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsNegative(void) {
@@ -367,7 +368,7 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immedia
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZero(void) {
@@ -386,7 +387,7 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZe
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsPositive(void) {
@@ -405,7 +406,7 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediat
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsNegative(void) {
@@ -424,7 +425,7 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediat
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) {
@@ -447,7 +448,7 @@ void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) 
     stepProcess(&processState);
   
     // Assert
-    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
   }
 }
 
@@ -466,7 +467,7 @@ void test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp(void
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(void) {
@@ -490,7 +491,7 @@ void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(void) {
     stepProcess(&processState);
   
     // Assert
-    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
   }
 }
 
@@ -510,7 +511,7 @@ void test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp(void)
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
@@ -534,7 +535,7 @@ void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
     stepProcess(&processState);
   
     // Assert
-    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
   }
 }
 
@@ -554,7 +555,7 @@ void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(void) {
@@ -578,7 +579,7 @@ void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(void) {
     stepProcess(&processState);
   
     // Assert
-    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
   }
 }
 
@@ -598,7 +599,7 @@ void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 #pragma endregion
@@ -621,7 +622,7 @@ void test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
     stepProcess(&processState);
 
     // Assert
-    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
   }
 }
 
@@ -637,7 +638,7 @@ void test_inc_should_doNothing_whenRegisterAIsNull(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull(void) {
@@ -656,7 +657,7 @@ void test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
     stepProcess(&processState);
 
     // Assert
-    TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
   }
 }
 
@@ -672,7 +673,7 @@ void test_dec_should_doNothing_whenRegisterAIsNull(void) {
   stepProcess(&processState);
 
   // Assert
-  TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_add_should_setAcToRegisterAPlusRegisterB(void) {
@@ -693,7 +694,7 @@ void test_add_should_setAcToRegisterAPlusRegisterB(void) {
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -716,7 +717,7 @@ void test_sub_should_setAcToRegisterAMinusRegisterB(void) {
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -739,7 +740,7 @@ void test_mul_should_setAcToRegisterATimesRegisterB(void) {
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -762,7 +763,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenNeitherRegist
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -785,7 +786,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasM
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -808,7 +809,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasM
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -831,7 +832,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegisters
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -854,7 +855,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegi
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -877,7 +878,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHa
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -900,7 +901,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHa
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -923,7 +924,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegiste
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -946,7 +947,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenNe
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -969,7 +970,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRe
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -992,7 +993,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRe
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -1015,7 +1016,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenBo
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -1038,7 +1039,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -1061,7 +1062,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -1084,7 +1085,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
@@ -1107,7 +1108,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       stepProcess(&processState);
 
       // Assert
-      TEST_ASSERT_EQUAL_MEMORY(&expectedEndState, &processState, sizeof(processState));
+      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
     }
   }
 }
