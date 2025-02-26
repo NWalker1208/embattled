@@ -44,7 +44,7 @@ void stepProcess(struct ProcessState* state) {
   if (regB == NULL) { regB = &nullRegister; }
   unsigned short imm = instr.immediateValue;
 
-  printf("opcode=%-4s  regA=%-3s  regB=%-3s  imm=0x%04x\n", OPCODE_NAMES[opcode], REGISTER_NAMES[instr.registerA], REGISTER_NAMES[instr.registerB], imm);
+  printf("opcode=%-4s  regA=%-3s  regB=%-3s  imm=0x%04x\n", OPCODE_INFO[opcode].name, REGISTER_NAMES[instr.registerA], REGISTER_NAMES[instr.registerB], imm);
 
   unsigned short addrLow, addrHigh;
 
