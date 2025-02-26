@@ -28,7 +28,7 @@ void tearDown() { }
 
 void test_nop_should_doNothing(void) {
   // Arrange
-  processState.memory[0] = OPCODE_VALUES[NOP];
+  processState.memory[0] = NOP;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0001;
@@ -42,7 +42,7 @@ void test_nop_should_doNothing(void) {
 
 void test_jmp_should_jumpToAddressAndSaveReturnAddress(void) {
   // Arrange
-  processState.memory[0] = OPCODE_VALUES[JMP];
+  processState.memory[0] = JMP;
   processState.memory[1] = 0x34;
   processState.memory[2] = 0x12;
 
@@ -60,7 +60,7 @@ void test_jmp_should_jumpToAddressAndSaveReturnAddress(void) {
 void test_jmz_should_jumpToAddress_when_acIsZero(void) {
   // Arrange
   processState.registers.ac = 0x0000;
-  processState.memory[0] = OPCODE_VALUES[JMZ];
+  processState.memory[0] = JMZ;
   processState.memory[1] = 0x34;
   processState.memory[2] = 0x12;
 
@@ -77,7 +77,7 @@ void test_jmz_should_jumpToAddress_when_acIsZero(void) {
 void test_jmz_should_doNothing_when_acIsNonZero(void) {
   // Arrange
   processState.registers.ac = 0x0001;
-  processState.memory[0] = OPCODE_VALUES[JMZ];
+  processState.memory[0] = JMZ;
   processState.memory[1] = 0x34;
   processState.memory[2] = 0x12;
 
@@ -102,7 +102,7 @@ void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNul
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
-      processState.memory[0] = OPCODE_VALUES[MOV];
+      processState.memory[0] = MOV;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -125,7 +125,7 @@ void test_mov_should_setRegisterAToZero_when_registerBIsNull(void) {
     // Arrange
     setUp();
     *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
-    processState.memory[0] = OPCODE_VALUES[MOV];
+    processState.memory[0] = MOV;
     processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[NL];
     
     initializeExpectedEndState();
@@ -145,7 +145,7 @@ void test_mov_should_doNothing_when_registerAIsNull(void) {
     // Arrange
     setUp();
     *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-    processState.memory[0] = OPCODE_VALUES[MOV];
+    processState.memory[0] = MOV;
     processState.memory[1] = REGISTER_CODES[NL] << 4 | REGISTER_CODES[regB];
     
     initializeExpectedEndState();
@@ -162,7 +162,7 @@ void test_mov_should_doNothing_when_registerAIsNull(void) {
 void test_mov_should_doNothing_when_bothRegistersAreNull(void) {
   // Arrange
   setUp();
-  processState.memory[0] = OPCODE_VALUES[MOV];
+  processState.memory[0] = MOV;
   processState.memory[1] = REGISTER_CODES[NL] << 4 | REGISTER_CODES[NL];
   
   initializeExpectedEndState();
@@ -177,7 +177,7 @@ void test_mov_should_doNothing_when_bothRegistersAreNull(void) {
 
 void test_ldib_should_loadImmediateByteIntoAc(void) {
   // Arrange
-  processState.memory[0] = OPCODE_VALUES[LDIB];
+  processState.memory[0] = LDIB;
   processState.memory[1] = 0x12;
 
   initializeExpectedEndState();
@@ -193,7 +193,7 @@ void test_ldib_should_loadImmediateByteIntoAc(void) {
 
 void test_ldiw_should_loadImmediateWordIntoAc(void) {
   // Arrange
-  processState.memory[0] = OPCODE_VALUES[LDIW];
+  processState.memory[0] = LDIW;
   processState.memory[1] = 0x34;
   processState.memory[2] = 0x12;
 
@@ -211,7 +211,7 @@ void test_ldiw_should_loadImmediateWordIntoAc(void) {
 void test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[LDMB];
+  processState.memory[0] = LDMB;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x0;
   processState.memory[0x1234] = 0x56;
 
@@ -229,7 +229,7 @@ void test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero(vo
 void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsPositive(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[LDMB];
+  processState.memory[0] = LDMB;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x7;
   processState.memory[0x123B] = 0x56;
 
@@ -247,7 +247,7 @@ void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValu
 void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsNegative(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[LDMB];
+  processState.memory[0] = LDMB;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x8; // 0x8 = -8 as a nibble
   processState.memory[0x122C] = 0x56;
 
@@ -265,7 +265,7 @@ void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValu
 void test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[LDMW];
+  processState.memory[0] = LDMW;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x0;
   processState.memory[0x1234] = 0x78;
   processState.memory[0x1235] = 0x56;
@@ -284,7 +284,7 @@ void test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero(vo
 void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsPositive(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[LDMW];
+  processState.memory[0] = LDMW;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x7;
   processState.memory[0x123B] = 0x78;
   processState.memory[0x123C] = 0x56;
@@ -303,7 +303,7 @@ void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValu
 void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsNegative(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[LDMW];
+  processState.memory[0] = LDMW;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x8; // 0x8 = -8 as a nibble
   processState.memory[0x122C] = 0x78;
   processState.memory[0x122D] = 0x56;
@@ -323,7 +323,7 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZ
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[STMB];
+  processState.memory[0] = STMB;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x0;
 
   initializeExpectedEndState();
@@ -341,7 +341,7 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immedia
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[STMB];
+  processState.memory[0] = STMB;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x7;
 
   initializeExpectedEndState();
@@ -359,7 +359,7 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immedia
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[STMB];
+  processState.memory[0] = STMB;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x8; // 0x8 = -8 as a nibble
 
   initializeExpectedEndState();
@@ -377,7 +377,7 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZe
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[STMW];
+  processState.memory[0] = STMW;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x0;
 
   initializeExpectedEndState();
@@ -396,7 +396,7 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediat
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[STMW];
+  processState.memory[0] = STMW;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x7;
 
   initializeExpectedEndState();
@@ -415,7 +415,7 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediat
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[STMW];
+  processState.memory[0] = STMW;
   processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x8; // 0x8 = -8 as a nibble
 
   initializeExpectedEndState();
@@ -438,7 +438,7 @@ void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) 
     setUp();
     processState.registers.sp = 0x0000;
     *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
-    processState.memory[0] = OPCODE_VALUES[PSHB];
+    processState.memory[0] = PSHB;
     processState.memory[1] = REGISTER_CODES[i] << 4;
   
     initializeExpectedEndState();
@@ -457,7 +457,7 @@ void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) 
 void test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp(void) {
   // Arrange
   processState.registers.sp = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[PSHB];
+  processState.memory[0] = PSHB;
   processState.memory[1] = REGISTER_CODES[SP] << 4;
 
   initializeExpectedEndState();
@@ -480,7 +480,7 @@ void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(void) {
     setUp();
     processState.registers.sp = 0x0000;
     *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
-    processState.memory[0] = OPCODE_VALUES[PSHW];
+    processState.memory[0] = PSHW;
     processState.memory[1] = REGISTER_CODES[i] << 4;
   
     initializeExpectedEndState();
@@ -500,7 +500,7 @@ void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(void) {
 void test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp(void) {
   // Arrange
   processState.registers.sp = 0x1234;
-  processState.memory[0] = OPCODE_VALUES[PSHW];
+  processState.memory[0] = PSHW;
   processState.memory[1] = REGISTER_CODES[SP] << 4;
 
   initializeExpectedEndState();
@@ -523,7 +523,7 @@ void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
     // Arrange
     setUp();
     processState.registers.sp = 0xFFFE;
-    processState.memory[0] = OPCODE_VALUES[POPB];
+    processState.memory[0] = POPB;
     processState.memory[1] = REGISTER_CODES[i] << 4;
     processState.memory[0xFFFE] = 0x34;
     processState.memory[0xFFFF] = 0x12;
@@ -544,7 +544,7 @@ void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
 void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp(void) {
   // Arrange
   processState.registers.sp = 0xFFFE;
-  processState.memory[0] = OPCODE_VALUES[POPB];
+  processState.memory[0] = POPB;
   processState.memory[1] = REGISTER_CODES[SP] << 4;
   processState.memory[0xFFFE] = 0x34;
   processState.memory[0xFFFF] = 0x12;
@@ -567,7 +567,7 @@ void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(void) {
     // Arrange
     setUp();
     processState.registers.sp = 0xFFFE;
-    processState.memory[0] = OPCODE_VALUES[POPW];
+    processState.memory[0] = POPW;
     processState.memory[1] = REGISTER_CODES[i] << 4;
     processState.memory[0xFFFE] = 0x34;
     processState.memory[0xFFFF] = 0x12;
@@ -588,7 +588,7 @@ void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(void) {
 void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp(void) {
   // Arrange
   processState.registers.sp = 0xFFFE;
-  processState.memory[0] = OPCODE_VALUES[POPW];
+  processState.memory[0] = POPW;
   processState.memory[1] = REGISTER_CODES[SP] << 4;
   processState.memory[0xFFFE] = 0x34;
   processState.memory[0xFFFF] = 0x12;
@@ -613,7 +613,7 @@ void test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
     // Arrange
     setUp();
     *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
-    processState.memory[0] = OPCODE_VALUES[INC];
+    processState.memory[0] = INC;
     processState.memory[1] = REGISTER_CODES[i] << 4 || 0xF;
 
     initializeExpectedEndState();
@@ -630,7 +630,7 @@ void test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
 
 void test_inc_should_doNothing_whenRegisterAIsNull(void) {
   // Arrange
-  processState.memory[0] = OPCODE_VALUES[INC];
+  processState.memory[0] = INC;
   processState.memory[1] = REGISTER_CODES[NL] << 4 || 0xF;
 
   initializeExpectedEndState();
@@ -648,7 +648,7 @@ void test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
     // Arrange
     setUp();
     *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
-    processState.memory[0] = OPCODE_VALUES[DEC];
+    processState.memory[0] = DEC;
     processState.memory[1] = REGISTER_CODES[i] << 4 || 0xF;
 
     initializeExpectedEndState();
@@ -665,7 +665,7 @@ void test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
 
 void test_dec_should_doNothing_whenRegisterAIsNull(void) {
   // Arrange
-  processState.memory[0] = OPCODE_VALUES[DEC];
+  processState.memory[0] = DEC;
   processState.memory[1] = REGISTER_CODES[NL] << 4 || 0xF;
 
   initializeExpectedEndState();
@@ -685,7 +685,7 @@ void test_add_should_setAcToRegisterAPlusRegisterB(void) {
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
-      processState.memory[0] = OPCODE_VALUES[ADD];
+      processState.memory[0] = ADD;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -708,7 +708,7 @@ void test_sub_should_setAcToRegisterAMinusRegisterB(void) {
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = OPCODE_VALUES[SUB];
+      processState.memory[0] = SUB;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -731,7 +731,7 @@ void test_mul_should_setAcToRegisterATimesRegisterB(void) {
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
-      processState.memory[0] = OPCODE_VALUES[MUL];
+      processState.memory[0] = MUL;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -754,7 +754,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenNeitherRegist
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = OPCODE_VALUES[DIVS];
+      processState.memory[0] = DIVS;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -777,7 +777,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasM
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = OPCODE_VALUES[DIVS];
+      processState.memory[0] = DIVS;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -800,7 +800,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasM
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = OPCODE_VALUES[DIVS];
+      processState.memory[0] = DIVS;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -823,7 +823,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegisters
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = OPCODE_VALUES[DIVS];
+      processState.memory[0] = DIVS;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -846,7 +846,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegi
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = OPCODE_VALUES[DIVU];
+      processState.memory[0] = DIVU;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -869,7 +869,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHa
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = OPCODE_VALUES[DIVU];
+      processState.memory[0] = DIVU;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -892,7 +892,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHa
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = OPCODE_VALUES[DIVU];
+      processState.memory[0] = DIVU;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -915,7 +915,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegiste
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = OPCODE_VALUES[DIVU];
+      processState.memory[0] = DIVU;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -938,7 +938,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenNe
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = OPCODE_VALUES[REMS];
+      processState.memory[0] = REMS;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -961,7 +961,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRe
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = OPCODE_VALUES[REMS];
+      processState.memory[0] = REMS;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -984,7 +984,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRe
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = OPCODE_VALUES[REMS];
+      processState.memory[0] = REMS;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -1007,7 +1007,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenBo
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = OPCODE_VALUES[REMS];
+      processState.memory[0] = REMS;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -1030,7 +1030,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = OPCODE_VALUES[REMU];
+      processState.memory[0] = REMU;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -1053,7 +1053,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = OPCODE_VALUES[REMU];
+      processState.memory[0] = REMU;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -1076,7 +1076,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = OPCODE_VALUES[REMU];
+      processState.memory[0] = REMU;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -1099,7 +1099,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       setUp();
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = OPCODE_VALUES[REMU];
+      processState.memory[0] = REMU;
       processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
 
       initializeExpectedEndState();
@@ -1179,20 +1179,20 @@ int main() {
 
 /*
 Example program:
-  memory[0] = OPCODE_VALUES[LDIW];
+  memory[0] = LDIW;
   memory[1] = 0x01;
   memory[2] = 0x00;
   
-  memory[3] = OPCODE_VALUES[MOV];
+  memory[3] = MOV;
   memory[4] = REGISTER_CODES[X0] << 4 | REGISTER_CODES[AC];
   
-  memory[5] = OPCODE_VALUES[ADD];
+  memory[5] = ADD;
   memory[6] = REGISTER_CODES[AC] << 4 | REGISTER_CODES[X0];
 
-  memory[7] = OPCODE_VALUES[PSHW];
+  memory[7] = PSHW;
   memory[8] = REGISTER_CODES[AC] << 4;
 
-  memory[9] = OPCODE_VALUES[JMP];
+  memory[9] = JMP;
   memory[10] = 0x05;
   memory[11] = 0x00;
 */
