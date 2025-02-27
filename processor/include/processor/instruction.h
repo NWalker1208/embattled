@@ -22,3 +22,7 @@ struct Instruction {
   enum Opcode opcode;
   struct InstructionParameters parameters;
 };
+
+// Fetches an instruction from memory at the given instruction pointer.
+// Increments the instruction pointer to the next instruction.
+struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip);
