@@ -10,11 +10,15 @@
 // 4: | opcode (8 bits) | imm (16 bits)                                                     |
 // (last 2 bits of opcode represent number of bytes in addition to opcode)
 
-struct Instruction {
-  enum Opcode opcode;
+// Represents the parameters of an instruction as fetched from memory.
+struct InstructionParameters {
   enum Register registerA;
   enum Register registerB;
   unsigned short immediateValue;
 };
 
-// Next step: Refactor opcodes to store info for each opcode in a struct, remove hand-written values
+// An instruction that has been fetched from memory.
+struct Instruction {
+  enum Opcode opcode;
+  struct InstructionParameters parameters;
+};
