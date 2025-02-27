@@ -1,5 +1,6 @@
 #pragma once
 
+// A code indicating which action should be performed in a given instruction.
 enum Opcode {
   // Control flow
   NOP,  // no params   | no effect
@@ -44,7 +45,7 @@ enum Opcode {
   CGES, // reg, reg    | ac = (regA (signed) >= regB (signed)) ? 1 : 0
   CGEU, // reg, reg    | ac = (regA (unsigned) >= regB (unsigned)) ? 1 : 0
   
-  OPCODE_COUNT,
+  OPCODE_COUNT, // The number of opcode values. Not a valid opcode itself.
 };
 
 // Describes how the parameters are laid out for a given opcode.
@@ -61,11 +62,16 @@ enum ParameterLayout {
   IMM16,      // 16-bit Immediate
 };
 
+// Describes the details of a particular opcode.
 struct OpcodeInfo {
   const char* name;
   enum ParameterLayout parameterLayout;
 };
 
+// The details of each opcode. Can be indexed directly by a valid Opcode value.
 extern const struct OpcodeInfo OPCODE_INFO[];
 
-enum Opcode decodeOpcode(unsigned char opcodeValue);
+// Converts a byte to an opcode.
+// Returns NOP if the byte is not a valid opcode.
+// Note: A valid opcode can safely be cast to an unsigned char to obtain its byte value.
+enum Opcode byteToOpcode(unsigned char byte);

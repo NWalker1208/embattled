@@ -1,5 +1,6 @@
 #pragma once
 
+// A value representing a particular register to be used in an instruction.
 enum Register {
   // Special registers
   NL, // Null register. Always 0.
@@ -19,8 +20,11 @@ enum Register {
   X9,
   X10,
   X11,
+
+  REGISTER_COUNT, // The number of registers. Not a valid register itself.
 };
 
+// Holds the state of all registers.
 struct RegistersState {
   // Special registers
   unsigned short ip;
@@ -41,10 +45,17 @@ struct RegistersState {
   unsigned short x11;
 };
 
-extern const unsigned int REGISTER_COUNT;
-extern const unsigned char REGISTER_CODES[];
+// The name of each register.
 extern const char* REGISTER_NAMES[];
 
-enum Register decodeRegister(unsigned char registerId);
+// Converts the lower 4-bits of a byte to a register.
+// Returns NL if any of the upper 4-bits are set.
+// Note: A valid register can safely be cast to an unsigned char to obtain its nibble value.
+enum Register nibbleToRegister(unsigned char nibble);
+
+// Gets the pointer to a register's value within a ReigstersState struct.
+// Returns NULL if the register is NL or if the register is not recognized.
 unsigned short* getRegisterPtr(struct RegistersState* state, enum Register reg);
+
+// Prints the state of the registers to stdout.
 void printRegistersState(struct RegistersState* state);

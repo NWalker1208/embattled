@@ -159,9 +159,9 @@ const struct OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
   }
 };
 
-enum Opcode decodeOpcode(unsigned char opcodeValue) {
-  if (opcodeValue >= 0 && opcodeValue < OPCODE_COUNT) {
-    return opcodeValue;
+enum Opcode byteToOpcode(unsigned char byte) {
+  if (byte >= 0 && byte < OPCODE_COUNT) {
+    return byte;
   } else {
     return NOP;
   }
