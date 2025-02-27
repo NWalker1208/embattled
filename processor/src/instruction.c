@@ -41,16 +41,20 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
 
   // Decode immediate value parameter
   switch (opcodeInfo->parameterLayout) {
+    case REGA_IMM4:
+      instruction.parameters.immediateValue = paramsLow & 0xF;
+      break;
+
     case IMM8:
       instruction.parameters.immediateValue = paramsLow;
-    case REGA_IMM4:
-      instruction.parameters.immediateValue &= 0xF;
+      break;
+
+    case REGA_IMM12:
+      instruction.parameters.immediateValue = (((unsigned short)paramsHigh << 8) | (unsigned short)paramsLow) & 0xFFF;
       break;
     
     case IMM16:
-      instruction.parameters.immediateValue = ((unsigned short)paramsHigh << 8) | (unsigned short)paramsLow;
-    case REGA_IMM12:
-      instruction.parameters.immediateValue &= 0xFFF;
+      instruction.parameters.immediateValue = (((unsigned short)paramsHigh << 8) | (unsigned short)paramsLow);
       break;
   }
 
