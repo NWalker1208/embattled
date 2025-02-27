@@ -2,27 +2,55 @@
 
 struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   struct Instruction instruction = { 0 };
-  unsigned char opcodeValue = memory[*ip];
-  instruction.opcode = decodeOpcode(opcodeValue);
-  struct OpcodeInfo opcodeInfo = OPCODE_INFO[instruction.opcode]; // Next: Fix this method to fetch based on parameter layout
+  instruction.opcode = decodeOpcode(memory[*ip]);
+
+  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
   (*ip)++;
 
-  switch (opcodeValue & 0b11) {
-    case 0b00:
+  // Read parameter bytes and advance instruction pointer
+  unsigned char paramsLow;
+  unsigned char paramsHigh;
+  switch (opcodeInfo->parameterLayout) {
+    case REGA:
+    case REGA_REGB:
+    case REGA_IMM4:
+    case IMM8:
+      paramsLow = memory[*ip];
+      paramsHigh = 0;
+      (*ip)++;
       break;
-    case 0b01:
-      unsigned char params = memory[*ip];
-      (*ip)++;
-      instruction.registerA = decodeRegister(params >> 4);
-      instruction.registerB = decodeRegister(params & 0b1111);
-      instruction.immediateValue = params; // Instructions that only use 4 bits will mask out upper bits.
+      
+    case REGA_IMM12:
+    case IMM16:
+      paramsLow = memory[*ip];
+      paramsHigh = memory[*ip + 1];
+      (*ip) += 2;
       break;
-    case 0b10:
-      unsigned char immediateLower = memory[*ip];
-      (*ip)++;
-      unsigned char immediateUpper = memory[*ip];
-      (*ip)++;
-      instruction.immediateValue = ((unsigned short)immediateUpper << 8) | (unsigned short)immediateLower;
+  }
+
+  // Decode register parameters
+  switch (opcodeInfo->parameterLayout) {
+    case REGA_REGB:
+      instruction.parameters.registerB = nibbleToRegister(paramsLow & 0xF);
+    case REGA:
+    case REGA_IMM4:
+    case REGA_IMM12:
+      instruction.parameters.registerA = nibbleToRegister(paramsLow >> 4);
+      break;
+  }
+
+  // Decode immediate value parameter
+  switch (opcodeInfo->parameterLayout) {
+    case IMM8:
+      instruction.parameters.immediateValue = paramsLow;
+    case REGA_IMM4:
+      instruction.parameters.immediateValue &= 0xF;
+      break;
+    
+    case IMM16:
+      instruction.parameters.immediateValue = ((unsigned short)paramsHigh << 8) | (unsigned short)paramsLow;
+    case REGA_IMM12:
+      instruction.parameters.immediateValue &= 0xFFF;
       break;
   }
 
