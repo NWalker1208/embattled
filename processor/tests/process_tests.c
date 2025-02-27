@@ -103,7 +103,7 @@ void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNul
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
       processState.memory[0] = MOV;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -126,7 +126,7 @@ void test_mov_should_setRegisterAToZero_when_registerBIsNull(void) {
     setUp();
     *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
     processState.memory[0] = MOV;
-    processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[NL];
+    processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)NL;
     
     initializeExpectedEndState();
     *getRegisterPtr(&expectedEndState.registers, (enum Register)regA) = 0x0000;
@@ -146,7 +146,7 @@ void test_mov_should_doNothing_when_registerAIsNull(void) {
     setUp();
     *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
     processState.memory[0] = MOV;
-    processState.memory[1] = REGISTER_CODES[NL] << 4 | REGISTER_CODES[regB];
+    processState.memory[1] = (unsigned char)NL << 4 | (unsigned char)regB;
     
     initializeExpectedEndState();
     expectedEndState.registers.ip = 0x0002;
@@ -163,7 +163,7 @@ void test_mov_should_doNothing_when_bothRegistersAreNull(void) {
   // Arrange
   setUp();
   processState.memory[0] = MOV;
-  processState.memory[1] = REGISTER_CODES[NL] << 4 | REGISTER_CODES[NL];
+  processState.memory[1] = (unsigned char)NL << 4 | (unsigned char)NL;
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -212,7 +212,7 @@ void test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero(vo
   // Arrange
   processState.registers.x0 = 0x1234;
   processState.memory[0] = LDMB;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x0;
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x0;
   processState.memory[0x1234] = 0x56;
 
   initializeExpectedEndState();
@@ -230,7 +230,7 @@ void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValu
   // Arrange
   processState.registers.x0 = 0x1234;
   processState.memory[0] = LDMB;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x7;
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x7;
   processState.memory[0x123B] = 0x56;
 
   initializeExpectedEndState();
@@ -248,7 +248,7 @@ void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValu
   // Arrange
   processState.registers.x0 = 0x1234;
   processState.memory[0] = LDMB;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x8; // 0x8 = -8 as a nibble
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x8; // 0x8 = -8 as a nibble
   processState.memory[0x122C] = 0x56;
 
   initializeExpectedEndState();
@@ -266,7 +266,7 @@ void test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero(vo
   // Arrange
   processState.registers.x0 = 0x1234;
   processState.memory[0] = LDMW;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x0;
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x0;
   processState.memory[0x1234] = 0x78;
   processState.memory[0x1235] = 0x56;
 
@@ -285,7 +285,7 @@ void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValu
   // Arrange
   processState.registers.x0 = 0x1234;
   processState.memory[0] = LDMW;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x7;
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x7;
   processState.memory[0x123B] = 0x78;
   processState.memory[0x123C] = 0x56;
 
@@ -304,7 +304,7 @@ void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValu
   // Arrange
   processState.registers.x0 = 0x1234;
   processState.memory[0] = LDMW;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x8; // 0x8 = -8 as a nibble
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x8; // 0x8 = -8 as a nibble
   processState.memory[0x122C] = 0x78;
   processState.memory[0x122D] = 0x56;
 
@@ -324,7 +324,7 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZ
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
   processState.memory[0] = STMB;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x0;
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x0;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -342,7 +342,7 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immedia
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
   processState.memory[0] = STMB;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x7;
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x7;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -360,7 +360,7 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immedia
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
   processState.memory[0] = STMB;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x8; // 0x8 = -8 as a nibble
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x8; // 0x8 = -8 as a nibble
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -378,7 +378,7 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZe
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
   processState.memory[0] = STMW;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x0;
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x0;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -397,7 +397,7 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediat
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
   processState.memory[0] = STMW;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x7;
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x7;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -416,7 +416,7 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediat
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
   processState.memory[0] = STMW;
-  processState.memory[1] = REGISTER_CODES[X0] << 4 | 0x8; // 0x8 = -8 as a nibble
+  processState.memory[1] = (unsigned char)X0 << 4 | 0x8; // 0x8 = -8 as a nibble
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -439,7 +439,7 @@ void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) 
     processState.registers.sp = 0x0000;
     *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
     processState.memory[0] = PSHB;
-    processState.memory[1] = REGISTER_CODES[i] << 4;
+    processState.memory[1] = (unsigned char)i << 4;
   
     initializeExpectedEndState();
     expectedEndState.registers.ip = 0x0002;
@@ -458,7 +458,7 @@ void test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp(void
   // Arrange
   processState.registers.sp = 0x1234;
   processState.memory[0] = PSHB;
-  processState.memory[1] = REGISTER_CODES[SP] << 4;
+  processState.memory[1] = (unsigned char)SP << 4;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -481,7 +481,7 @@ void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(void) {
     processState.registers.sp = 0x0000;
     *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
     processState.memory[0] = PSHW;
-    processState.memory[1] = REGISTER_CODES[i] << 4;
+    processState.memory[1] = (unsigned char)i << 4;
   
     initializeExpectedEndState();
     expectedEndState.registers.ip = 0x0002;
@@ -501,7 +501,7 @@ void test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp(void)
   // Arrange
   processState.registers.sp = 0x1234;
   processState.memory[0] = PSHW;
-  processState.memory[1] = REGISTER_CODES[SP] << 4;
+  processState.memory[1] = (unsigned char)SP << 4;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -524,7 +524,7 @@ void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
     setUp();
     processState.registers.sp = 0xFFFE;
     processState.memory[0] = POPB;
-    processState.memory[1] = REGISTER_CODES[i] << 4;
+    processState.memory[1] = (unsigned char)i << 4;
     processState.memory[0xFFFE] = 0x34;
     processState.memory[0xFFFF] = 0x12;
   
@@ -545,7 +545,7 @@ void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp(void) {
   // Arrange
   processState.registers.sp = 0xFFFE;
   processState.memory[0] = POPB;
-  processState.memory[1] = REGISTER_CODES[SP] << 4;
+  processState.memory[1] = (unsigned char)SP << 4;
   processState.memory[0xFFFE] = 0x34;
   processState.memory[0xFFFF] = 0x12;
 
@@ -568,7 +568,7 @@ void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(void) {
     setUp();
     processState.registers.sp = 0xFFFE;
     processState.memory[0] = POPW;
-    processState.memory[1] = REGISTER_CODES[i] << 4;
+    processState.memory[1] = (unsigned char)i << 4;
     processState.memory[0xFFFE] = 0x34;
     processState.memory[0xFFFF] = 0x12;
   
@@ -589,7 +589,7 @@ void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp(void) {
   // Arrange
   processState.registers.sp = 0xFFFE;
   processState.memory[0] = POPW;
-  processState.memory[1] = REGISTER_CODES[SP] << 4;
+  processState.memory[1] = (unsigned char)SP << 4;
   processState.memory[0xFFFE] = 0x34;
   processState.memory[0xFFFF] = 0x12;
 
@@ -614,7 +614,7 @@ void test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
     setUp();
     *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
     processState.memory[0] = INC;
-    processState.memory[1] = REGISTER_CODES[i] << 4 || 0xF;
+    processState.memory[1] = (unsigned char)i << 4 || 0xF;
 
     initializeExpectedEndState();
     expectedEndState.registers.ip = 0x0002;
@@ -631,7 +631,7 @@ void test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
 void test_inc_should_doNothing_whenRegisterAIsNull(void) {
   // Arrange
   processState.memory[0] = INC;
-  processState.memory[1] = REGISTER_CODES[NL] << 4 || 0xF;
+  processState.memory[1] = (unsigned char)NL << 4 || 0xF;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -649,7 +649,7 @@ void test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
     setUp();
     *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
     processState.memory[0] = DEC;
-    processState.memory[1] = REGISTER_CODES[i] << 4 || 0xF;
+    processState.memory[1] = (unsigned char)i << 4 || 0xF;
 
     initializeExpectedEndState();
     expectedEndState.registers.ip = 0x0002;
@@ -666,7 +666,7 @@ void test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
 void test_dec_should_doNothing_whenRegisterAIsNull(void) {
   // Arrange
   processState.memory[0] = DEC;
-  processState.memory[1] = REGISTER_CODES[NL] << 4 || 0xF;
+  processState.memory[1] = (unsigned char)NL << 4 || 0xF;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -686,7 +686,7 @@ void test_add_should_setAcToRegisterAPlusRegisterB(void) {
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
       processState.memory[0] = ADD;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -709,7 +709,7 @@ void test_sub_should_setAcToRegisterAMinusRegisterB(void) {
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
       processState.memory[0] = SUB;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -732,7 +732,7 @@ void test_mul_should_setAcToRegisterATimesRegisterB(void) {
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
       processState.memory[0] = MUL;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -755,7 +755,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenNeitherRegist
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
       processState.memory[0] = DIVS;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -778,7 +778,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasM
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
       processState.memory[0] = DIVS;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -801,7 +801,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasM
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
       processState.memory[0] = DIVS;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -824,7 +824,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegisters
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
       processState.memory[0] = DIVS;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -847,7 +847,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegi
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
       processState.memory[0] = DIVU;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -870,7 +870,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHa
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
       processState.memory[0] = DIVU;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -893,7 +893,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHa
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
       processState.memory[0] = DIVU;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -916,7 +916,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegiste
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
       processState.memory[0] = DIVU;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -939,7 +939,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenNe
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
       processState.memory[0] = REMS;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -962,7 +962,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRe
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
       processState.memory[0] = REMS;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -985,7 +985,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRe
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
       processState.memory[0] = REMS;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -1008,7 +1008,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenBo
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
       processState.memory[0] = REMS;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -1031,7 +1031,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
       processState.memory[0] = REMU;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -1054,7 +1054,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
       processState.memory[0] = REMU;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -1077,7 +1077,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
       processState.memory[0] = REMU;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -1100,7 +1100,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
       *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
       *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
       processState.memory[0] = REMU;
-      processState.memory[1] = REGISTER_CODES[regA] << 4 | REGISTER_CODES[regB];
+      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
@@ -1184,13 +1184,13 @@ Example program:
   memory[2] = 0x00;
   
   memory[3] = MOV;
-  memory[4] = REGISTER_CODES[X0] << 4 | REGISTER_CODES[AC];
+  memory[4] = (unsigned char)X0 << 4 | (unsigned char)AC;
   
   memory[5] = ADD;
-  memory[6] = REGISTER_CODES[AC] << 4 | REGISTER_CODES[X0];
+  memory[6] = (unsigned char)AC << 4 | (unsigned char)X0;
 
   memory[7] = PSHW;
-  memory[8] = REGISTER_CODES[AC] << 4;
+  memory[8] = (unsigned char)AC << 4;
 
   memory[9] = JMP;
   memory[10] = 0x05;
