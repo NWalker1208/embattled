@@ -2,21 +2,22 @@
 #include "processor/process.h"
 #include "processor/instruction.h"
 
-const unsigned short SMALL_IMM_MASK = 0xF;
-const unsigned short MEDIUM_IMM_MASK = 0xFF;
-
 void stepProcess(struct ProcessState* state) {
   struct Instruction instr = fetchInstruction(state->memory, &state->registers.ip);
 
   unsigned short nullRegister = 0;
   enum Opcode opcode = instr.opcode;
-  unsigned short* regA = getRegisterPtr(&state->registers, instr.registerA);
+  unsigned short* regA = getRegisterPtr(&state->registers, instr.parameters.registerA);
   if (regA == NULL) { regA = &nullRegister; }
-  unsigned short* regB = getRegisterPtr(&state->registers, instr.registerB);
+  unsigned short* regB = getRegisterPtr(&state->registers, instr.parameters.registerB);
   if (regB == NULL) { regB = &nullRegister; }
-  unsigned short imm = instr.immediateValue;
+  unsigned short imm = instr.parameters.immediateValue;
 
-  printf("opcode=%-4s  regA=%-3s  regB=%-3s  imm=0x%04x\n", OPCODE_INFO[opcode].name, REGISTER_NAMES[instr.registerA], REGISTER_NAMES[instr.registerB], imm);
+  printf("opcode=%-4s  regA=%-3s  regB=%-3s  imm=0x%04x\n",
+    OPCODE_INFO[opcode].name,
+    REGISTER_NAMES[instr.parameters.registerA],
+    REGISTER_NAMES[instr.parameters.registerB],
+    imm);
 
   unsigned short addrLow, addrHigh;
 
@@ -38,7 +39,7 @@ void stepProcess(struct ProcessState* state) {
       *regA = *regB;
       break;
     case LDIB:
-      state->registers.ac = imm & MEDIUM_IMM_MASK;
+      state->registers.ac = imm & 0xFF;
       break;
     case LDIW:
     state->registers.ac = imm;
@@ -113,13 +114,13 @@ void stepProcess(struct ProcessState* state) {
       *regA = ((unsigned short)*regA) >> *regB;
       break;
     case LSI:
-      *regA = *regA << (imm & SMALL_IMM_MASK);
+      *regA = *regA << (imm & 0xF);
       break;
     case RSIS:
-      *regA = ((signed short)*regA) >> (imm & SMALL_IMM_MASK);
+      *regA = ((signed short)*regA) >> (imm & 0xF);
       break;
     case RSIU:
-      *regA = ((unsigned short)*regA) >> (imm & SMALL_IMM_MASK);
+      *regA = ((unsigned short)*regA) >> (imm & 0xF);
       break;
     case AND:
       *regA = *regA & *regB;
