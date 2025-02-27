@@ -2,7 +2,7 @@
 
 struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   struct Instruction instruction = { 0 };
-  instruction.opcode = decodeOpcode(memory[*ip]);
+  instruction.opcode = byteToOpcode(memory[*ip]);
 
   const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
   (*ip)++;
