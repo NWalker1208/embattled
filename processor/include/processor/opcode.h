@@ -50,16 +50,22 @@ enum Opcode {
 
 // Describes how the parameters are laid out for a given opcode.
 enum ParameterLayout {
+  // Flags
+  SIZE_MASK       = 0b0011, // The mask for the number of parameter bytes.
+  REGA_FLAG       = 0b0100, // The flag for the presence of register A.
+  REGB_FLAG       = 0b1000, // The flag for the presence of register B.
   // 0 bytes
-  NONE,       // No parameters
+  NONE            = 0b0000, // No parameters
   // 1 byte
-  REGA,       // Register A
-  REGA_REGB,  // Register A, Register B
-  REGA_IMM4,  // Register A, 4-bit Immediate
-  IMM8,       // 8-bit Immediate
+  IMM8            = 0b0001, // 8-bit immediate
+  REGA_IMM4       = 0b0101, // Register A, 4-bit immediate
+  REGA_REGB       = 0b1101, // Register A, register B
   // 2 bytes
-  REGA_IMM12, // Register A, 12-bit Immediate
-  IMM16,      // 16-bit Immediate
+  IMM16           = 0b0010, // 16-bit immediate
+  REGA_IMM12      = 0b0110, // Register A, 12-bit immediate
+  REGA_REGB_IMM8  = 0b1110, // Register A, register B, 8-bit immediate
+  // 3 bytes
+  REGA_REGB_IMM16 = 0b1111, // Register A, register B, 16-bit immediate
 };
 
 // Describes the details of a particular opcode.
