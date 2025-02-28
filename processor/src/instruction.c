@@ -1,3 +1,5 @@
+#include <string.h>
+#include <stdbool.h>
 #include "processor/instruction.h"
 
 struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
@@ -7,54 +9,55 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
   (*ip)++;
 
-  // Read parameter bytes and advance instruction pointer
-  unsigned char paramsLow;
-  unsigned char paramsHigh;
-  switch (opcodeInfo->parameterLayout) {
-    case REGA:
-    case REGA_REGB:
-    case REGA_IMM4:
-    case IMM8:
-      paramsLow = memory[*ip];
-      paramsHigh = 0;
-      (*ip)++;
-      break;
-      
-    case REGA_IMM12:
-    case IMM16:
-      paramsLow = memory[*ip];
-      paramsHigh = memory[*ip + 1];
-      (*ip) += 2;
-      break;
+  // Read the parameter bytes from memory.
+  unsigned char numBytes = opcodeInfo->parameterLayout & SIZE_MASK;
+  if (numBytes == 0) {
+    return instruction;
   }
 
-  // Decode register parameters
-  switch (opcodeInfo->parameterLayout) {
-    case REGA_REGB:
-      instruction.parameters.registerB = nibbleToRegister(paramsLow & 0xF);
-    case REGA:
-    case REGA_IMM4:
-    case REGA_IMM12:
-      instruction.parameters.registerA = nibbleToRegister(paramsLow >> 4);
-      break;
+  unsigned char parameterBytes[3];
+  memcpy(parameterBytes, &memory[*ip], numBytes);
+  *ip += numBytes;
+
+  // Extract the register values from the parameter bytes.
+  bool hasRegA = opcodeInfo->parameterLayout & REGA_FLAG;
+  bool hasRegB = opcodeInfo->parameterLayout & REGB_FLAG;
+
+  if (hasRegA) {
+    instruction.parameters.registerA = nibbleToRegister(parameterBytes[numBytes - 1] >> 4);
   }
 
-  // Decode immediate value parameter
-  switch (opcodeInfo->parameterLayout) {
-    case REGA_IMM4:
-      instruction.parameters.immediateValue = paramsLow & 0xF;
-      break;
+  if (hasRegB) {
+    instruction.parameters.registerB = nibbleToRegister(parameterBytes[numBytes - 1] & 0xF);
+  }
 
-    case IMM8:
-      instruction.parameters.immediateValue = paramsLow;
+  // Extract the immediate value from the parameter bytes.
+  switch (numBytes) {
+    case 1:
+      if (!hasRegB) {
+        unsigned short value = parameterBytes[0];
+        if (!hasRegA) {
+          instruction.parameters.immediate.u8 = value;
+        } else {
+          instruction.parameters.immediate.u4 = value;
+        }
+      }
       break;
-
-    case REGA_IMM12:
-      instruction.parameters.immediateValue = (((unsigned short)paramsHigh << 8) | (unsigned short)paramsLow) & 0xFFF;
+    case 2:
+      unsigned short value = ((unsigned short)parameterBytes[1] << 8) | (unsigned short)parameterBytes[0];
+      if (!hasRegB) {
+        if (!hasRegA) {
+          instruction.parameters.immediate.u16 = value;
+        } else {
+          instruction.parameters.immediate.u12 = value;
+        }
+      } else {
+        instruction.parameters.immediate.u8 = value;
+      }
       break;
-    
-    case IMM16:
-      instruction.parameters.immediateValue = (((unsigned short)paramsHigh << 8) | (unsigned short)paramsLow);
+    case 3:
+      unsigned short value = ((unsigned short)parameterBytes[1] << 8) | (unsigned short)parameterBytes[0];
+      instruction.parameters.immediate.u16 = value;
       break;
   }
 
