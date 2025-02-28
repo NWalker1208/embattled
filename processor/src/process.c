@@ -11,7 +11,7 @@ void stepProcess(struct ProcessState* state) {
   if (regA == NULL) { regA = &nullRegister; }
   unsigned short* regB = getRegisterPtr(&state->registers, instr.parameters.registerB);
   if (regB == NULL) { regB = &nullRegister; }
-  unsigned short imm = instr.parameters.immediateValue;
+  union ImmediateValue imm = instr.parameters.immediate;
 
   printf("opcode=%-4s  regA=%-3s  regB=%-3s  imm=0x%04x\n",
     OPCODE_INFO[opcode].name,
@@ -27,11 +27,11 @@ void stepProcess(struct ProcessState* state) {
       break;
     case JMP:
       state->registers.ac = state->registers.ip;
-      state->registers.ip = imm;
+      state->registers.ip = imm.u16;
       break;
     case JMZ:
       if (state->registers.ac == 0) {
-        state->registers.ip = imm;
+        state->registers.ip = imm.u16;
       }
       break;
     // Memory
@@ -39,24 +39,26 @@ void stepProcess(struct ProcessState* state) {
       *regA = *regB;
       break;
     case LDIB:
-      state->registers.ac = imm & 0xFF;
+      state->registers.ac = imm.u8;
       break;
     case LDIW:
-    state->registers.ac = imm;
+      state->registers.ac = imm.u16;
       break;
     case LDMB:
+      addrLow = *regA + imm.s4;
       *regA = (unsigned short)state->memory[*regB];
       break;
     case LDMW:
-      addrLow = *regB;
+      addrLow = *regB + imm.s4;
       addrHigh = addrLow + 1;
       *regA = ((unsigned short)state->memory[addrHigh] << 8) | (unsigned short)state->memory[addrLow];
       break;
     case STMB:
-      state->memory[*regB] = (char)(*regA & 0xFF);
+      addrLow = *regB + imm.s4;
+      state->memory[addrLow] = (char)(*regA & 0xFF);
       break;
     case STMW:
-      addrLow = *regB;
+      addrLow = *regB + imm.s4;
       addrHigh = addrLow + 1;
       state->memory[addrLow] = (char)(*regA & 0xFF);
       state->memory[addrHigh] = (char)((*regA & 0xFF00) >> 8);
@@ -114,13 +116,13 @@ void stepProcess(struct ProcessState* state) {
       *regA = ((unsigned short)*regA) >> *regB;
       break;
     case LSI:
-      *regA = *regA << (imm & 0xF);
+      *regA = *regA << imm.u4;
       break;
     case RSIS:
-      *regA = ((signed short)*regA) >> (imm & 0xF);
+      *regA = ((signed short)*regA) >> imm.u4;
       break;
     case RSIU:
-      *regA = ((unsigned short)*regA) >> (imm & 0xF);
+      *regA = ((unsigned short)*regA) >> imm.u4;
       break;
     case AND:
       *regA = *regA & *regB;
