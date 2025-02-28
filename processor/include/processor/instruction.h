@@ -2,13 +2,15 @@
 #include "processor/opcode.h"
 #include "processor/register.h"
 
-// Layout:
-// 0: | opcode (8 bits) |
-// 1: | opcode (8 bits) | reg A (4 bits) | reg B (4 bits) |
-// 2: | opcode (8 bits) | reg A (4 bits) | imm (4 bits)   |
-// 3: | opcode (8 bits) | imm (8 bits)                    |
-// 4: | opcode (8 bits) | imm (16 bits)                                                     |
-// (last 2 bits of opcode represent number of bytes in addition to opcode)
+// Example layouts:
+// [ opcode (8 bits) ]
+// [ opcode (8 bits) | imm[0:7] (8 bits)                       ]
+// [ opcode (8 bits) | reg A (4 bits)     | imm[0:3] (4 bits)  ]
+// [ opcode (8 bits) | reg A (4 bits)     | reg B (4 bits)     ]
+// [ opcode (8 bits) | imm[0:15] (16 bits)                                                               ]
+// [ opcode (8 bits) | imm[0:7] (8 bits)                       | reg A (4 bits)     | imm[8:11] (4 bits) ]
+// [ opcode (8 bits) | imm[0:7] (8 bits)                       | reg A (4 bits)     | reg B (4 bits)     ]
+// [ opcode (8 bits) | imm[0:15] (16 bits)                                                               | reg A (4 bits)     | reg B (4 bits)     ]
 
 // Represents the parameters of an instruction as fetched from memory.
 struct InstructionParameters {
