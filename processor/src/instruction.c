@@ -32,10 +32,11 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
   }
 
   // Extract the immediate value from the parameter bytes.
+  unsigned short value;
   switch (numBytes) {
     case 1:
       if (!hasRegB) {
-        unsigned short value = parameterBytes[0];
+        value = parameterBytes[0];
         if (!hasRegA) {
           instruction.parameters.immediate.u8 = value;
         } else {
@@ -44,7 +45,7 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
       }
       break;
     case 2:
-      unsigned short value = ((unsigned short)parameterBytes[1] << 8) | (unsigned short)parameterBytes[0];
+      value = ((unsigned short)parameterBytes[1] << 8) | (unsigned short)parameterBytes[0];
       if (!hasRegB) {
         if (!hasRegA) {
           instruction.parameters.immediate.u16 = value;
@@ -56,7 +57,7 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
       }
       break;
     case 3:
-      unsigned short value = ((unsigned short)parameterBytes[1] << 8) | (unsigned short)parameterBytes[0];
+      value = ((unsigned short)parameterBytes[1] << 8) | (unsigned short)parameterBytes[0];
       instruction.parameters.immediate.u16 = value;
       break;
   }
