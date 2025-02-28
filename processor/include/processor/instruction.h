@@ -12,9 +12,19 @@
 
 // Represents the parameters of an instruction as fetched from memory.
 struct InstructionParameters {
-  enum Register registerA;
-  enum Register registerB;
-  unsigned short immediateValue;
+  enum Register registerA : 4;
+  enum Register registerB : 4;
+  union {
+    unsigned short u16 : 16;
+    unsigned short u12 : 12;
+    unsigned short u8 : 8;
+    unsigned short u4 : 4;
+
+    signed short s16 : 16;
+    signed short s12 : 12;
+    signed short s8 : 8;
+    signed short s4 : 4;
+  } immediate;
 };
 
 // An instruction that has been fetched from memory.
