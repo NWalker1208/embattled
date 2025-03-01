@@ -28,7 +28,9 @@ void tearDown() { }
 
 void test_nop_should_doNothing(void) {
   // Arrange
-  processState.memory[0] = NOP;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = NOP,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0001;
@@ -42,9 +44,10 @@ void test_nop_should_doNothing(void) {
 
 void test_jmp_should_jumpToAddressAndSaveReturnAddress(void) {
   // Arrange
-  processState.memory[0] = JMP;
-  processState.memory[1] = 0x34;
-  processState.memory[2] = 0x12;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = JMP,
+    .parameters.immediate.u12 = 0x1234,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x1234;
@@ -60,9 +63,10 @@ void test_jmp_should_jumpToAddressAndSaveReturnAddress(void) {
 void test_jmz_should_jumpToAddress_when_acIsZero(void) {
   // Arrange
   processState.registers.ac = 0x0000;
-  processState.memory[0] = JMZ;
-  processState.memory[1] = 0x34;
-  processState.memory[2] = 0x12;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = JMZ,
+    .parameters.immediate.u12 = 0x1234,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x1234;
@@ -77,9 +81,10 @@ void test_jmz_should_jumpToAddress_when_acIsZero(void) {
 void test_jmz_should_doNothing_when_acIsNonZero(void) {
   // Arrange
   processState.registers.ac = 0x0001;
-  processState.memory[0] = JMZ;
-  processState.memory[1] = 0x34;
-  processState.memory[2] = 0x12;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = JMZ,
+    .parameters.immediate.u12 = 0x1234,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0003;
@@ -95,19 +100,24 @@ void test_jmz_should_doNothing_when_acIsNonZero(void) {
 
 #pragma region Memory instructions
 
-void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNull(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
+void test_mov_should_copyValueFromRegisterBToRegisterA_when_registersAreDifferentAndNeitherIsNullOrIp(void) {
+  for (enum Register regA = SP; regA < REGISTER_COUNT; regA++) {
+    for (enum Register regB = SP; regB < REGISTER_COUNT; regB++) {
+      if (regA == regB) { continue; }
+
       // Arrange
       setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
-      processState.memory[0] = MOV;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+      *getRegisterPtr(&processState.registers, regA) = 0x1234;
+      *getRegisterPtr(&processState.registers, regB) = 0x5678;
+      storeInstruction(processState.memory, 0, (struct Instruction){
+        .opcode = MOV,
+        .parameters.registerA = regA,
+        .parameters.registerB = regB,
+      });
 
       initializeExpectedEndState();
       expectedEndState.registers.ip = 0x0002;
-      *getRegisterPtr(&expectedEndState.registers, (enum Register)regA) = 0x5678; // If regA is ip, this will replace the value above
+      *getRegisterPtr(&expectedEndState.registers, regA) = 0x5678;
 
       // Act
       stepProcess(&processState);
@@ -118,52 +128,90 @@ void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNul
   }
 }
 
-// TODO: Special case mov test on ip register
+void test_mov_should_copyValueFromRegisterBToIp_when_registerAIsIp(void) {
+  // Arrange
+  processState.registers.x3 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = MOV,
+    .parameters.registerA = IP,
+    .parameters.registerB = X3,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x1234;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_mov_should_copyValueFromIpToRegisterA_when_registerBIsIp(void) {
+  // Arrange
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = MOV,
+    .parameters.registerA = X3,
+    .parameters.registerB = IP,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x3 = 0x0002;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
 
 void test_mov_should_setRegisterAToZero_when_registerBIsNull(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    // Arrange
-    setUp();
-    *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
-    processState.memory[0] = MOV;
-    processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)NL;
-    
-    initializeExpectedEndState();
-    *getRegisterPtr(&expectedEndState.registers, (enum Register)regA) = 0x0000;
-    expectedEndState.registers.ip = 0x0002;
+  // Arrange
+  processState.registers.x7 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = MOV,
+    .parameters.registerA = X7,
+    .parameters.registerB = NL,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x7 = 0x0000;
 
-    // Act
-    stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-    // Assert
-    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_mov_should_doNothing_when_registerAIsNull(void) {
-  for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-    // Arrange
-    setUp();
-    *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-    processState.memory[0] = MOV;
-    processState.memory[1] = (unsigned char)NL << 4 | (unsigned char)regB;
-    
-    initializeExpectedEndState();
-    expectedEndState.registers.ip = 0x0002;
+  // Arrange
+  processState.registers.x7 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = MOV,
+    .parameters.registerA = NL,
+    .parameters.registerB = X7,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
 
-    // Act
-    stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-    // Assert
-    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_mov_should_doNothing_when_bothRegistersAreNull(void) {
   // Arrange
-  setUp();
-  processState.memory[0] = MOV;
-  processState.memory[1] = (unsigned char)NL << 4 | (unsigned char)NL;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = MOV,
+    .parameters.registerA = NL,
+    .parameters.registerB = NL,
+  });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -177,8 +225,10 @@ void test_mov_should_doNothing_when_bothRegistersAreNull(void) {
 
 void test_ldib_should_loadImmediateByteIntoAc(void) {
   // Arrange
-  processState.memory[0] = LDIB;
-  processState.memory[1] = 0x12;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = LDIB,
+    .parameters.immediate.u8 = 0x12,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -193,9 +243,10 @@ void test_ldib_should_loadImmediateByteIntoAc(void) {
 
 void test_ldiw_should_loadImmediateWordIntoAc(void) {
   // Arrange
-  processState.memory[0] = LDIW;
-  processState.memory[1] = 0x34;
-  processState.memory[2] = 0x12;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = LDIW,
+    .parameters.immediate.u16 = 0x1234,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0003;
@@ -211,8 +262,11 @@ void test_ldiw_should_loadImmediateWordIntoAc(void) {
 void test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = LDMB;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x0;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = LDMB,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x0,
+  });
   processState.memory[0x1234] = 0x56;
 
   initializeExpectedEndState();
@@ -229,8 +283,11 @@ void test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero(vo
 void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsPositive(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = LDMB;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x7;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = LDMB,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x7,
+  });
   processState.memory[0x123B] = 0x56;
 
   initializeExpectedEndState();
@@ -247,8 +304,11 @@ void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValu
 void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsNegative(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = LDMB;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x8; // 0x8 = -8 as a nibble
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = LDMB,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x8, // 0x8 = -8 as a nibble
+  });
   processState.memory[0x122C] = 0x56;
 
   initializeExpectedEndState();
@@ -265,8 +325,11 @@ void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValu
 void test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = LDMW;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x0;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = LDMW,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x0,
+  });
   processState.memory[0x1234] = 0x78;
   processState.memory[0x1235] = 0x56;
 
@@ -284,8 +347,11 @@ void test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero(vo
 void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsPositive(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = LDMW;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x7;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = LDMW,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x7,
+  });
   processState.memory[0x123B] = 0x78;
   processState.memory[0x123C] = 0x56;
 
@@ -303,8 +369,11 @@ void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValu
 void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsNegative(void) {
   // Arrange
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = LDMW;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x8; // 0x8 = -8 as a nibble
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = LDMW,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x8, // 0x8 = -8 as a nibble
+  });
   processState.memory[0x122C] = 0x78;
   processState.memory[0x122D] = 0x56;
 
@@ -319,12 +388,38 @@ void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValu
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
+void test_ldmw_should_loadMemoryWordAtAddressWrappingToZero_when_addressIsMaximumValue(void) {
+  // Arrange
+  processState.registers.ip = 0x0001;
+  processState.registers.x0 = 0xFFFF;
+  storeInstruction(processState.memory, 1, (struct Instruction){
+    .opcode = LDMW,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x0,
+  });
+  processState.memory[0xFFFF] = 0x78;
+  processState.memory[0x0000] = 0x56;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.ac = 0x5678;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
 void test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZero(void) {
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = STMB;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x0;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = STMB,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x0,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -341,8 +436,11 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immedia
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = STMB;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x7;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = STMB,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x7,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -359,8 +457,11 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immedia
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = STMB;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x8; // 0x8 = -8 as a nibble
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = STMB,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x8, // 0x8 = -8 as a nibble
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -377,8 +478,11 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZe
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = STMW;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x0;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = STMW,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x0,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -396,8 +500,11 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediat
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = STMW;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x7;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = STMW,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x7,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -415,8 +522,11 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediat
   // Arrange
   processState.registers.ac = 0x5678;
   processState.registers.x0 = 0x1234;
-  processState.memory[0] = STMW;
-  processState.memory[1] = (unsigned char)X0 << 4 | 0x8; // 0x8 = -8 as a nibble
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = STMW,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x8, // 0x8 = -8 as a nibble
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -430,35 +540,57 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediat
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) {
-  for (unsigned int i = 1; i < REGISTER_COUNT; i++) {
-    if (i == SP) { continue; }
+void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWrappingToZero_when_addressIsMaxValue(void) {
+  // Arrange
+  processState.registers.ip = 0x0001;
+  processState.registers.ac = 0x5678;
+  processState.registers.x0 = 0xFFFF;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = STMW,
+    .parameters.registerA = X0,
+    .parameters.immediate.u4 = 0x0,
+  });
 
-    // Arrange
-    setUp();
-    processState.registers.sp = 0x0000;
-    *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
-    processState.memory[0] = PSHB;
-    processState.memory[1] = (unsigned char)i << 4;
-  
-    initializeExpectedEndState();
-    expectedEndState.registers.ip = 0x0002;
-    expectedEndState.registers.sp = 0xFFFF;
-    expectedEndState.memory[0xFFFF] = 0x34;
-  
-    // Act
-    stepProcess(&processState);
-  
-    // Assert
-    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-  }
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.memory[0xFFFF] = 0x78;
+  expectedEndState.memory[0x0000] = 0x56;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) {
+  // Arrange
+  processState.registers.sp = 0x0000;
+  processState.registers.x4 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = PSHB,
+    .parameters.registerA = X0,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.sp = 0xFFFF;
+  expectedEndState.memory[0xFFFF] = 0x34;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp(void) {
   // Arrange
   processState.registers.sp = 0x1234;
-  processState.memory[0] = PSHB;
-  processState.memory[1] = (unsigned char)SP << 4;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = PSHB,
+    .parameters.registerA = SP,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -473,35 +605,34 @@ void test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp(void
 }
 
 void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(void) {
-  for (unsigned int i = 1; i < REGISTER_COUNT; i++) {
-    if (i == SP) { continue; }
+  // Arrange
+  processState.registers.sp = 0x0000;
+  processState.registers.x4 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = PSHW,
+    .parameters.registerA = X4,
+  });
 
-    // Arrange
-    setUp();
-    processState.registers.sp = 0x0000;
-    *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
-    processState.memory[0] = PSHW;
-    processState.memory[1] = (unsigned char)i << 4;
-  
-    initializeExpectedEndState();
-    expectedEndState.registers.ip = 0x0002;
-    expectedEndState.registers.sp = 0xFFFE;
-    expectedEndState.memory[0xFFFE] = 0x34;
-    expectedEndState.memory[0xFFFF] = 0x12;
-  
-    // Act
-    stepProcess(&processState);
-  
-    // Assert
-    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-  }
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.sp = 0xFFFE;
+  expectedEndState.memory[0xFFFE] = 0x34;
+  expectedEndState.memory[0xFFFF] = 0x12;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp(void) {
   // Arrange
   processState.registers.sp = 0x1234;
-  processState.memory[0] = PSHW;
-  processState.memory[1] = (unsigned char)SP << 4;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = PSHW,
+    .parameters.registerA = SP,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -516,36 +647,58 @@ void test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp(void)
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
-  for (unsigned int i = 1; i < REGISTER_COUNT; i++) {
-    if (i == SP) { continue; }
+void test_pshw_should_pushFullRegisterOntoStackWrappingToEnd_when_stackPointerIsOne(void) {
+  // Arrange
+  processState.registers.ip = 0x0001;
+  processState.registers.sp = 0x0001;
+  processState.registers.x4 = 0x1234;
+  storeInstruction(processState.memory, 1, (struct Instruction){
+    .opcode = PSHW,
+    .parameters.registerA = X4,
+  });
 
-    // Arrange
-    setUp();
-    processState.registers.sp = 0xFFFE;
-    processState.memory[0] = POPB;
-    processState.memory[1] = (unsigned char)i << 4;
-    processState.memory[0xFFFE] = 0x34;
-    processState.memory[0xFFFF] = 0x12;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.sp = 0xFFFF;
+  expectedEndState.memory[0xFFFF] = 0x34;
+  expectedEndState.memory[0x0000] = 0x12;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
+  // Arrange
+  processState.registers.sp = 0xFFFE;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = POPB,
+    .parameters.registerA = X6,
+  });
+  processState.memory[0xFFFE] = 0x34;
+  processState.memory[0xFFFF] = 0x12;
   
-    initializeExpectedEndState();
-    expectedEndState.registers.ip = 0x0002;
-    expectedEndState.registers.sp = 0xFFFF;
-    *getRegisterPtr(&expectedEndState.registers, (enum Register)i) = 0x0034; // If the register is ip, this replaces the value above
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.sp = 0xFFFF;
+  expectedEndState.registers.x6 = 0x0034;
   
-    // Act
-    stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
   
-    // Assert
-    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp(void) {
   // Arrange
   processState.registers.sp = 0xFFFE;
-  processState.memory[0] = POPB;
-  processState.memory[1] = (unsigned char)SP << 4;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = POPB,
+    .parameters.registerA = SP,
+  });
   processState.memory[0xFFFE] = 0x34;
   processState.memory[0xFFFF] = 0x12;
 
@@ -561,35 +714,34 @@ void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp(void) {
 }
 
 void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(void) {
-  for (unsigned int i = 1; i < REGISTER_COUNT; i++) {
-    if (i == SP) { continue; }
-
-    // Arrange
-    setUp();
-    processState.registers.sp = 0xFFFE;
-    processState.memory[0] = POPW;
-    processState.memory[1] = (unsigned char)i << 4;
-    processState.memory[0xFFFE] = 0x34;
-    processState.memory[0xFFFF] = 0x12;
+  // Arrange
+  processState.registers.sp = 0xFFFE;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = POPW,
+    .parameters.registerA = X6,
+  });
+  processState.memory[0xFFFE] = 0x34;
+  processState.memory[0xFFFF] = 0x12;
   
-    initializeExpectedEndState();
-    expectedEndState.registers.ip = 0x0002;
-    expectedEndState.registers.sp = 0x0000;
-    *getRegisterPtr(&expectedEndState.registers, (enum Register)i) = 0x1234; // If the register is ip, this replaces the value above
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.sp = 0x0000;
+  expectedEndState.registers.x6 = 0x1234;
   
-    // Act
-    stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
   
-    // Assert
-    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp(void) {
   // Arrange
   processState.registers.sp = 0xFFFE;
-  processState.memory[0] = POPW;
-  processState.memory[1] = (unsigned char)SP << 4;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = POPW,
+    .parameters.registerA = SP,
+  });
   processState.memory[0xFFFE] = 0x34;
   processState.memory[0xFFFF] = 0x12;
 
@@ -604,34 +756,60 @@ void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
+void test_popw_should_popStackWordIntoRegisterWrappingToZero_when_stackPointerIsMaxValue(void) {
+  // Arrange
+  processState.registers.ip = 0x0001;
+  processState.registers.sp = 0xFFFF;
+  storeInstruction(processState.memory, 1, (struct Instruction){
+    .opcode = POPW,
+    .parameters.registerA = X6,
+  });
+  processState.memory[0xFFFF] = 0x34;
+  processState.memory[0x0000] = 0x12;
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.sp = 0x0001;
+  expectedEndState.registers.x6 = 0x1234;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
 #pragma endregion
 
 #pragma region Math and logic instructions
 
 void test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull(void) {
-  for (unsigned int i = 1; i < REGISTER_COUNT; i++) {
-    // Arrange
-    setUp();
-    *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
-    processState.memory[0] = INC;
-    processState.memory[1] = (unsigned char)i << 4 || 0xF;
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = INC,
+    .parameters.registerA = X1,
+    .parameters.immediate.u4 = 0xF,
+  });
 
-    initializeExpectedEndState();
-    expectedEndState.registers.ip = 0x0002;
-    *getRegisterPtr(&expectedEndState.registers, (enum Register)i) = 0x1243;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = 0x1243;
 
-    // Act
-    stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-    // Assert
-    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_inc_should_doNothing_whenRegisterAIsNull(void) {
   // Arrange
-  processState.memory[0] = INC;
-  processState.memory[1] = (unsigned char)NL << 4 || 0xF;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = INC,
+    .parameters.registerA = NL,
+    .parameters.immediate.u4 = 0xF,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -644,29 +822,32 @@ void test_inc_should_doNothing_whenRegisterAIsNull(void) {
 }
 
 void test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull(void) {
-  for (unsigned int i = 1; i < REGISTER_COUNT; i++) {
-    // Arrange
-    setUp();
-    *getRegisterPtr(&processState.registers, (enum Register)i) = 0x1234;
-    processState.memory[0] = DEC;
-    processState.memory[1] = (unsigned char)i << 4 || 0xF;
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = DEC,
+    .parameters.registerA = X1,
+    .parameters.immediate.u4 = 0xF,
+  });
 
-    initializeExpectedEndState();
-    expectedEndState.registers.ip = 0x0002;
-    *getRegisterPtr(&expectedEndState.registers, (enum Register)i) = 0x1225;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = 0x1225;
 
-    // Act
-    stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-    // Assert
-    TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_dec_should_doNothing_whenRegisterAIsNull(void) {
   // Arrange
-  processState.memory[0] = DEC;
-  processState.memory[1] = (unsigned char)NL << 4 || 0xF;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = DEC,
+    .parameters.registerA = NL,
+    .parameters.immediate.u4 = 0xF,
+  });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -679,440 +860,402 @@ void test_dec_should_doNothing_whenRegisterAIsNull(void) {
 }
 
 void test_add_should_setAcToRegisterAPlusRegisterB(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
-      processState.memory[0] = ADD;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x5678;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = ADD,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x68AC : 0xACF0;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x68AC;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_sub_should_setAcToRegisterAMinusRegisterB(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = SUB;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x5678;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = SUB,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x4444 : 0x0000;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x4444;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_mul_should_setAcToRegisterATimesRegisterB(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x1234;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x5678;
-      processState.memory[0] = MUL;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x5678;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = MUL,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x0060 : 0xD840;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0060;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = DIVS;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x5678;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = DIVS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x0004 : 0x0001;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0004;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = DIVS;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x8765;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = DIVS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0xFFFA : 0x0001;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0xFFFA;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = DIVS;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x5678;
+  processState.registers.x2 = 0xFEDC;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = DIVS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0xFFB5 : 0x0001;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0xFFB5;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = DIVS;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0xBA98;
+  processState.registers.x2 = 0xFEDC;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = DIVS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x003C : 0x0001;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x003C;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = DIVU;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x5678;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = DIVU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x0004 : 0x0001;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0004;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = DIVU;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x8765;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = DIVU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x0007 : 0x0001;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0007;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = DIVU;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x5678;
+  processState.registers.x2 = 0xFEDC;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = DIVU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x0000 : 0x0001;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0000;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = DIVU;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0xBA98;
+  processState.registers.x2 = 0xFEDC;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = DIVU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x0000 : 0x0001;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0000;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = REMS;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x5678;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = REMS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x0DA8 : 0x0000;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0DA8;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = REMS;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x8765;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = REMS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0xF49D : 0x0000;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0xF49D;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = REMS;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x5678;
+  processState.registers.x2 = 0xFEDC;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = REMS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x00EC : 0x0000;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x00EC;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = REMS;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0xBA98;
+  processState.registers.x2 = 0xFEDC;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = REMS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0xFF08 : 0x0000;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0xFF08;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = REMU;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x5678;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = REMU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x0DA8 : 0x0000;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0DA8;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x8765;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0x1234;
-      processState.memory[0] = REMU;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x8765;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = REMU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x07F9 : 0x0000;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x07F9;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0x5678;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = REMU;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0x5678;
+  processState.registers.x2 = 0xFEDC;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = REMU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0x5678 : 0x0000;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x5678;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet(void) {
-  for (unsigned int regA = 1; regA < REGISTER_COUNT; regA++) {
-    for (unsigned int regB = 1; regB < REGISTER_COUNT; regB++) {
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, (enum Register)regA) = 0xBA98;
-      *getRegisterPtr(&processState.registers, (enum Register)regB) = 0xFEDC;
-      processState.memory[0] = REMU;
-      processState.memory[1] = (unsigned char)regA << 4 | (unsigned char)regB;
+  // Arrange
+  processState.registers.x1 = 0xBA98;
+  processState.registers.x2 = 0xFEDC;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = REMU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      expectedEndState.registers.ac = (regA != regB) ? 0xBA98 : 0x0000;
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0xBA98;
 
-      // Act
-      stepProcess(&processState);
+  // Act
+  stepProcess(&processState);
 
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 // TODO: Write tests for other instructions
@@ -1125,7 +1268,9 @@ int main() {
   RUN_TEST(test_jmp_should_jumpToAddressAndSaveReturnAddress);
   RUN_TEST(test_jmz_should_jumpToAddress_when_acIsZero);
   RUN_TEST(test_jmz_should_doNothing_when_acIsNonZero);
-  RUN_TEST(test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNull);
+  RUN_TEST(test_mov_should_copyValueFromRegisterBToRegisterA_when_registersAreDifferentAndNeitherIsNullOrIp);
+  RUN_TEST(test_mov_should_copyValueFromRegisterBToIp_when_registerAIsIp);
+  RUN_TEST(test_mov_should_copyValueFromIpToRegisterA_when_registerBIsIp);
   RUN_TEST(test_mov_should_setRegisterAToZero_when_registerBIsNull);
   RUN_TEST(test_mov_should_doNothing_when_registerAIsNull);
   RUN_TEST(test_mov_should_doNothing_when_bothRegistersAreNull);
