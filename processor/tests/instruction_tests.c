@@ -72,7 +72,7 @@ void test_storeInstruction_shouldSave8BitImmediateValue_whenOpcodeHasLayoutImm8(
     expectedMemory[1] = 0xFF;
   
     // Act
-    int bytesWritten = storeInstruction(memory, 4, instruction);
+    int bytesWritten = storeInstruction(memory, 0, instruction);
     
     // Assert
     TEST_ASSERT_EQUAL_INT(2, bytesWritten);
