@@ -4,7 +4,55 @@ void setUp() { }
 
 void tearDown() { }
 
+#pragma region fetchInstruction
+
+void test_fetchInstruction_shouldLoadOpcode_whenOpcodeHasLayoutNone(void) {
+
+}
+
+void test_fetchInstruction_shouldLoad8BitImmediateValue_whenOpcodeHasLayoutImm8(void) {
+
+}
+
+void test_fetchInstruction_shouldLoadRegisterAAnd4BitImmediateValue_whenOpcodeHasLayoutRegAImm4(void) {
+
+}
+
+void test_fetchInstruction_shouldLoadRegisterAAndRegisterB_whenOpcodeHasLayoutRegARegB(void) {
+
+}
+
+void test_fetchInstruction_shouldLoad16BitImmediateValue_whenOpcodeHasLayoutImm16(void) {
+
+}
+
+void test_fetchInstruction_shouldLoadRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12(void) {
+
+}
+
+void test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8(void) {
+
+}
+
+void test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16(void) {
+
+}
+
+#pragma endregion
+
+#pragma region storeInstruction
+
+#pragma endregion
+
 int main() {
   UNITY_BEGIN();
+  RUN_TEST(test_fetchInstruction_shouldLoadOpcode_whenOpcodeHasLayoutNone);
+  RUN_TEST(test_fetchInstruction_shouldLoad8BitImmediateValue_whenOpcodeHasLayoutImm8);
+  RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAnd4BitImmediateValue_whenOpcodeHasLayoutRegAImm4);
+  RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAndRegisterB_whenOpcodeHasLayoutRegARegB);
+  RUN_TEST(test_fetchInstruction_shouldLoad16BitImmediateValue_whenOpcodeHasLayoutImm16);
+  RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12);
+  RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8);
+  RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16);
   return UNITY_END();
 }
