@@ -1,6 +1,19 @@
 #include <unity.h>
+#include "processor/instruction.h"
 
-void setUp() { }
+unsigned char memory[8];
+unsigned char expectedMemory[8];
+
+void setUp() {
+  expectedMemory[0] = memory[0] = 0x12;
+  expectedMemory[1] = memory[1] = 0x34;
+  expectedMemory[2] = memory[2] = 0x56;
+  expectedMemory[3] = memory[3] = 0x78;
+  expectedMemory[4] = memory[4] = 0x9A;
+  expectedMemory[5] = memory[5] = 0xBC;
+  expectedMemory[6] = memory[6] = 0xDE;
+  expectedMemory[7] = memory[7] = 0xF0;
+}
 
 void tearDown() { }
 
