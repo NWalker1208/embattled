@@ -1,5 +1,12 @@
 #include "custom_assertions.h"
 
+void CustomAssertEqualInstruction(struct Instruction* expected, struct Instruction* actual, const UNITY_LINE_TYPE lineNumber) {
+  UNITY_TEST_ASSERT_EQUAL_HEX8(expected->opcode, actual->opcode, lineNumber, "opcode of actual instruction differs from expected instruction");
+  UNITY_TEST_ASSERT_EQUAL_INT(expected->parameters.registerA, actual->parameters.registerA, lineNumber, "register A of actual instruction differs from expected instruction");
+  UNITY_TEST_ASSERT_EQUAL_INT(expected->parameters.registerB, actual->parameters.registerB, lineNumber, "register B of actual instruction differs from expected instruction");
+  UNITY_TEST_ASSERT_EQUAL_HEX16(expected->parameters.immediate.u16, actual->parameters.immediate.u16, lineNumber, "immediate value of actual instruction differs from expected instruction");
+}
+
 void CustomAssertEqualProcessState(struct ProcessState* expected, struct ProcessState* actual, const UNITY_LINE_TYPE lineNumber) {
   // Assert registers individually
   UNITY_TEST_ASSERT_EQUAL_HEX16(expected->registers.ip, actual->registers.ip, lineNumber, "IP register of actual state differs from expected state.");
