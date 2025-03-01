@@ -52,9 +52,9 @@ void test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd16BitImmediateValue
 
 void test_storeInstruction_shouldSaveOpcode_whenOpcodeHasLayoutNone(void) {
   // Arrange
-  struct Instruction instruction = { .opcode = NOP, 0 };
+  struct Instruction instruction = { .opcode = NOP };
 
-  expectedMemory[4] = 0;
+  expectedMemory[4] = (unsigned char)NOP;
 
   // Act
   int bytesWritten = storeInstruction(memory, 4, instruction);
@@ -80,28 +80,61 @@ void test_storeInstruction_shouldSave8BitImmediateValue_whenOpcodeHasLayoutImm8(
 }
 
 void test_storeInstruction_shouldSaveRegisterAAnd4BitImmediateValue_whenOpcodeHasLayoutRegAImm4(void) {
+  // Arrange
+  struct Instruction instruction = { .opcode = LDMB, .parameters.registerA = X10, .parameters.immediate.u4 = 0xF };
 
+  expectedMemory[0] = (unsigned char)LDMB;
+  expectedMemory[1] = ((unsigned char)X10 << 4) | 0xF;
+
+  // Act
+  int bytesWritten = storeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(2, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
 }
 
 void test_storeInstruction_shouldSaveRegisterAAndRegisterB_whenOpcodeHasLayoutRegARegB(void) {
+  // Arrange
+  struct Instruction instruction = { .opcode = ADD, .parameters.registerA = X10, .parameters.registerB = X0 };
 
+  expectedMemory[0] = (unsigned char)ADD;
+  expectedMemory[1] = ((unsigned char)X10 << 4) | ((unsigned char)X0 & 0xF);
+
+  // Act
+  int bytesWritten = storeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(2, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
 }
 
 void test_storeInstruction_shouldSave16BitImmediateValue_whenOpcodeHasLayoutImm16(void) {
+  // Arrange
+  struct Instruction instruction = { .opcode = LDIW, .parameters.immediate.u16 = 0xEEFF };
 
+  expectedMemory[0] = (unsigned char)LDIW;
+  expectedMemory[1] = 0xFF;
+  expectedMemory[2] = 0xEE;
+
+  // Act
+  int bytesWritten = storeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(3, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
 }
 
-void test_storeInstruction_shouldSaveRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12(void) {
+// Currently unused layouts
 
-}
+// void test_storeInstruction_shouldSaveRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12(void) {
+// }
 
-void test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8(void) {
+// void test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8(void) {
+// }
 
-}
-
-void test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16(void) {
-
-}
+// void test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16(void) {
+// }
 
 #pragma endregion
 
@@ -120,8 +153,8 @@ int main() {
   RUN_TEST(test_storeInstruction_shouldSaveRegisterAAnd4BitImmediateValue_whenOpcodeHasLayoutRegAImm4);
   RUN_TEST(test_storeInstruction_shouldSaveRegisterAAndRegisterB_whenOpcodeHasLayoutRegARegB);
   RUN_TEST(test_storeInstruction_shouldSave16BitImmediateValue_whenOpcodeHasLayoutImm16);
-  RUN_TEST(test_storeInstruction_shouldSaveRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12);
-  RUN_TEST(test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8);
-  RUN_TEST(test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16);
+  // RUN_TEST(test_storeInstruction_shouldSaveRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12);
+  // RUN_TEST(test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8);
+  // RUN_TEST(test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16);
   return UNITY_END();
 }
