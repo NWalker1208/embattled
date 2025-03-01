@@ -1,5 +1,6 @@
 #include <unity.h>
 #include <string.h>
+#include "custom_assertions.h"
 #include "processor/instruction.h"
 
 unsigned char memory[8];
@@ -15,36 +16,95 @@ void tearDown() { }
 #pragma region fetchInstruction
 
 void test_fetchInstruction_shouldLoadOpcode_whenOpcodeHasLayoutNone(void) {
+  // Arrange
+  unsigned short ip = 4;
+  memory[ip] = (unsigned char)NOP;
 
+  struct Instruction expectedInstruction = { .opcode = NOP };
+
+  // Act
+  struct Instruction actualInstruction = fetchInstruction(memory, &ip);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_UINT16(5, ip);
+  TEST_ASSERT_EQUAL_INSTRUCTION(&expectedInstruction, &actualInstruction);
 }
 
 void test_fetchInstruction_shouldLoad8BitImmediateValue_whenOpcodeHasLayoutImm8(void) {
+  // Arrange
+  unsigned short ip = 0;
+  memory[ip] = (unsigned char)LDIB;
+  memory[ip + 1] = 0xFF;
 
+  struct Instruction expectedInstruction = { .opcode = LDIB, .parameters.immediate.u16 = 0x00FF };
+
+  // Act
+  struct Instruction actualInstruction = fetchInstruction(memory, &ip);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_UINT16(2, ip);
+  TEST_ASSERT_EQUAL_INSTRUCTION(&expectedInstruction, &actualInstruction);
 }
 
 void test_fetchInstruction_shouldLoadRegisterAAnd4BitImmediateValue_whenOpcodeHasLayoutRegAImm4(void) {
+  // Arrange
+  unsigned short ip = 0;
+  memory[ip] = (unsigned char)LDMB;
+  memory[ip + 1] = ((unsigned char)X10 << 4) | 0xF;
 
+  struct Instruction expectedInstruction = { .opcode = LDMB, .parameters.registerA = X10, .parameters.immediate.u16 = 0x000F };
+
+  // Act
+  struct Instruction actualInstruction = fetchInstruction(memory, &ip);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_UINT16(2, ip);
+  TEST_ASSERT_EQUAL_INSTRUCTION(&expectedInstruction, &actualInstruction);
 }
 
 void test_fetchInstruction_shouldLoadRegisterAAndRegisterB_whenOpcodeHasLayoutRegARegB(void) {
+  // Arrange
+  unsigned short ip = 0;
+  memory[ip] = (unsigned char)ADD;
+  memory[ip + 1] = ((unsigned char)X10 << 4) | ((unsigned char)X0 & 0xF);
 
+  struct Instruction expectedInstruction = { .opcode = ADD, .parameters.registerA = X10, .parameters.registerB = X0 };
+
+  // Act
+  struct Instruction actualInstruction = fetchInstruction(memory, &ip);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_UINT16(2, ip);
+  TEST_ASSERT_EQUAL_INSTRUCTION(&expectedInstruction, &actualInstruction);
 }
 
 void test_fetchInstruction_shouldLoad16BitImmediateValue_whenOpcodeHasLayoutImm16(void) {
+  // Arrange
+  unsigned short ip = 0;
+  memory[ip] = (unsigned char)LDIW;
+  memory[ip + 1] = 0xFF;
+  memory[ip + 2] = 0xEE;
 
+  struct Instruction expectedInstruction = { .opcode = LDIW, .parameters.immediate.u16 = 0xEEFF };
+
+  // Act
+  struct Instruction actualInstruction = fetchInstruction(memory, &ip);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_UINT16(3, ip);
+  TEST_ASSERT_EQUAL_INSTRUCTION(&expectedInstruction, &actualInstruction);
 }
 
-void test_fetchInstruction_shouldLoadRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12(void) {
+// Currently unused layouts
 
-}
+// void test_fetchInstruction_shouldLoadRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12(void) {
+// }
 
-void test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8(void) {
+// void test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8(void) {
+// }
 
-}
-
-void test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16(void) {
-
-}
+// void test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16(void) {
+// }
 
 #pragma endregion
 
@@ -145,9 +205,9 @@ int main() {
   RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAnd4BitImmediateValue_whenOpcodeHasLayoutRegAImm4);
   RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAndRegisterB_whenOpcodeHasLayoutRegARegB);
   RUN_TEST(test_fetchInstruction_shouldLoad16BitImmediateValue_whenOpcodeHasLayoutImm16);
-  RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12);
-  RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8);
-  RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16);
+  // RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12);
+  // RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8);
+  // RUN_TEST(test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16);
   RUN_TEST(test_storeInstruction_shouldSaveOpcode_whenOpcodeHasLayoutNone);
   RUN_TEST(test_storeInstruction_shouldSave8BitImmediateValue_whenOpcodeHasLayoutImm8);
   RUN_TEST(test_storeInstruction_shouldSaveRegisterAAnd4BitImmediateValue_whenOpcodeHasLayoutRegAImm4);
