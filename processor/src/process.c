@@ -17,7 +17,7 @@ void stepProcess(struct ProcessState* state) {
     OPCODE_INFO[opcode].name,
     REGISTER_NAMES[instr.parameters.registerA],
     REGISTER_NAMES[instr.parameters.registerB],
-    imm);
+    imm.u16);
 
   unsigned short addrLow, addrHigh;
 
