@@ -56,11 +56,32 @@ void test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd16BitImmediateValue
 #pragma region storeInstruction
 
 void test_storeInstruction_shouldSaveOpcode_whenOpcodeHasLayoutNone(void) {
+  // Arrange
+  struct Instruction instruction = { .opcode = NOP, 0 };
 
+  expectedMemory[4] = 0;
+
+  // Act
+  int bytesWritten = storeInstruction(memory, 4, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(1, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
 }
 
 void test_storeInstruction_shouldSave8BitImmediateValue_whenOpcodeHasLayoutImm8(void) {
+    // Arrange
+    struct Instruction instruction = { .opcode = LDIB, .parameters.immediate.u8 = 0xFF };
 
+    expectedMemory[0] = (unsigned char)LDIB;
+    expectedMemory[1] = 0xFF;
+  
+    // Act
+    int bytesWritten = storeInstruction(memory, 4, instruction);
+    
+    // Assert
+    TEST_ASSERT_EQUAL_INT(2, bytesWritten);
+    TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
 }
 
 void test_storeInstruction_shouldSaveRegisterAAnd4BitImmediateValue_whenOpcodeHasLayoutRegAImm4(void) {
