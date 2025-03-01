@@ -72,6 +72,7 @@ enum ParameterLayout {
 struct OpcodeInfo {
   const char* name;
   enum ParameterLayout parameterLayout;
+  // TODO: Consider adding function pointer for implementation.
 };
 
 // The details of each opcode. Can be indexed directly by a valid Opcode value.
