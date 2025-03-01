@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include "processor/instruction.h"
 
-struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
+struct Instruction fetchInstruction(const unsigned char* memory, unsigned short* ip) {
   struct Instruction instruction = { 0 };
   instruction.opcode = byteToOpcode(memory[*ip]);
 

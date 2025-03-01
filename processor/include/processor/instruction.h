@@ -40,7 +40,7 @@ struct Instruction {
 
 // Fetches an instruction from memory at the given instruction pointer.
 // Increments the instruction pointer to the next instruction.
-struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip);
+struct Instruction fetchInstruction(const unsigned char* memory, unsigned short* ip);
 
 // Saves the given instruction to memory at the specified address.
 // Returns the number of bytes written (between 0 and 4, inclusive).
