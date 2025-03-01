@@ -64,3 +64,46 @@ struct Instruction fetchInstruction(unsigned char* memory, unsigned short* ip) {
 
   return instruction;
 }
+
+int storeInstruction(unsigned char* memory, unsigned short addr, struct Instruction instruction) {
+  // Write the opcode byte to memory, if it is valid
+  enum Opcode opcode = instruction.opcode;
+  if (opcode < 0 || opcode >= OPCODE_COUNT) {
+    return 0;
+  }
+
+  memory[addr] = (unsigned char)opcode;
+  addr++;
+  
+  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
+  unsigned char numBytes = opcodeInfo->parameterLayout & SIZE_MASK;
+  if (numBytes == 0) {
+    return 1;
+  }
+
+  // Write the immediate value to memory
+  switch (numBytes) {
+    case 1:
+      memory[addr] = (unsigned char)instruction.parameters.immediate.u8;
+      break;
+    case 2: 
+    case 3:
+      memory[addr] = (unsigned char)(instruction.parameters.immediate.u16 & 0xFF);
+      memory[addr + 1] = (unsigned char)(instruction.parameters.immediate.u16 >> 8);
+  }
+  addr += numBytes - 1;
+
+  // Write the registers to memory
+  bool hasRegA = opcodeInfo->parameterLayout & REGA_FLAG;
+  bool hasRegB = opcodeInfo->parameterLayout & REGB_FLAG;
+
+  if (hasRegA) {
+    memory[addr] = (((unsigned char)instruction.parameters.registerA << 4) & 0xF0) | (memory[addr] & 0x0F);
+  }
+
+  if (hasRegB) {
+    memory[addr] = (memory[addr] & 0xF0) | ((unsigned char)instruction.parameters.registerB & 0x0F);
+  }
+
+  return 1 + numBytes;
+}
