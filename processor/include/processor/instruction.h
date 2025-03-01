@@ -27,8 +27,8 @@ union ImmediateValue {
 
 // Represents the parameters of an instruction as fetched from memory.
 struct InstructionParameters {
-  enum Register registerA : 4;
-  enum Register registerB : 4;
+  enum Register registerA;
+  enum Register registerB;
   union ImmediateValue immediate;
 };
 
