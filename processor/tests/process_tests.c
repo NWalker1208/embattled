@@ -255,15 +255,18 @@ void test_ldiw_should_loadImmediateWordIntoAc(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero(void) {
+TEST_CASE(0x1234, 0x0, 0x1234)
+TEST_CASE(0x1234, 0x7, 0x123B)
+TEST_CASE(0x1234, 0x8, 0x122C)
+void test_ldmb_should_loadMemoryByteAtAddressWithSignedOffsetIntoAc(unsigned short baseAddress, unsigned char offset, unsigned short addressWithOffset) {
   // Arrange
-  processState.registers.x0 = 0x1234;
+  processState.registers.x0 = baseAddress;
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = LDMB,
     .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x0,
+    .parameters.immediate.u4 = offset,
   });
-  processState.memory[0x1234] = 0x56;
+  processState.memory[addressWithOffset] = 0x56;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
@@ -276,125 +279,21 @@ void test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero(vo
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsPositive(void) {
-  // Arrange
-  processState.registers.x0 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LDMB,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x7,
-  });
-  processState.memory[0x123B] = 0x56;
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0056;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsNegative(void) {
-  // Arrange
-  processState.registers.x0 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LDMB,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x8, // 0x8 = -8 as a nibble
-  });
-  processState.memory[0x122C] = 0x56;
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0056;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero(void) {
-  // Arrange
-  processState.registers.x0 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LDMW,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x0,
-  });
-  processState.memory[0x1234] = 0x78;
-  processState.memory[0x1235] = 0x56;
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x5678;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsPositive(void) {
-  // Arrange
-  processState.registers.x0 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LDMW,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x7,
-  });
-  processState.memory[0x123B] = 0x78;
-  processState.memory[0x123C] = 0x56;
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x5678;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsNegative(void) {
-  // Arrange
-  processState.registers.x0 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LDMW,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x8, // 0x8 = -8 as a nibble
-  });
-  processState.memory[0x122C] = 0x78;
-  processState.memory[0x122D] = 0x56;
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x5678;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_ldmw_should_loadMemoryWordAtAddressWrappingToZero_when_addressIsMaximumValue(void) {
+TEST_CASE(0x1234, 0x0, 0x1234, 0x1235)
+TEST_CASE(0x1234, 0x7, 0x123B, 0x123C)
+TEST_CASE(0x1234, 0x8, 0x122C, 0x122D)
+TEST_CASE(0xFFFF, 0x0, 0xFFFF, 0x0000)
+void test_ldmw_should_loadMemoryWordAtAddressWithSignedOffsetIntoAc(unsigned short baseAddress, unsigned char offset, unsigned short lowerAddressWithOffset, unsigned short upperAddressWithOffset) {
   // Arrange
   processState.registers.ip = 0x0001;
-  processState.registers.x0 = 0xFFFF;
+  processState.registers.x0 = baseAddress;
   storeInstruction(processState.memory, 1, (struct Instruction){
     .opcode = LDMW,
     .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x0,
+    .parameters.immediate.u4 = offset,
   });
-  processState.memory[0xFFFF] = 0x78;
-  processState.memory[0x0000] = 0x56;
+  processState.memory[lowerAddressWithOffset] = 0x78;
+  processState.memory[upperAddressWithOffset] = 0x56;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0003;
@@ -407,19 +306,22 @@ void test_ldmw_should_loadMemoryWordAtAddressWrappingToZero_when_addressIsMaximu
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZero(void) {
+TEST_CASE(0x1234, 0x0, 0x1234)
+TEST_CASE(0x1234, 0x7, 0x123B)
+TEST_CASE(0x1234, 0x8, 0x122C)
+void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithSignedOffset(unsigned short baseAddress, unsigned char offset, unsigned short addressWithOffset) {
   // Arrange
   processState.registers.ac = 0x5678;
-  processState.registers.x0 = 0x1234;
+  processState.registers.x0 = baseAddress;
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = STMB,
     .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x0,
+    .parameters.immediate.u4 = offset,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.memory[0x1234] = 0x78;
+  expectedEndState.memory[addressWithOffset] = 0x78;
 
   // Act
   stepProcess(&processState);
@@ -428,129 +330,25 @@ void test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZ
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsPositive(void) {
-  // Arrange
-  processState.registers.ac = 0x5678;
-  processState.registers.x0 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = STMB,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x7,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.memory[0x123B] = 0x78;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsNegative(void) {
-  // Arrange
-  processState.registers.ac = 0x5678;
-  processState.registers.x0 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = STMB,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x8, // 0x8 = -8 as a nibble
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.memory[0x122C] = 0x78;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZero(void) {
-  // Arrange
-  processState.registers.ac = 0x5678;
-  processState.registers.x0 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = STMW,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x0,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.memory[0x1234] = 0x78;
-  expectedEndState.memory[0x1235] = 0x56;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsPositive(void) {
-  // Arrange
-  processState.registers.ac = 0x5678;
-  processState.registers.x0 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = STMW,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x7,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.memory[0x123B] = 0x78;
-  expectedEndState.memory[0x123C] = 0x56;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsNegative(void) {
-  // Arrange
-  processState.registers.ac = 0x5678;
-  processState.registers.x0 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = STMW,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x8, // 0x8 = -8 as a nibble
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.memory[0x122C] = 0x78;
-  expectedEndState.memory[0x122D] = 0x56;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWrappingToZero_when_addressIsMaxValue(void) {
+TEST_CASE(0x1234, 0x0, 0x1234, 0x1235)
+TEST_CASE(0x1234, 0x7, 0x123B, 0x123C)
+TEST_CASE(0x1234, 0x8, 0x122C, 0x122D)
+TEST_CASE(0xFFFF, 0x0, 0xFFFF, 0x0000)
+void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithSignedOffset(unsigned short baseAddress, unsigned char offset, unsigned short lowerAddressWithOffset, unsigned short upperAddressWithOffset) {
   // Arrange
   processState.registers.ip = 0x0001;
   processState.registers.ac = 0x5678;
-  processState.registers.x0 = 0xFFFF;
-  storeInstruction(processState.memory, 0, (struct Instruction){
+  processState.registers.x0 = baseAddress;
+  storeInstruction(processState.memory, 1, (struct Instruction){
     .opcode = STMW,
     .parameters.registerA = X0,
-    .parameters.immediate.u4 = 0x0,
+    .parameters.immediate.u4 = offset,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0003;
-  expectedEndState.memory[0xFFFF] = 0x78;
-  expectedEndState.memory[0x0000] = 0x56;
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.memory[lowerAddressWithOffset] = 0x78;
+  expectedEndState.memory[upperAddressWithOffset] = 0x56;
 
   // Act
   stepProcess(&processState);
@@ -1254,10 +1052,12 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned_when_registerBDoesNotHaveMsbSet(void) {
+TEST_CASE(0x5678, 0x0005, 0xCF00)
+TEST_CASE(0x5678, 0xFFFB, 0x0000)
+void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned_when_registerBDoesNotHaveMsbSet(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = 0x5678;
-  processState.registers.x2 = 0x0005;
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = LSH,
     .parameters.registerA = X1,
@@ -1266,28 +1066,7 @@ void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned_when_registe
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0xCF00;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned_when_registerBHasMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0x5678;
-  processState.registers.x2 = 0xFFFB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LSH,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0000;
+  expectedEndState.registers.ac = expectedOutput;
 
   // Act
   stepProcess(&processState);
