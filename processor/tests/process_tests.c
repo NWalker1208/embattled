@@ -1,3 +1,4 @@
+#define UNITY_SUPPORT_TEST_CASES
 #include <unity.h>
 #include <string.h>
 #include "custom_assertions.h"
@@ -100,32 +101,27 @@ void test_jmz_should_doNothing_when_acIsNonZero(void) {
 
 #pragma region Memory instructions
 
-void test_mov_should_copyValueFromRegisterBToRegisterA_when_registersAreDifferentAndNeitherIsNullOrIp(void) {
-  for (enum Register regA = SP; regA < REGISTER_COUNT; regA++) {
-    for (enum Register regB = SP; regB < REGISTER_COUNT; regB++) {
-      if (regA == regB) { continue; }
+TEST_MATRIX([SP, AC, X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11], [SP, AC, X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11])
+void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(enum Register regA, enum Register regB) {
+  // Arrange
+  setUp();
+  *getRegisterPtr(&processState.registers, regA) = 0x1234;
+  *getRegisterPtr(&processState.registers, regB) = 0x5678;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = MOV,
+    .parameters.registerA = regA,
+    .parameters.registerB = regB,
+  });
 
-      // Arrange
-      setUp();
-      *getRegisterPtr(&processState.registers, regA) = 0x1234;
-      *getRegisterPtr(&processState.registers, regB) = 0x5678;
-      storeInstruction(processState.memory, 0, (struct Instruction){
-        .opcode = MOV,
-        .parameters.registerA = regA,
-        .parameters.registerB = regB,
-      });
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  *getRegisterPtr(&expectedEndState.registers, regA) = 0x5678;
 
-      initializeExpectedEndState();
-      expectedEndState.registers.ip = 0x0002;
-      *getRegisterPtr(&expectedEndState.registers, regA) = 0x5678;
+  // Act
+  stepProcess(&processState);
 
-      // Act
-      stepProcess(&processState);
-
-      // Assert
-      TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-    }
-  }
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 void test_mov_should_copyValueFromRegisterBToIp_when_registerAIsIp(void) {
