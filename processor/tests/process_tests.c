@@ -779,7 +779,7 @@ void test_popw_should_popStackWordIntoRegisterWrappingToZero_when_stackPointerIs
 
 #pragma region Math and logic instructions
 
-void test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull(void) {
+void test_inc_should_incrementRegisterAByImmediateValue_when_registerAIsNotNull(void) {
   // Arrange
   processState.registers.x1 = 0x1234;
   storeInstruction(processState.memory, 0, (struct Instruction){
@@ -799,7 +799,7 @@ void test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_inc_should_doNothing_whenRegisterAIsNull(void) {
+void test_inc_should_doNothing_when_registerAIsNull(void) {
   // Arrange
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = INC,
@@ -817,7 +817,7 @@ void test_inc_should_doNothing_whenRegisterAIsNull(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull(void) {
+void test_dec_should_decrementRegisterAByImmediateValue_when_registerAIsNotNull(void) {
   // Arrange
   processState.registers.x1 = 0x1234;
   storeInstruction(processState.memory, 0, (struct Instruction){
@@ -837,7 +837,7 @@ void test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull(v
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_dec_should_doNothing_whenRegisterAIsNull(void) {
+void test_dec_should_doNothing_when_registerAIsNull(void) {
   // Arrange
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = DEC,
@@ -918,7 +918,7 @@ void test_mul_should_setAcToRegisterATimesRegisterB(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet(void) {
+void test_divs_should_setAcToRegisterADividedByRegisterBSigned_when_neitherRegisterHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0x1234;
@@ -939,7 +939,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenNeitherRegist
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet(void) {
+void test_divs_should_setAcToRegisterADividedByRegisterBSigned_when_registerAHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x8765;
   processState.registers.x2 = 0x1234;
@@ -960,7 +960,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasM
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet(void) {
+void test_divs_should_setAcToRegisterADividedByRegisterBSigned_when_registerBHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0xFEDC;
@@ -981,7 +981,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasM
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet(void) {
+void test_divs_should_setAcToRegisterADividedByRegisterBSigned_when_bothRegistersHaveMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0xBA98;
   processState.registers.x2 = 0xFEDC;
@@ -1002,7 +1002,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegisters
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet(void) {
+void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_when_neitherRegisterHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0x1234;
@@ -1023,7 +1023,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegi
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet(void) {
+void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_when_registerAHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x8765;
   processState.registers.x2 = 0x1234;
@@ -1044,7 +1044,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHa
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet(void) {
+void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_when_registerBHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0xFEDC;
@@ -1065,7 +1065,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHa
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet(void) {
+void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_when_bothRegistersHaveMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0xBA98;
   processState.registers.x2 = 0xFEDC;
@@ -1086,7 +1086,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegiste
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet(void) {
+void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_when_neitherRegisterHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0x1234;
@@ -1107,7 +1107,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenNe
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet(void) {
+void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_when_registerAHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x8765;
   processState.registers.x2 = 0x1234;
@@ -1128,7 +1128,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRe
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet(void) {
+void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_when_registerBHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0xFEDC;
@@ -1149,7 +1149,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRe
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet(void) {
+void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_when_bothRegistersHaveMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0xBA98;
   processState.registers.x2 = 0xFEDC;
@@ -1170,7 +1170,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenBo
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet(void) {
+void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when_neitherRegisterHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0x1234;
@@ -1191,7 +1191,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet(void) {
+void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when_registerAHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x8765;
   processState.registers.x2 = 0x1234;
@@ -1212,7 +1212,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet(void) {
+void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when_registerBHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0xFEDC;
@@ -1233,7 +1233,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet(void) {
+void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when_bothRegistersHaveMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0xBA98;
   processState.registers.x2 = 0xFEDC;
