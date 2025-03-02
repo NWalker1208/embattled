@@ -47,7 +47,7 @@ void test_jmp_should_jumpToAddressAndSaveReturnAddress(void) {
   // Arrange
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = JMP,
-    .parameters.immediate.u12 = 0x1234,
+    .parameters.immediate.u16 = 0x1234,
   });
 
   initializeExpectedEndState();
@@ -66,7 +66,7 @@ void test_jmz_should_jumpToAddress_when_acIsZero(void) {
   processState.registers.ac = 0x0000;
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = JMZ,
-    .parameters.immediate.u12 = 0x1234,
+    .parameters.immediate.u16 = 0x1234,
   });
 
   initializeExpectedEndState();
@@ -84,7 +84,7 @@ void test_jmz_should_doNothing_when_acIsNonZero(void) {
   processState.registers.ac = 0x0001;
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = JMZ,
-    .parameters.immediate.u12 = 0x1234,
+    .parameters.immediate.u16 = 0x1234,
   });
 
   initializeExpectedEndState();
