@@ -16,7 +16,7 @@ extern void test_nop_should_doNothing(void);
 extern void test_jmp_should_jumpToAddressAndSaveReturnAddress(void);
 extern void test_jmz_should_jumpToAddress_when_acIsZero(void);
 extern void test_jmz_should_doNothing_when_acIsNonZero(void);
-extern void test_mov_should_copyValueFromRegisterBToRegisterA_when_registersAreDifferentAndNeitherIsNullOrIp(void);
+extern void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(enum Register regA, enum Register regB);
 extern void test_mov_should_copyValueFromRegisterBToIp_when_registerAIsIp(void);
 extern void test_mov_should_copyValueFromIpToRegisterA_when_registerBIsIp(void);
 extern void test_mov_should_setRegisterAToZero_when_registerBIsNull(void);
@@ -128,69 +128,1050 @@ static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE l
     UnityConcludeTest();
 }
 
+/*=======Parameterized Test Wrappers=====*/
+static void runner_args1_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, SP);
+}
+static void runner_args2_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, AC);
+}
+static void runner_args3_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X0);
+}
+static void runner_args4_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X1);
+}
+static void runner_args5_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X2);
+}
+static void runner_args6_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X3);
+}
+static void runner_args7_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X4);
+}
+static void runner_args8_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X5);
+}
+static void runner_args9_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X6);
+}
+static void runner_args10_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X7);
+}
+static void runner_args11_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X8);
+}
+static void runner_args12_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X9);
+}
+static void runner_args13_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X10);
+}
+static void runner_args14_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X11);
+}
+static void runner_args15_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, SP);
+}
+static void runner_args16_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, AC);
+}
+static void runner_args17_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X0);
+}
+static void runner_args18_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X1);
+}
+static void runner_args19_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X2);
+}
+static void runner_args20_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X3);
+}
+static void runner_args21_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X4);
+}
+static void runner_args22_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X5);
+}
+static void runner_args23_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X6);
+}
+static void runner_args24_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X7);
+}
+static void runner_args25_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X8);
+}
+static void runner_args26_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X9);
+}
+static void runner_args27_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X10);
+}
+static void runner_args28_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X11);
+}
+static void runner_args29_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, SP);
+}
+static void runner_args30_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, AC);
+}
+static void runner_args31_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X0);
+}
+static void runner_args32_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X1);
+}
+static void runner_args33_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X2);
+}
+static void runner_args34_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X3);
+}
+static void runner_args35_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X4);
+}
+static void runner_args36_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X5);
+}
+static void runner_args37_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X6);
+}
+static void runner_args38_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X7);
+}
+static void runner_args39_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X8);
+}
+static void runner_args40_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X9);
+}
+static void runner_args41_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X10);
+}
+static void runner_args42_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X11);
+}
+static void runner_args43_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, SP);
+}
+static void runner_args44_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, AC);
+}
+static void runner_args45_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X0);
+}
+static void runner_args46_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X1);
+}
+static void runner_args47_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X2);
+}
+static void runner_args48_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X3);
+}
+static void runner_args49_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X4);
+}
+static void runner_args50_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X5);
+}
+static void runner_args51_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X6);
+}
+static void runner_args52_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X7);
+}
+static void runner_args53_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X8);
+}
+static void runner_args54_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X9);
+}
+static void runner_args55_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X10);
+}
+static void runner_args56_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X11);
+}
+static void runner_args57_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, SP);
+}
+static void runner_args58_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, AC);
+}
+static void runner_args59_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X0);
+}
+static void runner_args60_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X1);
+}
+static void runner_args61_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X2);
+}
+static void runner_args62_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X3);
+}
+static void runner_args63_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X4);
+}
+static void runner_args64_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X5);
+}
+static void runner_args65_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X6);
+}
+static void runner_args66_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X7);
+}
+static void runner_args67_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X8);
+}
+static void runner_args68_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X9);
+}
+static void runner_args69_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X10);
+}
+static void runner_args70_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X11);
+}
+static void runner_args71_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, SP);
+}
+static void runner_args72_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, AC);
+}
+static void runner_args73_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X0);
+}
+static void runner_args74_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X1);
+}
+static void runner_args75_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X2);
+}
+static void runner_args76_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X3);
+}
+static void runner_args77_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X4);
+}
+static void runner_args78_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X5);
+}
+static void runner_args79_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X6);
+}
+static void runner_args80_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X7);
+}
+static void runner_args81_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X8);
+}
+static void runner_args82_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X9);
+}
+static void runner_args83_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X10);
+}
+static void runner_args84_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X11);
+}
+static void runner_args85_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, SP);
+}
+static void runner_args86_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, AC);
+}
+static void runner_args87_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X0);
+}
+static void runner_args88_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X1);
+}
+static void runner_args89_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X2);
+}
+static void runner_args90_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X3);
+}
+static void runner_args91_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X4);
+}
+static void runner_args92_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X5);
+}
+static void runner_args93_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X6);
+}
+static void runner_args94_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X7);
+}
+static void runner_args95_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X8);
+}
+static void runner_args96_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X9);
+}
+static void runner_args97_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X10);
+}
+static void runner_args98_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X11);
+}
+static void runner_args99_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, SP);
+}
+static void runner_args100_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, AC);
+}
+static void runner_args101_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X0);
+}
+static void runner_args102_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X1);
+}
+static void runner_args103_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X2);
+}
+static void runner_args104_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X3);
+}
+static void runner_args105_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X4);
+}
+static void runner_args106_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X5);
+}
+static void runner_args107_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X6);
+}
+static void runner_args108_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X7);
+}
+static void runner_args109_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X8);
+}
+static void runner_args110_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X9);
+}
+static void runner_args111_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X10);
+}
+static void runner_args112_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X11);
+}
+static void runner_args113_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, SP);
+}
+static void runner_args114_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, AC);
+}
+static void runner_args115_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X0);
+}
+static void runner_args116_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X1);
+}
+static void runner_args117_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X2);
+}
+static void runner_args118_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X3);
+}
+static void runner_args119_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X4);
+}
+static void runner_args120_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X5);
+}
+static void runner_args121_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X6);
+}
+static void runner_args122_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X7);
+}
+static void runner_args123_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X8);
+}
+static void runner_args124_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X9);
+}
+static void runner_args125_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X10);
+}
+static void runner_args126_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X11);
+}
+static void runner_args127_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, SP);
+}
+static void runner_args128_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, AC);
+}
+static void runner_args129_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X0);
+}
+static void runner_args130_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X1);
+}
+static void runner_args131_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X2);
+}
+static void runner_args132_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X3);
+}
+static void runner_args133_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X4);
+}
+static void runner_args134_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X5);
+}
+static void runner_args135_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X6);
+}
+static void runner_args136_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X7);
+}
+static void runner_args137_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X8);
+}
+static void runner_args138_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X9);
+}
+static void runner_args139_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X10);
+}
+static void runner_args140_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X11);
+}
+static void runner_args141_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, SP);
+}
+static void runner_args142_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, AC);
+}
+static void runner_args143_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X0);
+}
+static void runner_args144_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X1);
+}
+static void runner_args145_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X2);
+}
+static void runner_args146_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X3);
+}
+static void runner_args147_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X4);
+}
+static void runner_args148_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X5);
+}
+static void runner_args149_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X6);
+}
+static void runner_args150_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X7);
+}
+static void runner_args151_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X8);
+}
+static void runner_args152_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X9);
+}
+static void runner_args153_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X10);
+}
+static void runner_args154_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X11);
+}
+static void runner_args155_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, SP);
+}
+static void runner_args156_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, AC);
+}
+static void runner_args157_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X0);
+}
+static void runner_args158_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X1);
+}
+static void runner_args159_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X2);
+}
+static void runner_args160_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X3);
+}
+static void runner_args161_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X4);
+}
+static void runner_args162_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X5);
+}
+static void runner_args163_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X6);
+}
+static void runner_args164_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X7);
+}
+static void runner_args165_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X8);
+}
+static void runner_args166_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X9);
+}
+static void runner_args167_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X10);
+}
+static void runner_args168_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X11);
+}
+static void runner_args169_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, SP);
+}
+static void runner_args170_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, AC);
+}
+static void runner_args171_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X0);
+}
+static void runner_args172_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X1);
+}
+static void runner_args173_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X2);
+}
+static void runner_args174_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X3);
+}
+static void runner_args175_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X4);
+}
+static void runner_args176_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X5);
+}
+static void runner_args177_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X6);
+}
+static void runner_args178_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X7);
+}
+static void runner_args179_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X8);
+}
+static void runner_args180_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X9);
+}
+static void runner_args181_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X10);
+}
+static void runner_args182_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X11);
+}
+static void runner_args183_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, SP);
+}
+static void runner_args184_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, AC);
+}
+static void runner_args185_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X0);
+}
+static void runner_args186_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X1);
+}
+static void runner_args187_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X2);
+}
+static void runner_args188_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X3);
+}
+static void runner_args189_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X4);
+}
+static void runner_args190_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X5);
+}
+static void runner_args191_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X6);
+}
+static void runner_args192_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X7);
+}
+static void runner_args193_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X8);
+}
+static void runner_args194_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X9);
+}
+static void runner_args195_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X10);
+}
+static void runner_args196_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(void)
+{
+    test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X11);
+}
+
 /*=======MAIN=====*/
 int main(void)
 {
   UnityBegin("./processor/tests/process_tests.c");
-  run_test(test_nop_should_doNothing, "test_nop_should_doNothing", 29);
-  run_test(test_jmp_should_jumpToAddressAndSaveReturnAddress, "test_jmp_should_jumpToAddressAndSaveReturnAddress", 45);
-  run_test(test_jmz_should_jumpToAddress_when_acIsZero, "test_jmz_should_jumpToAddress_when_acIsZero", 63);
-  run_test(test_jmz_should_doNothing_when_acIsNonZero, "test_jmz_should_doNothing_when_acIsNonZero", 81);
-  run_test(test_mov_should_copyValueFromRegisterBToRegisterA_when_registersAreDifferentAndNeitherIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_registersAreDifferentAndNeitherIsNullOrIp", 103);
-  run_test(test_mov_should_copyValueFromRegisterBToIp_when_registerAIsIp, "test_mov_should_copyValueFromRegisterBToIp_when_registerAIsIp", 131);
-  run_test(test_mov_should_copyValueFromIpToRegisterA_when_registerBIsIp, "test_mov_should_copyValueFromIpToRegisterA_when_registerBIsIp", 150);
-  run_test(test_mov_should_setRegisterAToZero_when_registerBIsNull, "test_mov_should_setRegisterAToZero_when_registerBIsNull", 169);
-  run_test(test_mov_should_doNothing_when_registerAIsNull, "test_mov_should_doNothing_when_registerAIsNull", 189);
-  run_test(test_mov_should_doNothing_when_bothRegistersAreNull, "test_mov_should_doNothing_when_bothRegistersAreNull", 208);
-  run_test(test_ldib_should_loadImmediateByteIntoAc, "test_ldib_should_loadImmediateByteIntoAc", 226);
-  run_test(test_ldiw_should_loadImmediateWordIntoAc, "test_ldiw_should_loadImmediateWordIntoAc", 244);
-  run_test(test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero, "test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero", 262);
-  run_test(test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsPositive, "test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsPositive", 283);
-  run_test(test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsNegative, "test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsNegative", 304);
-  run_test(test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero, "test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero", 325);
-  run_test(test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsPositive, "test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsPositive", 347);
-  run_test(test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsNegative, "test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsNegative", 369);
-  run_test(test_ldmw_should_loadMemoryWordAtAddressWrappingToZero_when_addressIsMaximumValue, "test_ldmw_should_loadMemoryWordAtAddressWrappingToZero_when_addressIsMaximumValue", 391);
-  run_test(test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZero, "test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZero", 414);
-  run_test(test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsPositive, "test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsPositive", 435);
-  run_test(test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsNegative, "test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsNegative", 456);
-  run_test(test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZero, "test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZero", 477);
-  run_test(test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsPositive, "test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsPositive", 499);
-  run_test(test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsNegative, "test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsNegative", 521);
-  run_test(test_stmw_should_storeFullAcIntoMemoryWordAtAddressWrappingToZero_when_addressIsMaxValue, "test_stmw_should_storeFullAcIntoMemoryWordAtAddressWrappingToZero_when_addressIsMaxValue", 543);
-  run_test(test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp, "test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp", 566);
-  run_test(test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp, "test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp", 587);
-  run_test(test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp, "test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp", 607);
-  run_test(test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp, "test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp", 629);
-  run_test(test_pshw_should_pushFullRegisterOntoStackWrappingToEnd_when_stackPointerIsOne, "test_pshw_should_pushFullRegisterOntoStackWrappingToEnd_when_stackPointerIsOne", 650);
-  run_test(test_popb_should_popStackByteIntoRegister_when_registerIsNotSp, "test_popb_should_popStackByteIntoRegister_when_registerIsNotSp", 673);
-  run_test(test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp, "test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp", 695);
-  run_test(test_popw_should_popStackWordIntoRegister_when_registerIsNotSp, "test_popw_should_popStackWordIntoRegister_when_registerIsNotSp", 716);
-  run_test(test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp, "test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp", 738);
-  run_test(test_popw_should_popStackWordIntoRegisterWrappingToZero_when_stackPointerIsMaxValue, "test_popw_should_popStackWordIntoRegisterWrappingToZero_when_stackPointerIsMaxValue", 759);
-  run_test(test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull, "test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull", 786);
-  run_test(test_inc_should_doNothing_whenRegisterAIsNull, "test_inc_should_doNothing_whenRegisterAIsNull", 806);
-  run_test(test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull, "test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull", 824);
-  run_test(test_dec_should_doNothing_whenRegisterAIsNull, "test_dec_should_doNothing_whenRegisterAIsNull", 844);
-  run_test(test_add_should_setAcToRegisterAPlusRegisterB, "test_add_should_setAcToRegisterAPlusRegisterB", 862);
-  run_test(test_sub_should_setAcToRegisterAMinusRegisterB, "test_sub_should_setAcToRegisterAMinusRegisterB", 883);
-  run_test(test_mul_should_setAcToRegisterATimesRegisterB, "test_mul_should_setAcToRegisterATimesRegisterB", 904);
-  run_test(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet, "test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet", 925);
-  run_test(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet, "test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet", 946);
-  run_test(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet, "test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet", 967);
-  run_test(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet, "test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet", 988);
-  run_test(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet, "test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet", 1009);
-  run_test(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet, "test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet", 1030);
-  run_test(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet, "test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet", 1051);
-  run_test(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet, "test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet", 1072);
-  run_test(test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet, "test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet", 1093);
-  run_test(test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet, "test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet", 1114);
-  run_test(test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet, "test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet", 1135);
-  run_test(test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet, "test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet", 1156);
-  run_test(test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet, "test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet", 1177);
-  run_test(test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet, "test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet", 1198);
-  run_test(test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet, "test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet", 1219);
-  run_test(test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet, "test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet", 1240);
+  run_test(test_nop_should_doNothing, "test_nop_should_doNothing", 30);
+  run_test(test_jmp_should_jumpToAddressAndSaveReturnAddress, "test_jmp_should_jumpToAddressAndSaveReturnAddress", 46);
+  run_test(test_jmz_should_jumpToAddress_when_acIsZero, "test_jmz_should_jumpToAddress_when_acIsZero", 64);
+  run_test(test_jmz_should_doNothing_when_acIsNonZero, "test_jmz_should_doNothing_when_acIsNonZero", 82);
+  run_test(runner_args1_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, SP)", 105);
+  run_test(runner_args2_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, AC)", 105);
+  run_test(runner_args3_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X0)", 105);
+  run_test(runner_args4_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X1)", 105);
+  run_test(runner_args5_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X2)", 105);
+  run_test(runner_args6_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X3)", 105);
+  run_test(runner_args7_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X4)", 105);
+  run_test(runner_args8_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X5)", 105);
+  run_test(runner_args9_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X6)", 105);
+  run_test(runner_args10_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X7)", 105);
+  run_test(runner_args11_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X8)", 105);
+  run_test(runner_args12_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X9)", 105);
+  run_test(runner_args13_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X10)", 105);
+  run_test(runner_args14_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(SP, X11)", 105);
+  run_test(runner_args15_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, SP)", 105);
+  run_test(runner_args16_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, AC)", 105);
+  run_test(runner_args17_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X0)", 105);
+  run_test(runner_args18_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X1)", 105);
+  run_test(runner_args19_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X2)", 105);
+  run_test(runner_args20_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X3)", 105);
+  run_test(runner_args21_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X4)", 105);
+  run_test(runner_args22_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X5)", 105);
+  run_test(runner_args23_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X6)", 105);
+  run_test(runner_args24_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X7)", 105);
+  run_test(runner_args25_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X8)", 105);
+  run_test(runner_args26_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X9)", 105);
+  run_test(runner_args27_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X10)", 105);
+  run_test(runner_args28_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(AC, X11)", 105);
+  run_test(runner_args29_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, SP)", 105);
+  run_test(runner_args30_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, AC)", 105);
+  run_test(runner_args31_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X0)", 105);
+  run_test(runner_args32_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X1)", 105);
+  run_test(runner_args33_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X2)", 105);
+  run_test(runner_args34_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X3)", 105);
+  run_test(runner_args35_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X4)", 105);
+  run_test(runner_args36_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X5)", 105);
+  run_test(runner_args37_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X6)", 105);
+  run_test(runner_args38_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X7)", 105);
+  run_test(runner_args39_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X8)", 105);
+  run_test(runner_args40_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X9)", 105);
+  run_test(runner_args41_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X10)", 105);
+  run_test(runner_args42_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X0, X11)", 105);
+  run_test(runner_args43_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, SP)", 105);
+  run_test(runner_args44_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, AC)", 105);
+  run_test(runner_args45_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X0)", 105);
+  run_test(runner_args46_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X1)", 105);
+  run_test(runner_args47_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X2)", 105);
+  run_test(runner_args48_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X3)", 105);
+  run_test(runner_args49_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X4)", 105);
+  run_test(runner_args50_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X5)", 105);
+  run_test(runner_args51_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X6)", 105);
+  run_test(runner_args52_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X7)", 105);
+  run_test(runner_args53_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X8)", 105);
+  run_test(runner_args54_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X9)", 105);
+  run_test(runner_args55_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X10)", 105);
+  run_test(runner_args56_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X1, X11)", 105);
+  run_test(runner_args57_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, SP)", 105);
+  run_test(runner_args58_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, AC)", 105);
+  run_test(runner_args59_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X0)", 105);
+  run_test(runner_args60_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X1)", 105);
+  run_test(runner_args61_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X2)", 105);
+  run_test(runner_args62_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X3)", 105);
+  run_test(runner_args63_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X4)", 105);
+  run_test(runner_args64_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X5)", 105);
+  run_test(runner_args65_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X6)", 105);
+  run_test(runner_args66_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X7)", 105);
+  run_test(runner_args67_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X8)", 105);
+  run_test(runner_args68_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X9)", 105);
+  run_test(runner_args69_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X10)", 105);
+  run_test(runner_args70_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X2, X11)", 105);
+  run_test(runner_args71_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, SP)", 105);
+  run_test(runner_args72_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, AC)", 105);
+  run_test(runner_args73_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X0)", 105);
+  run_test(runner_args74_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X1)", 105);
+  run_test(runner_args75_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X2)", 105);
+  run_test(runner_args76_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X3)", 105);
+  run_test(runner_args77_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X4)", 105);
+  run_test(runner_args78_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X5)", 105);
+  run_test(runner_args79_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X6)", 105);
+  run_test(runner_args80_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X7)", 105);
+  run_test(runner_args81_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X8)", 105);
+  run_test(runner_args82_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X9)", 105);
+  run_test(runner_args83_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X10)", 105);
+  run_test(runner_args84_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X3, X11)", 105);
+  run_test(runner_args85_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, SP)", 105);
+  run_test(runner_args86_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, AC)", 105);
+  run_test(runner_args87_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X0)", 105);
+  run_test(runner_args88_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X1)", 105);
+  run_test(runner_args89_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X2)", 105);
+  run_test(runner_args90_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X3)", 105);
+  run_test(runner_args91_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X4)", 105);
+  run_test(runner_args92_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X5)", 105);
+  run_test(runner_args93_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X6)", 105);
+  run_test(runner_args94_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X7)", 105);
+  run_test(runner_args95_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X8)", 105);
+  run_test(runner_args96_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X9)", 105);
+  run_test(runner_args97_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X10)", 105);
+  run_test(runner_args98_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X4, X11)", 105);
+  run_test(runner_args99_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, SP)", 105);
+  run_test(runner_args100_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, AC)", 105);
+  run_test(runner_args101_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X0)", 105);
+  run_test(runner_args102_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X1)", 105);
+  run_test(runner_args103_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X2)", 105);
+  run_test(runner_args104_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X3)", 105);
+  run_test(runner_args105_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X4)", 105);
+  run_test(runner_args106_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X5)", 105);
+  run_test(runner_args107_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X6)", 105);
+  run_test(runner_args108_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X7)", 105);
+  run_test(runner_args109_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X8)", 105);
+  run_test(runner_args110_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X9)", 105);
+  run_test(runner_args111_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X10)", 105);
+  run_test(runner_args112_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X5, X11)", 105);
+  run_test(runner_args113_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, SP)", 105);
+  run_test(runner_args114_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, AC)", 105);
+  run_test(runner_args115_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X0)", 105);
+  run_test(runner_args116_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X1)", 105);
+  run_test(runner_args117_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X2)", 105);
+  run_test(runner_args118_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X3)", 105);
+  run_test(runner_args119_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X4)", 105);
+  run_test(runner_args120_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X5)", 105);
+  run_test(runner_args121_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X6)", 105);
+  run_test(runner_args122_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X7)", 105);
+  run_test(runner_args123_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X8)", 105);
+  run_test(runner_args124_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X9)", 105);
+  run_test(runner_args125_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X10)", 105);
+  run_test(runner_args126_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X6, X11)", 105);
+  run_test(runner_args127_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, SP)", 105);
+  run_test(runner_args128_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, AC)", 105);
+  run_test(runner_args129_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X0)", 105);
+  run_test(runner_args130_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X1)", 105);
+  run_test(runner_args131_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X2)", 105);
+  run_test(runner_args132_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X3)", 105);
+  run_test(runner_args133_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X4)", 105);
+  run_test(runner_args134_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X5)", 105);
+  run_test(runner_args135_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X6)", 105);
+  run_test(runner_args136_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X7)", 105);
+  run_test(runner_args137_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X8)", 105);
+  run_test(runner_args138_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X9)", 105);
+  run_test(runner_args139_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X10)", 105);
+  run_test(runner_args140_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X7, X11)", 105);
+  run_test(runner_args141_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, SP)", 105);
+  run_test(runner_args142_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, AC)", 105);
+  run_test(runner_args143_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X0)", 105);
+  run_test(runner_args144_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X1)", 105);
+  run_test(runner_args145_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X2)", 105);
+  run_test(runner_args146_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X3)", 105);
+  run_test(runner_args147_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X4)", 105);
+  run_test(runner_args148_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X5)", 105);
+  run_test(runner_args149_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X6)", 105);
+  run_test(runner_args150_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X7)", 105);
+  run_test(runner_args151_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X8)", 105);
+  run_test(runner_args152_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X9)", 105);
+  run_test(runner_args153_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X10)", 105);
+  run_test(runner_args154_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X8, X11)", 105);
+  run_test(runner_args155_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, SP)", 105);
+  run_test(runner_args156_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, AC)", 105);
+  run_test(runner_args157_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X0)", 105);
+  run_test(runner_args158_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X1)", 105);
+  run_test(runner_args159_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X2)", 105);
+  run_test(runner_args160_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X3)", 105);
+  run_test(runner_args161_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X4)", 105);
+  run_test(runner_args162_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X5)", 105);
+  run_test(runner_args163_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X6)", 105);
+  run_test(runner_args164_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X7)", 105);
+  run_test(runner_args165_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X8)", 105);
+  run_test(runner_args166_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X9)", 105);
+  run_test(runner_args167_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X10)", 105);
+  run_test(runner_args168_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X9, X11)", 105);
+  run_test(runner_args169_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, SP)", 105);
+  run_test(runner_args170_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, AC)", 105);
+  run_test(runner_args171_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X0)", 105);
+  run_test(runner_args172_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X1)", 105);
+  run_test(runner_args173_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X2)", 105);
+  run_test(runner_args174_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X3)", 105);
+  run_test(runner_args175_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X4)", 105);
+  run_test(runner_args176_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X5)", 105);
+  run_test(runner_args177_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X6)", 105);
+  run_test(runner_args178_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X7)", 105);
+  run_test(runner_args179_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X8)", 105);
+  run_test(runner_args180_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X9)", 105);
+  run_test(runner_args181_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X10)", 105);
+  run_test(runner_args182_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X10, X11)", 105);
+  run_test(runner_args183_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, SP)", 105);
+  run_test(runner_args184_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, AC)", 105);
+  run_test(runner_args185_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X0)", 105);
+  run_test(runner_args186_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X1)", 105);
+  run_test(runner_args187_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X2)", 105);
+  run_test(runner_args188_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X3)", 105);
+  run_test(runner_args189_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X4)", 105);
+  run_test(runner_args190_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X5)", 105);
+  run_test(runner_args191_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X6)", 105);
+  run_test(runner_args192_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X7)", 105);
+  run_test(runner_args193_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X8)", 105);
+  run_test(runner_args194_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X9)", 105);
+  run_test(runner_args195_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X10)", 105);
+  run_test(runner_args196_test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp, "test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(X11, X11)", 105);
+  run_test(test_mov_should_copyValueFromRegisterBToIp_when_registerAIsIp, "test_mov_should_copyValueFromRegisterBToIp_when_registerAIsIp", 127);
+  run_test(test_mov_should_copyValueFromIpToRegisterA_when_registerBIsIp, "test_mov_should_copyValueFromIpToRegisterA_when_registerBIsIp", 146);
+  run_test(test_mov_should_setRegisterAToZero_when_registerBIsNull, "test_mov_should_setRegisterAToZero_when_registerBIsNull", 165);
+  run_test(test_mov_should_doNothing_when_registerAIsNull, "test_mov_should_doNothing_when_registerAIsNull", 185);
+  run_test(test_mov_should_doNothing_when_bothRegistersAreNull, "test_mov_should_doNothing_when_bothRegistersAreNull", 204);
+  run_test(test_ldib_should_loadImmediateByteIntoAc, "test_ldib_should_loadImmediateByteIntoAc", 222);
+  run_test(test_ldiw_should_loadImmediateWordIntoAc, "test_ldiw_should_loadImmediateWordIntoAc", 240);
+  run_test(test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero, "test_ldmb_should_loadMemoryByteAtAddressIntoAc_when_immediateValueIsZero", 258);
+  run_test(test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsPositive, "test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsPositive", 279);
+  run_test(test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsNegative, "test_ldmb_should_loadMemoryByteAtAddressWithOffsetIntoAc_when_immediateValueIsNegative", 300);
+  run_test(test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero, "test_ldmw_should_loadMemoryWordAtAddressIntoAc_when_immediateValueIsZero", 321);
+  run_test(test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsPositive, "test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsPositive", 343);
+  run_test(test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsNegative, "test_ldmw_should_loadMemoryWordAtAddressWithOffsetIntoAc_when_immediateValueIsNegative", 365);
+  run_test(test_ldmw_should_loadMemoryWordAtAddressWrappingToZero_when_addressIsMaximumValue, "test_ldmw_should_loadMemoryWordAtAddressWrappingToZero_when_addressIsMaximumValue", 387);
+  run_test(test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZero, "test_stmb_should_storeLowerAcIntoMemoryByteAtAddress_when_immediateValueIsZero", 410);
+  run_test(test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsPositive, "test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsPositive", 431);
+  run_test(test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsNegative, "test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithOffset_when_immediateValueIsNegative", 452);
+  run_test(test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZero, "test_stmw_should_storeFullAcIntoMemoryWordAtAddress_when_immediateValueIsZero", 473);
+  run_test(test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsPositive, "test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsPositive", 495);
+  run_test(test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsNegative, "test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithOffset_when_immediateValueIsNegative", 517);
+  run_test(test_stmw_should_storeFullAcIntoMemoryWordAtAddressWrappingToZero_when_addressIsMaxValue, "test_stmw_should_storeFullAcIntoMemoryWordAtAddressWrappingToZero_when_addressIsMaxValue", 539);
+  run_test(test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp, "test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp", 562);
+  run_test(test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp, "test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp", 583);
+  run_test(test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp, "test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp", 603);
+  run_test(test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp, "test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp", 625);
+  run_test(test_pshw_should_pushFullRegisterOntoStackWrappingToEnd_when_stackPointerIsOne, "test_pshw_should_pushFullRegisterOntoStackWrappingToEnd_when_stackPointerIsOne", 646);
+  run_test(test_popb_should_popStackByteIntoRegister_when_registerIsNotSp, "test_popb_should_popStackByteIntoRegister_when_registerIsNotSp", 669);
+  run_test(test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp, "test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp", 691);
+  run_test(test_popw_should_popStackWordIntoRegister_when_registerIsNotSp, "test_popw_should_popStackWordIntoRegister_when_registerIsNotSp", 712);
+  run_test(test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp, "test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp", 734);
+  run_test(test_popw_should_popStackWordIntoRegisterWrappingToZero_when_stackPointerIsMaxValue, "test_popw_should_popStackWordIntoRegisterWrappingToZero_when_stackPointerIsMaxValue", 755);
+  run_test(test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull, "test_inc_should_incrementRegisterAByImmediateValue_whenRegisterAIsNotNull", 782);
+  run_test(test_inc_should_doNothing_whenRegisterAIsNull, "test_inc_should_doNothing_whenRegisterAIsNull", 802);
+  run_test(test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull, "test_dec_should_decrementRegisterAByImmediateValue_whenRegisterAIsNotNull", 820);
+  run_test(test_dec_should_doNothing_whenRegisterAIsNull, "test_dec_should_doNothing_whenRegisterAIsNull", 840);
+  run_test(test_add_should_setAcToRegisterAPlusRegisterB, "test_add_should_setAcToRegisterAPlusRegisterB", 858);
+  run_test(test_sub_should_setAcToRegisterAMinusRegisterB, "test_sub_should_setAcToRegisterAMinusRegisterB", 879);
+  run_test(test_mul_should_setAcToRegisterATimesRegisterB, "test_mul_should_setAcToRegisterATimesRegisterB", 900);
+  run_test(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet, "test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet", 921);
+  run_test(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet, "test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet", 942);
+  run_test(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet, "test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet", 963);
+  run_test(test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet, "test_divs_should_setAcToRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet", 984);
+  run_test(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet, "test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet", 1005);
+  run_test(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet, "test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet", 1026);
+  run_test(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet, "test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet", 1047);
+  run_test(test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet, "test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet", 1068);
+  run_test(test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet, "test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenNeitherRegisterHasMsbSet", 1089);
+  run_test(test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet, "test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterAHasMsbSet", 1110);
+  run_test(test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet, "test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenRegisterBHasMsbSet", 1131);
+  run_test(test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet, "test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_whenBothRegistersHaveMsbSet", 1152);
+  run_test(test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet, "test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenNeitherRegisterHasMsbSet", 1173);
+  run_test(test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet, "test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterAHasMsbSet", 1194);
+  run_test(test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet, "test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenRegisterBHasMsbSet", 1215);
+  run_test(test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet, "test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_whenBothRegistersHaveMsbSet", 1236);
 
   return UNITY_END();
 }

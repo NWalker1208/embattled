@@ -76,6 +76,8 @@ static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE l
     UnityConcludeTest();
 }
 
+/*=======Parameterized Test Wrappers=====*/
+
 /*=======MAIN=====*/
 int main(void)
 {
