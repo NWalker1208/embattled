@@ -1254,7 +1254,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBSigned_when_registerBIsPositive(void) {
+void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned_when_registerBDoesNotHaveMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0x0005;
@@ -1275,7 +1275,7 @@ void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBSigned_when_registerB
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBSigned_when_registerBIsNegative(void) {
+void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned_when_registerBHasMsbSet(void) {
   // Arrange
   processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0xFFFB;
@@ -1287,7 +1287,7 @@ void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBSigned_when_registerB
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x02B3;
+  expectedEndState.registers.ac = 0x0000;
 
   // Act
   stepProcess(&processState);
