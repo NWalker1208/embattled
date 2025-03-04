@@ -398,20 +398,23 @@ void test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp(void
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(void) {
+TEST_CASE(0x0000, 0xFFFE, 0xFFFF)
+TEST_CASE(0x0001, 0xFFFF, 0x0000)
+void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(unsigned short initialSp, unsigned short lowerAddressWritten, unsigned short upperAddressWritten) {
   // Arrange
-  processState.registers.sp = 0x0000;
+  processState.registers.ip = 0x0001;
+  processState.registers.sp = initialSp;
   processState.registers.x4 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
+  storeInstruction(processState.memory, 1, (struct Instruction){
     .opcode = PSHW,
     .parameters.registerA = X4,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.sp = 0xFFFE;
-  expectedEndState.memory[0xFFFE] = 0x34;
-  expectedEndState.memory[0xFFFF] = 0x12;
+  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.sp = lowerAddressWritten;
+  expectedEndState.memory[lowerAddressWritten] = 0x34;
+  expectedEndState.memory[upperAddressWritten] = 0x12;
 
   // Act
   stepProcess(&processState);
@@ -433,29 +436,6 @@ void test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp(void)
   expectedEndState.registers.sp = 0x1232;
   expectedEndState.memory[0x1232] = 0x34;
   expectedEndState.memory[0x1233] = 0x12;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_pshw_should_pushFullRegisterOntoStackWrappingToEnd_when_stackPointerIsOne(void) {
-  // Arrange
-  processState.registers.ip = 0x0001;
-  processState.registers.sp = 0x0001;
-  processState.registers.x4 = 0x1234;
-  storeInstruction(processState.memory, 1, (struct Instruction){
-    .opcode = PSHW,
-    .parameters.registerA = X4,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0003;
-  expectedEndState.registers.sp = 0xFFFF;
-  expectedEndState.memory[0xFFFF] = 0x34;
-  expectedEndState.memory[0x0000] = 0x12;
 
   // Act
   stepProcess(&processState);
@@ -507,19 +487,22 @@ void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(void) {
+TEST_CASE(0xFFFE, 0xFFFF, 0x0000)
+TEST_CASE(0xFFFF, 0x0000, 0x0001)
+void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(unsigned short lowerAddressRead, unsigned short upperAddressRead, unsigned short expectedSp) {
   // Arrange
-  processState.registers.sp = 0xFFFE;
-  storeInstruction(processState.memory, 0, (struct Instruction){
+  processState.registers.ip = 0x0001;
+  processState.registers.sp = lowerAddressRead;
+  storeInstruction(processState.memory, 1, (struct Instruction){
     .opcode = POPW,
     .parameters.registerA = X6,
   });
-  processState.memory[0xFFFE] = 0x34;
-  processState.memory[0xFFFF] = 0x12;
+  processState.memory[lowerAddressRead] = 0x34;
+  processState.memory[upperAddressRead] = 0x12;
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.sp = 0x0000;
+  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.sp = expectedSp;
   expectedEndState.registers.x6 = 0x1234;
   
   // Act
@@ -546,29 +529,6 @@ void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp(void) {
   // Act
   stepProcess(&processState);
 
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_popw_should_popStackWordIntoRegisterWrappingToZero_when_stackPointerIsMaxValue(void) {
-  // Arrange
-  processState.registers.ip = 0x0001;
-  processState.registers.sp = 0xFFFF;
-  storeInstruction(processState.memory, 1, (struct Instruction){
-    .opcode = POPW,
-    .parameters.registerA = X6,
-  });
-  processState.memory[0xFFFF] = 0x34;
-  processState.memory[0x0000] = 0x12;
-  
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0003;
-  expectedEndState.registers.sp = 0x0001;
-  expectedEndState.registers.x6 = 0x1234;
-  
-  // Act
-  stepProcess(&processState);
-  
   // Assert
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
