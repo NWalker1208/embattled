@@ -676,10 +676,14 @@ void test_mul_should_setAcToRegisterATimesRegisterB(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divs_should_setAcToRegisterADividedByRegisterBSigned_when_neitherRegisterHasMsbSet(void) {
+TEST_CASE(0x5678, 0x1234, 0x0004)
+TEST_CASE(0x8765, 0x1234, 0xFFFA)
+TEST_CASE(0x5678, 0xFEDC, 0xFFB5)
+TEST_CASE(0xBA98, 0xFEDC, 0x003C)
+void test_divs_should_setAcToRegisterADividedByRegisterBSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = 0x5678;
-  processState.registers.x2 = 0x1234;
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = DIVS,
     .parameters.registerA = X1,
@@ -688,7 +692,7 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_when_neitherRegis
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0004;
+  expectedEndState.registers.ac = expectedOutput;
 
   // Act
   stepProcess(&processState);
@@ -697,73 +701,14 @@ void test_divs_should_setAcToRegisterADividedByRegisterBSigned_when_neitherRegis
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divs_should_setAcToRegisterADividedByRegisterBSigned_when_registerAHasMsbSet(void) {
+TEST_CASE(0x5678, 0x1234, 0x0004)
+TEST_CASE(0x8765, 0x1234, 0x0007)
+TEST_CASE(0x5678, 0xFEDC, 0x0000)
+TEST_CASE(0xBA98, 0xFEDC, 0x0000)
+void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = 0x8765;
-  processState.registers.x2 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = DIVS,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0xFFFA;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_divs_should_setAcToRegisterADividedByRegisterBSigned_when_registerBHasMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0x5678;
-  processState.registers.x2 = 0xFEDC;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = DIVS,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0xFFB5;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_divs_should_setAcToRegisterADividedByRegisterBSigned_when_bothRegistersHaveMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0xBA98;
-  processState.registers.x2 = 0xFEDC;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = DIVS,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x003C;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_when_neitherRegisterHasMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0x5678;
-  processState.registers.x2 = 0x1234;
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = DIVU,
     .parameters.registerA = X1,
@@ -772,7 +717,7 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_when_neitherReg
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0004;
+  expectedEndState.registers.ac = expectedOutput;
 
   // Act
   stepProcess(&processState);
@@ -781,73 +726,14 @@ void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_when_neitherReg
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_when_registerAHasMsbSet(void) {
+TEST_CASE(0x5678, 0x1234, 0x0DA8)
+TEST_CASE(0x8765, 0x1234, 0xF49D)
+TEST_CASE(0x5678, 0xFEDC, 0x00EC)
+TEST_CASE(0xBA98, 0xFEDC, 0xFF08)
+void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = 0x8765;
-  processState.registers.x2 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = DIVU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0007;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_when_registerBHasMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0x5678;
-  processState.registers.x2 = 0xFEDC;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = DIVU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0000;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned_when_bothRegistersHaveMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0xBA98;
-  processState.registers.x2 = 0xFEDC;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = DIVU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0000;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_when_neitherRegisterHasMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0x5678;
-  processState.registers.x2 = 0x1234;
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = REMS,
     .parameters.registerA = X1,
@@ -856,7 +742,7 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_when_n
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0DA8;
+  expectedEndState.registers.ac = expectedOutput;
 
   // Act
   stepProcess(&processState);
@@ -865,73 +751,14 @@ void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_when_n
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_when_registerAHasMsbSet(void) {
+TEST_CASE(0x5678, 0x1234, 0x0DA8)
+TEST_CASE(0x8765, 0x1234, 0x07F9)
+TEST_CASE(0x5678, 0xFEDC, 0x5678)
+TEST_CASE(0xBA98, 0xFEDC, 0xBA98)
+void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = 0x8765;
-  processState.registers.x2 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = REMS,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0xF49D;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_when_registerBHasMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0x5678;
-  processState.registers.x2 = 0xFEDC;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = REMS,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x00EC;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned_when_bothRegistersHaveMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0xBA98;
-  processState.registers.x2 = 0xFEDC;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = REMS,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0xFF08;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when_neitherRegisterHasMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0x5678;
-  processState.registers.x2 = 0x1234;
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = REMU,
     .parameters.registerA = X1,
@@ -940,70 +767,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0DA8;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when_registerAHasMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0x8765;
-  processState.registers.x2 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = REMU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x07F9;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when_registerBHasMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0x5678;
-  processState.registers.x2 = 0xFEDC;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = REMU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x5678;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when_bothRegistersHaveMsbSet(void) {
-  // Arrange
-  processState.registers.x1 = 0xBA98;
-  processState.registers.x2 = 0xFEDC;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = REMU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0xBA98;
+  expectedEndState.registers.ac = expectedOutput;
 
   // Act
   stepProcess(&processState);
@@ -1014,7 +778,7 @@ void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned_when
 
 TEST_CASE(0x5678, 0x0005, 0xCF00)
 TEST_CASE(0x5678, 0xFFFB, 0x0000)
-void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned_when_registerBDoesNotHaveMsbSet(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
   processState.registers.x1 = valueA;
   processState.registers.x2 = valueB;
