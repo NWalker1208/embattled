@@ -1,6 +1,33 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include "processor/instruction.h"
+#include "processor/register.h"
+
+enum AssemblyParameterKind {
+  INVALID = 0,
+  REGISTER,
+  IMMEDIATE,
+  LABEL_REF,
+};
+
+struct AssemblyParameter {
+  enum AssemblyParameterKind kind;
+  union {
+    enum Register registerName; // kind == REGISTER
+    signed int immediateValue; // kind == IMMEDIATE
+    char* referencedLabel; // kind == LABEL_REF
+  };
+};
+
+struct AssemblyInstruction {
+  char* opcode;
+  unsigned int parameterCount;
+  struct AssemblyParameter* parameters;
+};
+
+struct AssemblyData {
+  unsigned int length;
+  unsigned char* bytes;
+};
 
 enum AssemblyLineKind {
   INVALID = 0,
@@ -8,17 +35,12 @@ enum AssemblyLineKind {
   DATA,
 };
 
-struct BinaryData {
-  unsigned int length;
-  unsigned char* bytes;
-};
-
 struct AssemblyLine {
   char* label;
   enum AssemblyLineKind kind;
   union {
-    struct Instruction instruction; // kind == INSTRUCTION
-    struct BinaryData data; // kind == DATA
+    struct AssemblyInstruction instruction; // kind == INSTRUCTION
+    struct AssemblyData data; // kind == DATA
   } contents;
 };
 
