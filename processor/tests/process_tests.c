@@ -363,7 +363,7 @@ void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) 
   processState.registers.x4 = 0x1234;
   storeInstruction(processState.memory, 0, (struct Instruction){
     .opcode = PSHB,
-    .parameters.registerA = X0,
+    .parameters.registerA = X4,
   });
 
   initializeExpectedEndState();

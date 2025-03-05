@@ -88,70 +88,70 @@ void stepProcess(struct ProcessState* state) {
       break;
     // Math and logic
     case ADD:
-      *regA = *regA + *regB;
+      state->registers.ac = *regA + *regB;
       break;
     case SUB:
-      *regA = *regA - *regB;
+      state->registers.ac = *regA - *regB;
       break;
     case MUL:
-      *regA = *regA * *regB;
+      state->registers.ac = *regA * *regB;
       break;
     case DIVS: // TODO: Handle division by zero
-      *regA = ((signed short)*regA) / ((signed short)*regB);
+      state->registers.ac = ((signed short)*regA) / ((signed short)*regB);
       break;
     case DIVU:
-      *regA = ((unsigned short)*regA) / ((unsigned short)*regB);
+      state->registers.ac = ((unsigned short)*regA) / ((unsigned short)*regB);
       break;
     case REMS:
-      *regA = ((signed short)*regA) % ((signed short)*regB);
+      state->registers.ac = ((signed short)*regA) % ((signed short)*regB);
       break;
     case REMU:
-      *regA = ((unsigned short)*regA) % ((unsigned short)*regB);
+      state->registers.ac = ((unsigned short)*regA) % ((unsigned short)*regB);
       break;
     case LSH:
-      *regA = *regA << *regB;
+      state->registers.ac = *regA << *regB;
       break;
     case RSHS:
-      *regA = ((signed short)*regA) >> *regB;
+      state->registers.ac = ((signed short)*regA) >> *regB;
       break;
     case RSHU:
-      *regA = ((unsigned short)*regA) >> *regB;
+      state->registers.ac = ((unsigned short)*regA) >> *regB;
       break;
     case LSI:
-      *regA = *regA << imm.u4;
+      state->registers.ac = *regA << imm.u4;
       break;
     case RSIS:
-      *regA = ((signed short)*regA) >> imm.u4;
+      state->registers.ac = ((signed short)*regA) >> imm.u4;
       break;
     case RSIU:
-      *regA = ((unsigned short)*regA) >> imm.u4;
+      state->registers.ac = ((unsigned short)*regA) >> imm.u4;
       break;
     case AND:
-      *regA = *regA & *regB;
+      state->registers.ac = *regA & *regB;
       break;
     case IOR:
-      *regA = *regA | *regB;
+      state->registers.ac = *regA | *regB;
       break;
     case XOR:
-      *regA = *regA ^ *regB;
+      state->registers.ac = *regA ^ *regB;
       break;
     case CEQ:
-      *regA = (*regA == *regB) ? 1 : 0;
+      state->registers.ac = (*regA == *regB) ? 1 : 0;
       break;
     case CNE:
-      *regA = (*regA != *regB) ? 1 : 0;
+      state->registers.ac = (*regA != *regB) ? 1 : 0;
       break;
     case CLTS:
-      *regA = (((signed short)*regA) < ((signed short)*regB)) ? 1 : 0;
+      state->registers.ac = (((signed short)*regA) < ((signed short)*regB)) ? 1 : 0;
       break;
     case CLTU:
-      *regA = (((unsigned short)*regA) < ((unsigned short)*regB)) ? 1 : 0;
+      state->registers.ac = (((unsigned short)*regA) < ((unsigned short)*regB)) ? 1 : 0;
       break;
     case CGES:
-      *regA = (((signed short)*regA) >= ((signed short)*regB)) ? 1 : 0;
+      state->registers.ac = (((signed short)*regA) >= ((signed short)*regB)) ? 1 : 0;
       break;
     case CGEU:
-      *regA = (((unsigned short)*regA) >= ((unsigned short)*regB)) ? 1 : 0;
+      state->registers.ac = (((unsigned short)*regA) >= ((unsigned short)*regB)) ? 1 : 0;
       break;
     default: // Invalid instruction
       break;
