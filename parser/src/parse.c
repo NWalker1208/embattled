@@ -4,22 +4,6 @@
 #include "parser/parse.h"
 #include "parser/utilities.h"
 
-// Assembly Syntax:
-// <file> -> <line>*
-// <line> ->
-//   [<label>:] (
-//     (<opcode> [(<register> [<register> | <immediateValue>]) | <immediateValue> | <labelReference>]) |
-//     ('.data' <hexByte>+)
-//   )
-// <register> -> '$' <registerName>
-// <immediateValue> -> '0x' <hexDigit>{1,4}
-// <labelReference> -> '@' <label>
-// <hexByte> -> <hexDigit><hexDigit>
-// <hexDigit> -> [0-9a-fA-F]
-
-// Whitespace between any two tokens is ignored.
-// Additionally, newlines between a label and the subsequent token are ignored.
-
 // Parses a register name.
 // If parsing succeeds, outputs the register through result and returns true.
 // If parsing fails, returns false.
