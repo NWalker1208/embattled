@@ -799,7 +799,476 @@ void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned(unsigned sho
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-// TODO: Write tests for other instructions
+TEST_CASE(0x4321, 0x0005, 0x0219)
+TEST_CASE(0x8765, 0x0005, 0xFC3B)
+TEST_CASE(0x4321, 0xFFFB, 0x0000)
+TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
+void test_rshs_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = RSHS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x4321, 0x0005, 0x0219)
+TEST_CASE(0x8765, 0x0005, 0x043B)
+TEST_CASE(0x4321, 0xFFFB, 0x0000)
+TEST_CASE(0x8765, 0xFFFB, 0x0000)
+void test_rshu_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = RSHU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x6789, 0x7, 0xC480)
+TEST_CASE(0x6789, 0xF, 0x8000)
+void test_lsi_should_setAcToRegisterALeftShiftedByImmediateValueUnsigned(unsigned short registerValue, unsigned char immediateValue, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x1 = registerValue;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = LSI,
+    .parameters.registerA = X1,
+    .parameters.immediate.u4 = immediateValue,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = expectedOutput;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x1234, 0x7, 0x0024)
+TEST_CASE(0x8765, 0x7, 0xFF0E)
+TEST_CASE(0x1234, 0xF, 0x0000)
+TEST_CASE(0x8765, 0xF, 0xFFFF)
+void test_rsis_should_setAcToRegisterARightShiftedMsbExtendedByImmediateValueUnsigned(unsigned short registerValue, unsigned char immediateValue, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x1 = registerValue;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = RSIS,
+    .parameters.registerA = X1,
+    .parameters.immediate.u4 = immediateValue,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = expectedOutput;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x1234, 0x7, 0x0024)
+TEST_CASE(0x8765, 0x7, 0x010E)
+TEST_CASE(0x1234, 0xF, 0x0000)
+TEST_CASE(0x8765, 0xF, 0x0001)
+void test_rsis_should_setAcToRegisterARightShiftedZeroExtendedByImmediateValueUnsigned(unsigned short registerValue, unsigned char immediateValue, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x1 = registerValue;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = RSIU,
+    .parameters.registerA = X1,
+    .parameters.immediate.u4 = immediateValue,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = expectedOutput;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_and_should_setAcToRegisterABitwiseAndRegisterB(void) {
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x8765;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = AND,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x0224;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_ior_should_setAcToRegisterABitwiseInclusiveOrRegisterB(void) {
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x8765;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = IOR,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x9775;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_xor_should_setAcToRegisterABitwiseExclusiveOrRegisterB(void) {
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x8765;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = XOR,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0x9551;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_ceq_should_setAcToOne_when_registerAEqualsRegisterB(void) {
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CEQ,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 1;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_ceq_should_setAcToZero_when_registerADoesNotEqualRegisterB(void) {
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x8765;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CEQ,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_cne_should_setAcToOne_when_registerADoesNotEqualRegisterB(void) {
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x8765;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CNE,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 1;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_cne_should_setAcToZero_when_registerAEqualsRegisterB(void) {
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x1234;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CNE,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x0000, 0x0001)
+TEST_CASE(0xFFFF, 0x0000)
+TEST_CASE(0xFFFE, 0xFFFF)
+void test_clts_should_setAcToOne_when_registerASignedIsLessThanRegisterBSigned(unsigned short valueA, unsigned short valueB) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CLTS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 1;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x0001, 0x0000)
+TEST_CASE(0x0000, 0xFFFF)
+TEST_CASE(0xFFFF, 0xFFFE)
+TEST_CASE(0x0000, 0x0000)
+TEST_CASE(0x0001, 0x0001)
+TEST_CASE(0xFFFF, 0xFFFF)
+void test_clts_should_setAcToZero_when_registerASignedIsGreaterThanOrEqualToRegisterBSigned(unsigned short valueA, unsigned short valueB) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CLTS,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x0000, 0x0001)
+TEST_CASE(0x0000, 0xFFFF)
+TEST_CASE(0xFFFE, 0xFFFF)
+void test_cltu_should_setAcToOne_when_registerAUnsignedIsLessThanRegisterBUnsigned(unsigned short valueA, unsigned short valueB) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CLTU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 1;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x0001, 0x0000)
+TEST_CASE(0xFFFF, 0x0000)
+TEST_CASE(0xFFFF, 0xFFFE)
+TEST_CASE(0x0000, 0x0000)
+TEST_CASE(0x0001, 0x0001)
+TEST_CASE(0xFFFF, 0xFFFF)
+void test_cltu_should_setAcToZero_when_registerAUnsignedIsGreaterThanOrEqualToRegisterBUnsigned(unsigned short valueA, unsigned short valueB) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CLTU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x0001, 0x0000)
+TEST_CASE(0x0000, 0xFFFF)
+TEST_CASE(0xFFFF, 0xFFFE)
+TEST_CASE(0x0000, 0x0000)
+TEST_CASE(0x0001, 0x0001)
+TEST_CASE(0xFFFF, 0xFFFF)
+void test_cges_should_setAcToOne_when_registerASignedIsGreaterThanOrEqualToRegisterBSigned(unsigned short valueA, unsigned short valueB) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CGES,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 1;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x0000, 0x0001)
+TEST_CASE(0xFFFF, 0x0000)
+TEST_CASE(0xFFFE, 0xFFFF)
+void test_cges_should_setAcToZero_when_registerASignedIsLessThanRegisterBSigned(unsigned short valueA, unsigned short valueB) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CGES,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x0001, 0x0000)
+TEST_CASE(0xFFFF, 0x0000)
+TEST_CASE(0xFFFF, 0xFFFE)
+TEST_CASE(0x0000, 0x0000)
+TEST_CASE(0x0001, 0x0001)
+TEST_CASE(0xFFFF, 0xFFFF)
+void test_cgeu_should_setAcToOne_when_registerAUnsignedIsGreaterThanOrEqualToRegisterBUnsigned(unsigned short valueA, unsigned short valueB) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CGEU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 1;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x0000, 0x0001)
+TEST_CASE(0x0000, 0xFFFF)
+TEST_CASE(0xFFFE, 0xFFFF)
+void test_cgeu_should_setAcToZero_when_registerAUnsignedIsLessThanRegisterBUnsigned(unsigned short valueA, unsigned short valueB) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  processState.registers.x2 = valueB;
+  storeInstruction(processState.memory, 0, (struct Instruction){
+    .opcode = CGEU,
+    .parameters.registerA = X1,
+    .parameters.registerB = X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ac = 0;
+  
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
 
 #pragma endregion
 
