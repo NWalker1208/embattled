@@ -1,7 +1,8 @@
-#include "parser/parse.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include "parser/parse.h"
+#include "parser/utilities.h"
 
 // Assembly Syntax:
 // <file> -> <line>*
@@ -18,72 +19,6 @@
 
 // Whitespace between any two tokens is ignored.
 // Additionally, newlines between a label and the subsequent token are ignored.
-
-bool startsWithCaseInsensitive(const char* text, const char* prefix) {
-  while (*text != '\0' && *prefix != '\0') {
-    if (tolower(*text) != tolower(*prefix)) {
-      return false;
-    }
-    text++;
-    prefix++;
-  }
-  return *prefix == '\0';
-}
-
-bool isInlineWhitespace(char c) {
-  return c == ' ' || c == '\t';
-}
-
-bool skipInlineWhitespace(char** text) {
-  bool skippedAny = false;
-  while (isInlineWhitespace(**text)) {
-    (*text)++;
-    skippedAny = true;
-  }
-  return skippedAny;
-}
-
-void skipAllWhitespace(char** text) {
-  while (isspace(**text)) {
-    (*text)++;
-  }
-}
-
-void skipToEndOfLine(char** text) {
-  while (**text != '\0' && **text != '\n' && **text != '\r') {
-    (*text)++;
-  }
-}
-
-// Finds the first occurence of the given character in the first line of the string.
-// If the character is not found, the function returns NULL.
-char* findCharOnLine(char* str, char c) {
-  while (*str != '\0' && *str != '\n' && *str != '\r') {
-    if (*str == c) {
-      return str;
-    }
-    str++;
-  }
-  return NULL;
-}
-
-// Converts a hexadecimal digit to its associated nibble value (0 - 15).
-// If the character is a hexadecimal digit, outputs through result and returns true.
-// If the character is not a hexadecimal digit, returns false.
-bool tryHexToNibble(char c, unsigned char* result) {
-  if ('0' <= c && c <= '9') {
-    *result = c - '0';
-    return true;
-  } else if ('a' <= c && c <= 'f') {
-    *result = c - 'a' + 10;
-    return true;
-  } else if ('A' <= c && c <= 'F') {
-    *result = c - 'A' + 10;
-    return true;
-  } else {
-    return false;
-  }
-}
 
 // Parses a register name.
 // If parsing succeeds, outputs the register through result and returns true.
