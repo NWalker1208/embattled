@@ -46,43 +46,45 @@ void stepProcess(struct ProcessState* state) {
       break;
     case LDMB:
       addrLow = *regA + imm.s4;
-      *regA = (unsigned short)state->memory[*regB];
+      state->registers.ac = (unsigned short)state->memory[addrLow];
       break;
     case LDMW:
-      addrLow = *regB + imm.s4;
+      addrLow = *regA + imm.s4;
       addrHigh = addrLow + 1;
-      *regA = ((unsigned short)state->memory[addrHigh] << 8) | (unsigned short)state->memory[addrLow];
+      state->registers.ac = ((unsigned short)state->memory[addrHigh] << 8) | (unsigned short)state->memory[addrLow];
       break;
     case STMB:
-      addrLow = *regB + imm.s4;
-      state->memory[addrLow] = (char)(*regA & 0xFF);
+      addrLow = *regA + imm.s4;
+      state->memory[addrLow] = (unsigned char)(state->registers.ac & 0x00FF);
       break;
     case STMW:
-      addrLow = *regB + imm.s4;
+      addrLow = *regA + imm.s4;
       addrHigh = addrLow + 1;
-      state->memory[addrLow] = (char)(*regA & 0xFF);
-      state->memory[addrHigh] = (char)((*regA & 0xFF00) >> 8);
+      state->memory[addrLow] = (unsigned char)(state->registers.ac & 0x00FF);
+      state->memory[addrHigh] = (unsigned char)((state->registers.ac & 0xFF00) >> 8);
       break;
     case PSHB:
-      state->registers.sp--;
-      state->memory[state->registers.sp] = (char)(*regA & 0xFF);
+      addrLow = state->registers.sp - 1;
+      state->memory[addrLow] = (unsigned char)(*regA & 0x00FF);
+      state->registers.sp = addrLow;
       break;
     case PSHW:
-      state->registers.sp -= 2;
-      addrLow = state->registers.sp;
+      addrLow = state->registers.sp - 2;
       addrHigh = addrLow + 1;
-      state->memory[addrLow] = (char)(*regA & 0xFF);
-      state->memory[addrHigh] = (char)((*regA & 0xFF00) >> 8);
+      state->memory[addrLow] = (unsigned char)(*regA & 0x00FF);
+      state->memory[addrHigh] = (unsigned char)((*regA & 0xFF00) >> 8);
+      state->registers.sp = addrLow;
       break;
     case POPB:
-      *regA = (unsigned short)state->memory[state->registers.sp];
+      addrLow = state->registers.sp;
       state->registers.sp++;
+      *regA = (unsigned short)state->memory[addrLow];
       break;
     case POPW:
       addrLow = state->registers.sp;
       addrHigh = addrLow + 1;
-      *regA = ((unsigned short)state->memory[addrHigh] << 8) | (unsigned short)state->memory[addrLow];
       state->registers.sp += 2;
+      *regA = ((unsigned short)state->memory[addrHigh] << 8) | (unsigned short)state->memory[addrLow];
       break;
     // Math and logic
     case ADD:

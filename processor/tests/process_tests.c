@@ -346,7 +346,7 @@ void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithSignedOffset(unsigne
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.memory[lowerAddressWithOffset] = 0x78;
   expectedEndState.memory[upperAddressWithOffset] = 0x56;
 
