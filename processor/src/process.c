@@ -87,6 +87,12 @@ void stepProcess(struct ProcessState* state) {
       *regA = ((unsigned short)state->memory[addrHigh] << 8) | (unsigned short)state->memory[addrLow];
       break;
     // Math and logic
+    case INC:
+      *regA += imm.u4;
+      break;
+    case DEC:
+      *regA -= imm.u4;
+      break;
     case ADD:
       state->registers.ac = *regA + *regB;
       break;
