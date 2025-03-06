@@ -13,7 +13,7 @@
 //     )
 //   <parameter> -> <register> | <immediateValue> | <labelReference>
 //   <register> -> '$' <registerName>
-//   <immediateValue> -> '0x' <hexDigit>+ | '-'? <digit>+
+//   <immediateValue> -> '0x' <hexDigit>+ | ('-' | '+')? <digit>+
 //   <labelReference> -> '@' <label>
 //   <label> -> [a-zA-Z_][a-zA-Z0-9_]*
 //   <hexByte> -> <hexDigit><hexDigit>
@@ -23,7 +23,6 @@
 // Any whitespace between a label and the subsequent token is ignored.
 
 enum AssemblyParameterKind {
-  INVALID = 0,
   REGISTER,
   IMMEDIATE_VALUE,
   LABEL_REFERENCE,
@@ -50,7 +49,6 @@ struct AssemblyData {
 };
 
 enum AssemblyLineKind {
-  INVALID = 0,
   INSTRUCTION,
   DATA,
 };
@@ -64,9 +62,9 @@ struct AssemblyLine {
   } contents;
 };
 
-// Parses the next instruction from the given text and advances the text pointer.
+// Parses the next line of assembly code from the given text and advances the text pointer.
 // Compatible with both Unix and Windows line endings.
+// Always advances text past the end of the current line.
 // If parsing succeeds, outputs the parsed line through result and returns true.
-// If parsing fails, prints one or more errors to the provided
-// err file, advances past the end of the line, and returns false.
-bool tryParseNextLine(FILE* err, const char** text, struct AssemblyLine* result);
+// If parsing fails, prints one or more errors to the provided err file and returns false.
+bool tryParseAssemblyLine(FILE* err, const char** text, struct AssemblyLine* result);
