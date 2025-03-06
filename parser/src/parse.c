@@ -7,8 +7,8 @@
 #pragma region Helper function signatures
 
 // Parses an assembly instruction.
-// If parsing succeeds, advances text past the end of the instruction,
-// outputs the instruction through result and returns true.
+// If the current line is a valid instruction, advances text to the end of the line,
+// outputs the instruction through result, and returns true.
 // If parsing fails, prints one or more errors to the provided err file,
 // leaves text and result as they are, and returns false.
 bool tryParseInstruction(FILE* err, const char** text, struct AssemblyInstruction* result);

@@ -32,8 +32,11 @@ void skipAllWhitespace(const char** text) {
   }
 }
 
-void skipToEndOfLine(const char** text) {
-  while (**text != '\0' && **text != '\n' && **text != '\r') {
+void skipToNextLine(const char** text) {
+  while (**text != '\0' && **text != '\n') {
+    (*text)++;
+  }
+  if (**text == '\n') {
     (*text)++;
   }
 }

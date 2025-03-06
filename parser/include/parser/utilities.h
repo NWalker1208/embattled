@@ -14,8 +14,8 @@ bool skipInlineWhitespace(const char** text);
 // Advances text to the next non-whitespace character.
 void skipAllWhitespace(const char** text);
 
-// Advances text to the next newline or carriage return character.
-void skipToEndOfLine(const char** text);
+// Advances text past the next newline character.
+void skipToNextLine(const char** text);
 
 // Returns a pointer to the first occurrence of c in the first line of text.
 // If c is not found in the first line of text, returns NULL.

@@ -59,7 +59,7 @@ struct AssemblyLine {
   union {
     struct AssemblyInstruction instruction; // kind == INSTRUCTION
     struct AssemblyData data; // kind == DATA
-  } contents;
+  };
 };
 
 // Parses the next line of assembly code from the given text and advances the text pointer.
