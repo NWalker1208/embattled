@@ -69,4 +69,4 @@ struct AssemblyLine {
 // If parsing succeeds, outputs the parsed line through result and returns true.
 // If parsing fails, prints one or more errors to the provided
 // err file, advances past the end of the line, and returns false.
-bool tryParseNextLine(FILE* err, char** text, struct AssemblyLine* result);
+bool tryParseNextLine(FILE* err, const char** text, struct AssemblyLine* result);

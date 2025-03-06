@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <ctype.h>
 #include "parser/utilities.h"
 
 bool startsWithCaseInsensitive(const char* text, const char* prefix) {
@@ -16,7 +17,7 @@ bool isInlineWhitespace(char c) {
   return c == ' ' || c == '\t';
 }
 
-bool skipInlineWhitespace(char** text) {
+bool skipInlineWhitespace(const char** text) {
   bool skippedAny = false;
   while (isInlineWhitespace(**text)) {
     (*text)++;
@@ -25,19 +26,19 @@ bool skipInlineWhitespace(char** text) {
   return skippedAny;
 }
 
-void skipAllWhitespace(char** text) {
+void skipAllWhitespace(const char** text) {
   while (isspace(**text)) {
     (*text)++;
   }
 }
 
-void skipToEndOfLine(char** text) {
+void skipToEndOfLine(const char** text) {
   while (**text != '\0' && **text != '\n' && **text != '\r') {
     (*text)++;
   }
 }
 
-char* findCharOnLine(char* str, char c) {
+const char* findCharOnLine(const char* str, char c) {
   while (*str != '\0' && *str != '\n' && *str != '\r') {
     if (*str == c) {
       return str;

@@ -9,17 +9,17 @@ bool isInlineWhitespace(char c);
 
 // Advances text to the next character that isn't a space or a tab.
 // Returns true if any characters were skipped. Otherwise, returns false.
-bool skipInlineWhitespace(char** text);
+bool skipInlineWhitespace(const char** text);
 
 // Advances text to the next non-whitespace character.
-void skipAllWhitespace(char** text);
+void skipAllWhitespace(const char** text);
 
 // Advances text to the next newline or carriage return character.
-void skipToEndOfLine(char** text);
+void skipToEndOfLine(const char** text);
 
 // Returns a pointer to the first occurrence of c in the first line of text.
 // If c is not found in the first line of text, returns NULL.
-char* findCharOnLine(char* text, char c);
+const char* findCharOnLine(const char* text, char c);
 
 // Attempts to convert the given character to a nibble value.
 // If the character is a hexadecimal digit, sets the byte at nibble to the digit's value and returns true.
