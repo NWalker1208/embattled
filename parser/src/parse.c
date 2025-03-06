@@ -62,3 +62,55 @@ bool tryParseImmediateDecValue(const char** text, signed int* result);
 char* tryParseLabel(const char** text);
 
 #pragma endregion
+
+bool tryParseAssemblyLine(FILE* err, const char** text, struct AssemblyLine* result) {
+  struct AssemblyLine partialResult = { 0 }; // Copied to result on success
+  skipAllWhitespace(text);
+
+  // Parse the label if one is present
+  if (findCharOnLine(*text, ':') != NULL) {
+    partialResult.label = tryParseLabel(text);
+    if (partialResult.label == NULL) {
+      destroyAssemblyLine(&partialResult);
+      skipToNextLine(text);
+      return false; // Failed to parse label
+    }
+    skipInlineWhitespace(text);
+    if (**text != ':') {
+      destroyAssemblyLine(&partialResult);
+      skipToNextLine(text);
+      return false; // Expected ':' after label
+    }
+    skipAllWhitespace(text);
+  }
+
+  // If line starts with ".data", parse as assembly data.
+  // Otherwise, parse as an assembly instruction.
+  if (startsWithCaseInsensitive(*text, ".data")) {
+    partialResult.kind = DATA;
+    if (!tryParseAssemblyData(err, text, &partialResult.data)) {
+      destroyAssemblyLine(&partialResult);
+      skipToNextLine(text);
+      return false; // Failed to parse assembly data
+    }
+  } else {
+    partialResult.kind = INSTRUCTION;
+    if (!tryParseInstruction(err, text, &partialResult.instruction)) {
+      destroyAssemblyLine(&partialResult);
+      skipToNextLine(text);
+      return false; // Failed to parse assembly instruction
+    }
+  }
+
+  // Check that we are at the end of the line
+  if (**text != '\r' && **text != '\n') {
+    destroyAssemblyLine(&partialResult);
+    skipToNextLine(text);
+    return false; // Expected end of line
+  }
+
+  // Copy out result, advance to next line, and return success.
+  *result = partialResult;
+  skipToNextLine(text);
+  return true;
+}
