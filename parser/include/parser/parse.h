@@ -1,8 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <stdbool.h>
-#include "processor/opcode.h"
-#include "processor/register.h"
+#include "parser/assembly.h"
 
 // Assembly Syntax:
 //   <file> -> <line>*
@@ -21,46 +20,6 @@
 //   <digit> -> [0-9]
 // Spaces and tabs between any two tokens are ignored.
 // Any whitespace between a label and the subsequent token is ignored.
-
-enum AssemblyParameterKind {
-  REGISTER,
-  IMMEDIATE_VALUE,
-  LABEL_REFERENCE,
-};
-
-struct AssemblyParameter {
-  enum AssemblyParameterKind kind;
-  union {
-    enum Register registerName; // kind == REGISTER
-    signed int immediateValue; // kind == IMMEDIATE_VALUE
-    char* referencedLabel; // kind == LABEL_REFERENCE
-  };
-};
-
-struct AssemblyInstruction {
-  enum Opcode opcode;
-  unsigned int parameterCount;
-  struct AssemblyParameter* parameters;
-};
-
-struct AssemblyData {
-  unsigned int length;
-  unsigned char* bytes;
-};
-
-enum AssemblyLineKind {
-  INSTRUCTION,
-  DATA,
-};
-
-struct AssemblyLine {
-  char* label;
-  enum AssemblyLineKind kind;
-  union {
-    struct AssemblyInstruction instruction; // kind == INSTRUCTION
-    struct AssemblyData data; // kind == DATA
-  };
-};
 
 // Parses the next line of assembly code from the given text and advances the text pointer.
 // Compatible with both Unix and Windows line endings.
