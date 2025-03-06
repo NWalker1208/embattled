@@ -4,6 +4,7 @@ add_subdirectory(tests)
 
 add_library(
   ${PROJECT_NAME}
+  src/assembly.c
   src/parse.c
   src/utilities.c
 )

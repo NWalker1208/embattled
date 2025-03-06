@@ -40,3 +40,19 @@ struct AssemblyLine {
     struct AssemblyData data; // kind == DATA
   };
 };
+
+// Frees all dynamically allocated memory referenced by the assembly line.
+// Replaces freed pointers with NULL.
+void destroyAssemblyLine(struct AssemblyLine* line);
+
+// Frees all dynamically allocated memory referenced by the assembly instruction.
+// Replaces freed pointers with NULL.
+void destroyAssemblyInstruction(struct AssemblyInstruction* instruction);
+
+// Frees all dynamically allocated memory referenced by the assembly parameter.
+// Replaces freed pointers with NULL.
+void destroyAssemblyParameter(struct AssemblyParameter* parameter);
+
+// Frees all dynamically allocated memory referenced by the assembly data.
+// Replaces freed pointers with NULL.
+void destroyAssemblyData(struct AssemblyData* data);
