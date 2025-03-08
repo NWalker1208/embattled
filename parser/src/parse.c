@@ -311,11 +311,31 @@ bool tryParseImmediateDecValue(const char** text, signed int* value) {
 }
 
 bool tryParseAssemblyData(const char** text, struct AssemblyData* data, struct ParsingError* error) {
-  *error = (struct ParsingError) {
-    .message = "Not yet implemented.",
-    .location = *text,
-  };
-  return false;
+  while (!isEndOfLineOrFile(**text)) {
+    // Parse the next hexadecimal byte
+    unsigned char nibble;
+    if (!tryHexToNibble(**text, &nibble)) {
+      *error = PARSING_ERROR(INVALID_HEX_BYTE, *text);
+      return false;
+    }
+    (*text)++;
+    unsigned char byte = nibble << 4;
+
+    if (!tryHexToNibble(**text, &nibble)) {
+      *error = PARSING_ERROR(INVALID_HEX_BYTE, *text);
+      return false;
+    }
+    (*text)++;
+    byte |= nibble;
+
+    data->length++;
+    data->bytes = realloc(data->bytes, sizeof(unsigned char) * data->length);
+    data->bytes[data->length - 1] = byte;
+
+    skipInlineWhitespace(text);
+  }
+
+  return true;
 }
 
 char* tryCopyLabel(const char** text) {
