@@ -2,19 +2,23 @@
 #include <ctype.h>
 #include "parser/utilities.h"
 
-bool startsWithCaseInsensitive(const char* text, const char* prefix) {
-  while (*text != '\0' && *prefix != '\0') {
-    if (tolower(*text) != tolower(*prefix)) {
+bool isInlineWhitespace(char c) {
+  return c == ' ' || c == '\t';
+}
+
+bool isWordChar(char c) {
+  return isalnum(c) || c == '_';
+}
+
+bool startsWithWordCaseInsensitive(const char* text, const char* word) {
+  while (*text != '\0' && *word != '\0') {
+    if (tolower(*text) != tolower(*word)) {
       return false;
     }
     text++;
-    prefix++;
+    word++;
   }
-  return *prefix == '\0';
-}
-
-bool isInlineWhitespace(char c) {
-  return c == ' ' || c == '\t';
+  return *word == '\0' && !isWordChar(*text);
 }
 
 bool skipInlineWhitespace(const char** text) {

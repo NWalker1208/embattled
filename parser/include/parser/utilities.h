@@ -1,11 +1,14 @@
 #pragma once
 #include <stdbool.h>
 
-// Returns true if text begins with prefix. Otherwise, returns false.
-bool startsWithCaseInsensitive(const char* text, const char* prefix);
-
 // Returns true if c is a space or a tab character. Otherwise, returns false.
 bool isInlineWhitespace(char c);
+
+// Returns true if c is a letter, number, or underscore. Otherwise, returns false.
+bool isWordChar(char c);
+
+// Returns true if text begins with the specified word. Otherwise, returns false.
+bool startsWithWordCaseInsensitive(const char* text, const char* word);
 
 // Advances text to the next character that isn't a space or a tab.
 // Returns true if any characters were skipped. Otherwise, returns false.

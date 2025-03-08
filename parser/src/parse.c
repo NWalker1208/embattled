@@ -102,7 +102,7 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
 
   // If line starts with ".data", parse as assembly data.
   // Otherwise, parse as an assembly instruction.
-  if (startsWithCaseInsensitive(*text, ".data")) {
+  if (startsWithWordCaseInsensitive(*text, ".data")) {
     result.kind = DATA;
     if (!tryParseAssemblyData(text, &result.data, error)) {
       destroyAssemblyLine(&result);
