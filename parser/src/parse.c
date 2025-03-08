@@ -140,26 +140,32 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
   }
   skipInlineWhitespace(text);
 
-  // Parse the parameters
-  while (!isEndOfLineOrFile(**text)) {
-    instruction->parameterCount++;
-    instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(struct AssemblyParameter));
-    if (!tryParseParameter(text, &instruction->parameters[instruction->parameterCount - 1], error)) {
-      return false; // Failed to parse parameter
-    }
-    skipInlineWhitespace(text);
-    if (**text != ',') {
-      break;
-    }
-    (*text)++;
-    skipInlineWhitespace(text);
-  }
-
-  // Check for end of line
+  // Parse the parameters, if present
   if (!isEndOfLineOrFile(**text)) {
-    *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *text);
-    return false; // Expected end of line after parameter list
-  }
+    while (true) {
+      instruction->parameterCount++;
+      instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(struct AssemblyParameter));
+      if (!tryParseParameter(text, &instruction->parameters[instruction->parameterCount - 1], error)) {
+        return false; // Failed to parse parameter
+      }
+      skipInlineWhitespace(text);
+
+      if (**text == ',') {
+        // If there's a comma, we expect to find another parameter
+        (*text)++;
+        skipInlineWhitespace(text);
+      } else {
+        // Otherwise, this was the last parameter
+        break;
+      }
+    }
+
+    // Check for end of line or file after parameter list
+    if (!isEndOfLineOrFile(**text)) {
+      *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *text);
+      return false; // Expected end of line or file
+    }
+  }  
 
   return true;
 }
