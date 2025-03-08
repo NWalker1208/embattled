@@ -249,7 +249,45 @@ bool tryParseImmediateHexValue(const char** text, signed int* value) {
 }
 
 bool tryParseImmediateDecValue(const char** text, signed int* value) {
-  return false;
+  // Check for sign character (- or +)
+  bool isNegative = **text == '-';
+  if (isNegative || **text == '+') {
+    (*text)++;
+  }
+
+  // Check that first character after sign is valid digit
+  if (!isdigit(**text)) {
+    return false; // Not a decimal integer
+  }
+  unsigned char nextDigit = **text - '0';
+  (*text)++;
+
+  // Parse remaining digits
+  signed int decValue = isNegative ? -nextDigit : nextDigit;
+
+  while (isdigit(**text)) {
+    if ((isNegative && decValue < INT_MIN / 10) || (!isNegative && decValue > INT_MAX / 10)) {
+      return false; // Overflow
+    }
+    decValue = decValue * 10;
+
+    nextDigit = (*text)[0] - '0';
+    if ((isNegative && decValue < INT_MIN + nextDigit) || (!isNegative && decValue > INT_MAX - nextDigit)) {
+      return false; // Overflow
+    }
+    decValue += isNegative ? -nextDigit : nextDigit;
+    (*text)++;
+  }
+
+  *value = decValue;
+  return true;
+  
+  // Note on overflow handling:
+  // Individual instructions have different rules about the legal range of immediate values.
+  // However, the largest datatype any instruction can work with is a signed or unsigned short.
+  // The ranges of both signed and unsigned shorts are fully represented in the range of signed ints.
+  // Therefore, we can parse immediate values as signed ints, and allow the assembler to make narrower
+  // assertions about the range of legal values for any given instruction.
 }
 
 bool tryParseAssemblyData(const char** text, struct AssemblyData* data, struct ParsingError* error) {
