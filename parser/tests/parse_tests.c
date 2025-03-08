@@ -66,7 +66,7 @@ void test_tryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(v
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(NULL, line.label);
   TEST_ASSERT_EQUAL(DATA, line.kind);
-  TEST_ASSERT_EQUAL(10, line.data.length);
+  TEST_ASSERT_EQUAL(8, line.data.length);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expectedBytes, line.data.bytes, sizeof(expectedBytes));
 }
 
@@ -281,7 +281,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidByte_when_dataLineContainsI
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_STRING(INVALID_HEX_BYTE, error.message);
-  TEST_ASSERT_EQUAL_PTR(&source[9], error.location);
+  TEST_ASSERT_EQUAL_PTR(&source[10], error.location);
 }
 
 void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterValidParameter(void) {
