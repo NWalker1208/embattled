@@ -2,6 +2,11 @@
 #include <stdbool.h>
 #include "parser/assembly.h"
 
+static const char* TOO_FEW_PARAMS = "Too few parameters";
+static const char* TOO_MANY_PARAMS = "Too many parameters";
+static const char* EXPECTED_REGISTER = "Expected register as parameter";
+static const char* EXPECTED_IMMEDIATE_VALUE = "Expected immediate value or label reference as parameter";
+
 struct AssemblingError {
   // The message describing the error. Should be a string with a static lifetime.
   const char* message;
