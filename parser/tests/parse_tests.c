@@ -25,4 +25,7 @@ void test_tryParseAssemblyLine_should_returnFalse_whenLineIsEmpty(void) {
 
   // Assert
   TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR_MESSAGE(source, text, "Text should not have been advanced.");
+  TEST_ASSERT_EQUAL_PTR(UNEXPECTED_END_OF_FILE, error.message);
+  TEST_ASSERT_EQUAL_PTR(source, error.location);
 }
