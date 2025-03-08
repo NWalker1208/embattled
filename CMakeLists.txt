@@ -5,5 +5,6 @@ include(cmake/FetchUnity.cmake)
 
 add_subdirectory(processor)
 add_subdirectory(parser)
+add_subdirectory(assembler)
 
 enable_testing()
