@@ -100,6 +100,13 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
     skipAllWhitespace(text);
   }
 
+  // Check for end of file
+  if (**text == '\0') {
+    *error = PARSING_ERROR(UNEXPECTED_END_OF_FILE, *text);
+    destroyAssemblyLine(line);
+    return false;
+  }
+
   // If line starts with ".data", parse as assembly data.
   // Otherwise, parse as an assembly instruction.
   if (startsWithWordCaseInsensitive(*text, ".data")) {
