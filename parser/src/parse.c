@@ -139,7 +139,7 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
       return false; // Failed to parse parameter
     }
     skipInlineWhitespace(text);
-    if (*text != ',') {
+    if (**text != ',') {
       break;
     }
     (*text)++;
@@ -147,7 +147,7 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
   }
 
   // Check for end of line
-  if (!isEndOfLine(*text)) {
+  if (!isEndOfLine(**text)) {
     *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *text);
     return false; // Expected end of line after parameter list
   }

@@ -2,19 +2,7 @@
 #include <ctype.h>
 #include "parser/utilities.h"
 
-inline bool isInlineWhitespace(char c) {
-  return c == ' ' || c == '\t';
-}
-
-inline bool isEndOfLine(char c) {
-  return c == '\n' || c == '\r';
-}
-
-inline bool isAnyWhitespace(char c) {
-  return isInlineWhitespace(c) || isEndOfLine(c);
-}
-
-inline bool isWordChar(char c) {
+bool isWordChar(char c) {
   return isalnum(c) || c == '_';
 }
 
