@@ -120,7 +120,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidLabel_when_labelIsEmpty(voi
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(INVALID_LABEL, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_LABEL, error.message);
   TEST_ASSERT_EQUAL_PTR(source, error.location);
 }
 
@@ -136,7 +136,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidLabel_when_noValidLabelChar
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(INVALID_LABEL, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_LABEL, error.message);
   TEST_ASSERT_EQUAL_PTR(source, error.location);
 }
 
@@ -152,7 +152,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidOpcode_when_firstWordIsNotV
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(INVALID_OPCODE, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_OPCODE, error.message);
   TEST_ASSERT_EQUAL_PTR(source, error.location);
 }
 
@@ -168,7 +168,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_parameterIsN
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(INVALID_PARAMETER, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_PARAMETER, error.message);
   TEST_ASSERT_EQUAL_PTR(&source[9], error.location);
 }
 
@@ -184,7 +184,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_lineEndsAfte
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(INVALID_PARAMETER, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_PARAMETER, error.message);
   TEST_ASSERT_EQUAL_PTR(&source[9], error.location);
 }
 
@@ -200,7 +200,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidRegister_when_dollarSignFol
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(INVALID_REGISTER, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_REGISTER, error.message);
   TEST_ASSERT_EQUAL_PTR(&source[4], error.location);
 }
 
@@ -216,7 +216,7 @@ void test_tryParseAssemblyLine_should_failWithinvalidHexValue_when_zeroExFollowe
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(INVALID_HEX_VALUE, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_HEX_VALUE, error.message);
   TEST_ASSERT_EQUAL_PTR(&source[11], error.location);
 }
 
@@ -232,7 +232,7 @@ void test_tryParseAssemblyLine_should_failWithinvalidByte_when_dataLineContainsI
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(INVALID_BYTE, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_BYTE, error.message);
   TEST_ASSERT_EQUAL_PTR(&source[9], error.location);
 }
 
@@ -248,7 +248,7 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCh
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(UNEXPECTED_CHARACTER, error.message);
+  TEST_ASSERT_EQUAL_STRING(UNEXPECTED_CHARACTER, error.message);
   TEST_ASSERT_EQUAL_PTR(&source[12], error.location);
 }
 
@@ -264,7 +264,7 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCh
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(UNEXPECTED_CHARACTER, error.message);
+  TEST_ASSERT_EQUAL_STRING(UNEXPECTED_CHARACTER, error.message);
   TEST_ASSERT_EQUAL_PTR(&source[4], error.location);
 }
 
@@ -280,7 +280,7 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_noMoreTex
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(UNEXPECTED_END_OF_FILE, error.message);
+  TEST_ASSERT_EQUAL_STRING(UNEXPECTED_END_OF_FILE, error.message);
   TEST_ASSERT_EQUAL_PTR(&source[1], error.location);
 }
 
@@ -296,6 +296,6 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_atEndOfFi
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(UNEXPECTED_END_OF_FILE, error.message);
+  TEST_ASSERT_EQUAL_STRING(UNEXPECTED_END_OF_FILE, error.message);
   TEST_ASSERT_EQUAL_PTR(source, error.location);
 }
