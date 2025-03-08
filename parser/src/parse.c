@@ -11,7 +11,8 @@ const char* INVALID_LABEL = "Invalid label";
 const char* INVALID_OPCODE = "Invalid opcode";
 const char* INVALID_PARAMETER = "Invalid parameter";
 const char* INVALID_REGISTER = "Invalid register";
-const char* INVALID_HEX_VALUE = "Invalid hexadecimal value";
+const char* INVALID_HEX_VALUE = "Invalid or out-of-range hexadecimal value";
+const char* INVALID_INT_VALUE = "Invalid or out-of-range integer value";
 const char* INVALID_BYTE = "Invalid data byte";
 const char* UNEXPECTED_CHARACTER = "Unexpected character";
 const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
@@ -201,12 +202,15 @@ bool tryParseParameter(const char** text, struct AssemblyParameter* parameter, s
           *error = PARSING_ERROR(INVALID_HEX_VALUE, *text);
           return false; // Failed to parse hexadecimal immediate value
         }
-      } else {
+      } else if (isdigit(**text) || **text == '-' || **text == '+') {
         // Parse as a decimal immediate value
         if (!tryParseImmediateDecValue(text, &parameter->immediateValue)) {
-          *error = PARSING_ERROR(INVALID_PARAMETER, *text);
+          *error = PARSING_ERROR(INVALID_INT_VALUE, *text);
           return false; // Failed to parse decimal immediate value
         }
+      } else {
+        *error = PARSING_ERROR(INVALID_PARAMETER, *text);
+        return false; // Failed to parse as any kind of parameter
       }
       break;
     }
