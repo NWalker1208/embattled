@@ -1,5 +1,7 @@
 #pragma once
 
+// TODO: Add prefix to enum value names
+
 // A value representing a particular register to be used in an instruction.
 enum Register {
   // Special registers
