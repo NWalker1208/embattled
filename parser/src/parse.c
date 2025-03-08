@@ -238,16 +238,17 @@ bool tryParseImmediateHexValue(const char** text, signed int* value) {
   }
 
   // Parse remaining hex characters
+  unsigned int i = 1;
   unsigned int hexValue = nibble;
-  (*text)++;
-  while (tryHexToNibble(**text, &nibble)) {
+  while (tryHexToNibble((*text)[i], &nibble)) {
     if (hexValue > ((unsigned int)UINT_MAX >> 4)) {
       return false; // Overflow
     }
     hexValue = (hexValue << 4) | (nibble & 0xF);
-    (*text)++;
+    i++;
   }
 
+  *text += i;
   *value = (signed int)hexValue;
   return true;
 }
@@ -255,34 +256,33 @@ bool tryParseImmediateHexValue(const char** text, signed int* value) {
 bool tryParseImmediateDecValue(const char** text, signed int* value) {
   // Check for sign character (- or +)
   bool isNegative = **text == '-';
-  if (isNegative || **text == '+') {
-    (*text)++;
-  }
+  unsigned int i = (isNegative || **text == '+') ? 1 : 0;
 
   // Check that first character after sign is valid digit
-  if (!isdigit(**text)) {
+  if (!isdigit((*text)[i])) {
     return false; // Not a decimal integer
   }
-  unsigned char nextDigit = **text - '0';
-  (*text)++;
+  unsigned char nextDigit = (*text)[i] - '0';
+  i++;
 
   // Parse remaining digits
   signed int decValue = isNegative ? -nextDigit : nextDigit;
 
-  while (isdigit(**text)) {
+  while (isdigit((*text)[i])) {
     if ((isNegative && decValue < INT_MIN / 10) || (!isNegative && decValue > INT_MAX / 10)) {
       return false; // Overflow
     }
     decValue = decValue * 10;
 
-    nextDigit = (*text)[0] - '0';
+    nextDigit = (*text)[i] - '0';
     if ((isNegative && decValue < INT_MIN + nextDigit) || (!isNegative && decValue > INT_MAX - nextDigit)) {
       return false; // Overflow
     }
     decValue += isNegative ? -nextDigit : nextDigit;
-    (*text)++;
+    i++;
   }
 
+  *text += i;
   *value = decValue;
   return true;
   
