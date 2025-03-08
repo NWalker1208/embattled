@@ -112,3 +112,23 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
   skipToNextLine(text);
   return true;
 }
+
+bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruction, struct ParsingError* error) {
+  *error = (struct ParsingError) {
+    .message = "Not yet implemented.",
+    .location = *text,
+  };
+  return false;
+}
+
+bool tryParseAssemblyData(const char** text, struct AssemblyData* data, struct ParsingError* error) {
+  *error = (struct ParsingError) {
+    .message = "Not yet implemented.",
+    .location = *text,
+  };
+  return false;
+}
+
+char* tryCopyLabel(const char** text) {
+  return NULL;
+}
