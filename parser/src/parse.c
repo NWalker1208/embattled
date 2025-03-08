@@ -168,7 +168,61 @@ bool tryParseOpcode(const char** text, enum Opcode* opcode) {
 }
 
 bool tryParseParameter(const char** text, struct AssemblyParameter* parameter, struct ParsingError* error) {
-  *error = PARSING_ERROR("Not implemented", *text);
+  switch (**text) {
+    case '$':  {
+      // Parse as a register
+      (*text)++;
+      parameter->kind = REGISTER;
+      if (!tryParseRegister(text, &parameter->registerName)) {
+        *error = PARSING_ERROR(INVALID_REGISTER, *text);
+        return false; // Failed to parse register
+      }
+      break;
+    }
+    case '@': {
+      // Parse as a label reference
+      (*text)++;
+      parameter->kind = LABEL_REFERENCE;
+      parameter->referencedLabel = tryCopyLabel(text);
+      if (parameter->referencedLabel == NULL) {
+        *error = PARSING_ERROR(INVALID_LABEL, *text);
+        return false; // Failed to parse label
+      }
+      break;
+    }
+    default: {
+      // Parse as an immediate value
+      parameter->kind = IMMEDIATE_VALUE;
+      
+      if ((*text)[0] == '0' && (*text)[1] == 'x') {
+        // Parse as a hexadecimal immediate value
+        (*text) += 2;
+        if (!tryParseImmediateHexValue(text, &parameter->immediateValue)) {
+          *error = PARSING_ERROR(INVALID_HEX_VALUE, *text);
+          return false; // Failed to parse hexadecimal immediate value
+        }
+      } else {
+        // Parse as a decimal immediate value
+        if (!tryParseImmediateDecValue(text, &parameter->immediateValue)) {
+          *error = PARSING_ERROR(INVALID_PARAMETER, *text);
+          return false; // Failed to parse decimal immediate value
+        }
+      }
+      break;
+    }
+  }
+  return true;
+}
+
+bool tryParseRegister(const char** text, enum Register* reg) {
+  return false;
+}
+
+bool tryParseImmediateHexValue(const char** text, signed int* value) {
+  return false;
+}
+
+bool tryParseImmediateDecValue(const char** text, signed int* value) {
   return false;
 }
 
