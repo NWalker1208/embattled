@@ -125,7 +125,7 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
       return false; // Failed to parse assembly instruction
     }
   }
-  assert(isEndOfLine(**text));
+  assert(isEndOfLineOrFile(**text));
 
   // Advance to next line and return success.
   skipToNextLine(text);
@@ -141,7 +141,7 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
   skipInlineWhitespace(text);
 
   // Parse the parameters
-  while (!isEndOfLine(**text)) {
+  while (!isEndOfLineOrFile(**text)) {
     instruction->parameterCount++;
     instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(struct AssemblyParameter));
     if (!tryParseParameter(text, &instruction->parameters[instruction->parameterCount - 1], error)) {
@@ -156,7 +156,7 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
   }
 
   // Check for end of line
-  if (!isEndOfLine(**text)) {
+  if (!isEndOfLineOrFile(**text)) {
     *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *text);
     return false; // Expected end of line after parameter list
   }

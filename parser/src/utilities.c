@@ -42,7 +42,7 @@ void skipToNextLine(const char** text) {
 }
 
 const char* findCharOnLine(const char* str, char c) {
-  while (*str != '\0' && !isEndOfLine(*str)) {
+  while (!isEndOfLineOrFile(*str)) {
     if (*str == c) {
       return str;
     }
