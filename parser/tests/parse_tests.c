@@ -17,7 +17,7 @@ void tearDown() {
 
 void test_tryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsValidInstruction(void) {
   // Arrange
-  const char source[] = "add $x0, @reference, 0x1234, -5, +7, 42\n";
+  const char source[] = "add $x0, @reference, 0x1234, -5, +7, 42\r\n";
 
   // Act
   const char* textPtr = source;
@@ -106,6 +106,150 @@ void test_tryParseAssemblyLine_should_succeedAndAdvanceToEndOfFile_when_lastLine
   TEST_ASSERT_EQUAL(NOP, line.instruction.opcode);
   TEST_ASSERT_EQUAL(0, line.instruction.parameterCount);
   TEST_ASSERT_EQUAL_PTR(NULL, line.instruction.parameters);
+}
+
+void test_tryParseAssemblyLine_should_failWithInvalidLabel_when_labelIsEmpty(void) {
+  // Arrange
+  const char source[] = ":\n";
+
+  // Act
+  const char* textPtr = source;
+  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+
+  // Assert
+  const char* expectedTextPtr = &source[sizeof(source) - 1];
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
+  TEST_ASSERT_EQUAL_PTR(INVALID_LABEL, error.message);
+  TEST_ASSERT_EQUAL_PTR(source, error.location);
+}
+
+void test_tryParseAssemblyLine_should_failWithInvalidLabel_when_noValidLabelCharacters(void) {
+  // Arrange
+  const char source[] = "~:\n";
+
+  // Act
+  const char* textPtr = source;
+  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+
+  // Assert
+  const char* expectedTextPtr = &source[sizeof(source) - 1];
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
+  TEST_ASSERT_EQUAL_PTR(INVALID_LABEL, error.message);
+  TEST_ASSERT_EQUAL_PTR(source, error.location);
+}
+
+void test_tryParseAssemblyLine_should_failWithInvalidOpcode_when_firstWordIsNotValidOpcode(void) {
+  // Arrange
+  const char source[] = "nopbutnotreally\n";
+
+  // Act
+  const char* textPtr = source;
+  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+
+  // Assert
+  const char* expectedTextPtr = &source[sizeof(source) - 1];
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
+  TEST_ASSERT_EQUAL_PTR(INVALID_OPCODE, error.message);
+  TEST_ASSERT_EQUAL_PTR(source, error.location);
+}
+
+void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_parameterIsNotRegisterOrHexValueOrReferenceOrInteger(void) {
+  // Arrange
+  const char source[] = "mov $x0, invalid\n";
+
+  // Act
+  const char* textPtr = source;
+  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+
+  // Assert
+  const char* expectedTextPtr = &source[sizeof(source) - 1];
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
+  TEST_ASSERT_EQUAL_PTR(INVALID_PARAMETER, error.message);
+  TEST_ASSERT_EQUAL_PTR(source, error.location);
+}
+
+void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_lineEndsAfterComma(void) {
+  // Arrange
+  const char source[] = "mov $x0, \n";
+
+  // Act
+  const char* textPtr = source;
+  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+
+  // Assert
+  const char* expectedTextPtr = &source[sizeof(source) - 1];
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
+  TEST_ASSERT_EQUAL_PTR(INVALID_PARAMETER, error.message);
+  TEST_ASSERT_EQUAL_PTR(source, error.location);
+}
+
+void test_tryParseAssemblyLine_should_failWithInvalidRegister_when_dollarSignFollowedByInvalidRegisterName(void) {
+  // Arrange
+  const char source[] = "mov $invalid, 123\n";
+
+  // Act
+  const char* textPtr = source;
+  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+
+  // Assert
+  const char* expectedTextPtr = &source[sizeof(source) - 1];
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
+  TEST_ASSERT_EQUAL_PTR(INVALID_REGISTER, error.message);
+  TEST_ASSERT_EQUAL_PTR(source, error.location);
+}
+
+void test_tryParseAssemblyLine_should_failWithinvalidHexValue_when_zeroExFollowedByInvalidHexDigit(void) {
+  // Arrange
+  const char source[] = "mov $x0, 0xg\n";
+
+  // Act
+  const char* textPtr = source;
+  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+
+  // Assert
+  const char* expectedTextPtr = &source[sizeof(source) - 1];
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
+  TEST_ASSERT_EQUAL_PTR(INVALID_HEX_VALUE, error.message);
+  TEST_ASSERT_EQUAL_PTR(source, error.location);
+}
+
+void test_tryParseAssemblyLine_should_failWithinvalidByte_when_dataLineContainsInvalidByte(void) {
+  // Arrange
+  const char source[] = ".data FF b\n";
+
+  // Act
+  const char* textPtr = source;
+  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+
+  // Assert
+  const char* expectedTextPtr = &source[sizeof(source) - 1];
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
+  TEST_ASSERT_EQUAL_PTR(INVALID_BYTE, error.message);
+  TEST_ASSERT_EQUAL_PTR(source, error.location);
+}
+
+void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterValidParameter(void) {
+  // Arrange
+  const char source[] = "mov $x0, 123~\n";
+
+  // Act
+  const char* textPtr = source;
+  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+
+  // Assert
+  const char* expectedTextPtr = &source[sizeof(source) - 1];
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
+  TEST_ASSERT_EQUAL_PTR(UNEXPECTED_CHARACTER, error.message);
+  TEST_ASSERT_EQUAL_PTR(source, error.location);
 }
 
 void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterLabel(void) {
