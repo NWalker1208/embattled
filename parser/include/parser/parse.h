@@ -32,7 +32,9 @@ extern const char* UNEXPECTED_CHARACTER;
 extern const char* UNEXPECTED_END_OF_FILE;
 
 struct ParsingError {
+  // The message describing the error. Should be a string with a static lifetime.
   const char* message;
+  // The pointer to the location in the text at which the error occurred. Has the same lifetime as the text string.
   const char* location;
 };
 

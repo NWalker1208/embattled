@@ -3,7 +3,9 @@
 #include "parser/assembly.h"
 
 struct AssemblingError {
+  // The message describing the error. Should be a string with a static lifetime.
   const char* message;
+  // The line on which the error occurred.
   unsigned int lineNumber;
 };
 
