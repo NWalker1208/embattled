@@ -21,6 +21,15 @@
 // Spaces and tabs between any two tokens are ignored.
 // Any whitespace between a label and the subsequent token is ignored.
 
+extern const char* INVALID_PARAMETER;
+extern const char* INVALID_OPCODE;
+extern const char* INVALID_REGISTER;
+extern const char* INVALID_HEX_VALUE;
+extern const char* INVALID_LABEL;
+extern const char* INVALID_BYTE;
+extern const char* UNEXPECTED_CHARACTER;
+extern const char* UNEXPECTED_END_OF_FILE;
+
 struct ParsingError {
   const char* message;
   const char* location;
