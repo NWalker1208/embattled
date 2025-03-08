@@ -132,7 +132,7 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
   skipInlineWhitespace(text);
 
   // Parse the parameters
-  while (!isEndOfLine(*text)) {
+  while (!isEndOfLine(**text)) {
     instruction->parameterCount++;
     instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(struct AssemblyParameter));
     if (!tryParseParameter(text, &instruction->parameters[instruction->parameterCount - 1], error)) {
@@ -153,6 +153,15 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
   }
 
   return true;
+}
+
+bool tryParseOpcode(const char** text, enum Opcode* opcode) {
+  return false;
+}
+
+bool tryParseParameter(const char** text, struct AssemblyParameter* parameter, struct ParsingError* error) {
+  *error = PARSING_ERROR("Not implemented", *text);
+  return false;
 }
 
 bool tryParseAssemblyData(const char** text, struct AssemblyData* data, struct ParsingError* error) {

@@ -2,14 +2,14 @@
 #include <stdbool.h>
 
 // Returns true if c is a space or a tab character. Otherwise, returns false.
-inline bool isInlineWhitespace(char c) { return c == ' ' || c == '\t'; }
+static inline bool isInlineWhitespace(char c) { return c == ' ' || c == '\t'; }
 
 // Returns true if c is a newline or a carriage return. Otherwise, returns false.
-inline bool isEndOfLine(char c) { return c == '\n' || c == '\r'; }
+static inline bool isEndOfLine(char c) { return c == '\n' || c == '\r'; }
 
 // Returns true if c is an inline whitespace or end-of-line character. Otherwise, returns false.
 // Similar to the standard isspace() function, but does not return true for \f or \v.
-inline bool isAnyWhitespace(char c) { return isInlineWhitespace(c) || isEndOfLine(c); }
+static inline bool isAnyWhitespace(char c) { return isInlineWhitespace(c) || isEndOfLine(c); }
 
 // Returns true if c is a letter, number, or underscore. Otherwise, returns false.
 bool isWordChar(char c);
