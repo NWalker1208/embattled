@@ -2,11 +2,19 @@
 #include <ctype.h>
 #include "parser/utilities.h"
 
-bool isInlineWhitespace(char c) {
+inline bool isInlineWhitespace(char c) {
   return c == ' ' || c == '\t';
 }
 
-bool isWordChar(char c) {
+inline bool isEndOfLine(char c) {
+  return c == '\n' || c == '\r';
+}
+
+inline bool isAnyWhitespace(char c) {
+  return isInlineWhitespace(c) || isEndOfLine(c);
+}
+
+inline bool isWordChar(char c) {
   return isalnum(c) || c == '_';
 }
 
@@ -31,7 +39,7 @@ bool skipInlineWhitespace(const char** text) {
 }
 
 void skipAllWhitespace(const char** text) {
-  while (isspace(**text)) {
+  while (isAnyWhitespace(**text)) {
     (*text)++;
   }
 }
@@ -46,7 +54,7 @@ void skipToNextLine(const char** text) {
 }
 
 const char* findCharOnLine(const char* str, char c) {
-  while (*str != '\0' && *str != '\n' && *str != '\r') {
+  while (*str != '\0' && !isEndOfLine(*str)) {
     if (*str == c) {
       return str;
     }

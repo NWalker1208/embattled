@@ -116,7 +116,7 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
       return false; // Failed to parse assembly instruction
     }
   }
-  assert(**text == '\r' || **text == '\n');
+  assert(isEndOfLine(**text));
 
   // Advance to next line and return success.
   skipToNextLine(text);
