@@ -169,7 +169,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_parameterIsN
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(INVALID_PARAMETER, error.message);
-  TEST_ASSERT_EQUAL_PTR(source, error.location);
+  TEST_ASSERT_EQUAL_PTR(&source[9], error.location);
 }
 
 void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_lineEndsAfterComma(void) {
@@ -185,7 +185,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_lineEndsAfte
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(INVALID_PARAMETER, error.message);
-  TEST_ASSERT_EQUAL_PTR(source, error.location);
+  TEST_ASSERT_EQUAL_PTR(&source[9], error.location);
 }
 
 void test_tryParseAssemblyLine_should_failWithInvalidRegister_when_dollarSignFollowedByInvalidRegisterName(void) {
@@ -201,7 +201,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidRegister_when_dollarSignFol
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(INVALID_REGISTER, error.message);
-  TEST_ASSERT_EQUAL_PTR(source, error.location);
+  TEST_ASSERT_EQUAL_PTR(&source[4], error.location);
 }
 
 void test_tryParseAssemblyLine_should_failWithinvalidHexValue_when_zeroExFollowedByInvalidHexDigit(void) {
@@ -217,7 +217,7 @@ void test_tryParseAssemblyLine_should_failWithinvalidHexValue_when_zeroExFollowe
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(INVALID_HEX_VALUE, error.message);
-  TEST_ASSERT_EQUAL_PTR(source, error.location);
+  TEST_ASSERT_EQUAL_PTR(&source[11], error.location);
 }
 
 void test_tryParseAssemblyLine_should_failWithinvalidByte_when_dataLineContainsInvalidByte(void) {
@@ -233,7 +233,7 @@ void test_tryParseAssemblyLine_should_failWithinvalidByte_when_dataLineContainsI
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(INVALID_BYTE, error.message);
-  TEST_ASSERT_EQUAL_PTR(source, error.location);
+  TEST_ASSERT_EQUAL_PTR(&source[9], error.location);
 }
 
 void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterValidParameter(void) {
@@ -249,7 +249,7 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCh
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(UNEXPECTED_CHARACTER, error.message);
-  TEST_ASSERT_EQUAL_PTR(source, error.location);
+  TEST_ASSERT_EQUAL_PTR(&source[12], error.location);
 }
 
 void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterLabel(void) {
@@ -265,7 +265,7 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCh
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(UNEXPECTED_CHARACTER, error.message);
-  TEST_ASSERT_EQUAL_PTR(source, error.location);
+  TEST_ASSERT_EQUAL_PTR(&source[4], error.location);
 }
 
 void test_tryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_noMoreText(void) {
@@ -281,7 +281,7 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_noMoreTex
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(UNEXPECTED_END_OF_FILE, error.message);
-  TEST_ASSERT_EQUAL_PTR(source, error.location);
+  TEST_ASSERT_EQUAL_PTR(&source[1], error.location);
 }
 
 void test_tryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_atEndOfFile(void) {
