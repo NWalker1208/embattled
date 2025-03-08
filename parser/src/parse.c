@@ -78,22 +78,21 @@ char* tryCopyLabel(const char** text);
 #pragma endregion
 
 bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct ParsingError* error) {
-  struct AssemblyLine result = { 0 }; // Copied to result on success
   skipAllWhitespace(text);
 
   // Parse the label if one is present
   if (findCharOnLine(*text, ':') != NULL) {
-    result.label = tryCopyLabel(text);
-    if (result.label == NULL) {
+    line->label = tryCopyLabel(text);
+    if (line->label == NULL) {
       *error = PARSING_ERROR(INVALID_LABEL, *text);
-      destroyAssemblyLine(&result);
+      destroyAssemblyLine(line);
       skipToNextLine(text);
       return false; // Failed to parse label
     }
     skipInlineWhitespace(text);
     if (**text != ':') {
       *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *text);
-      destroyAssemblyLine(&result);
+      destroyAssemblyLine(line);
       skipToNextLine(text);
       return false; // Expected ':' after label
     }
@@ -103,24 +102,23 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
   // If line starts with ".data", parse as assembly data.
   // Otherwise, parse as an assembly instruction.
   if (startsWithWordCaseInsensitive(*text, ".data")) {
-    result.kind = DATA;
-    if (!tryParseAssemblyData(text, &result.data, error)) {
-      destroyAssemblyLine(&result);
+    line->kind = DATA;
+    if (!tryParseAssemblyData(text, &line->data, error)) {
+      destroyAssemblyLine(line);
       skipToNextLine(text);
       return false; // Failed to parse assembly data
     }
   } else {
-    result.kind = INSTRUCTION;
-    if (!tryParseInstruction(text, &result.instruction, error)) {
-      destroyAssemblyLine(&result);
+    line->kind = INSTRUCTION;
+    if (!tryParseInstruction(text, &line->instruction, error)) {
+      destroyAssemblyLine(line);
       skipToNextLine(text);
       return false; // Failed to parse assembly instruction
     }
   }
   assert(**text == '\r' || **text == '\n');
 
-  // Copy out result, advance to next line, and return success.
-  *line = result;
+  // Advance to next line and return success.
   skipToNextLine(text);
   return true;
 }
