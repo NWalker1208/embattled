@@ -13,7 +13,7 @@ const char* INVALID_PARAMETER = "Invalid parameter";
 const char* INVALID_REGISTER = "Invalid register";
 const char* INVALID_HEX_VALUE = "Invalid or out-of-range hexadecimal value";
 const char* INVALID_INT_VALUE = "Invalid or out-of-range integer value";
-const char* INVALID_BYTE = "Invalid data byte";
+const char* INVALID_HEX_BYTE = "Invalid hexadecimal byte";
 const char* UNEXPECTED_CHARACTER = "Unexpected character";
 const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 
@@ -111,6 +111,8 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
   // If line starts with ".data", parse as assembly data.
   // Otherwise, parse as an assembly instruction.
   if (startsWithWordCaseInsensitive(*text, ".data")) {
+    (*text) += 5;
+    skipInlineWhitespace(text);
     line->kind = DATA;
     if (!tryParseAssemblyData(text, &line->data, error)) {
       destroyAssemblyLine(line);

@@ -27,7 +27,7 @@ extern const char* INVALID_PARAMETER;
 extern const char* INVALID_REGISTER;
 extern const char* INVALID_HEX_VALUE;
 extern const char* INVALID_INT_VALUE;
-extern const char* INVALID_BYTE;
+extern const char* INVALID_HEX_BYTE;
 extern const char* UNEXPECTED_CHARACTER;
 extern const char* UNEXPECTED_END_OF_FILE;
 

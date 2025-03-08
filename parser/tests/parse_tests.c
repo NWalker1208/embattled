@@ -280,7 +280,7 @@ void test_tryParseAssemblyLine_should_failWithInvalidByte_when_dataLineContainsI
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_STRING(INVALID_BYTE, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_HEX_BYTE, error.message);
   TEST_ASSERT_EQUAL_PTR(&source[9], error.location);
 }
 
