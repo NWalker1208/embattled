@@ -7,15 +7,15 @@ const struct OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
   },
   {
     .name = "JMP",
-    .parameterLayout = IMM16,
+    .parameterLayout = IMMU16,
   },
   {
     .name = "JMZ",
-    .parameterLayout = IMM16,
+    .parameterLayout = IMMU16,
   },
   {
     .name = "SLP",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMU4,
   },
   {
     .name = "MOV",
@@ -23,51 +23,51 @@ const struct OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
   },
   {
     .name = "LDIB",
-    .parameterLayout = IMM8,
+    .parameterLayout = IMMU8,
   },
   {
     .name = "LDIW",
-    .parameterLayout = IMM16,
+    .parameterLayout = IMMU16,
   },
   {
     .name = "LDMB",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMS4,
   },
   {
     .name = "LDMW",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMS4,
   },
   {
     .name = "STMB",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMS4,
   },
   {
     .name = "STMW",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMS4,
   },
   {
     .name = "PSHB",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMU4,
   },
   {
     .name = "PSHW",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMU4,
   },
   {
     .name = "POPB",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMU4,
   },
   {
     .name = "POPW",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMU4,
   },
   {
     .name = "INC",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMU4,
   },
   {
     .name = "DEC",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMU4,
   },
   {
     .name = "ADD",
@@ -111,15 +111,15 @@ const struct OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
   },
   {
     .name = "LSI",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMU4,
   },
   {
     .name = "RSIS",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMU4,
   },
   {
     .name = "RSIU",
-    .parameterLayout = REGA_IMM4,
+    .parameterLayout = REGA_IMMU4,
   },
   {
     .name = "AND",
