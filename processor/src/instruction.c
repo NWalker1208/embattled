@@ -10,7 +10,7 @@ struct Instruction fetchInstruction(const unsigned char* memory, unsigned short*
   (*ip)++;
 
   // Read the parameter bytes from memory.
-  unsigned char numBytes = opcodeInfo->parameterLayout & SIZE_MASK;
+  unsigned char numBytes = opcodeInfo->parameterLayout.numBytes;
   if (numBytes == 0) {
     return instruction;
   }
@@ -20,8 +20,8 @@ struct Instruction fetchInstruction(const unsigned char* memory, unsigned short*
   *ip += numBytes;
 
   // Extract the register values from the parameter bytes.
-  bool hasRegA = opcodeInfo->parameterLayout & REGA_FLAG;
-  bool hasRegB = opcodeInfo->parameterLayout & REGB_FLAG;
+  bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
+  bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
 
   if (hasRegA) {
     instruction.parameters.registerA = nibbleToRegister(parameterBytes[numBytes - 1] >> 4);
@@ -76,7 +76,7 @@ int storeInstruction(unsigned char* memory, unsigned short addr, struct Instruct
   addr++;
   
   const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
-  unsigned char numBytes = opcodeInfo->parameterLayout & SIZE_MASK;
+  unsigned char numBytes = opcodeInfo->parameterLayout.numBytes;
   if (numBytes == 0) {
     return 1;
   }
@@ -94,8 +94,8 @@ int storeInstruction(unsigned char* memory, unsigned short addr, struct Instruct
   addr += numBytes - 1;
 
   // Write the registers to memory
-  bool hasRegA = opcodeInfo->parameterLayout & REGA_FLAG;
-  bool hasRegB = opcodeInfo->parameterLayout & REGB_FLAG;
+  bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
+  bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
 
   if (hasRegA) {
     memory[addr] = (((unsigned char)instruction.parameters.registerA << 4) & 0xF0) | (memory[addr] & 0x0F);
