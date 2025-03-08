@@ -2,10 +2,16 @@
 
 /*=======Automagically Detected Files To Include=====*/
 #include "unity.h"
+#include "assembler/assemble.h"
+#include "processor/process.h"
+#include "processor/instruction.h"
+#include <string.h>
 
 /*=======External Functions This Runner Calls=====*/
 extern void setUp(void);
 extern void tearDown(void);
+extern void test_tryAssemble_should_outputInstructionBytes_when_lineIsValidAssemblyInstruction(void);
+extern void test_tryAssemble_should_outputDataBytes_when_lineIsValidAssemblyData(void);
 
 
 /*=======Mock Management=====*/
@@ -18,9 +24,6 @@ static void CMock_Verify(void)
 static void CMock_Destroy(void)
 {
 }
-
-/*=======Setup (stub)=====*/
-void setUp(void) {}
 
 /*=======Teardown (stub)=====*/
 void tearDown(void) {}
@@ -41,12 +44,42 @@ void verifyTest(void)
   CMock_Verify();
 }
 
+/*=======Test Runner Used To Run Each Test=====*/
+static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE line_num)
+{
+    Unity.CurrentTestName = name;
+    Unity.CurrentTestLineNumber = (UNITY_UINT) line_num;
+#ifdef UNITY_USE_COMMAND_LINE_ARGS
+    if (!UnityTestMatches())
+        return;
+#endif
+    Unity.NumberOfTests++;
+    UNITY_CLR_DETAILS();
+    UNITY_EXEC_TIME_START();
+    CMock_Init();
+    if (TEST_PROTECT())
+    {
+        setUp();
+        func();
+    }
+    if (TEST_PROTECT())
+    {
+        tearDown();
+        CMock_Verify();
+    }
+    CMock_Destroy();
+    UNITY_EXEC_TIME_STOP();
+    UnityConcludeTest();
+}
+
 /*=======Parameterized Test Wrappers=====*/
 
 /*=======MAIN=====*/
 int main(void)
 {
   UnityBegin(".\\assembler\\tests\\assemble_tests.c");
+  run_test(test_tryAssemble_should_outputInstructionBytes_when_lineIsValidAssemblyInstruction, "test_tryAssemble_should_outputInstructionBytes_when_lineIsValidAssemblyInstruction", 17);
+  run_test(test_tryAssemble_should_outputDataBytes_when_lineIsValidAssemblyData, "test_tryAssemble_should_outputDataBytes_when_lineIsValidAssemblyData", 48);
 
   return UNITY_END();
 }
