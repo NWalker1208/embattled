@@ -252,6 +252,22 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCh
   TEST_ASSERT_EQUAL_PTR(&source[12], error.location);
 }
 
+void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_missingCommaBetweenParameters(void) {
+  // Arrange
+  const char source[] = "mov $x0 123\n";
+
+  // Act
+  const char* textPtr = source;
+  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+
+  // Assert
+  const char* expectedTextPtr = &source[sizeof(source) - 1];
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
+  TEST_ASSERT_EQUAL_STRING(UNEXPECTED_CHARACTER, error.message);
+  TEST_ASSERT_EQUAL_PTR(&source[8], error.location);
+}
+
 void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterLabel(void) {
   // Arrange
   const char source[] = "test~:\n";
