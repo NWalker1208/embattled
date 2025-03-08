@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <assert.h>
 #include "parser/parse.h"
 #include "parser/utilities.h"
 
@@ -14,6 +15,8 @@ const char* INVALID_HEX_VALUE = "Invalid hexadecimal value";
 const char* INVALID_BYTE = "Invalid data byte";
 const char* UNEXPECTED_CHARACTER = "Unexpected character";
 const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
+
+#define PARSING_ERROR(_message, _location) (struct ParsingError){.message = (_message), .location = (_location)}
 
 #pragma endregion
 
@@ -82,12 +85,14 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
   if (findCharOnLine(*text, ':') != NULL) {
     result.label = tryCopyLabel(text);
     if (result.label == NULL) {
+      *error = PARSING_ERROR(INVALID_LABEL, *text);
       destroyAssemblyLine(&result);
       skipToNextLine(text);
       return false; // Failed to parse label
     }
     skipInlineWhitespace(text);
     if (**text != ':') {
+      *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *text);
       destroyAssemblyLine(&result);
       skipToNextLine(text);
       return false; // Expected ':' after label
@@ -112,13 +117,7 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
       return false; // Failed to parse assembly instruction
     }
   }
-
-  // Check that we are at the end of the line
-  if (**text != '\r' && **text != '\n') {
-    destroyAssemblyLine(&result);
-    skipToNextLine(text);
-    return false; // Expected end of line
-  }
+  assert(**text == '\r' || **text == '\n');
 
   // Copy out result, advance to next line, and return success.
   *line = result;
@@ -127,10 +126,7 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
 }
 
 bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruction, struct ParsingError* error) {
-  *error = (struct ParsingError) {
-    .message = "Not yet implemented.",
-    .location = *text,
-  };
+  *error = PARSING_ERROR("Not yet implemented.", *text);
   return false;
 }
 
