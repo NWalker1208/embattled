@@ -6,11 +6,11 @@
 
 #pragma region Error messages
 
-const char* INVALID_PARAMETER = "Invalid parameter";
+const char* INVALID_LABEL = "Invalid label";
 const char* INVALID_OPCODE = "Invalid opcode";
+const char* INVALID_PARAMETER = "Invalid parameter";
 const char* INVALID_REGISTER = "Invalid register";
 const char* INVALID_HEX_VALUE = "Invalid hexadecimal value";
-const char* INVALID_LABEL = "Invalid label";
 const char* INVALID_BYTE = "Invalid data byte";
 const char* UNEXPECTED_CHARACTER = "Unexpected character";
 const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
