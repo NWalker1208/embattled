@@ -156,6 +156,14 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
 }
 
 bool tryParseOpcode(const char** text, enum Opcode* opcode) {
+  // Loop through the array of opcode definitions and output the first match
+  for (int i = 0; i < OPCODE_COUNT; i++) {
+    if (startsWithWordCaseInsensitive(*text, OPCODE_INFO[i].name)) {
+      *opcode = (enum Opcode)i;
+      (*text) += strlen(OPCODE_INFO[i].name);
+      return true;
+    }
+  }
   return false;
 }
 
