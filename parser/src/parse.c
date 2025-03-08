@@ -215,6 +215,14 @@ bool tryParseParameter(const char** text, struct AssemblyParameter* parameter, s
 }
 
 bool tryParseRegister(const char** text, enum Register* reg) {
+  // Loop through the array of register names and output the first match
+  for (int i = 0; i < REGISTER_COUNT; i++) {
+    if (startsWithWordCaseInsensitive(*text, REGISTER_NAMES[i])) {
+      *reg = (enum Register)i;
+      (*text) += strlen(REGISTER_NAMES[i]);
+      return true;
+    }
+  }
   return false;
 }
 
