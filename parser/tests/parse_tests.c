@@ -25,7 +25,7 @@ void test_tryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsVali
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
-  TEST_ASSERT_TRUE(success);
+  TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(NULL, line.label);
   TEST_ASSERT_EQUAL(INSTRUCTION, line.kind);
@@ -62,7 +62,7 @@ void test_tryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(v
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   const unsigned char expectedBytes[] = { 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0 };
-  TEST_ASSERT_TRUE(success);
+  TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(NULL, line.label);
   TEST_ASSERT_EQUAL(DATA, line.kind);
@@ -80,7 +80,7 @@ void test_tryParseAssemblyLine_should_succeedWithLabel_when_textStartsWithLabel(
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
-  TEST_ASSERT_TRUE(success);
+  TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_STRING("label", line.label);
   TEST_ASSERT_EQUAL(INSTRUCTION, line.kind);
@@ -99,7 +99,7 @@ void test_tryParseAssemblyLine_should_succeedAndAdvanceToEndOfFile_when_lastLine
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
-  TEST_ASSERT_TRUE(success);
+  TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_STRING("label", line.label);
   TEST_ASSERT_EQUAL(INSTRUCTION, line.kind);
