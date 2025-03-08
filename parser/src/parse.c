@@ -38,8 +38,8 @@ bool tryParseAssemblyData(const char** text, struct AssemblyData* data, struct P
 // Parses an assembly instruction parameter.
 // If parsing succeeds, advances text past the end of the parameter,
 // outputs the parameter through result, and returns true.
-// If parsing fails, returns false.
-bool tryParseParameter(const char** text, struct AssemblyParameter* parameter);
+// If parsing fails, outputs the cause through error and returns false.
+bool tryParseParameter(const char** text, struct AssemblyParameter* parameter, struct ParsingError* error);
 
 // Parses an opcode name.
 // Expects text to be at the start of the opcode name.
@@ -124,8 +124,35 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
 }
 
 bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruction, struct ParsingError* error) {
-  *error = PARSING_ERROR("Not yet implemented.", *text);
-  return false;
+  // Parse the opcode
+  if (!tryParseOpcode(text, &instruction->opcode)) {
+    *error = PARSING_ERROR(INVALID_OPCODE, *text);
+    return false; // Failed to parse opcode
+  }
+  skipInlineWhitespace(text);
+
+  // Parse the parameters
+  while (!isEndOfLine(*text)) {
+    instruction->parameterCount++;
+    instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(struct AssemblyParameter));
+    if (!tryParseParameter(text, &instruction->parameters[instruction->parameterCount - 1], error)) {
+      return false; // Failed to parse parameter
+    }
+    skipInlineWhitespace(text);
+    if (*text != ',') {
+      break;
+    }
+    (*text)++;
+    skipInlineWhitespace(text);
+  }
+
+  // Check for end of line
+  if (!isEndOfLine(*text)) {
+    *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *text);
+    return false; // Expected end of line after parameter list
+  }
+
+  return true;
 }
 
 bool tryParseAssemblyData(const char** text, struct AssemblyData* data, struct ParsingError* error) {
