@@ -227,7 +227,25 @@ bool tryParseRegister(const char** text, enum Register* reg) {
 }
 
 bool tryParseImmediateHexValue(const char** text, signed int* value) {
-  return false;
+  // Check that first character is valid hex
+  unsigned char nibble;
+  if (!tryHexToNibble(**text, &nibble)) {
+    return false;
+  }
+
+  // Parse remaining hex characters
+  unsigned int hexValue = nibble;
+  (*text)++;
+  while (tryHexToNibble(**text, &nibble)) {
+    if (hexValue > ((unsigned int)UINT_MAX >> 4)) {
+      return false; // Overflow
+    }
+    hexValue = (hexValue << 4) | (nibble & 0xF);
+    (*text)++;
+  }
+
+  *value = (signed int)hexValue;
+  return true;
 }
 
 bool tryParseImmediateDecValue(const char** text, signed int* value) {
