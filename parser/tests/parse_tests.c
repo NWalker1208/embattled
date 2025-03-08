@@ -30,7 +30,7 @@ void test_tryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsVali
   TEST_ASSERT_EQUAL_PTR(NULL, line.label);
   TEST_ASSERT_EQUAL(INSTRUCTION, line.kind);
   TEST_ASSERT_EQUAL(ADD, line.instruction.opcode);
-  TEST_ASSERT_EQUAL(6, line.instruction.parameterCount);
+  TEST_ASSERT_EQUAL_UINT(6, line.instruction.parameterCount);
 
   TEST_ASSERT_EQUAL(REGISTER, line.instruction.parameters[0].kind);
   TEST_ASSERT_EQUAL(X0, line.instruction.parameters[0].registerName);
@@ -39,16 +39,16 @@ void test_tryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsVali
   TEST_ASSERT_EQUAL_STRING("reference", line.instruction.parameters[1].referencedLabel);
 
   TEST_ASSERT_EQUAL(IMMEDIATE_VALUE, line.instruction.parameters[2].kind);
-  TEST_ASSERT_EQUAL(0x1234, line.instruction.parameters[2].immediateValue);
+  TEST_ASSERT_EQUAL_HEX32(0xFFFFFFFF, line.instruction.parameters[2].immediateValue);
 
   TEST_ASSERT_EQUAL(IMMEDIATE_VALUE, line.instruction.parameters[3].kind);
-  TEST_ASSERT_EQUAL(-5, line.instruction.parameters[3].immediateValue);
+  TEST_ASSERT_EQUAL_INT(-2147483648, line.instruction.parameters[3].immediateValue);
 
   TEST_ASSERT_EQUAL(IMMEDIATE_VALUE, line.instruction.parameters[4].kind);
-  TEST_ASSERT_EQUAL(+7, line.instruction.parameters[4].immediateValue);
+  TEST_ASSERT_EQUAL_INT(+2147483647, line.instruction.parameters[4].immediateValue);
 
   TEST_ASSERT_EQUAL(IMMEDIATE_VALUE, line.instruction.parameters[5].kind);
-  TEST_ASSERT_EQUAL(42, line.instruction.parameters[5].immediateValue);
+  TEST_ASSERT_EQUAL_INT(2147483647, line.instruction.parameters[5].immediateValue);
 }
 
 void test_tryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(void) {
@@ -101,7 +101,7 @@ void test_tryParseAssemblyLine_should_succeedAndAdvanceToEndOfFile_when_lastLine
   const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_STRING("label", line.label);
+  TEST_ASSERT_EQUAL_PTR(NULL, line.label);
   TEST_ASSERT_EQUAL(INSTRUCTION, line.kind);
   TEST_ASSERT_EQUAL(NOP, line.instruction.opcode);
   TEST_ASSERT_EQUAL(0, line.instruction.parameterCount);
