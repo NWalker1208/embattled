@@ -310,5 +310,17 @@ bool tryParseAssemblyData(const char** text, struct AssemblyData* data, struct P
 }
 
 char* tryCopyLabel(const char** text) {
-  return NULL;
+  if (!isWordChar(**text) || isdigit(**text)) {
+    return NULL;
+  }
+
+  size_t len = 1;
+  for (; isWordChar((*text)[len]); len++) { }
+
+  size_t size = sizeof(char) * len;
+  char* label = malloc(size + 1);
+  memcpy(label, *text, size);
+  label[size] = '\0';
+  *text += len;
+  return label;
 }
