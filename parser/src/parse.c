@@ -97,6 +97,7 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
       skipToNextLine(text);
       return false; // Expected ':' after label
     }
+    (*text)++;
     skipAllWhitespace(text);
   }
 
