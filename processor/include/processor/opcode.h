@@ -51,31 +51,39 @@ enum Opcode {
 
 // Describes how the parameters are laid out for a given opcode.
 struct ParameterLayout {
-  unsigned char numBytes : 2;
-  bool hasRegA : 1;
-  bool hasRegB : 1;
-  bool immIsSigned : 1;
+  unsigned char numBytes : 2; // The number of bytes used to store all parameters.
+  bool hasRegA : 1; // Whether register A is used.
+  bool hasRegB : 1; // Whether register B is used.
+  unsigned char numImmBits : 5; // The number of bits used to store the immediate value.
+  bool immIsSigned : 1; // Whether the immediate value is treated as signed.
 };
 
-#define PARAM_LAYOUT(_numBytes, _hasRegA, _hasRegB, _immIsSigned) (struct ParameterLayout){ .numBytes=(_numBytes), .hasRegA=(_hasRegA), .hasRegB=(_hasRegB), .immIsSigned=(_immIsSigned) }
+#define PARAM_LAYOUT(_numBytes, _hasRegA, _hasRegB, _numImmBits, _immIsSigned) \
+  (struct ParameterLayout){ \
+    .numBytes=(_numBytes), \
+    .hasRegA=(_hasRegA), \
+    .hasRegB=(_hasRegB), \
+    .numImmBits=(_numImmBits), \
+    .immIsSigned=(_immIsSigned) \
+  }
 // 0 bytes
-#define PARAM_LAYOUT_NONE             PARAM_LAYOUT(0, false, false, false)
+#define PARAM_LAYOUT_NONE             PARAM_LAYOUT(0, false, false, 0, false)
 // 1 byte
-#define PARAM_LAYOUT_IMMU8            PARAM_LAYOUT(1, false, false, false)
-#define PARAM_LAYOUT_IMMS8            PARAM_LAYOUT(1, false, false, true)
-#define PARAM_LAYOUT_REGA_IMMU4       PARAM_LAYOUT(1, true, false, false)
-#define PARAM_LAYOUT_REGA_IMMS4       PARAM_LAYOUT(1, true, false, true)
-#define PARAM_LAYOUT_REGA_REGB        PARAM_LAYOUT(1, true, true, false)
+#define PARAM_LAYOUT_IMMU8            PARAM_LAYOUT(1, false, false, 8, false)
+#define PARAM_LAYOUT_IMMS8            PARAM_LAYOUT(1, false, false, 8, true)
+#define PARAM_LAYOUT_REGA_IMMU4       PARAM_LAYOUT(1, true, false, 4, false)
+#define PARAM_LAYOUT_REGA_IMMS4       PARAM_LAYOUT(1, true, false, 4, true)
+#define PARAM_LAYOUT_REGA_REGB        PARAM_LAYOUT(1, true, true, 0, false)
 // 2 bytes
-#define PARAM_LAYOUT_IMMU16           PARAM_LAYOUT(2, false, false, false)
-#define PARAM_LAYOUT_IMMS16           PARAM_LAYOUT(2, false, false, true)
-#define PARAM_LAYOUT_REGA_IMMU12      PARAM_LAYOUT(2, true, false, false)
-#define PARAM_LAYOUT_REGA_IMMS12      PARAM_LAYOUT(2, true, false, true)
-#define PARAM_LAYOUT_REGA_REGB_IMMU8  PARAM_LAYOUT(2, true, true, false)
-#define PARAM_LAYOUT_REGA_REGB_IMMS8  PARAM_LAYOUT(2, true, true, true)
+#define PARAM_LAYOUT_IMMU16           PARAM_LAYOUT(2, false, false, 16, false)
+#define PARAM_LAYOUT_IMMS16           PARAM_LAYOUT(2, false, false, 16, true)
+#define PARAM_LAYOUT_REGA_IMMU12      PARAM_LAYOUT(2, true, false, 12, false)
+#define PARAM_LAYOUT_REGA_IMMS12      PARAM_LAYOUT(2, true, false, 12, true)
+#define PARAM_LAYOUT_REGA_REGB_IMMU8  PARAM_LAYOUT(2, true, true, 8, false)
+#define PARAM_LAYOUT_REGA_REGB_IMMS8  PARAM_LAYOUT(2, true, true, 8, true)
 // 3 bytes
-#define PARAM_LAYOUT_REGA_REGB_IMMU16 PARAM_LAYOUT(3, true, true, false)
-#define PARAM_LAYOUT_REGA_REGB_IMMS16 PARAM_LAYOUT(3, true, true, true)
+#define PARAM_LAYOUT_REGA_REGB_IMMU16 PARAM_LAYOUT(3, true, true, 16, false)
+#define PARAM_LAYOUT_REGA_REGB_IMMS16 PARAM_LAYOUT(3, true, true, 16, true)
 
 // Describes the details of a particular opcode.
 struct OpcodeInfo {
