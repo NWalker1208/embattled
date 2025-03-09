@@ -149,7 +149,10 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
     while (true) {
       instruction->parameterCount++;
       instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(struct AssemblyParameter));
-      if (!tryParseParameter(text, &instruction->parameters[instruction->parameterCount - 1], error)) {
+      struct AssemblyParameter* nextParam = &instruction->parameters[instruction->parameterCount - 1];
+      memset(nextParam, 0, sizeof(struct AssemblyParameter)); // Ensure all fields are initialized to 0
+
+      if (!tryParseParameter(text, nextParam, error)) {
         return false; // Failed to parse parameter
       }
       skipInlineWhitespace(text);

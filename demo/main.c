@@ -38,9 +38,11 @@ int main(int argc, char* argv[]) {
   while (*text != '\0') {
     lineCount++;
     lines = realloc(lines, sizeof(struct AssemblyLine) * lineCount);
+    struct AssemblyLine* nextLine = &lines[lineCount - 1];
+    memset(nextLine, 0, sizeof(struct AssemblyLine)); // Ensure all fields are initialized to 0
 
     struct ParsingError parseError;
-    if (!tryParseAssemblyLine(&text, &lines[lineCount - 1], &parseError)) {
+    if (!tryParseAssemblyLine(&text, nextLine, &parseError)) {
       fprintf(stderr, "Failed to parse line %u: %s\n", lineCount, parseError.message);
       anyErrors = true;
     }
@@ -68,9 +70,9 @@ int main(int argc, char* argv[]) {
     unsigned short addressToWrite;
     unsigned char valueToWrite;
     while (true) {
-      printf("Enter address to write: ");
+      printf("Enter address to write, or leave blank to continue: ");
       if (fgets(input, 6, stdin) != NULL && sscanf(input, "%hx", &addressToWrite) == 1) {
-        printf("Enter value to write: ");
+        printf("Enter value to write, or leave blank to cancel: ");
         if (fgets(input, 4, stdin) != NULL && sscanf(input, "%hhx", &valueToWrite) == 1) {
           processState.memory[addressToWrite] = valueToWrite;
         } else {
