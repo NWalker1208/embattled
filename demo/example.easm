@@ -1,2 +1,10 @@
-start:
-  jmp @start
+  ldib 0x42
+  mov $x0, $ac
+  ldiw 0xFFFF
+  mov $x1, $ac
+loop:
+  ldmb $x1, 0
+  ceq $ac, $x0
+  jmz @loop
+done:
+  jmp @done
