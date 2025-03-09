@@ -12,6 +12,8 @@ extern void setUp(void);
 extern void tearDown(void);
 extern void test_tryAssemble_should_outputInstructionBytes_when_lineIsValidAssemblyInstruction(void);
 extern void test_tryAssemble_should_outputDataBytes_when_lineIsValidAssemblyData(void);
+extern void test_tryAssemble_should_outputInstructionWithReference_when_instructionReferencesInstruction(void);
+extern void test_tryAssemble_should_outputInstructionWithReference_when_instructionReferencesData(void);
 
 
 /*=======Mock Management=====*/
@@ -80,6 +82,8 @@ int main(void)
   UnityBegin(".\\assembler\\tests\\assemble_tests.c");
   run_test(test_tryAssemble_should_outputInstructionBytes_when_lineIsValidAssemblyInstruction, "test_tryAssemble_should_outputInstructionBytes_when_lineIsValidAssemblyInstruction", 17);
   run_test(test_tryAssemble_should_outputDataBytes_when_lineIsValidAssemblyData, "test_tryAssemble_should_outputDataBytes_when_lineIsValidAssemblyData", 48);
+  run_test(test_tryAssemble_should_outputInstructionWithReference_when_instructionReferencesInstruction, "test_tryAssemble_should_outputInstructionWithReference_when_instructionReferencesInstruction", 71);
+  run_test(test_tryAssemble_should_outputInstructionWithReference_when_instructionReferencesData, "test_tryAssemble_should_outputInstructionWithReference_when_instructionReferencesData", 110);
 
   return UNITY_END();
 }
