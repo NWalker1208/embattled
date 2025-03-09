@@ -3,7 +3,8 @@
 #include "processor/instruction.h"
 
 void stepProcess(struct ProcessState* state) {
-  struct Instruction instr = fetchInstruction(state->memory, &state->registers.ip);
+  struct Instruction instr = { 0 };
+  state->registers.ip += fetchInstruction(state->memory, state->registers.ip, &instr);
 
   unsigned short nullRegister = 0;
   enum Opcode opcode = instr.opcode;

@@ -1,34 +1,36 @@
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "processor/instruction.h"
 
-struct Instruction fetchInstruction(const unsigned char* memory, unsigned short* ip) {
-  struct Instruction instruction = { 0 };
-  instruction.opcode = byteToOpcode(memory[*ip]);
+unsigned short fetchInstruction(const unsigned char* memory, unsigned short addr, struct Instruction* instruction) {
+  instruction->opcode = byteToOpcode(memory[addr]);
+  addr++;
 
-  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
-  (*ip)++;
+  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction->opcode];
 
   // Read the parameter bytes from memory.
   unsigned char numBytes = opcodeInfo->parameterLayout.numBytes;
   if (numBytes == 0) {
-    return instruction;
+    return 1;
   }
 
   unsigned char parameterBytes[3];
-  memcpy(parameterBytes, &memory[*ip], numBytes);
-  *ip += numBytes;
+  for (int i = 0; i < numBytes; i++) {
+    parameterBytes[i] = memory[addr];
+    addr++;
+  }
 
   // Extract the register values from the parameter bytes.
   bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
   bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
 
   if (hasRegA) {
-    instruction.parameters.registerA = nibbleToRegister(parameterBytes[numBytes - 1] >> 4);
+    instruction->parameters.registerA = nibbleToRegister(parameterBytes[numBytes - 1] >> 4);
   }
 
   if (hasRegB) {
-    instruction.parameters.registerB = nibbleToRegister(parameterBytes[numBytes - 1] & 0xF);
+    instruction->parameters.registerB = nibbleToRegister(parameterBytes[numBytes - 1] & 0xF);
   }
 
   // Extract the immediate value from the parameter bytes.
@@ -38,9 +40,9 @@ struct Instruction fetchInstruction(const unsigned char* memory, unsigned short*
       if (!hasRegB) {
         value = parameterBytes[0];
         if (!hasRegA) {
-          instruction.parameters.immediate.u8 = value;
+          instruction->parameters.immediate.u8 = value;
         } else {
-          instruction.parameters.immediate.u4 = value;
+          instruction->parameters.immediate.u4 = value;
         }
       }
       break;
@@ -48,24 +50,24 @@ struct Instruction fetchInstruction(const unsigned char* memory, unsigned short*
       value = ((unsigned short)parameterBytes[1] << 8) | (unsigned short)parameterBytes[0];
       if (!hasRegB) {
         if (!hasRegA) {
-          instruction.parameters.immediate.u16 = value;
+          instruction->parameters.immediate.u16 = value;
         } else {
-          instruction.parameters.immediate.u12 = value;
+          instruction->parameters.immediate.u12 = value;
         }
       } else {
-        instruction.parameters.immediate.u8 = value;
+        instruction->parameters.immediate.u8 = value;
       }
       break;
     case 3:
       value = ((unsigned short)parameterBytes[1] << 8) | (unsigned short)parameterBytes[0];
-      instruction.parameters.immediate.u16 = value;
+      instruction->parameters.immediate.u16 = value;
       break;
   }
 
-  return instruction;
+  return 1 + numBytes;
 }
 
-int storeInstruction(unsigned char* memory, unsigned short addr, struct Instruction instruction) {
+unsigned short storeInstruction(unsigned char* memory, unsigned short addr, struct Instruction instruction) {
   // Write the opcode byte to memory, if it is valid
   enum Opcode opcode = instruction.opcode;
   if (opcode < 0 || opcode >= OPCODE_COUNT) {
@@ -108,45 +110,52 @@ int storeInstruction(unsigned char* memory, unsigned short addr, struct Instruct
   return 1 + numBytes;
 }
 
-void printInstruction(const struct Instruction* instruction) {
-  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction->opcode];
+void printInstruction(struct Instruction instruction) {
+  if (instruction.opcode < 0 || instruction.opcode >= OPCODE_COUNT) {
+    printf("opcode=INVALID\n");
+    return;
+  }
+
+  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
   printf("opcode=%-4s", opcodeInfo->name);
   if (opcodeInfo->parameterLayout.hasRegA) {
-    printf("  regA=%-3s", REGISTER_NAMES[instruction->parameters.registerA]);
+    printf("  regA=%-3s", REGISTER_NAMES[instruction.parameters.registerA]);
   }
   if (opcodeInfo->parameterLayout.hasRegB) {
-    printf("  regB=%-3s", REGISTER_NAMES[instruction->parameters.registerB]);
+    printf("  regB=%-3s", REGISTER_NAMES[instruction.parameters.registerB]);
   }
 
   unsigned char numImmBits = opcodeInfo->parameterLayout.numImmBits;
   if (numImmBits > 0) {
-    printf("  imm(raw)=%04x", instruction->parameters.immediate.u16);
+    printf("  imm(raw)=%04x", instruction.parameters.immediate.u16);
 
     bool immIsSigned = opcodeInfo->parameterLayout.immIsSigned;
     if (!immIsSigned) {
       unsigned short value;
       if (numImmBits == 4) {
-        value = instruction->parameters.immediate.u4;
+        value = instruction.parameters.immediate.u4;
       } else if (numImmBits == 8) {
-        value = instruction->parameters.immediate.u8;
+        value = instruction.parameters.immediate.u8;
       } else if (numImmBits == 12) {
-        value = instruction->parameters.immediate.u12;
+        value = instruction.parameters.immediate.u12;
       } else {
-        value = instruction->parameters.immediate.u16;
+        value = instruction.parameters.immediate.u16;
       }
       printf("  imm=%hu", value);
     } else {
       signed short value;
       if (numImmBits == 4) {
-        value = instruction->parameters.immediate.s4;
+        value = instruction.parameters.immediate.s4;
       } else if (numImmBits == 8) {
-        value = instruction->parameters.immediate.s8;
+        value = instruction.parameters.immediate.s8;
       } else if (numImmBits == 12) {
-        value = instruction->parameters.immediate.s12;
+        value = instruction.parameters.immediate.s12;
       } else {
-        value = instruction->parameters.immediate.s16;
+        value = instruction.parameters.immediate.s16;
       }
       printf("  imm=%hd", value);
     }
   }
+
+  printf("\n");
 }

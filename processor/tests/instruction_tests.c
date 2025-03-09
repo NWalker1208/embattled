@@ -23,10 +23,11 @@ void test_fetchInstruction_shouldLoadOpcode_whenOpcodeHasLayoutNone(void) {
   struct Instruction expectedInstruction = { .opcode = NOP };
 
   // Act
-  struct Instruction actualInstruction = fetchInstruction(memory, &ip);
+  struct Instruction actualInstruction = { 0 };
+  unsigned short bytesRead = fetchInstruction(memory, ip, &actualInstruction);
   
   // Assert
-  TEST_ASSERT_EQUAL_UINT16(5, ip);
+  TEST_ASSERT_EQUAL_UINT16(1, bytesRead);
   TEST_ASSERT_EQUAL_INSTRUCTION(&expectedInstruction, &actualInstruction);
 }
 
@@ -39,10 +40,11 @@ void test_fetchInstruction_shouldLoad8BitImmediateValue_whenOpcodeHasLayoutImm8(
   struct Instruction expectedInstruction = { .opcode = LDIB, .parameters.immediate.u16 = 0x00FF };
 
   // Act
-  struct Instruction actualInstruction = fetchInstruction(memory, &ip);
+  struct Instruction actualInstruction = { 0 };
+  unsigned short bytesRead = fetchInstruction(memory, ip, &actualInstruction);
   
   // Assert
-  TEST_ASSERT_EQUAL_UINT16(2, ip);
+  TEST_ASSERT_EQUAL_UINT16(2, bytesRead);
   TEST_ASSERT_EQUAL_INSTRUCTION(&expectedInstruction, &actualInstruction);
 }
 
@@ -55,10 +57,11 @@ void test_fetchInstruction_shouldLoadRegisterAAnd4BitImmediateValue_whenOpcodeHa
   struct Instruction expectedInstruction = { .opcode = LDMB, .parameters.registerA = X10, .parameters.immediate.u16 = 0x000F };
 
   // Act
-  struct Instruction actualInstruction = fetchInstruction(memory, &ip);
+  struct Instruction actualInstruction = { 0 };
+  unsigned short bytesRead = fetchInstruction(memory, ip, &actualInstruction);
   
   // Assert
-  TEST_ASSERT_EQUAL_UINT16(2, ip);
+  TEST_ASSERT_EQUAL_UINT16(2, bytesRead);
   TEST_ASSERT_EQUAL_INSTRUCTION(&expectedInstruction, &actualInstruction);
 }
 
@@ -71,10 +74,11 @@ void test_fetchInstruction_shouldLoadRegisterAAndRegisterB_whenOpcodeHasLayoutRe
   struct Instruction expectedInstruction = { .opcode = ADD, .parameters.registerA = X10, .parameters.registerB = X0 };
 
   // Act
-  struct Instruction actualInstruction = fetchInstruction(memory, &ip);
+  struct Instruction actualInstruction = { 0 };
+  unsigned short bytesRead = fetchInstruction(memory, ip, &actualInstruction);
   
   // Assert
-  TEST_ASSERT_EQUAL_UINT16(2, ip);
+  TEST_ASSERT_EQUAL_UINT16(2, bytesRead);
   TEST_ASSERT_EQUAL_INSTRUCTION(&expectedInstruction, &actualInstruction);
 }
 
@@ -88,10 +92,11 @@ void test_fetchInstruction_shouldLoad16BitImmediateValue_whenOpcodeHasLayoutImm1
   struct Instruction expectedInstruction = { .opcode = LDIW, .parameters.immediate.u16 = 0xEEFF };
 
   // Act
-  struct Instruction actualInstruction = fetchInstruction(memory, &ip);
+  struct Instruction actualInstruction = { 0 };
+  unsigned short bytesRead = fetchInstruction(memory, ip, &actualInstruction);
   
   // Assert
-  TEST_ASSERT_EQUAL_UINT16(3, ip);
+  TEST_ASSERT_EQUAL_UINT16(3, bytesRead);
   TEST_ASSERT_EQUAL_INSTRUCTION(&expectedInstruction, &actualInstruction);
 }
 
@@ -117,7 +122,7 @@ void test_storeInstruction_shouldSaveOpcode_whenOpcodeHasLayoutNone(void) {
   expectedMemory[4] = (unsigned char)NOP;
 
   // Act
-  int bytesWritten = storeInstruction(memory, 4, instruction);
+  unsigned short bytesWritten = storeInstruction(memory, 4, instruction);
   
   // Assert
   TEST_ASSERT_EQUAL_INT(1, bytesWritten);
@@ -132,7 +137,7 @@ void test_storeInstruction_shouldSave8BitImmediateValue_whenOpcodeHasLayoutImm8(
     expectedMemory[1] = 0xFF;
   
     // Act
-    int bytesWritten = storeInstruction(memory, 0, instruction);
+    unsigned short bytesWritten = storeInstruction(memory, 0, instruction);
     
     // Assert
     TEST_ASSERT_EQUAL_INT(2, bytesWritten);
@@ -147,7 +152,7 @@ void test_storeInstruction_shouldSaveRegisterAAnd4BitImmediateValue_whenOpcodeHa
   expectedMemory[1] = ((unsigned char)X10 << 4) | 0xF;
 
   // Act
-  int bytesWritten = storeInstruction(memory, 0, instruction);
+  unsigned short bytesWritten = storeInstruction(memory, 0, instruction);
   
   // Assert
   TEST_ASSERT_EQUAL_INT(2, bytesWritten);
@@ -162,7 +167,7 @@ void test_storeInstruction_shouldSaveRegisterAAndRegisterB_whenOpcodeHasLayoutRe
   expectedMemory[1] = ((unsigned char)X10 << 4) | ((unsigned char)X0 & 0xF);
 
   // Act
-  int bytesWritten = storeInstruction(memory, 0, instruction);
+  unsigned short bytesWritten = storeInstruction(memory, 0, instruction);
   
   // Assert
   TEST_ASSERT_EQUAL_INT(2, bytesWritten);
@@ -178,7 +183,7 @@ void test_storeInstruction_shouldSave16BitImmediateValue_whenOpcodeHasLayoutImm1
   expectedMemory[2] = 0xEE;
 
   // Act
-  int bytesWritten = storeInstruction(memory, 0, instruction);
+  unsigned short bytesWritten = storeInstruction(memory, 0, instruction);
   
   // Assert
   TEST_ASSERT_EQUAL_INT(3, bytesWritten);

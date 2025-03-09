@@ -106,7 +106,7 @@ bool tryAssemble(struct AssemblyLine* lines, unsigned int linesCount, unsigned c
         }
       }
 
-      int bytesWritten = storeInstruction(memory, currentMemoryAddr, instruction);
+      unsigned short bytesWritten = storeInstruction(memory, currentMemoryAddr, instruction);
       if (bytesWritten == 0) {
         *error = ASSEMBLING_ERROR(INVALID_INSTRUCTION, lineNumber);
         goto failed;

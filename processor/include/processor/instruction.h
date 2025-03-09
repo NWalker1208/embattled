@@ -38,14 +38,15 @@ struct Instruction {
   struct InstructionParameters parameters;
 };
 
-// Fetches an instruction from memory at the given instruction pointer.
-// Increments the instruction pointer to the next instruction.
-struct Instruction fetchInstruction(const unsigned char* memory, unsigned short* ip);
+// Fetches an instruction from memory at the specified address.
+// Outputs the fetched instruction through instruction.
+// Returns the number of bytes read (between 1 and 4, inclusive).
+unsigned short fetchInstruction(const unsigned char* memory, unsigned short addr, struct Instruction* instruction);
 
-// Saves the given instruction to memory at the specified address.
+// Stores the given instruction to memory at the specified address.
 // Returns the number of bytes written (between 0 and 4, inclusive).
 // Returns 0 if the instruction is invalid.
-int storeInstruction(unsigned char* memory, unsigned short addr, struct Instruction instruction);
+unsigned short storeInstruction(unsigned char* memory, unsigned short addr, struct Instruction instruction);
 
 // Prints the instruction to stdout in a human-readable format.
-void printInstruction(const struct Instruction* instruction);
+void printInstruction(struct Instruction instruction);
