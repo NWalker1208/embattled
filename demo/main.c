@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Parse the assembly file line by line
+  printf("Parsing file\n");
   struct AssemblyLine* lines = NULL;
   unsigned int lineCount = 0;
   bool anyErrors = false;
@@ -48,8 +49,10 @@ int main(int argc, char* argv[]) {
   if (anyErrors) {
     return 1;
   }
+  printf("Parsed %d lines of assembly code\n", lineCount);
 
   // Assemble the program from the parsed lines
+  printf("Assembling program\n");
   struct ProcessState processState = { 0 };
   struct AssemblingError asmError;
   if (!tryAssemble(lines, lineCount, processState.memory, &asmError)) {
@@ -58,6 +61,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Execute the program
+  printf("Executing program\n");
   while (true) {
     SLEEP(1);
     stepProcess(&processState);
