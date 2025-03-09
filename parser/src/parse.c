@@ -144,6 +144,8 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
 
   // Parse the parameters, if present
   if (!isEndOfLineOrFile(**text)) {
+    instruction->parameterCount = 0;
+    instruction->parameters = NULL;
     while (true) {
       instruction->parameterCount++;
       instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(struct AssemblyParameter));
@@ -311,6 +313,8 @@ bool tryParseImmediateDecValue(const char** text, signed int* value) {
 }
 
 bool tryParseAssemblyData(const char** text, struct AssemblyData* data, struct ParsingError* error) {
+  data->length = 0;
+  data->bytes = NULL;
   while (!isEndOfLineOrFile(**text)) {
     // Parse the next hexadecimal byte
     unsigned char nibble;
