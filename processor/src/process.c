@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <stdlib.h>
 #include "processor/process.h"
 #include "processor/instruction.h"
 
@@ -13,12 +13,6 @@ void stepProcess(struct ProcessState* state) {
   unsigned short* regB = getRegisterPtr(&state->registers, instr.parameters.registerB);
   if (regB == NULL) { regB = &nullRegister; }
   union ImmediateValue imm = instr.parameters.immediate;
-
-  printf("opcode=%-4s  regA=%-3s  regB=%-3s  imm=0x%04x\n",
-    OPCODE_INFO[opcode].name,
-    REGISTER_NAMES[instr.parameters.registerA],
-    REGISTER_NAMES[instr.parameters.registerB],
-    imm.u16);
 
   unsigned short addrLow, addrHigh;
 

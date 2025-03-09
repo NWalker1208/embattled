@@ -4,6 +4,7 @@
 #include "parser/parse.h"
 #include "assembler/assemble.h"
 #include "processor/process.h"
+#include "processor/instruction.h"
 
 #if defined(_MSC_VER)
 #include <windows.h>
@@ -65,6 +66,12 @@ int main(int argc, char* argv[]) {
   // Execute the program
   printf("Executing program\n");
   while (true) {
+    // Display info about next instruction and current state
+    struct Instruction nextInstruction = { 0 };
+    fetchInstruction(processState.memory, processState.registers.ip, &nextInstruction);
+    printInstruction(nextInstruction);
+    printRegistersState(&processState.registers);
+
     // Allow user to override values in memory each cycle
     char input[6];
     unsigned short addressToWrite;
@@ -83,6 +90,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    // Run next cycle
     stepProcess(&processState);
   }
 
