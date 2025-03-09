@@ -46,3 +46,6 @@ struct Instruction fetchInstruction(const unsigned char* memory, unsigned short*
 // Returns the number of bytes written (between 0 and 4, inclusive).
 // Returns 0 if the instruction is invalid.
 int storeInstruction(unsigned char* memory, unsigned short addr, struct Instruction instruction);
+
+// Prints the instruction to stdout in a human-readable format.
+void printInstruction(const struct Instruction* instruction);

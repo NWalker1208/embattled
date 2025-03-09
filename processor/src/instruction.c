@@ -107,3 +107,46 @@ int storeInstruction(unsigned char* memory, unsigned short addr, struct Instruct
 
   return 1 + numBytes;
 }
+
+void printInstruction(const struct Instruction* instruction) {
+  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction->opcode];
+  printf("opcode=%-4s", opcodeInfo->name);
+  if (opcodeInfo->parameterLayout.hasRegA) {
+    printf("  regA=%-3s", REGISTER_NAMES[instruction->parameters.registerA]);
+  }
+  if (opcodeInfo->parameterLayout.hasRegB) {
+    printf("  regB=%-3s", REGISTER_NAMES[instruction->parameters.registerB]);
+  }
+
+  unsigned char numImmBits = opcodeInfo->parameterLayout.numImmBits;
+  if (numImmBits > 0) {
+    printf("  imm(raw)=%04x", instruction->parameters.immediate.u16);
+
+    bool immIsSigned = opcodeInfo->parameterLayout.immIsSigned;
+    if (!immIsSigned) {
+      unsigned short value;
+      if (numImmBits == 4) {
+        value = instruction->parameters.immediate.u4;
+      } else if (numImmBits == 8) {
+        value = instruction->parameters.immediate.u8;
+      } else if (numImmBits == 12) {
+        value = instruction->parameters.immediate.u12;
+      } else {
+        value = instruction->parameters.immediate.u16;
+      }
+      printf("  imm=%hu", value);
+    } else {
+      signed short value;
+      if (numImmBits == 4) {
+        value = instruction->parameters.immediate.s4;
+      } else if (numImmBits == 8) {
+        value = instruction->parameters.immediate.s8;
+      } else if (numImmBits == 12) {
+        value = instruction->parameters.immediate.s12;
+      } else {
+        value = instruction->parameters.immediate.s16;
+      }
+      printf("  imm=%hd", value);
+    }
+  }
+}

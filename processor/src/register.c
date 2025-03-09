@@ -67,7 +67,7 @@ unsigned short* getRegisterPtr(struct RegistersState* state, enum Register reg) 
   }
 }
 
-void printRegistersState(struct RegistersState* state) {
+void printRegistersState(const struct RegistersState* state) {
   printf("ip = 0x%04x    sp = 0x%04x    ac = 0x%04x\n", state->ip, state->sp, state->ac);
   printf("x0 = 0x%04x    x1 = 0x%04x    x2 = 0x%04x    x3 = 0x%04x\n", state->x0, state->x1, state->x2, state->x3);
   printf("x4 = 0x%04x    x5 = 0x%04x    x6 = 0x%04x    x7 = 0x%04x\n", state->x4, state->x5, state->x6, state->x7);

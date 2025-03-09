@@ -59,5 +59,5 @@ enum Register nibbleToRegister(unsigned char nibble);
 // Returns NULL if the register is NL or if the register is not recognized.
 unsigned short* getRegisterPtr(struct RegistersState* state, enum Register reg);
 
-// Prints the state of the registers to stdout.
-void printRegistersState(struct RegistersState* state);
+// Prints the state of the registers to stdout in a human-readable format.
+void printRegistersState(const struct RegistersState* state);
