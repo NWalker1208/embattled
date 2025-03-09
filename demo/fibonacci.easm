@@ -1,0 +1,9 @@
+  ldib 0
+  mov $x0, $ac
+  ldib 1
+  mov $x1, $ac
+loop:
+  add $x0, $x1
+  mov $x0, $x1
+  mov $x1, $ac
+  jmp @loop

@@ -1,3 +1,4 @@
 - Need instruction for reading from immediate address.
 - Need means of input and output, or at least debugging output.
 - Need way to write comments
+- Will probably want some kind of signaling mechanism, flags, or both.
