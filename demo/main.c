@@ -63,7 +63,24 @@ int main(int argc, char* argv[]) {
   // Execute the program
   printf("Executing program\n");
   while (true) {
-    SLEEP(1);
+    // Allow user to override values in memory each cycle
+    char input[6];
+    unsigned short addressToWrite;
+    unsigned char valueToWrite;
+    while (true) {
+      printf("Enter address to write: ");
+      if (fgets(input, 6, stdin) != NULL && sscanf(input, "%hx", &addressToWrite) == 1) {
+        printf("Enter value to write: ");
+        if (fgets(input, 4, stdin) != NULL && sscanf(input, "%hhx", &valueToWrite) == 1) {
+          processState.memory[addressToWrite] = valueToWrite;
+        } else {
+          break;
+        }
+      } else {
+        break;
+      }
+    }
+
     stepProcess(&processState);
   }
 
