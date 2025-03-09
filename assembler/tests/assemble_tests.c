@@ -38,7 +38,7 @@ void test_tryAssemble_should_outputInstructionBytes_when_lineIsValidAssemblyInst
   });
 
   // Act
-  bool success = tryAssemble(lines, sizeof(lines), memory, &error);
+  bool success = tryAssemble(lines, 1, memory, &error);
 
   // Assert
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
@@ -61,7 +61,7 @@ void test_tryAssemble_should_outputDataBytes_when_lineIsValidAssemblyData(void) 
   memcpy(expectedMemory, bytes, sizeof(bytes));
 
   // Act
-  bool success = tryAssemble(lines, sizeof(lines), memory, &error);
+  bool success = tryAssemble(lines, 1, memory, &error);
 
   // Assert
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
