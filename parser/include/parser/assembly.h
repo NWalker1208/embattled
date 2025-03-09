@@ -1,6 +1,10 @@
 #include "processor/opcode.h"
 #include "processor/register.h"
 
+// TODO: Add support for specifying starting address of sections
+// TODO: Add support for storing references in data sections
+// TODO: Add support for relative references?
+
 enum AssemblyParameterKind {
   REGISTER,
   IMMEDIATE_VALUE,
