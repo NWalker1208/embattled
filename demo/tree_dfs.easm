@@ -1,0 +1,32 @@
+  ldiw @root
+  mov $x11, $ac
+  ldib 2
+  mov $x10, $ac
+wait:
+  ldmw $x11, 0
+  jmz @wait
+
+  pshw $x11
+recurse_start:
+  mov $ac, $sp
+  jmz @finished
+
+  ldmw $sp, 0
+  mov $x2, $ac
+  ldmw $ac, 0
+  mov $x3, $ac
+  jmz @pop
+
+  add $x2, $x10
+  stmw $sp, 0
+  pshw $x3
+  jmp @recurse_start
+pop:
+  popw $nl
+  jmp @recurse_start
+
+finished:
+  jmp @finished
+
+root:
+  .data 00 00
