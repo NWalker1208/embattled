@@ -47,19 +47,19 @@ const struct OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
   },
   {
     .name = "PSHB",
-    .parameterLayout = PARAM_LAYOUT_REGA_IMMU4,
+    .parameterLayout = PARAM_LAYOUT_REGA,
   },
   {
     .name = "PSHW",
-    .parameterLayout = PARAM_LAYOUT_REGA_IMMU4,
+    .parameterLayout = PARAM_LAYOUT_REGA,
   },
   {
     .name = "POPB",
-    .parameterLayout = PARAM_LAYOUT_REGA_IMMU4,
+    .parameterLayout = PARAM_LAYOUT_REGA,
   },
   {
     .name = "POPW",
-    .parameterLayout = PARAM_LAYOUT_REGA_IMMU4,
+    .parameterLayout = PARAM_LAYOUT_REGA,
   },
   {
     .name = "INC",

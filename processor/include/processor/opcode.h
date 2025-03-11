@@ -73,6 +73,7 @@ struct ParameterLayout {
 #define PARAM_LAYOUT_IMMS8            PARAM_LAYOUT(1, false, false, 8, true)
 #define PARAM_LAYOUT_REGA_IMMU4       PARAM_LAYOUT(1, true, false, 4, false)
 #define PARAM_LAYOUT_REGA_IMMS4       PARAM_LAYOUT(1, true, false, 4, true)
+#define PARAM_LAYOUT_REGA             PARAM_LAYOUT(1, true, false, 0, false)
 #define PARAM_LAYOUT_REGA_REGB        PARAM_LAYOUT(1, true, true, 0, false)
 // 2 bytes
 #define PARAM_LAYOUT_IMMU16           PARAM_LAYOUT(2, false, false, 16, false)
