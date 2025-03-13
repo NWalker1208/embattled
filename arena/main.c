@@ -6,6 +6,13 @@
 #define ARENA_WIDTH 500.0
 #define ARENA_HEIGHT 500.0
 
+#define ROBOT_RADIUS 50.0
+
+typedef struct Robot {
+  Vector2 position;
+  float rotation;
+} Robot;
+
 int main(void) {
   int windowWidth = 800;
   int windowHeight = 450;
@@ -22,6 +29,13 @@ int main(void) {
 
   SetTargetFPS(60);
 
+  Robot robot = { 0 };
+
+  const Rectangle arenaRect = {
+    .x=-ARENA_WIDTH / 2, .y=-ARENA_HEIGHT / 2,
+    .width=ARENA_WIDTH, .height=ARENA_HEIGHT
+  };
+
   while (!WindowShouldClose()) {
     windowWidth = GetScreenWidth(); windowHeight = GetScreenHeight();
 
@@ -31,7 +45,11 @@ int main(void) {
 
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    DrawText("Hello Raylib!", 190, 200, 20, LIGHTGRAY);
+    BeginMode2D(camera); {
+      DrawRectangleLinesEx(arenaRect, 4, GRAY);
+      DrawCircleV(robot.position, ROBOT_RADIUS, BLUE);
+      DrawLineEx(robot.position, (Vector2){ robot.position.x + cos(robot.rotation) * ROBOT_RADIUS, robot.position.y + sin(robot.rotation) * ROBOT_RADIUS }, 3.0, RED);
+    } EndMode2D();
     EndDrawing();
   }
 
