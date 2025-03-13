@@ -43,6 +43,26 @@ int main(void) {
     camera.offset = (Vector2){ windowWidth / 2, windowHeight / 2 };
     camera.zoom = fmin((windowWidth - WINDOW_MARGIN) / ARENA_WIDTH, (windowHeight - WINDOW_MARGIN) / ARENA_HEIGHT);
 
+    // Check controls
+    if (IsKeyDown(KEY_LEFT)) {
+      robot.rotation -= 0.1;
+    }
+    
+    if (IsKeyDown(KEY_RIGHT)) {
+      robot.rotation += 0.1;
+    }
+
+    if (IsKeyDown(KEY_UP)) {
+      robot.position.x += cos(robot.rotation) * 10;
+      robot.position.y += sin(robot.rotation) * 10;
+    }
+
+    if (IsKeyDown(KEY_DOWN)) {
+      robot.position.x -= cos(robot.rotation) * 10;
+      robot.position.y -= sin(robot.rotation) * 10;
+    }
+
+    // Draw frame
     BeginDrawing();
     ClearBackground(RAYWHITE);
     BeginMode2D(camera); {
