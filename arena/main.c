@@ -51,7 +51,7 @@ int main(void) {
 
   SetTargetFPS(60);
 
-  Robot robot = { 0 };
+  Robot robots[2] = { 0 };
 
   const Rectangle arenaRect = {
     .x=-ARENA_WIDTH / 2, .y=-ARENA_HEIGHT / 2,
@@ -67,31 +67,33 @@ int main(void) {
 
     // Check controls
     if (IsKeyDown(KEY_LEFT)) {
-      robot.rotation -= 0.1;
+      robots[0].rotation -= 0.1;
     }
     
     if (IsKeyDown(KEY_RIGHT)) {
-      robot.rotation += 0.1;
+      robots[0].rotation += 0.1;
     }
 
-    robot.forwardVelocity = 0;
+    robots[0].forwardVelocity = 0;
 
     if (IsKeyDown(KEY_UP)) {
-      robot.forwardVelocity += ROBOT_MAX_SPEED;
+      robots[0].forwardVelocity += ROBOT_MAX_SPEED;
     }
 
     if (IsKeyDown(KEY_DOWN)) {
-      robot.forwardVelocity -= ROBOT_MAX_SPEED;
+      robots[0].forwardVelocity -= ROBOT_MAX_SPEED;
     }
 
-    updateRobotPositions(&robot, 1);
+    updateRobotPositions(robots, 2);
 
     // Draw frame
     BeginDrawing();
     ClearBackground(RAYWHITE);
     BeginMode2D(camera); {
       DrawRectangleLinesEx(arenaRect, 4, GRAY);
-      drawRobot(robot, RED);
+      for (unsigned int i = 0; i < 2; i++) {
+        drawRobot(robots[i], RED);
+      }
     } EndMode2D();
     EndDrawing();
   }
