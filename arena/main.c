@@ -28,6 +28,8 @@ typedef enum ArenaCollision {
 } ArenaCollision;
 
 
+void drawRobot(Robot robot, Color baseColor);
+
 void updateRobotPositions(Robot robots[], unsigned int robotCount);
 bool checkIfTwoRobotsColliding(Robot robotA, Robot robotB);
 ArenaCollision checkIfRobotCollidingWithArena(Robot robot); // Returns bit mask of which walls robot is colliding with
@@ -89,14 +91,19 @@ int main(void) {
     ClearBackground(RAYWHITE);
     BeginMode2D(camera); {
       DrawRectangleLinesEx(arenaRect, 4, GRAY);
-      DrawCircleV(robot.position, ROBOT_RADIUS, BLUE);
-      DrawLineEx(robot.position, (Vector2){ robot.position.x + cos(robot.rotation) * ROBOT_RADIUS, robot.position.y + sin(robot.rotation) * ROBOT_RADIUS }, 3.0, RED);
+      drawRobot(robot, RED);
     } EndMode2D();
     EndDrawing();
   }
 
   CloseWindow();
   return 0;
+}
+
+
+void drawRobot(Robot robot, Color baseColor) {
+  DrawCircleV(robot.position, ROBOT_RADIUS, BLUE);
+  DrawLineEx(robot.position, (Vector2){ robot.position.x + cos(robot.rotation) * ROBOT_RADIUS, robot.position.y + sin(robot.rotation) * ROBOT_RADIUS }, 3.0, baseColor);
 }
 
 
