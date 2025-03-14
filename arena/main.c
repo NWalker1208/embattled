@@ -7,10 +7,12 @@
 #define ARENA_HEIGHT 500.0
 
 #define ROBOT_RADIUS 50.0
+#define ROBOT_MAX_SPEED 5.0
 
 typedef struct Robot {
   Vector2 position;
   float rotation;
+  float forwardVelocity;
 } Robot;
 
 typedef enum ArenaCollision {
@@ -64,14 +66,14 @@ int main(void) {
       robot.rotation += 0.1;
     }
 
+    robot.forwardVelocity = 0;
+
     if (IsKeyDown(KEY_UP)) {
-      robot.position.x += cos(robot.rotation) * 10;
-      robot.position.y += sin(robot.rotation) * 10;
+      robot.forwardVelocity += ROBOT_MAX_SPEED;
     }
 
     if (IsKeyDown(KEY_DOWN)) {
-      robot.position.x -= cos(robot.rotation) * 10;
-      robot.position.y -= sin(robot.rotation) * 10;
+      robot.forwardVelocity -= ROBOT_MAX_SPEED;
     }
 
     // Draw frame
