@@ -9,6 +9,9 @@
 #define ROBOT_RADIUS 50.0
 #define ROBOT_MAX_SPEED 5.0
 
+#define MAX_COLLISION_ITERATIONS 32
+
+
 typedef struct Robot {
   Vector2 position;
   float rotation;
@@ -23,9 +26,11 @@ typedef enum ArenaCollision {
   COLLISION_TOP = 8
 } ArenaCollision;
 
-bool checkIfTwoRobotsColliding(Robot robotA, Robot robotB);
 
+void updateRobotPositions(Robot robots[], unsigned int robotCount);
+bool checkIfTwoRobotsColliding(Robot robotA, Robot robotB);
 ArenaCollision checkIfRobotCollidingWithArena(Robot robot); // Returns bit mask of which walls robot is colliding with
+
 
 int main(void) {
   int windowWidth = 800;
@@ -76,6 +81,8 @@ int main(void) {
       robot.forwardVelocity -= ROBOT_MAX_SPEED;
     }
 
+    updateRobotPositions(&robot, 1);
+
     // Draw frame
     BeginDrawing();
     ClearBackground(RAYWHITE);
@@ -89,6 +96,64 @@ int main(void) {
 
   CloseWindow();
   return 0;
+}
+
+
+void updateRobotPositions(Robot robots[], unsigned int robotCount) {
+  // Update robot positions based on current velocity
+  for (int i = 0; i < robotCount; i++) {
+    robots[i].position.x += cos(robots[i].rotation) * robots[i].forwardVelocity;
+    robots[i].position.y += sin(robots[i].rotation) * robots[i].forwardVelocity;
+  }
+
+  // Check for and resolve collisions iteratively
+  bool foundCollision = true;
+  for (int iterations = 0; foundCollision && iterations < MAX_COLLISION_ITERATIONS; iterations++) {
+    foundCollision = false;
+
+    // Collisions between robots
+    for (int i = 0; i < robotCount - 1; i++) {
+      for (int j = i + 1; j < robotCount; j++) {
+        if (checkIfTwoRobotsColliding(robots[i], robots[j])) {
+          foundCollision = true;
+
+          // Resolve collision
+          float deltaX = robots[i].position.x - robots[j].position.x;
+          float deltaY = robots[i].position.y - robots[j].position.y;
+          float distance = sqrt(deltaX * deltaX + deltaY * deltaY);
+          float penetrationDepth = 2 * ROBOT_RADIUS - distance;
+          // Normalize vector between robots
+          deltaX /= distance;
+          deltaY /= distance;
+          // Move robots apart each by half of the penetration depth
+          robots[i].position.x -= deltaX * penetrationDepth / 2.0f;
+          robots[i].position.y -= deltaY * penetrationDepth / 2.0f;
+          robots[j].position.x += deltaX * penetrationDepth / 2.0f;
+          robots[j].position.y += deltaY * penetrationDepth / 2.0f;
+        }
+      }
+    }
+
+    // Collisions between robots and the arena
+    for (int i = 0; i < robotCount; i++) {
+      ArenaCollision collisionMask = checkIfRobotCollidingWithArena(robots[i]);
+      if (collisionMask != COLLISION_NONE) {
+        foundCollision = true;
+
+        // Resolve collision
+        if (collisionMask & COLLISION_RIGHT) {
+          robots[i].position.x = ARENA_WIDTH / 2 - ROBOT_RADIUS;
+        } else if (collisionMask & COLLISION_LEFT) {
+          robots[i].position.x = -ARENA_WIDTH / 2 + ROBOT_RADIUS;
+        }
+        if (collisionMask & COLLISION_BOTTOM) {
+          robots[i].position.y = ARENA_HEIGHT / 2 - ROBOT_RADIUS;
+        } else if (collisionMask & COLLISION_TOP) {
+          robots[i].position.y = -ARENA_HEIGHT / 2 + ROBOT_RADIUS;
+        }
+      }
+    }
+  } while (foundCollision);
 }
 
 bool checkIfTwoRobotsColliding(Robot robotA, Robot robotB) {
