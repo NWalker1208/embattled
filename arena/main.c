@@ -5,12 +5,19 @@
 
 #define ARENA_WIDTH 500.0
 #define ARENA_HEIGHT 500.0
+#define ARENA_BORDER_THICKNESS 4
 
 #define ROBOT_RADIUS 50.0
 #define ROBOT_MAX_SPEED 5.0
 
 #define MAX_COLLISION_ITERATIONS 32
 #define EPSILON 0.0001
+
+
+const Rectangle ARENA_DRAW_RECT = {
+  .x=-ARENA_WIDTH / 2 - ARENA_BORDER_THICKNESS, .y=-ARENA_HEIGHT / 2 - ARENA_BORDER_THICKNESS,
+  .width=ARENA_WIDTH + ARENA_BORDER_THICKNESS * 2, .height=ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2
+};
 
 
 typedef struct Robot {
@@ -45,7 +52,7 @@ int main(void) {
 
   Camera2D camera = { 0 };
   camera.target = (Vector2){ 0, 0 };
-  camera.offset = (Vector2){ ARENA_WIDTH / 2, ARENA_HEIGHT / 2 };
+  camera.offset = (Vector2){ ARENA_DRAW_RECT.width / 2, ARENA_DRAW_RECT.height / 2 };
   camera.rotation = 0.0f;
   camera.zoom = 1.0f;
 
@@ -53,17 +60,12 @@ int main(void) {
 
   Robot robots[2] = { 0 };
 
-  const Rectangle arenaRect = {
-    .x=-ARENA_WIDTH / 2, .y=-ARENA_HEIGHT / 2,
-    .width=ARENA_WIDTH, .height=ARENA_HEIGHT
-  };
-
   while (!WindowShouldClose()) {
     windowWidth = GetScreenWidth(); windowHeight = GetScreenHeight();
 
     // Update camera based on current window size
     camera.offset = (Vector2){ windowWidth / 2, windowHeight / 2 };
-    camera.zoom = fmin((windowWidth - WINDOW_MARGIN) / ARENA_WIDTH, (windowHeight - WINDOW_MARGIN) / ARENA_HEIGHT);
+    camera.zoom = fmin((windowWidth - WINDOW_MARGIN) / ARENA_DRAW_RECT.width, (windowHeight - WINDOW_MARGIN) / ARENA_DRAW_RECT.height);
 
     // Check controls
     if (IsKeyDown(KEY_LEFT)) {
@@ -90,7 +92,7 @@ int main(void) {
     BeginDrawing();
     ClearBackground(RAYWHITE);
     BeginMode2D(camera); {
-      DrawRectangleLinesEx(arenaRect, 4, GRAY);
+      DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
       for (unsigned int i = 0; i < 2; i++) {
         drawRobot(robots[i], RED);
       }
