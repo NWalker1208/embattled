@@ -10,6 +10,7 @@
 #define ROBOT_MAX_SPEED 5.0
 
 #define MAX_COLLISION_ITERATIONS 32
+#define EPSILON 0.0001
 
 
 typedef struct Robot {
@@ -101,19 +102,19 @@ int main(void) {
 
 void updateRobotPositions(Robot robots[], unsigned int robotCount) {
   // Update robot positions based on current velocity
-  for (int i = 0; i < robotCount; i++) {
+  for (unsigned int i = 0; i < robotCount; i++) {
     robots[i].position.x += cos(robots[i].rotation) * robots[i].forwardVelocity;
     robots[i].position.y += sin(robots[i].rotation) * robots[i].forwardVelocity;
   }
 
   // Check for and resolve collisions iteratively
   bool foundCollision = true;
-  for (int iterations = 0; foundCollision && iterations < MAX_COLLISION_ITERATIONS; iterations++) {
+  for (unsigned int iterations = 0; foundCollision && iterations < MAX_COLLISION_ITERATIONS; iterations++) {
     foundCollision = false;
 
     // Collisions between robots
-    for (int i = 0; i < robotCount - 1; i++) {
-      for (int j = i + 1; j < robotCount; j++) {
+    for (unsigned int i = 0; i < robotCount - 1; i++) {
+      for (unsigned int j = i + 1; j < robotCount; j++) {
         if (checkIfTwoRobotsColliding(robots[i], robots[j])) {
           foundCollision = true;
 
@@ -122,9 +123,14 @@ void updateRobotPositions(Robot robots[], unsigned int robotCount) {
           float deltaY = robots[i].position.y - robots[j].position.y;
           float distance = sqrt(deltaX * deltaX + deltaY * deltaY);
           float penetrationDepth = 2 * ROBOT_RADIUS - distance;
-          // Normalize vector between robots
-          deltaX /= distance;
-          deltaY /= distance;
+          // Normalize vector between robots, avoiding division by zero
+          if (distance > EPSILON) {
+            deltaX /= distance;
+            deltaY /= distance;
+          } else {
+            deltaX = 1.0;
+            deltaY = 0.0;
+          }
           // Move robots apart each by half of the penetration depth
           robots[i].position.x -= deltaX * penetrationDepth / 2.0f;
           robots[i].position.y -= deltaY * penetrationDepth / 2.0f;
@@ -135,7 +141,7 @@ void updateRobotPositions(Robot robots[], unsigned int robotCount) {
     }
 
     // Collisions between robots and the arena
-    for (int i = 0; i < robotCount; i++) {
+    for (unsigned int i = 0; i < robotCount; i++) {
       ArenaCollision collisionMask = checkIfRobotCollidingWithArena(robots[i]);
       if (collisionMask != COLLISION_NONE) {
         foundCollision = true;
