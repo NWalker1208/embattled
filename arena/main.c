@@ -126,8 +126,8 @@ void updateRobotPositions(Robot robots[], unsigned int robotCount) {
           foundCollision = true;
 
           // Resolve collision
-          float deltaX = robots[i].position.x - robots[j].position.x;
-          float deltaY = robots[i].position.y - robots[j].position.y;
+          float deltaX = robots[j].position.x - robots[i].position.x;
+          float deltaY = robots[j].position.y - robots[i].position.y;
           float distance = sqrt(deltaX * deltaX + deltaY * deltaY);
           float penetrationDepth = 2 * ROBOT_RADIUS - distance;
           // Normalize vector between robots, avoiding division by zero
@@ -166,7 +166,7 @@ void updateRobotPositions(Robot robots[], unsigned int robotCount) {
         }
       }
     }
-  } while (foundCollision);
+  }
 }
 
 bool checkIfTwoRobotsColliding(Robot robotA, Robot robotB) {
