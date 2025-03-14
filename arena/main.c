@@ -13,6 +13,18 @@ typedef struct Robot {
   float rotation;
 } Robot;
 
+typedef enum ArenaCollision {
+  COLLISION_NONE = 0,
+  COLLISION_RIGHT = 1,
+  COLLISION_BOTTOM = 2,
+  COLLISION_LEFT = 4,
+  COLLISION_TOP = 8
+} ArenaCollision;
+
+bool checkIfTwoRobotsColliding(Robot robotA, Robot robotB);
+
+ArenaCollision checkIfRobotCollidingWithArena(Robot robot); // Returns bit mask of which walls robot is colliding with
+
 int main(void) {
   int windowWidth = 800;
   int windowHeight = 450;
@@ -75,4 +87,27 @@ int main(void) {
 
   CloseWindow();
   return 0;
+}
+
+bool checkIfTwoRobotsColliding(Robot robotA, Robot robotB) {
+  const float minSquareDistance = (2 * ROBOT_RADIUS) * (2 * ROBOT_RADIUS);
+  float deltaX = robotA.position.x - robotB.position.x;
+  float deltaY = robotA.position.y - robotB.position.y;
+  float squareDistance = deltaX * deltaX + deltaY * deltaY;
+  return squareDistance < minSquareDistance;
+}
+
+ArenaCollision checkIfRobotCollidingWithArena(Robot robot) {
+  ArenaCollision collisionMask = COLLISION_NONE;
+  if (robot.position.x + ROBOT_RADIUS > ARENA_WIDTH / 2) {
+    collisionMask |= COLLISION_RIGHT;
+  } else if (robot.position.x - ROBOT_RADIUS < -ARENA_WIDTH / 2) {
+    collisionMask |= COLLISION_LEFT;
+  }
+  if (robot.position.y + ROBOT_RADIUS > ARENA_HEIGHT / 2) {
+    collisionMask |= COLLISION_BOTTOM;
+  } else if (robot.position.y - ROBOT_RADIUS < -ARENA_HEIGHT / 2) {
+    collisionMask |= COLLISION_TOP;
+  }
+  return collisionMask;
 }
