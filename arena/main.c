@@ -1,5 +1,8 @@
-#include "raylib.h"
-#include "math.h"
+#include <stdio.h>
+#include <pthread.h>
+#include <math.h>
+#include <raylib.h>
+#include "arena/sleep.h"
 
 #define WINDOW_MARGIN 20
 
@@ -8,8 +11,10 @@
 #define ARENA_BORDER_THICKNESS 4
 
 #define ROBOT_RADIUS 50.0
-#define ROBOT_MAX_SPEED 5.0
+#define ROBOT_MAX_SPEED 300.0
+#define ROBOT_ROT_SPEED 6.0
 
+#define PHYSICS_TIMESTEP 0.001
 #define MAX_COLLISION_ITERATIONS 32
 #define EPSILON 0.0001
 
@@ -37,12 +42,22 @@ typedef enum ArenaCollision {
 
 void drawRobot(Robot robot, Color baseColor);
 
+void* physicsLoop(void* vargp);
 void updateRobotPositions(Robot robots[], unsigned int robotCount);
 bool checkIfTwoRobotsColliding(Robot robotA, Robot robotB);
 ArenaCollision checkIfRobotCollidingWithArena(Robot robot); // Returns bit mask of which walls robot is colliding with
 
 
+bool stopping = false;
+Robot robots[2] = { 0 };
+const int robotCount = 2;
+pthread_mutex_t robotMutex = PTHREAD_MUTEX_INITIALIZER;
+
+
 int main(void) {
+  pthread_t physicsThread;
+  pthread_create(&physicsThread, NULL, physicsLoop, NULL);
+
   int windowWidth = 800;
   int windowHeight = 450;
 
@@ -58,8 +73,6 @@ int main(void) {
 
   SetTargetFPS(60);
 
-  Robot robots[2] = { 0 };
-
   while (!WindowShouldClose()) {
     windowWidth = GetScreenWidth(); windowHeight = GetScreenHeight();
 
@@ -67,13 +80,42 @@ int main(void) {
     camera.offset = (Vector2){ windowWidth / 2, windowHeight / 2 };
     camera.zoom = fmin((windowWidth - WINDOW_MARGIN) / ARENA_DRAW_RECT.width, (windowHeight - WINDOW_MARGIN) / ARENA_DRAW_RECT.height);
 
+    // Draw frame
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
+    BeginMode2D(camera); {
+      DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
+      pthread_mutex_lock(&robotMutex);
+      for (unsigned int i = 0; i < 2; i++) {
+        drawRobot(robots[i], RED);
+      }
+      pthread_mutex_unlock(&robotMutex);
+    } EndMode2D();
+    EndDrawing();
+  }
+
+  CloseWindow();
+
+  printf("Stopping physics thread\n");
+  stopping = true;
+  pthread_join(physicsThread, NULL);
+  printf("Physics thread stopped\n");
+
+  return 0;
+}
+
+
+void* physicsLoop(void* vargp) {
+  while (!stopping) {
+    pthread_mutex_lock(&robotMutex);
+
     // Check controls
     if (IsKeyDown(KEY_LEFT)) {
-      robots[0].rotation -= 0.1;
+      robots[0].rotation -= ROBOT_ROT_SPEED * PHYSICS_TIMESTEP;
     }
     
     if (IsKeyDown(KEY_RIGHT)) {
-      robots[0].rotation += 0.1;
+      robots[0].rotation += ROBOT_ROT_SPEED * PHYSICS_TIMESTEP;
     }
 
     robots[0].forwardVelocity = 0;
@@ -87,21 +129,11 @@ int main(void) {
     }
 
     updateRobotPositions(robots, 2);
+    pthread_mutex_unlock(&robotMutex);
 
-    // Draw frame
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
-    BeginMode2D(camera); {
-      DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
-      for (unsigned int i = 0; i < 2; i++) {
-        drawRobot(robots[i], RED);
-      }
-    } EndMode2D();
-    EndDrawing();
+    psleep(1); // TODO: Make number of physics steps before sleep depend on time elapsed
   }
-
-  CloseWindow();
-  return 0;
+  return NULL;
 }
 
 
@@ -114,8 +146,8 @@ void drawRobot(Robot robot, Color baseColor) {
 void updateRobotPositions(Robot robots[], unsigned int robotCount) {
   // Update robot positions based on current velocity
   for (unsigned int i = 0; i < robotCount; i++) {
-    robots[i].position.x += cos(robots[i].rotation) * robots[i].forwardVelocity;
-    robots[i].position.y += sin(robots[i].rotation) * robots[i].forwardVelocity;
+    robots[i].position.x += cos(robots[i].rotation) * robots[i].forwardVelocity * PHYSICS_TIMESTEP;
+    robots[i].position.y += sin(robots[i].rotation) * robots[i].forwardVelocity * PHYSICS_TIMESTEP;
   }
 
   // Check for and resolve collisions iteratively
