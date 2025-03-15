@@ -1,5 +1,6 @@
 project(arena LANGUAGES C)
 
+
 include(FetchContent)
 FetchContent_Declare(
   raylib
@@ -9,6 +10,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(raylib)
 
+
+include(${CMAKE_SOURCE_DIR}/cmake/EnableWarnings.cmake)
+
 add_executable(${PROJECT_NAME} main.c src/sleep.c)
+
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

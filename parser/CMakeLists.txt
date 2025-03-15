@@ -1,5 +1,7 @@
 project(parser LANGUAGES C)
 
+include(${CMAKE_SOURCE_DIR}/cmake/EnableWarnings.cmake)
+
 add_subdirectory(tests)
 
 add_library(
