@@ -22,6 +22,7 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_LINK_WARNING_AS_ERROR ON)
 
 # Add subprojects
+add_subdirectory(utilities)
 add_subdirectory(processor)
 add_subdirectory(parser)
 add_subdirectory(assembler)

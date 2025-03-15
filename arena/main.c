@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include <math.h>
 #include <raylib.h>
-#include "arena/sleep.h"
+#include "utilities/sleep.h"
 
 #define WINDOW_MARGIN 20
 
