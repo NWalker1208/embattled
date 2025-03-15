@@ -72,6 +72,8 @@ bool CheckCollisionBodyWithBoundary(const PhysicsWorldDefinition* world, const P
   } else if (bodyState->position.x + body->radius > world->lowerRightBound.x) {
     colliding = true;
     penetrationOut->x = bodyState->position.x + body->radius - world->lowerRightBound.x + EPSILON;
+  } else {
+    penetrationOut->x = 0;
   }
 
   if (bodyState->position.y - body->radius < world->upperLeftBound.y) {
@@ -80,6 +82,8 @@ bool CheckCollisionBodyWithBoundary(const PhysicsWorldDefinition* world, const P
   } else if (bodyState->position.y + body->radius > world->lowerRightBound.y) {
     colliding = true;
     penetrationOut->y = bodyState->position.y + body->radius - world->lowerRightBound.y + EPSILON;
+  } else {
+    penetrationOut->y = 0;
   }
 
   return colliding;

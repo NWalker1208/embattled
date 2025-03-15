@@ -22,7 +22,7 @@ void* StartSimulation(void* arg) {
       simulationArgs->physicsWorldState.bodyStates[0].rotation += ROBOT_ROT_SPEED * PHYSICS_TIMESTEP;
     }
 
-    double velocity;
+    double velocity = 0;
     if (IsKeyDown(KEY_UP)) {
       velocity += ROBOT_MAX_SPEED;
     }
