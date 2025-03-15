@@ -11,6 +11,52 @@ bool CheckCollisionBodyWithBody(const PhysicsWorldDefinition* world, const Physi
 
 
 void StepPhysicsWorld(const PhysicsWorldDefinition* world, PhysicsWorldState* state, double deltaTimeSeconds) {
+  (void) deltaTimeSeconds; // The current physics simulator doesn't handle momentum, but this param will be used if that feature is added in the future.
+  
+  // Resolve collisions between bodies and the world boundary
+  for (unsigned int i = 0; i < world->bodyCount; i++) {
+    Vector2D penetration;
+    if (CheckCollisionBodyWithBoundary(world, state, i, &penetration)) {
+      state->bodyStates[i].position.x -= penetration.x;
+      state->bodyStates[i].position.y -= penetration.y;
+    }
+  }
+
+  // Iteratively resolve collisions between physics bodies
+  bool foundCollision = true;
+  for (unsigned int k = 0; foundCollision && k < MAX_RESOLVER_ITERATIONS; k++) {
+    foundCollision = false;
+    for (unsigned int i = 0; i < world->bodyCount - 1; i++) {
+      for (unsigned int j = i + 1; j < world->bodyCount; j++) {
+        Vector2D penetration;
+        if (CheckCollisionBodyWithBody(world, state, i, j, &penetration)) {
+          foundCollision = true;
+          PhysicsBodyState* bodyAState = &state->bodyStates[i];
+          PhysicsBodyState* bodyBState = &state->bodyStates[j];
+
+          bodyAState->position.x -= penetration.x / 2;
+          bodyAState->position.y -= penetration.y / 2;
+          bodyBState->position.x += penetration.x / 2;
+          bodyBState->position.y += penetration.y / 2;
+
+          // Move both bodies away from boundary if either is now colliding
+          if (CheckCollisionBodyWithBoundary(world, state, i, &penetration)) {
+            bodyAState->position.x -= penetration.x;
+            bodyAState->position.y -= penetration.y;
+            bodyBState->position.x -= penetration.x;
+            bodyBState->position.y -= penetration.y;
+          }
+
+          if (CheckCollisionBodyWithBoundary(world, state, j, &penetration)) {
+            bodyAState->position.x -= penetration.x;
+            bodyAState->position.y -= penetration.y;
+            bodyBState->position.x -= penetration.x;
+            bodyBState->position.y -= penetration.y;
+          }
+        }
+      }
+    }
+  }
 }
 
 
