@@ -18,3 +18,25 @@ typedef struct {
   // The rotation of the body in degrees.
   double rotation;
 } PhysicsBodyState;
+
+// The definition of a physics world containing zero or more bodies.
+typedef struct {
+  // The upper-left boundary of the world.
+  Vector2D upperLeftBound;
+  // The lower-right boundary of the world.
+  Vector2D lowerRightBound;
+  // The number of bodies being simulated.
+  unsigned int bodyCount;
+  // The array of definitions of the bodies being simulated.
+  const PhysicsBodyDefinition* bodies;
+} PhysicsWorldDefinition;
+
+// The state of a physics world containing zero or more bodies.
+typedef struct {
+  // The array of states of the bodies being simulated.
+  // The length of array should equal the bodyCount of the corresponding world definition.
+  PhysicsBodyState* bodyStates;
+} PhysicsWorldState;
+
+// Simulates the given physics world for a single step.
+void StepPhysicsWorld(const PhysicsWorldDefinition* world, PhysicsWorldState* state, double deltaTimeSeconds);
