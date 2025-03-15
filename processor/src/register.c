@@ -21,7 +21,7 @@ const char* REGISTER_NAMES[REGISTER_COUNT] = {
 };
 
 enum Register nibbleToRegister(unsigned char nibble) {
-  if (nibble >= 0 && nibble < REGISTER_COUNT) {
+  if (nibble < REGISTER_COUNT) {
     return nibble;
   } else {
     return NL;

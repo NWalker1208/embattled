@@ -113,6 +113,7 @@ void test_tryAssemble_should_outputInstructionWithReference_when_instructionRefe
   struct AssemblyParameter parameters[] = {
     { .kind = LABEL_REFERENCE, .referencedLabel = "test" },
   };
+  unsigned char bytes[] = { 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0 };
   struct AssemblyLine lines[] = {
     {
       .kind = INSTRUCTION,
@@ -126,8 +127,8 @@ void test_tryAssemble_should_outputInstructionWithReference_when_instructionRefe
       .label = "test",
       .kind = DATA,
       .data = {
-        .length = 2,
-        .bytes = "Hi",
+        .length = sizeof(bytes),
+        .bytes = bytes,
       }
     },
   };
@@ -136,7 +137,7 @@ void test_tryAssemble_should_outputInstructionWithReference_when_instructionRefe
     .opcode = LDIW,
     .parameters.immediate.u16 = 0x0003,
   });
-  memcpy(&expectedMemory[3], "Hi", 2);
+  memcpy(&expectedMemory[3], bytes, sizeof(bytes));
 
   // Act
   bool success = tryAssemble(lines, 2, memory, &error);

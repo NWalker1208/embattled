@@ -13,7 +13,7 @@ void destroyAssemblyLine(struct AssemblyLine* line) {
 
 void destroyAssemblyInstruction(struct AssemblyInstruction* instruction) {
   if (instruction->parameters != NULL) {
-    for (int i = 0; i < instruction->parameterCount; i++) {
+    for (unsigned int i = 0; i < instruction->parameterCount; i++) {
       destroyAssemblyParameter(&instruction->parameters[i]);
     }
     free(instruction->parameters);

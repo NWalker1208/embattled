@@ -86,7 +86,7 @@ bool tryAssemble(struct AssemblyLine* lines, unsigned int linesCount, unsigned c
         }
 
         if (param.kind == IMMEDIATE_VALUE) {
-          signed int minValue = immIsSigned ? (-1 << (numImmBits - 1)) : 0;
+          signed int minValue = immIsSigned ? (~0U << (numImmBits - 1)) : 0;
           signed int maxValue = immIsSigned ? ((1 << (numImmBits - 1)) - 1) : ((1 << numImmBits) - 1);
 
           signed int immediateValue = param.immediateValue;

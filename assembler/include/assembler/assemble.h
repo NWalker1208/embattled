@@ -2,14 +2,14 @@
 #include <stdbool.h>
 #include "parser/assembly.h"
 
-static const char* TOO_FEW_PARAMS = "Too few parameters";
-static const char* TOO_MANY_PARAMS = "Too many parameters";
-static const char* EXPECTED_REGISTER = "Expected register as parameter";
-static const char* EXPECTED_IMMEDIATE_VALUE = "Expected immediate value as parameter";
-static const char* EXPECTED_IMMEDIATE_VALUE_OR_LABEL_REF = "Expected immediate value or label reference as parameter";
-static const char* IMMEDIATE_VALUE_OUT_OF_RANGE = "Immediate value is outside the allowed range";
-static const char* INVALID_INSTRUCTION = "Invalid instruction";
-static const char* UNDEFINED_LABEL = "Undefined label";
+static const char TOO_FEW_PARAMS[] = "Too few parameters";
+static const char TOO_MANY_PARAMS[] = "Too many parameters";
+static const char EXPECTED_REGISTER[] = "Expected register as parameter";
+static const char EXPECTED_IMMEDIATE_VALUE[] = "Expected immediate value as parameter";
+static const char EXPECTED_IMMEDIATE_VALUE_OR_LABEL_REF[] = "Expected immediate value or label reference as parameter";
+static const char IMMEDIATE_VALUE_OUT_OF_RANGE[] = "Immediate value is outside the allowed range";
+static const char INVALID_INSTRUCTION[] = "Invalid instruction";
+static const char UNDEFINED_LABEL[] = "Undefined label";
 
 struct AssemblingError {
   // The message describing the error. Should be a string with a static lifetime.

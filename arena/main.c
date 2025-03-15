@@ -105,7 +105,7 @@ int main(void) {
 }
 
 
-void* physicsLoop(void* vargp) {
+void* physicsLoop(void*) {
   while (!stopping) {
     pthread_mutex_lock(&robotMutex);
 

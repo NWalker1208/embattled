@@ -114,7 +114,7 @@ char* readAllText(const char* filePath) {
   char* contents = malloc(fileLength + 1);
   size_t bytesRead = fread(contents, 1, fileLength, file);
   if (bytesRead != fileLength) {
-    fprintf(stderr, "Failed to read entire file. Got %d bytes but expected %d.\n", bytesRead, fileLength);
+    fprintf(stderr, "Failed to read entire file. Got %llu bytes but expected %llu.\n", bytesRead, fileLength);
     return NULL;
   }
   fclose(file);
