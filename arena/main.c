@@ -33,6 +33,10 @@ int main(void) {
       .upperLeftBound = (Vector2D){ -ARENA_WIDTH / 2, -ARENA_HEIGHT / 2 },
       .lowerRightBound = (Vector2D){ ARENA_WIDTH / 2, ARENA_HEIGHT / 2 },
       .bodyCount = 2,
+      .bodies = {
+        { .radius = ROBOT_RADIUS },
+        { .radius = ROBOT_RADIUS },
+      }
     },
     .shouldStop = false,
   };
