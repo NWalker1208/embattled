@@ -6,19 +6,26 @@
 #define EPSILON 0.0001
 
 
-bool CheckCollisionBodyWithBoundary(const PhysicsWorldDefinition* world, const PhysicsWorldState* state, unsigned int bodyIndex, Vector2D* penetrationOut);
-bool CheckCollisionBodyWithBody(const PhysicsWorldDefinition* world, const PhysicsWorldState* state, unsigned int bodyAIndex, unsigned int bodyBIndex, Vector2D* penetrationOut);
+// Checks whether the body with the given index is colliding with the world boundary.
+// If it is, returns true and outputs a vector indicating how far the body is penetrating into the world boundary.
+// Otherwise, returns false.
+bool CheckCollisionBodyWithBoundary(const PhysicsWorld* world, unsigned int bodyIndex, Vector2D* penetrationOut);
+
+// Checks whether two bodies with the given indices are colliding with one another.
+// If they are, returns true and outputs a vector indiciating how far body A is penetrating into body B.
+// Otherwise, returns false.
+bool CheckCollisionBodyWithBody(const PhysicsWorld* world, unsigned int bodyAIndex, unsigned int bodyBIndex, Vector2D* penetrationOut);
 
 
-void StepPhysicsWorld(const PhysicsWorldDefinition* world, PhysicsWorldState* state, double deltaTimeSeconds) {
+void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds) {
   (void) deltaTimeSeconds; // The current physics simulator doesn't handle momentum, but this param will be used if that feature is added in the future.
   
   // Resolve collisions between bodies and the world boundary
   for (unsigned int i = 0; i < world->bodyCount; i++) {
     Vector2D penetration;
-    if (CheckCollisionBodyWithBoundary(world, state, i, &penetration)) {
-      state->bodyStates[i].position.x -= penetration.x;
-      state->bodyStates[i].position.y -= penetration.y;
+    if (CheckCollisionBodyWithBoundary(world, i, &penetration)) {
+      world->bodies[i].position.x -= penetration.x;
+      world->bodies[i].position.y -= penetration.y;
     }
   }
 
@@ -29,29 +36,29 @@ void StepPhysicsWorld(const PhysicsWorldDefinition* world, PhysicsWorldState* st
     for (unsigned int i = 0; i < world->bodyCount - 1; i++) {
       for (unsigned int j = i + 1; j < world->bodyCount; j++) {
         Vector2D penetration;
-        if (CheckCollisionBodyWithBody(world, state, i, j, &penetration)) {
+        if (CheckCollisionBodyWithBody(world, i, j, &penetration)) {
           foundCollision = true;
-          PhysicsBodyState* bodyAState = &state->bodyStates[i];
-          PhysicsBodyState* bodyBState = &state->bodyStates[j];
+          PhysicsBody* bodyA = &world->bodies[i];
+          PhysicsBody* bodyB = &world->bodies[j];
 
-          bodyAState->position.x -= penetration.x / 2;
-          bodyAState->position.y -= penetration.y / 2;
-          bodyBState->position.x += penetration.x / 2;
-          bodyBState->position.y += penetration.y / 2;
+          bodyA->position.x -= penetration.x / 2;
+          bodyA->position.y -= penetration.y / 2;
+          bodyB->position.x += penetration.x / 2;
+          bodyB->position.y += penetration.y / 2;
 
           // Move both bodies away from boundary if either is now colliding
-          if (CheckCollisionBodyWithBoundary(world, state, i, &penetration)) {
-            bodyAState->position.x -= penetration.x;
-            bodyAState->position.y -= penetration.y;
-            bodyBState->position.x -= penetration.x;
-            bodyBState->position.y -= penetration.y;
+          if (CheckCollisionBodyWithBoundary(world, i, &penetration)) {
+            bodyA->position.x -= penetration.x;
+            bodyA->position.y -= penetration.y;
+            bodyB->position.x -= penetration.x;
+            bodyB->position.y -= penetration.y;
           }
 
-          if (CheckCollisionBodyWithBoundary(world, state, j, &penetration)) {
-            bodyAState->position.x -= penetration.x;
-            bodyAState->position.y -= penetration.y;
-            bodyBState->position.x -= penetration.x;
-            bodyBState->position.y -= penetration.y;
+          if (CheckCollisionBodyWithBoundary(world, j, &penetration)) {
+            bodyA->position.x -= penetration.x;
+            bodyA->position.y -= penetration.y;
+            bodyB->position.x -= penetration.x;
+            bodyB->position.y -= penetration.y;
           }
         }
       }
@@ -60,28 +67,27 @@ void StepPhysicsWorld(const PhysicsWorldDefinition* world, PhysicsWorldState* st
 }
 
 
-bool CheckCollisionBodyWithBoundary(const PhysicsWorldDefinition* world, const PhysicsWorldState* state, unsigned int bodyIndex, Vector2D* penetrationOut) {
-  const PhysicsBodyDefinition* body = &world->bodies[bodyIndex];
-  const PhysicsBodyState* bodyState = &state->bodyStates[bodyIndex];
+bool CheckCollisionBodyWithBoundary(const PhysicsWorld* world, unsigned int bodyIndex, Vector2D* penetrationOut) {
+  const PhysicsBody* body = &world->bodies[bodyIndex];
 
   bool colliding = false;
 
-  if (bodyState->position.x - body->radius < world->upperLeftBound.x) {
+  if (body->position.x - body->radius < world->upperLeftBound.x) {
     colliding = true;
-    penetrationOut->x = bodyState->position.x - body->radius - world->upperLeftBound.x - EPSILON;
-  } else if (bodyState->position.x + body->radius > world->lowerRightBound.x) {
+    penetrationOut->x = body->position.x - body->radius - world->upperLeftBound.x - EPSILON;
+  } else if (body->position.x + body->radius > world->lowerRightBound.x) {
     colliding = true;
-    penetrationOut->x = bodyState->position.x + body->radius - world->lowerRightBound.x + EPSILON;
+    penetrationOut->x = body->position.x + body->radius - world->lowerRightBound.x + EPSILON;
   } else {
     penetrationOut->x = 0;
   }
 
-  if (bodyState->position.y - body->radius < world->upperLeftBound.y) {
+  if (body->position.y - body->radius < world->upperLeftBound.y) {
     colliding = true;
-    penetrationOut->y = bodyState->position.y - body->radius - world->upperLeftBound.y - EPSILON;
-  } else if (bodyState->position.y + body->radius > world->lowerRightBound.y) {
+    penetrationOut->y = body->position.y - body->radius - world->upperLeftBound.y - EPSILON;
+  } else if (body->position.y + body->radius > world->lowerRightBound.y) {
     colliding = true;
-    penetrationOut->y = bodyState->position.y + body->radius - world->lowerRightBound.y + EPSILON;
+    penetrationOut->y = body->position.y + body->radius - world->lowerRightBound.y + EPSILON;
   } else {
     penetrationOut->y = 0;
   }
@@ -89,14 +95,12 @@ bool CheckCollisionBodyWithBoundary(const PhysicsWorldDefinition* world, const P
   return colliding;
 }
 
-bool CheckCollisionBodyWithBody(const PhysicsWorldDefinition* world, const PhysicsWorldState* state, unsigned int bodyAIndex, unsigned int bodyBIndex, Vector2D* penetrationOut) {
-  const PhysicsBodyDefinition* bodyA = &world->bodies[bodyAIndex];
-  const PhysicsBodyDefinition* bodyB = &world->bodies[bodyBIndex];
-  const PhysicsBodyState* bodyAState = &state->bodyStates[bodyAIndex];
-  const PhysicsBodyState* bodyBState = &state->bodyStates[bodyBIndex];
+bool CheckCollisionBodyWithBody(const PhysicsWorld* world, unsigned int bodyAIndex, unsigned int bodyBIndex, Vector2D* penetrationOut) {
+  const PhysicsBody* bodyA = &world->bodies[bodyAIndex];
+  const PhysicsBody* bodyB = &world->bodies[bodyBIndex];
 
-  double deltaX = bodyBState->position.x - bodyAState->position.x;
-  double deltaY = bodyBState->position.y - bodyAState->position.y;
+  double deltaX = bodyB->position.x - bodyA->position.x;
+  double deltaY = bodyB->position.y - bodyA->position.y;
   double radii = bodyA->radius + bodyB->radius;
 
   double squareDistance = deltaX * deltaX + deltaY * deltaY;
