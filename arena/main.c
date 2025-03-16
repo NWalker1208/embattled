@@ -19,39 +19,31 @@ const Rectangle ARENA_DRAW_RECT = {
 };
 
 
-void DrawRobot(const PhysicsWorldState* state, Robot robot, Color baseColor);
+void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor);
 
 
 int main(void) {
-  const int robotCount = 2;
-  Robot robots[2] = {
-    { .physicsBodyIndex = 0 },
-    { .physicsBodyIndex = 1 },
-  };
-
-  PhysicsBodyDefinition physicsBodyDefinitions[] = {
-    { .radius = ROBOT_RADIUS },
-    { .radius = ROBOT_RADIUS },
-  };
-  PhysicsBodyState physicsBodyStates[2] = { 0 };
   SimulationArguments simulationArguments = {
-    .robotCount = robotCount,
-    .robots = robots,
-    .physicsWorldDefinition = {
+    .robotCount = 2,
+    .robots = {
+      { .physicsBodyIndex = 0 },
+      { .physicsBodyIndex = 1 },
+    },
+    .physicsWorld = {
       .upperLeftBound = (Vector2D){ -ARENA_WIDTH / 2, -ARENA_HEIGHT / 2 },
       .lowerRightBound = (Vector2D){ ARENA_WIDTH / 2, ARENA_HEIGHT / 2 },
-      .bodyCount = robotCount,
-      .bodies = physicsBodyDefinitions,
+      .bodyCount = 2,
     },
-    .physicsWorldState = {
-      .bodyStates = physicsBodyStates,
-    },
-    .stateMutex = PTHREAD_MUTEX_INITIALIZER,
     .shouldStop = false,
   };
+  pthread_mutex_t* simulationMutex = &simulationArguments.mutex;
+  if (pthread_mutex_init(simulationMutex, NULL)) {
+    fprintf(stderr, "Failed to initialize simulation.\n");
+    exit(1);
+  }
 
-  pthread_t physicsThread;
-  pthread_create(&physicsThread, NULL, StartSimulation, &simulationArguments);
+  pthread_t simulationThread;
+  pthread_create(&simulationThread, NULL, StartSimulation, &simulationArguments);
 
   int windowWidth = 800;
   int windowHeight = 450;
@@ -80,29 +72,31 @@ int main(void) {
     ClearBackground(RAYWHITE);
     BeginMode2D(camera); {
       DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
-      pthread_mutex_lock(&simulationArguments.stateMutex);
-      for (unsigned int i = 0; i < 2; i++) {
-        DrawRobot(&simulationArguments.physicsWorldState, robots[i], BLUE);
+      pthread_mutex_lock(simulationMutex);
+      for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
+        DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], BLUE);
       }
-      pthread_mutex_unlock(&simulationArguments.stateMutex);
+      pthread_mutex_unlock(simulationMutex);
     } EndMode2D();
     EndDrawing();
   }
 
   CloseWindow();
 
-  printf("Stopping physics thread\n");
+  printf("Stopping simulation thread\n");
   simulationArguments.shouldStop = true;
-  pthread_join(physicsThread, NULL);
+  pthread_join(simulationThread, NULL);
   printf("Physics thread stopped\n");
+  pthread_mutex_destroy(simulationMutex);
 
   return 0;
 }
 
 
-void DrawRobot(const PhysicsWorldState* state, Robot robot, Color baseColor) {
-  const PhysicsBodyState* bodyState = &state->bodyStates[robot.physicsBodyIndex];
-  Vector2 position = { bodyState->position.x, bodyState->position.y };
+void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor) {
+  const PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
+  Vector2 position = { body->position.x, body->position.y };
+  double rotation = body->rotation;
   DrawCircleV(position, ROBOT_RADIUS, baseColor);
-  DrawLineEx(position, (Vector2){ position.x + cos(bodyState->rotation) * ROBOT_RADIUS, position.y + sin(bodyState->rotation) * ROBOT_RADIUS }, 3.0, RED);
+  DrawLineEx(position, (Vector2){ position.x + cos(rotation) * ROBOT_RADIUS, position.y + sin(rotation) * ROBOT_RADIUS }, 3.0, RED);
 }

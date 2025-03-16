@@ -9,35 +9,35 @@
 #define ROBOT_ROT_SPEED 6.0
 
 void* StartSimulation(void* arg) {
-  SimulationArguments* simulationArgs = arg;
+  SimulationArguments* sim = arg;
+  PhysicsWorld* physics = &sim->physicsWorld;
+  pthread_mutex_t* mutex = &sim->mutex;
 
-  while (!simulationArgs->shouldStop) {
-    pthread_mutex_lock(&simulationArgs->stateMutex);
-    
-    if (IsKeyDown(KEY_LEFT)) {
-      simulationArgs->physicsWorldState.bodyStates[0].rotation -= ROBOT_ROT_SPEED * PHYSICS_TIMESTEP;
-    }
-    
-    if (IsKeyDown(KEY_RIGHT)) {
-      simulationArgs->physicsWorldState.bodyStates[0].rotation += ROBOT_ROT_SPEED * PHYSICS_TIMESTEP;
-    }
+  while (!sim->shouldStop) {
+    pthread_mutex_lock(mutex); {
+      if (IsKeyDown(KEY_LEFT)) {
+        physics->bodies[0].rotation -= ROBOT_ROT_SPEED * PHYSICS_TIMESTEP;
+      }
+      
+      if (IsKeyDown(KEY_RIGHT)) {
+        physics->bodies[0].rotation += ROBOT_ROT_SPEED * PHYSICS_TIMESTEP;
+      }
 
-    double velocity = 0;
-    if (IsKeyDown(KEY_UP)) {
-      velocity += ROBOT_MAX_SPEED;
-    }
-    if (IsKeyDown(KEY_DOWN)) {
-      velocity -= ROBOT_MAX_SPEED;
-    }
-    simulationArgs->physicsWorldState.bodyStates[0].position.x += cos(simulationArgs->physicsWorldState.bodyStates[0].rotation) * velocity * PHYSICS_TIMESTEP;
-    simulationArgs->physicsWorldState.bodyStates[0].position.y += sin(simulationArgs->physicsWorldState.bodyStates[0].rotation) * velocity * PHYSICS_TIMESTEP;
+      double velocity = 0;
+      if (IsKeyDown(KEY_UP)) {
+        velocity += ROBOT_MAX_SPEED;
+      }
+      if (IsKeyDown(KEY_DOWN)) {
+        velocity -= ROBOT_MAX_SPEED;
+      }
+      physics->bodies[0].position.x += cos(physics->bodies[0].rotation) * velocity * PHYSICS_TIMESTEP;
+      physics->bodies[0].position.y += sin(physics->bodies[0].rotation) * velocity * PHYSICS_TIMESTEP;
 
-    StepPhysicsWorld(&simulationArgs->physicsWorldDefinition, &simulationArgs->physicsWorldState, PHYSICS_TIMESTEP);
-    pthread_mutex_unlock(&simulationArgs->stateMutex);
+      StepPhysicsWorld(physics, PHYSICS_TIMESTEP);
+    } pthread_mutex_unlock(mutex);
   
     psleep((int)(PHYSICS_TIMESTEP * 1000));
   }
 
   return NULL;
 }
-
