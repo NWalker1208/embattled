@@ -38,6 +38,7 @@ int main(void) {
         { .radius = ROBOT_RADIUS },
       }
     },
+    .timeScale = 1.0,
     .shouldStop = false,
   };
   pthread_mutex_t* simulationMutex = &simulationArguments.mutex;

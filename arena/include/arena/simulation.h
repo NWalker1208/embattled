@@ -22,6 +22,8 @@ typedef struct {
   PhysicsWorld physicsWorld;
   // A mutex protecting reads/writes to the robots and physics world.
   pthread_mutex_t mutex;
+  // The scaling factor applied to the passage of time in the simulation. +inf for maximum speed.
+  double timeScale;
   // Whether the simulation loop should stop.
   bool shouldStop;
 } SimulationArguments;
