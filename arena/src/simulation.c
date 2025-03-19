@@ -9,7 +9,7 @@
 #define ROBOT_ROT_SPEED 6.0
 
 
-void StepSimulation(SimulationArguments* simulation);
+void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds);
 
 
 void* StartSimulation(void* arg) {
@@ -19,7 +19,7 @@ void* StartSimulation(void* arg) {
   // TODO: Have this execute a number of steps depending on the amount of time elapsed.
   while (!simulation->shouldStop) {
     pthread_mutex_lock(mutex); {
-      StepSimulation(simulation);
+      StepSimulation(simulation, PHYSICS_TIMESTEP);
     } pthread_mutex_unlock(mutex);
   
     psleep((int)(PHYSICS_TIMESTEP * 1000));
@@ -29,15 +29,15 @@ void* StartSimulation(void* arg) {
 }
 
 
-void StepSimulation(SimulationArguments* simulation) {
+void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
   PhysicsWorld* physicsWorld = &simulation->physicsWorld;
 
   if (IsKeyDown(KEY_LEFT)) {
-    physicsWorld->bodies[0].rotation -= ROBOT_ROT_SPEED * PHYSICS_TIMESTEP;
+    physicsWorld->bodies[0].rotation -= ROBOT_ROT_SPEED * deltaTimeSeconds;
   }
   
   if (IsKeyDown(KEY_RIGHT)) {
-    physicsWorld->bodies[0].rotation += ROBOT_ROT_SPEED * PHYSICS_TIMESTEP;
+    physicsWorld->bodies[0].rotation += ROBOT_ROT_SPEED * deltaTimeSeconds;
   }
 
   double velocity = 0;
@@ -47,10 +47,10 @@ void StepSimulation(SimulationArguments* simulation) {
   if (IsKeyDown(KEY_DOWN)) {
     velocity -= ROBOT_MAX_SPEED;
   }
-  physicsWorld->bodies[0].position.x += cos(physicsWorld->bodies[0].rotation) * velocity * PHYSICS_TIMESTEP;
-  physicsWorld->bodies[0].position.y += sin(physicsWorld->bodies[0].rotation) * velocity * PHYSICS_TIMESTEP;
+  physicsWorld->bodies[0].position.x += cos(physicsWorld->bodies[0].rotation) * velocity * deltaTimeSeconds;
+  physicsWorld->bodies[0].position.y += sin(physicsWorld->bodies[0].rotation) * velocity * deltaTimeSeconds;
 
-  StepPhysicsWorld(physicsWorld, PHYSICS_TIMESTEP);
+  StepPhysicsWorld(physicsWorld, deltaTimeSeconds);
 }
 
 
