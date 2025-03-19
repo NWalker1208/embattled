@@ -59,28 +59,47 @@ void* StartSimulation(void* arg) {
 
 
 void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
+  // TODO: Update sensors
+
+  // Step processes
+  for (unsigned int i = 0; i < simulation->robotCount; i++) {
+    stepProcess(&simulation->robots[i].processState);
+  }
+
+  // Perform actions based on robot processes
   PhysicsWorld* physicsWorld = &simulation->physicsWorld;
+  for (unsigned int i = 0; i < simulation->robotCount; i++) {
+    double angularVelocity = ((signed char)simulation->robots[i].processState.memory[0xF000]) / 127.0;
+    if (angularVelocity < -1.0) { angularVelocity = -1.0; }
+    double velocity = ((signed char)simulation->robots[i].processState.memory[0xF001]) / 127.0;
+    if (velocity < -1.0) { velocity = -1.0; }
 
-  if (IsKeyDown(KEY_LEFT)) {
-    physicsWorld->bodies[0].rotation -= ROBOT_ROT_SPEED * deltaTimeSeconds;
-  }
-  
-  if (IsKeyDown(KEY_RIGHT)) {
-    physicsWorld->bodies[0].rotation += ROBOT_ROT_SPEED * deltaTimeSeconds;
+    physicsWorld->bodies[i].rotation += ROBOT_ROT_SPEED * angularVelocity * deltaTimeSeconds;
+    physicsWorld->bodies[i].position.x += ROBOT_MAX_SPEED * cos(physicsWorld->bodies[i].rotation) * velocity * deltaTimeSeconds;
+    physicsWorld->bodies[i].position.y += ROBOT_MAX_SPEED * sin(physicsWorld->bodies[i].rotation) * velocity * deltaTimeSeconds;
   }
 
-  double velocity = 0;
-  if (IsKeyDown(KEY_UP)) {
-    velocity += ROBOT_MAX_SPEED;
-  }
-  if (IsKeyDown(KEY_DOWN)) {
-    velocity -= ROBOT_MAX_SPEED;
-  }
-  physicsWorld->bodies[0].position.x += cos(physicsWorld->bodies[0].rotation) * velocity * deltaTimeSeconds;
-  physicsWorld->bodies[0].position.y += sin(physicsWorld->bodies[0].rotation) * velocity * deltaTimeSeconds;
+  // Temporary user control code
+  {
+    if (IsKeyDown(KEY_LEFT)) {
+      physicsWorld->bodies[0].rotation -= ROBOT_ROT_SPEED * deltaTimeSeconds;
+    }
+    
+    if (IsKeyDown(KEY_RIGHT)) {
+      physicsWorld->bodies[0].rotation += ROBOT_ROT_SPEED * deltaTimeSeconds;
+    }
 
+    double velocity = 0;
+    if (IsKeyDown(KEY_UP)) {
+      velocity += ROBOT_MAX_SPEED;
+    }
+    if (IsKeyDown(KEY_DOWN)) {
+      velocity -= ROBOT_MAX_SPEED;
+    }
+    physicsWorld->bodies[0].position.x += cos(physicsWorld->bodies[0].rotation) * velocity * deltaTimeSeconds;
+    physicsWorld->bodies[0].position.y += sin(physicsWorld->bodies[0].rotation) * velocity * deltaTimeSeconds;
+  }
+
+  // Step the physics world
   StepPhysicsWorld(physicsWorld, deltaTimeSeconds);
 }
-
-
-// TODO: Incorporate processor simulation.

@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include "arena/physics.h"
+#include "processor/process.h"
 
 #define MAX_ROBOTS 2
 
@@ -9,7 +10,8 @@
 typedef struct {
   // The index of the physics body representing this robot.
   const unsigned int physicsBodyIndex;
-  // TODO: Add process state
+  // The state of the robot's processor.
+  struct ProcessState processState;
 } Robot;
 
 // The arguments expected by the StartSimulation function.
