@@ -28,13 +28,30 @@ void* StartSimulation(void* arg) {
   SimulationArguments* simulation = arg;
   pthread_mutex_t* mutex = &simulation->mutex;
 
-  // TODO: Have this execute a number of steps depending on the amount of time elapsed.
+  clock_t lastClock = clock();
+  simtime_t simtimeBehind = 0;
   while (!simulation->shouldStop) {
-    pthread_mutex_lock(mutex); {
-      StepSimulation(simulation, DELTA_TIME_SEC);
-    } pthread_mutex_unlock(mutex);
-  
-    psleep((int)(PHYSICS_TIMESTEP * 1000));
+    while (!simulation->shouldStop && simtimeBehind > 0) {
+      pthread_mutex_lock(mutex); {
+        StepSimulation(simulation, DELTA_TIME_SEC);
+      } pthread_mutex_unlock(mutex);
+      simtimeBehind -= SIMTIME_PER_STEP;
+    }
+
+    clock_t currentClock = clock();
+    clock_t elapsedClocks = currentClock - lastClock;
+    simtime_t elapsedSimtime = elapsedClocks * SIMTIME_PER_CLOCK;
+    if (elapsedClocks > (MAX_SEC_BEHIND * CLOCKS_PER_SEC) || simtimeBehind + elapsedSimtime > (MAX_SEC_BEHIND * SIMTIME_PER_SEC)) {
+      simtimeBehind = CLOCKS_PER_SEC; // Cap the measure of how far we are behind realtime at MAX_SEC_BEHIND.
+    } else {
+      simtimeBehind += elapsedSimtime;
+    }
+    lastClock = currentClock;
+
+    long millisecondsAhead = (-simtimeBehind) / (SIMTIME_PER_SEC / 1000);
+    if (millisecondsAhead > 0) {
+      psleep(millisecondsAhead);
+    }
   }
 
   return NULL;
