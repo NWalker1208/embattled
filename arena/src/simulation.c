@@ -1,12 +1,24 @@
 #include <raylib.h>
 #include <math.h>
+#include <time.h>
 #include "arena/simulation.h"
 #include "utilities/sleep.h"
 
-#define PHYSICS_TIMESTEP 0.001
 
+#define STEPS_PER_SEC 1000
 #define ROBOT_MAX_SPEED 300.0
 #define ROBOT_ROT_SPEED 6.0
+#define MAX_SEC_BEHIND 1
+
+// A unit of simulation time.
+// Defined such that both simulation steps and clocks can be represented as whole numbers.
+typedef long simtime_t;
+
+#define SIMTIME_PER_SEC   (simtime_t)(STEPS_PER_SEC * CLOCKS_PER_SEC)
+#define SIMTIME_PER_STEP  (simtime_t)(CLOCKS_PER_SEC) // (SIMTIME_PER_SEC / STEPS_PER_SEC)
+#define SIMTIME_PER_CLOCK (simtime_t)(STEPS_PER_SEC)  // (SIMTIME_PER_SEC / CLOCKS_PER_SEC)
+
+#define DELTA_TIME_SEC (double)(1.0 / STEPS_PER_SEC)
 
 
 void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds);
@@ -19,7 +31,7 @@ void* StartSimulation(void* arg) {
   // TODO: Have this execute a number of steps depending on the amount of time elapsed.
   while (!simulation->shouldStop) {
     pthread_mutex_lock(mutex); {
-      StepSimulation(simulation, PHYSICS_TIMESTEP);
+      StepSimulation(simulation, DELTA_TIME_SEC);
     } pthread_mutex_unlock(mutex);
   
     psleep((int)(PHYSICS_TIMESTEP * 1000));
