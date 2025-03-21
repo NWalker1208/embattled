@@ -27,4 +27,4 @@ typedef struct {
 } PhysicsWorld;
 
 // Simulates the given physics world for a single step.
-void StepPhysicsWorld(PhysicsWorld* state, double deltaTimeSeconds);
+void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds);
