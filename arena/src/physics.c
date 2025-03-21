@@ -99,25 +99,24 @@ bool CheckCollisionBodyWithBody(const PhysicsWorld* world, unsigned int bodyAInd
   const PhysicsBody* bodyA = &world->bodies[bodyAIndex];
   const PhysicsBody* bodyB = &world->bodies[bodyBIndex];
 
-  double deltaX = bodyB->position.x - bodyA->position.x;
-  double deltaY = bodyB->position.y - bodyA->position.y;
+  Vector2D delta = VectorDifference(bodyB->position, bodyA->position);
   double radii = bodyA->radius + bodyB->radius;
 
-  double squareDistance = deltaX * deltaX + deltaY * deltaY;
+  double squareDistance = VectorGetSqrMagnitude(delta);
   if (squareDistance < radii * radii) {
     double distance = sqrt(squareDistance);
     if (distance > EPSILON) {
-      deltaX /= distance;
-      deltaY /= distance;
+      delta.x /= distance;
+      delta.y /= distance;
     } else {
       // Arbitrary but deterministic normal vector
-      deltaX = 1.0;
-      deltaY = 0.0;
+      delta.x = 1.0;
+      delta.y = 0.0;
     }
 
     float penetrationDepth = radii - distance + EPSILON;
-    penetrationOut->x = deltaX * penetrationDepth;
-    penetrationOut->y = deltaY * penetrationDepth;
+    penetrationOut->x = delta.x * penetrationDepth;
+    penetrationOut->y = delta.y * penetrationDepth;
     return true;
   } else {
     return false;
