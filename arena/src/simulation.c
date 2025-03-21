@@ -2,10 +2,12 @@
 #include <math.h>
 #include <time.h>
 #include "arena/simulation.h"
+#include "arena/raycast.h"
 #include "utilities/sleep.h"
 
 
 #define STEPS_PER_SEC 1000
+#define ROBOT_MAX_SENSOR_DIST 500.0
 #define ROBOT_MAX_SPEED 300.0
 #define ROBOT_ROT_SPEED 6.0
 #define MAX_SEC_BEHIND 1
@@ -59,7 +61,18 @@ void* StartSimulation(void* arg) {
 
 
 void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
-  // TODO: Update sensors
+  // Update sensors using raycasts
+  for (unsigned int i = 0; i < simulation->robotCount; i++) {
+    PhysicsBody* body = &simulation->physicsWorld.bodies[i];
+    Vector2D rayDirection = (Vector2D){ cos(body->rotation), sin(body->rotation) };
+    Vector2D rayOrigin = (Vector2D){ body->position.x + rayDirection.x * (body->radius + 1), body->position.y + rayDirection.y * (body->radius + 1) };
+    RaycastResult result = ComputeRaycast(&simulation->physicsWorld, rayOrigin, rayDirection);
+
+    double distance = result.distance;
+    if (distance > ROBOT_MAX_SENSOR_DIST) { distance = ROBOT_MAX_SENSOR_DIST; }
+    simulation->robots[i].processState.memory[0xE000] = (unsigned char)(distance / ROBOT_MAX_SENSOR_DIST * 255.0);
+    simulation->robots[i].processState.memory[0xE001] = (unsigned char)result.type;
+  }
 
   // Step processes
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
