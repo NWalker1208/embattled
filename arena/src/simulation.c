@@ -22,6 +22,8 @@ typedef long simtime_t;
 
 #define DELTA_TIME_SEC (double)(1.0 / STEPS_PER_SEC)
 
+#define MAX(a, b) ((a) > (b)) ? (a) : (b)
+
 
 void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds);
 
@@ -63,15 +65,17 @@ void* StartSimulation(void* arg) {
 void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
   // Update sensors using raycasts
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
-    PhysicsBody* body = &simulation->physicsWorld.bodies[i];
+    Robot* robot = &simulation->robots[i];
+    PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
+
     Vector2D rayDirection = (Vector2D){ cos(body->rotation), sin(body->rotation) };
     Vector2D rayOrigin = (Vector2D){ body->position.x + rayDirection.x * (body->radius + 1), body->position.y + rayDirection.y * (body->radius + 1) };
     RaycastResult result = ComputeRaycast(&simulation->physicsWorld, rayOrigin, rayDirection);
 
     double distance = result.distance;
     if (distance > ROBOT_MAX_SENSOR_DIST) { distance = ROBOT_MAX_SENSOR_DIST; }
-    simulation->robots[i].processState.memory[0xE000] = (unsigned char)(distance / ROBOT_MAX_SENSOR_DIST * 255.0);
-    simulation->robots[i].processState.memory[0xE001] = (unsigned char)result.type;
+    robot->processState.memory[0xE000] = (unsigned char)(distance / ROBOT_MAX_SENSOR_DIST * 255.0);
+    robot->processState.memory[0xE001] = (unsigned char)result.type;
   }
 
   // Step processes
@@ -82,14 +86,20 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
   // Perform actions based on robot processes
   PhysicsWorld* physicsWorld = &simulation->physicsWorld;
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
-    double angularVelocity = ((signed char)simulation->robots[i].processState.memory[0xF000]) / 127.0;
-    if (angularVelocity < -1.0) { angularVelocity = -1.0; }
-    double velocity = ((signed char)simulation->robots[i].processState.memory[0xF001]) / 127.0;
-    if (velocity < -1.0) { velocity = -1.0; }
+    Robot* robot = &simulation->robots[i];
+    PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
 
-    physicsWorld->bodies[i].rotation += ROBOT_ROT_SPEED * angularVelocity * deltaTimeSeconds;
-    physicsWorld->bodies[i].position.x += ROBOT_MAX_SPEED * cos(physicsWorld->bodies[i].rotation) * velocity * deltaTimeSeconds;
-    physicsWorld->bodies[i].position.y += ROBOT_MAX_SPEED * sin(physicsWorld->bodies[i].rotation) * velocity * deltaTimeSeconds;
+    signed char rotationControl = MAX((signed char)robot->processState.memory[0xF000], -127);
+    signed char velocityControl = MAX((signed char)robot->processState.memory[0xF001], -127);
+    unsigned char weaponControl = robot->processState.memory[0xF002];
+
+    double angularVelocity = rotationControl / 127.0;
+    double velocity = velocityControl / 127.0;
+    double weaponStrength = weaponControl / 256.0;
+
+    body->rotation += ROBOT_ROT_SPEED * angularVelocity * deltaTimeSeconds;
+    body->position.x += ROBOT_MAX_SPEED * cos(body->rotation) * velocity * deltaTimeSeconds;
+    body->position.y += ROBOT_MAX_SPEED * sin(body->rotation) * velocity * deltaTimeSeconds;
   }
 
   // Temporary user control code
