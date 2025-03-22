@@ -10,6 +10,8 @@
 #define STEPS_PER_SEC 1000
 #define MAX_SEC_BEHIND 1
 
+#define ROBOT_NUM_SENSORS 9
+#define ROBOT_SENSORS_FOV 90.0
 #define ROBOT_MAX_SENSOR_DIST 500.0
 #define ROBOT_MAX_SPEED 300.0
 #define ROBOT_ROT_SPEED 6.0
@@ -72,14 +74,17 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
     Robot* robot = &simulation->robots[i];
     PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
 
-    Vector2 rayDirection = (Vector2){ cos(body->rotation), sin(body->rotation) };
-    Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
-    RaycastResult result = ComputeRaycast(&simulation->physicsWorld, rayOrigin, rayDirection);
-
-    double distance = result.distance;
-    if (distance > ROBOT_MAX_SENSOR_DIST) { distance = ROBOT_MAX_SENSOR_DIST; }
-    robot->processState.memory[0xE000] = (unsigned char)(distance / ROBOT_MAX_SENSOR_DIST * 255.0);
-    robot->processState.memory[0xE001] = (unsigned char)result.type;
+    for (unsigned int j = 0; j < ROBOT_NUM_SENSORS; j++) {
+      float angle = body->rotation - (ROBOT_SENSORS_FOV / 2) + j * (ROBOT_SENSORS_FOV / (ROBOT_NUM_SENSORS - 1));
+      Vector2 rayDirection = (Vector2){ cos(angle), sin(angle) };
+      Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
+      RaycastResult result = ComputeRaycast(&simulation->physicsWorld, rayOrigin, rayDirection);
+      
+      double distance = result.distance;
+      if (distance > ROBOT_MAX_SENSOR_DIST) { distance = ROBOT_MAX_SENSOR_DIST; }
+      robot->processState.memory[0xE000 + (j * 2)] = (unsigned char)(distance / ROBOT_MAX_SENSOR_DIST * 255.0);
+      robot->processState.memory[0xE001 + (j * 2)] = (unsigned char)result.type;
+    }
   }
 
   // Step processes
