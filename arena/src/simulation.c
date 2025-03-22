@@ -7,10 +7,12 @@
 
 
 #define STEPS_PER_SEC 1000
+#define MAX_SEC_BEHIND 1
+
 #define ROBOT_MAX_SENSOR_DIST 500.0
 #define ROBOT_MAX_SPEED 300.0
 #define ROBOT_ROT_SPEED 6.0
-#define MAX_SEC_BEHIND 1
+#define ROBOT_WEAPON_COOLDOWN_STEPS 1000
 
 // A unit of simulation time.
 // Defined such that both simulation steps and clocks can be represented as whole numbers.
@@ -23,6 +25,7 @@ typedef long simtime_t;
 #define DELTA_TIME_SEC (double)(1.0 / STEPS_PER_SEC)
 
 #define MAX(a, b) ((a) > (b)) ? (a) : (b)
+#define MIN(a, b) ((a) < (b)) ? (a) : (b)
 
 
 void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds);
@@ -87,11 +90,24 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
   PhysicsWorld* physicsWorld = &simulation->physicsWorld;
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     Robot* robot = &simulation->robots[i];
+    if (robot->energyRemaining <= 0) {
+      continue;
+    }
+
     PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
 
     signed char rotationControl = MAX((signed char)robot->processState.memory[0xF000], -127);
     signed char velocityControl = MAX((signed char)robot->processState.memory[0xF001], -127);
-    unsigned char weaponControl = robot->processState.memory[0xF002];
+    unsigned char weaponControl = robot->weaponCooldown > 0 ? 0 : robot->processState.memory[0xF002];
+    robot->energyRemaining -= abs(rotationControl);
+    robot->energyRemaining -= abs(velocityControl);
+    if (weaponControl > 0) {
+      weaponControl = MIN(robot->energyRemaining, weaponControl);
+      robot->energyRemaining -= weaponControl;
+      robot->weaponCooldown = ROBOT_WEAPON_COOLDOWN_STEPS;
+    } else if (robot->weaponCooldown > 0) {
+      robot->weaponCooldown--;
+    }
 
     double angularVelocity = rotationControl / 127.0;
     double velocity = velocityControl / 127.0;

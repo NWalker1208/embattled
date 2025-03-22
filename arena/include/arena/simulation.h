@@ -5,6 +5,7 @@
 #include "processor/process.h"
 
 #define MAX_ROBOTS 2
+#define ROBOT_INITIAL_ENERGY 16000000
 
 // A robot that is being simulated.
 typedef struct {
