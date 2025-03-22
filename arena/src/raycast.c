@@ -2,7 +2,7 @@
 #include "arena/raycast.h"
 
 RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2D origin, Vector2D direction) {
-  RaycastResult nearestResult = { .distance = INFINITY, .type = INTERSECTION_NONE };
+  RaycastResult nearestResult = { .distance = INFINITY, .type = INTERSECTION_NONE, .bodyIndex = -1 };
   
   direction = VectorNormalize(direction);
   if (VectorIsZero(direction)) {
@@ -27,6 +27,7 @@ RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2D origin, Vector2D dire
       // The ray origin is inside the body
       nearestResult.distance = 0;
       nearestResult.type = INTERSECTION_BODY;
+      nearestResult.bodyIndex = i;
       continue;
     }
 
@@ -38,6 +39,7 @@ RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2D origin, Vector2D dire
     if (intersectionDistance < nearestResult.distance) {
       nearestResult.distance = intersectionDistance;
       nearestResult.type = INTERSECTION_BOUNDARY;
+      nearestResult.bodyIndex = i;
     }
   }
 
@@ -47,16 +49,19 @@ RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2D origin, Vector2D dire
     if (distanceToBoundary < nearestResult.distance) {
       nearestResult.distance = distanceToBoundary;
       nearestResult.type = INTERSECTION_BOUNDARY;
+      nearestResult.bodyIndex = -1;
     }
   } else if (world->lowerRightBound.x >= origin.x && direction.x > 0) {
     double distanceToBoundary = (world->lowerRightBound.x - origin.x) / direction.x;
     if (distanceToBoundary < nearestResult.distance) {
       nearestResult.distance = distanceToBoundary;
       nearestResult.type = INTERSECTION_BOUNDARY;
+      nearestResult.bodyIndex = -1;
     }
   } else if (world->upperLeftBound.x > origin.x || world->lowerRightBound.x < origin.x) {
     nearestResult.distance = 0;
     nearestResult.type = INTERSECTION_BOUNDARY;
+    nearestResult.bodyIndex = -1;
   }
 
   if (world->upperLeftBound.y <= origin.y && direction.y < 0) {
@@ -64,16 +69,19 @@ RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2D origin, Vector2D dire
     if (distanceToBoundary < nearestResult.distance) {
       nearestResult.distance = distanceToBoundary;
       nearestResult.type = INTERSECTION_BOUNDARY;
+      nearestResult.bodyIndex = -1;
     }
   } else if (world->lowerRightBound.y >= origin.y && direction.y > 0) {
     double distanceToBoundary = (world->lowerRightBound.y - origin.y) / direction.y;
     if (distanceToBoundary < nearestResult.distance) {
       nearestResult.distance = distanceToBoundary;
       nearestResult.type = INTERSECTION_BOUNDARY;
+      nearestResult.bodyIndex = -1;
     }
   } else if (world->upperLeftBound.y > origin.y || world->lowerRightBound.y < origin.y) {
     nearestResult.distance = 0;
     nearestResult.type = INTERSECTION_BOUNDARY;
+    nearestResult.bodyIndex = -1;
   }
 
   return nearestResult;

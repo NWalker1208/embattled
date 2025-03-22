@@ -15,6 +15,9 @@ typedef struct {
   double distance;
   // The type of intersection that occurred.
   IntersectionType type;
+  // The index of the body that was intersected, if type == INTERSECTION_BODY.
+  // Otherwise, -1.
+  int bodyIndex;
 } RaycastResult;
 
 RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2D origin, Vector2D direction);
