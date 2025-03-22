@@ -1,7 +1,8 @@
-#include <raylib.h>
+#include "arena/simulation.h"
 #include <math.h>
 #include <time.h>
-#include "arena/simulation.h"
+#include <raylib.h>
+#include <raymath.h>
 #include "arena/raycast.h"
 #include "utilities/sleep.h"
 
@@ -71,8 +72,8 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
     Robot* robot = &simulation->robots[i];
     PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
 
-    Vector2D rayDirection = (Vector2D){ cos(body->rotation), sin(body->rotation) };
-    Vector2D rayOrigin = (Vector2D){ body->position.x + rayDirection.x * (body->radius + 1), body->position.y + rayDirection.y * (body->radius + 1) };
+    Vector2 rayDirection = (Vector2){ cos(body->rotation), sin(body->rotation) };
+    Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
     RaycastResult result = ComputeRaycast(&simulation->physicsWorld, rayOrigin, rayDirection);
 
     double distance = result.distance;
@@ -119,14 +120,14 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
 
     if (weaponControl > 0) {
       // Fire laser at other robots using a raycast.
-      Vector2D rayDirection = (Vector2D){ cos(body->rotation), sin(body->rotation) };
-      Vector2D rayOrigin = (Vector2D){ body->position.x + rayDirection.x * (body->radius + 1), body->position.y + rayDirection.y * (body->radius + 1) };
+      Vector2 rayDirection = (Vector2){ cos(body->rotation), sin(body->rotation) };
+      Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
       RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
-      if (result.type == INTERSECTION_BODY) {
+      if (result.type == INTERSECTION_BODY && result.bodyIndex >= 0) {
         // Find the robot index corresponding to the body index
         Robot* otherRobot = NULL;
         for (unsigned int j = 0; j < simulation->robotCount; j++) {
-          if (simulation->robots[j].physicsBodyIndex == result.bodyIndex) {
+          if (simulation->robots[j].physicsBodyIndex == (unsigned int)result.bodyIndex) {
             otherRobot = &simulation->robots[j];
             break;
           }

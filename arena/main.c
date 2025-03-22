@@ -30,8 +30,7 @@ int main(void) {
       { .physicsBodyIndex = 1, .energyRemaining = ROBOT_INITIAL_ENERGY },
     },
     .physicsWorld = {
-      .upperLeftBound = (Vector2D){ -ARENA_WIDTH / 2, -ARENA_HEIGHT / 2 },
-      .lowerRightBound = (Vector2D){ ARENA_WIDTH / 2, ARENA_HEIGHT / 2 },
+      .boundary = (Rectangle){ .x = -ARENA_WIDTH / 2, .y = -ARENA_HEIGHT / 2, .width = ARENA_WIDTH, .height = ARENA_HEIGHT },
       .bodyCount = 2,
       .bodies = {
         { .radius = ROBOT_RADIUS },

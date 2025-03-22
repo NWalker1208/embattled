@@ -1,28 +1,28 @@
-#include <math.h>
 #include "arena/raycast.h"
+#include <raymath.h>
 
-RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2D origin, Vector2D direction) {
+RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2 origin, Vector2 direction) {
   RaycastResult nearestResult = { .distance = INFINITY, .type = INTERSECTION_NONE, .bodyIndex = -1 };
   
-  direction = VectorNormalize(direction);
-  if (VectorIsZero(direction)) {
+  direction = Vector2Normalize(direction);
+  if (direction.x == 0 && direction.y == 0) {
     return nearestResult;
   }
 
   // Check for ray intersection with each of the physics bodies
   for (unsigned int i = 0; i < world->bodyCount; i++) {
     // Compute the intersection point between the ray and the circular physics body
-    Vector2D relativeBodyPosition = VectorDifference(world->bodies[i].position, origin);
-    double projectedBodyDistanceAlongRay = relativeBodyPosition.x * direction.x + relativeBodyPosition.y * direction.y;
-    double sqrDistanceBetweenProjectedPositionAndRay = VectorGetSqrMagnitude(relativeBodyPosition) - projectedBodyDistanceAlongRay * projectedBodyDistanceAlongRay;
-    double bodyRadius = world->bodies[i].radius;
-    double sqrDistanceBetweenProjectedPositionAndIntersections = bodyRadius * bodyRadius - sqrDistanceBetweenProjectedPositionAndRay;
+    Vector2 relativeBodyPosition = Vector2Subtract(world->bodies[i].position, origin);
+    float projectedBodyDistanceAlongRay = relativeBodyPosition.x * direction.x + relativeBodyPosition.y * direction.y;
+    float sqrDistanceBetweenProjectedPositionAndRay = Vector2LengthSqr(relativeBodyPosition) - projectedBodyDistanceAlongRay * projectedBodyDistanceAlongRay;
+    float bodyRadius = world->bodies[i].radius;
+    float sqrDistanceBetweenProjectedPositionAndIntersections = bodyRadius * bodyRadius - sqrDistanceBetweenProjectedPositionAndRay;
 
     if (sqrDistanceBetweenProjectedPositionAndIntersections < 0) {
       continue; // No intersection
     }
 
-    double distanceBetweenProjectedPositionAndIntersections = sqrt(sqrDistanceBetweenProjectedPositionAndIntersections);
+    float distanceBetweenProjectedPositionAndIntersections = sqrt(sqrDistanceBetweenProjectedPositionAndIntersections);
     if (distanceBetweenProjectedPositionAndIntersections > fabs(projectedBodyDistanceAlongRay)) {
       // The ray origin is inside the body
       nearestResult.distance = 0;
@@ -31,7 +31,7 @@ RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2D origin, Vector2D dire
       continue;
     }
 
-    double intersectionDistance = projectedBodyDistanceAlongRay - distanceBetweenProjectedPositionAndIntersections;
+    float intersectionDistance = projectedBodyDistanceAlongRay - distanceBetweenProjectedPositionAndIntersections;
     if (intersectionDistance < 0) {
       continue; // No intersection
     }
@@ -44,41 +44,41 @@ RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2D origin, Vector2D dire
   }
 
   // Check for ray intersection with each of the world boundaries
-  if (world->upperLeftBound.x <= origin.x && direction.x < 0) {
-    double distanceToBoundary = (world->upperLeftBound.x - origin.x) / direction.x;
+  if (world->boundary.x <= origin.x && direction.x < 0) {
+    double distanceToBoundary = (world->boundary.x - origin.x) / direction.x;
     if (distanceToBoundary < nearestResult.distance) {
       nearestResult.distance = distanceToBoundary;
       nearestResult.type = INTERSECTION_BOUNDARY;
       nearestResult.bodyIndex = -1;
     }
-  } else if (world->lowerRightBound.x >= origin.x && direction.x > 0) {
-    double distanceToBoundary = (world->lowerRightBound.x - origin.x) / direction.x;
+  } else if (world->boundary.x + world->boundary.width >= origin.x && direction.x > 0) {
+    double distanceToBoundary = (world->boundary.x + world->boundary.width - origin.x) / direction.x;
     if (distanceToBoundary < nearestResult.distance) {
       nearestResult.distance = distanceToBoundary;
       nearestResult.type = INTERSECTION_BOUNDARY;
       nearestResult.bodyIndex = -1;
     }
-  } else if (world->upperLeftBound.x > origin.x || world->lowerRightBound.x < origin.x) {
+  } else if (world->boundary.x > origin.x || world->boundary.x + world->boundary.width < origin.x) {
     nearestResult.distance = 0;
     nearestResult.type = INTERSECTION_BOUNDARY;
     nearestResult.bodyIndex = -1;
   }
 
-  if (world->upperLeftBound.y <= origin.y && direction.y < 0) {
-    double distanceToBoundary = (world->upperLeftBound.y - origin.y) / direction.y;
+  if (world->boundary.y <= origin.y && direction.y < 0) {
+    double distanceToBoundary = (world->boundary.y - origin.y) / direction.y;
     if (distanceToBoundary < nearestResult.distance) {
       nearestResult.distance = distanceToBoundary;
       nearestResult.type = INTERSECTION_BOUNDARY;
       nearestResult.bodyIndex = -1;
     }
-  } else if (world->lowerRightBound.y >= origin.y && direction.y > 0) {
-    double distanceToBoundary = (world->lowerRightBound.y - origin.y) / direction.y;
+  } else if (world->boundary.y + world->boundary.height >= origin.y && direction.y > 0) {
+    double distanceToBoundary = (world->boundary.y + world->boundary.height - origin.y) / direction.y;
     if (distanceToBoundary < nearestResult.distance) {
       nearestResult.distance = distanceToBoundary;
       nearestResult.type = INTERSECTION_BOUNDARY;
       nearestResult.bodyIndex = -1;
     }
-  } else if (world->upperLeftBound.y > origin.y || world->lowerRightBound.y < origin.y) {
+  } else if (world->boundary.y > origin.y || world->boundary.y + world->boundary.height < origin.y) {
     nearestResult.distance = 0;
     nearestResult.type = INTERSECTION_BOUNDARY;
     nearestResult.bodyIndex = -1;

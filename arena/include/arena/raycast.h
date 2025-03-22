@@ -12,7 +12,7 @@ typedef enum {
 typedef struct {
   // The distance from the ray's origin to the point of intersection.
   // +inf if no intersection occurred.
-  double distance;
+  float distance;
   // The type of intersection that occurred.
   IntersectionType type;
   // The index of the body that was intersected, if type == INTERSECTION_BODY.
@@ -20,4 +20,4 @@ typedef struct {
   int bodyIndex;
 } RaycastResult;
 
-RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2D origin, Vector2D direction);
+RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2 origin, Vector2 direction);
