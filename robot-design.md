@@ -1,0 +1,7 @@
+- Circular collider
+- Move forward or backward. Rotate left or right.
+- Sense in cone of vision in front of robot
+- Fire weapon will cooldown, energy cost.
+- Getting hit reduces energy the most.
+- Moving or shooting weapon also uses energy.
+- First to run out of energy loses.
