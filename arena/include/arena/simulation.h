@@ -10,6 +10,10 @@
 typedef struct {
   // The index of the physics body representing this robot.
   const unsigned int physicsBodyIndex;
+  // The amount of energy that the robot has left. Also represents the robot's health.
+  int energyRemaining;
+  // The number of simulation steps until the robot's weapon is ready to use.
+  int weaponCooldown;
   // The state of the robot's processor.
   struct ProcessState processState;
 } Robot;

@@ -26,8 +26,8 @@ int main(void) {
   SimulationArguments simulationArguments = {
     .robotCount = 2,
     .robots = {
-      { .physicsBodyIndex = 0 },
-      { .physicsBodyIndex = 1 },
+      { .physicsBodyIndex = 0, .energyRemaining = 1000 },
+      { .physicsBodyIndex = 1, .energyRemaining = 1000 },
     },
     .physicsWorld = {
       .upperLeftBound = (Vector2D){ -ARENA_WIDTH / 2, -ARENA_HEIGHT / 2 },
