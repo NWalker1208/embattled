@@ -116,6 +116,27 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
     body->rotation += ROBOT_ROT_SPEED * angularVelocity * deltaTimeSeconds;
     body->position.x += ROBOT_MAX_SPEED * cos(body->rotation) * velocity * deltaTimeSeconds;
     body->position.y += ROBOT_MAX_SPEED * sin(body->rotation) * velocity * deltaTimeSeconds;
+
+    if (weaponControl > 0) {
+      // Fire laser at other robots using a raycast.
+      Vector2D rayDirection = (Vector2D){ cos(body->rotation), sin(body->rotation) };
+      Vector2D rayOrigin = (Vector2D){ body->position.x + rayDirection.x * (body->radius + 1), body->position.y + rayDirection.y * (body->radius + 1) };
+      RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
+      if (result.type == INTERSECTION_BODY) {
+        // Find the robot index corresponding to the body index
+        Robot* otherRobot = NULL;
+        for (unsigned int j = 0; j < simulation->robotCount; j++) {
+          if (simulation->robots[j].physicsBodyIndex == result.bodyIndex) {
+            otherRobot = &simulation->robots[j];
+            break;
+          }
+        }
+        // Apply damage to the other robot
+        if (otherRobot != NULL && otherRobot->energyRemaining > 0) {
+          otherRobot->energyRemaining -= weaponStrength * 10;
+        }
+      }
+    }
   }
 
   // Temporary user control code
