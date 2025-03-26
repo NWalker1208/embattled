@@ -20,6 +20,8 @@ const Rectangle ARENA_DRAW_RECT = {
 
 
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor);
+void DrawRobotWeapon(const Robot* robot);
+void DrawRobotSensors(const Robot* robot);
 
 
 int main(void) {
@@ -78,6 +80,12 @@ int main(void) {
       DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
       pthread_mutex_lock(simulationMutex);
       for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
+        DrawRobotSensors(&simulationArguments.robots[i]);
+      }
+      for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
+        DrawRobotWeapon(&simulationArguments.robots[i]);
+      }
+      for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
         DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], BLUE);
       }
       pthread_mutex_unlock(simulationMutex);
@@ -103,8 +111,14 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
   double rotation = body->rotation;
   DrawCircleV(position, ROBOT_RADIUS, robot->energyRemaining > 0 ? baseColor : ColorLerp(baseColor, GRAY, 0.75f));
   DrawLineEx(position, (Vector2){ position.x + cos(rotation) * ROBOT_RADIUS, position.y + sin(rotation) * ROBOT_RADIUS }, 3.0, BLACK);
+}
 
+void DrawRobotWeapon(const Robot* robot) {
   if (robot->weaponCooldownRemaining > 0) {
     DrawLineEx(robot->lastWeaponStart, robot->lastWeaponEnd, 4.0, ColorAlpha(RED, robot->weaponCooldownRemaining / (float)ROBOT_WEAPON_COOLDOWN_STEPS));
   }
+}
+
+void DrawRobotSensors(const Robot* robot) {
+  (void)robot; // TODO
 }
