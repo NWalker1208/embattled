@@ -67,6 +67,11 @@ void* StartSimulation(void* arg) {
 
 
 void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
+  PhysicsWorld* physicsWorld = &simulation->physicsWorld;
+  
+  // Step the physics world
+  StepPhysicsWorld(physicsWorld, deltaTimeSeconds);
+
   // Update sensors using raycasts
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     Robot* robot = &simulation->robots[i];
@@ -93,7 +98,6 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
   }
 
   // Perform actions based on robot processes
-  PhysicsWorld* physicsWorld = &simulation->physicsWorld;
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     Robot* robot = &simulation->robots[i];
     if (robot->energyRemaining <= 0) {
@@ -170,7 +174,4 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
       }
     }
   }
-
-  // Step the physics world
-  StepPhysicsWorld(physicsWorld, deltaTimeSeconds);
 }
