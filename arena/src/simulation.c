@@ -128,20 +128,25 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
       Vector2 rayDirection = (Vector2){ cos(body->rotation), sin(body->rotation) };
       Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
       RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
-      if (result.type == INTERSECTION_BODY && result.bodyIndex >= 0) {
-        // Find the robot index corresponding to the body index
-        Robot* otherRobot = NULL;
-        for (unsigned int j = 0; j < simulation->robotCount; j++) {
-          if (simulation->robots[j].physicsBodyIndex == (unsigned int)result.bodyIndex) {
-            otherRobot = &simulation->robots[j];
-            break;
+      if (result.type != INTERSECTION_NONE) {
+        robot->lastWeaponStart = rayOrigin;
+        robot->lastWeaponEnd = Vector2Add(rayOrigin, Vector2Scale(rayDirection, result.distance));
+        
+        if (result.type == INTERSECTION_BODY && result.bodyIndex >= 0) {
+          // Find the robot index corresponding to the body index
+          Robot* otherRobot = NULL;
+          for (unsigned int j = 0; j < simulation->robotCount; j++) {
+            if (simulation->robots[j].physicsBodyIndex == (unsigned int)result.bodyIndex) {
+              otherRobot = &simulation->robots[j];
+              break;
+            }
+          }
+          // Apply damage to the other robot
+          if (otherRobot != NULL && otherRobot->energyRemaining > 0) {
+            otherRobot->energyRemaining -= weaponStrength * 10;
           }
         }
-        // Apply damage to the other robot
-        if (otherRobot != NULL && otherRobot->energyRemaining > 0) {
-          otherRobot->energyRemaining -= weaponStrength * 10;
-        }
-      }
+    }
     }
   }
 

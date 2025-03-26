@@ -15,6 +15,10 @@ typedef struct {
   int energyRemaining;
   // The number of simulation steps until the robot's weapon is ready to use.
   int weaponCooldown;
+  // The starting point of the weapon the last time it was fired.
+  Vector2 lastWeaponStart;
+  // The ending point of the weapon the last time it was fired.
+  Vector2 lastWeaponEnd;
   // The state of the robot's processor.
   struct ProcessState processState;
 } Robot;
