@@ -38,7 +38,7 @@ RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2 origin, Vector2 direct
 
     if (intersectionDistance < nearestResult.distance) {
       nearestResult.distance = intersectionDistance;
-      nearestResult.type = INTERSECTION_BOUNDARY;
+      nearestResult.type = INTERSECTION_BODY;
       nearestResult.bodyIndex = i;
     }
   }
