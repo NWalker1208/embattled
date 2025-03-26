@@ -102,5 +102,9 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
   Vector2 position = { body->position.x, body->position.y };
   double rotation = body->rotation;
   DrawCircleV(position, ROBOT_RADIUS, baseColor);
-  DrawLineEx(position, (Vector2){ position.x + cos(rotation) * ROBOT_RADIUS, position.y + sin(rotation) * ROBOT_RADIUS }, 3.0, RED);
+  DrawLineEx(position, (Vector2){ position.x + cos(rotation) * ROBOT_RADIUS, position.y + sin(rotation) * ROBOT_RADIUS }, 3.0, BLACK);
+
+  if (robot->weaponCooldownRemaining > 0) {
+    DrawLineEx(robot->lastWeaponStart, robot->lastWeaponEnd, 4.0, ColorAlpha(RED, robot->weaponCooldownRemaining / (float)ROBOT_WEAPON_COOLDOWN_STEPS));
+  }
 }
