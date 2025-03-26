@@ -15,7 +15,6 @@
 #define ROBOT_MAX_SENSOR_DIST 500.0
 #define ROBOT_MAX_SPEED 300.0
 #define ROBOT_ROT_SPEED 6.0
-#define ROBOT_WEAPON_COOLDOWN_STEPS 1000
 
 // A unit of simulation time.
 // Defined such that both simulation steps and clocks can be represented as whole numbers.
@@ -104,15 +103,15 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
 
     signed char rotationControl = MAX((signed char)robot->processState.memory[0xF000], -127);
     signed char velocityControl = MAX((signed char)robot->processState.memory[0xF001], -127);
-    unsigned char weaponControl = robot->weaponCooldown > 0 ? 0 : robot->processState.memory[0xF002];
+    unsigned char weaponControl = robot->weaponCooldownRemaining > 0 ? 0 : robot->processState.memory[0xF002];
     robot->energyRemaining -= abs(rotationControl);
     robot->energyRemaining -= abs(velocityControl);
     if (weaponControl > 0) {
       weaponControl = MIN(robot->energyRemaining, weaponControl);
       robot->energyRemaining -= weaponControl;
-      robot->weaponCooldown = ROBOT_WEAPON_COOLDOWN_STEPS;
-    } else if (robot->weaponCooldown > 0) {
-      robot->weaponCooldown--;
+      robot->weaponCooldownRemaining = ROBOT_WEAPON_COOLDOWN_STEPS;
+    } else if (robot->weaponCooldownRemaining > 0) {
+      robot->weaponCooldownRemaining--;
     }
 
     double angularVelocity = rotationControl / 127.0;

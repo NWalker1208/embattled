@@ -6,6 +6,7 @@
 
 #define MAX_ROBOTS 2
 #define ROBOT_INITIAL_ENERGY 16000000
+#define ROBOT_WEAPON_COOLDOWN_STEPS 1000
 
 // A robot that is being simulated.
 typedef struct {
@@ -14,7 +15,7 @@ typedef struct {
   // The amount of energy that the robot has left. Also represents the robot's health.
   int energyRemaining;
   // The number of simulation steps until the robot's weapon is ready to use.
-  int weaponCooldown;
+  int weaponCooldownRemaining;
   // The starting point of the weapon the last time it was fired.
   Vector2 lastWeaponStart;
   // The ending point of the weapon the last time it was fired.
