@@ -68,7 +68,7 @@ void* StartSimulation(void* arg) {
 
 void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
   PhysicsWorld* physicsWorld = &simulation->physicsWorld;
-  
+
   // Step the physics world
   StepPhysicsWorld(physicsWorld, deltaTimeSeconds);
 
@@ -101,6 +101,9 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     Robot* robot = &simulation->robots[i];
     if (robot->energyRemaining <= 0) {
+      if (robot->weaponCooldownRemaining > 0) {
+        robot->weaponCooldownRemaining--;
+      }
       continue;
     }
 
