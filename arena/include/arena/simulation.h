@@ -5,7 +5,7 @@
 #include "processor/process.h"
 
 #define MAX_ROBOTS 2
-#define ROBOT_INITIAL_ENERGY 16000000
+#define ROBOT_INITIAL_ENERGY 4000000
 #define ROBOT_WEAPON_COOLDOWN_STEPS 1000
 
 // A robot that is being simulated.

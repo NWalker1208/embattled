@@ -163,10 +163,10 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
           }
           // Apply damage to the other robot
           if (otherRobot != NULL && otherRobot->energyRemaining > 0) {
-            otherRobot->energyRemaining -= weaponStrength * 10;
+            otherRobot->energyRemaining -= (int)(weaponStrength * 4096);
           }
         }
-    }
+      }
     }
   }
 
