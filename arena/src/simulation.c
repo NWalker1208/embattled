@@ -104,6 +104,26 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
     signed char rotationControl = MAX((signed char)robot->processState.memory[0xF000], -127);
     signed char velocityControl = MAX((signed char)robot->processState.memory[0xF001], -127);
     unsigned char weaponControl = robot->weaponCooldownRemaining > 0 ? 0 : robot->processState.memory[0xF002];
+
+    // Temporary user control code
+    if (i == 0) {
+      if (IsKeyDown(KEY_RIGHT)) {
+        rotationControl = 127;
+      } else if (IsKeyDown(KEY_LEFT)) {
+        rotationControl = -127;
+      }
+
+      if (IsKeyDown(KEY_UP)) {
+        velocityControl = 127;
+      } else if (IsKeyDown(KEY_DOWN)) {
+        velocityControl = -127;
+      }
+
+      if (IsKeyDown(KEY_SPACE)) {
+        weaponControl = 255;
+      }
+    }
+
     robot->energyRemaining -= abs(rotationControl);
     robot->energyRemaining -= abs(velocityControl);
     if (weaponControl > 0) {
@@ -147,27 +167,6 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
         }
     }
     }
-  }
-
-  // Temporary user control code
-  {
-    if (IsKeyDown(KEY_LEFT)) {
-      physicsWorld->bodies[0].rotation -= ROBOT_ROT_SPEED * deltaTimeSeconds;
-    }
-    
-    if (IsKeyDown(KEY_RIGHT)) {
-      physicsWorld->bodies[0].rotation += ROBOT_ROT_SPEED * deltaTimeSeconds;
-    }
-
-    double velocity = 0;
-    if (IsKeyDown(KEY_UP)) {
-      velocity += ROBOT_MAX_SPEED;
-    }
-    if (IsKeyDown(KEY_DOWN)) {
-      velocity -= ROBOT_MAX_SPEED;
-    }
-    physicsWorld->bodies[0].position.x += cos(physicsWorld->bodies[0].rotation) * velocity * deltaTimeSeconds;
-    physicsWorld->bodies[0].position.y += sin(physicsWorld->bodies[0].rotation) * velocity * deltaTimeSeconds;
   }
 
   // Step the physics world
