@@ -10,12 +10,12 @@ typedef struct {
 
   // The position of the body in world-space coordinates.
   Vector2 position;
-  // The rotation of the body in degrees.
+  // The rotation of the body in radians.
   float rotation;
 
   // The current velocity of the body in word-space coordinates per second.
   Vector2 velocity;
-  // The current angular velocity of the body in degrees per second.
+  // The current angular velocity of the body in radians per second.
   float angularVelocity;
 } PhysicsBody;
 
