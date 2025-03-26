@@ -126,12 +126,13 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
 
     robot->energyRemaining -= abs(rotationControl);
     robot->energyRemaining -= abs(velocityControl);
-    if (weaponControl > 0) {
+    if (robot->weaponCooldownRemaining > 0) {
+      weaponControl = 0;
+      robot->weaponCooldownRemaining--;
+    } else if (weaponControl > 0) {
       weaponControl = MIN(robot->energyRemaining, weaponControl);
       robot->energyRemaining -= weaponControl;
       robot->weaponCooldownRemaining = ROBOT_WEAPON_COOLDOWN_STEPS;
-    } else if (robot->weaponCooldownRemaining > 0) {
-      robot->weaponCooldownRemaining--;
     }
 
     double angularVelocity = rotationControl / 127.0;
