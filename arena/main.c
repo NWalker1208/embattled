@@ -86,7 +86,7 @@ int main(void) {
         DrawRobotWeapon(&simulationArguments.robots[i]);
       }
       for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
-        DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], BLUE);
+        DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], PURPLE);
       }
       pthread_mutex_unlock(simulationMutex);
     } EndMode2D();
@@ -115,10 +115,12 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
 
 void DrawRobotWeapon(const Robot* robot) {
   if (robot->weaponCooldownRemaining > 0) {
-    DrawLineEx(robot->lastWeaponStart, robot->lastWeaponEnd, 4.0, ColorAlpha(RED, robot->weaponCooldownRemaining / (float)ROBOT_WEAPON_COOLDOWN_STEPS));
+    DrawLineEx(robot->lastWeaponFire.start, robot->lastWeaponFire.end, 4.0, ColorAlpha(RED, robot->weaponCooldownRemaining / (float)ROBOT_WEAPON_COOLDOWN_STEPS));
   }
 }
 
 void DrawRobotSensors(const Robot* robot) {
-  (void)robot; // TODO
+  for (unsigned int i = 0; i < ROBOT_NUM_SENSORS; i++) {
+    DrawLineEx(robot->sensors[i].start, robot->sensors[i].end, 1.0, BLUE);
+  }
 }

@@ -10,7 +10,6 @@
 #define STEPS_PER_SEC 1000
 #define MAX_SEC_BEHIND 1
 
-#define ROBOT_NUM_SENSORS 9
 #define ROBOT_SENSORS_FOV 90.0
 #define ROBOT_MAX_SENSOR_DIST 500.0
 #define ROBOT_MAX_SPEED 300.0
@@ -149,8 +148,8 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
       Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
       RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
       if (result.type != INTERSECTION_NONE) {
-        robot->lastWeaponStart = rayOrigin;
-        robot->lastWeaponEnd = Vector2Add(rayOrigin, Vector2Scale(rayDirection, result.distance));
+        robot->lastWeaponFire.start = rayOrigin;
+        robot->lastWeaponFire.end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, result.distance));
         
         if (result.type == INTERSECTION_BODY && result.bodyIndex >= 0) {
           // Find the robot index corresponding to the body index
