@@ -1,21 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "utilities/file.h"
 #include "parser/assembly.h"
 #include "parser/parse.h"
 #include "assembler/assemble.h"
 #include "processor/process.h"
 #include "processor/instruction.h"
 
-#if defined(_MSC_VER)
-#include <windows.h>
-#define SLEEP(seconds) Sleep((seconds) * 1000)
-#else
-#include <unistd.h>
-#define SLEEP(seconds) sleep(seconds)
-#endif
-
-// Reads an entire file as text into a dynamically allocated null-terminated string.
-char* readAllText(const char* filePath);
 
 int main(int argc, char* argv[]) {
   // Get command line arguments: path of assembly file
@@ -28,6 +19,7 @@ int main(int argc, char* argv[]) {
   // Load the contents of the assembly file
   const char* text = readAllText(assemblyFilePath);
   if (text == NULL) {
+    fprintf(stderr, "Failed to read assembly file\n");
     return 1;
   }
 
@@ -95,30 +87,4 @@ int main(int argc, char* argv[]) {
   }
 
   return 0;
-}
-
-char* readAllText(const char* filePath) {
-  // Open the file
-  FILE* file = fopen(filePath, "rb"); // Get raw bytes of text file
-  if (filePath == NULL) {
-    perror("Failed to open file");
-    return NULL;
-  }
-
-  // Measure the length of the file
-  fseek(file, 0, SEEK_END);
-  size_t fileLength = ftell(file);
-  fseek(file, 0, SEEK_SET);
-
-  // Read the contents of the file
-  char* contents = malloc(fileLength + 1);
-  size_t bytesRead = fread(contents, 1, fileLength, file);
-  if (bytesRead != fileLength) {
-    fprintf(stderr, "Failed to read entire file. Got %llu bytes but expected %llu.\n", bytesRead, fileLength);
-    return NULL;
-  }
-  fclose(file);
-  contents[bytesRead] = '\0';
-
-  return contents;
 }

@@ -5,4 +5,4 @@ add_executable(
   main.c
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC processor parser assembler)
+target_link_libraries(${PROJECT_NAME} PUBLIC processor parser assembler utilities)

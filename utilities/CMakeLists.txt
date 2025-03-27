@@ -4,6 +4,7 @@ add_subdirectory(tests)
 
 add_library(
   ${PROJECT_NAME}
+  src/file.c
   src/sleep.c
 )
 
