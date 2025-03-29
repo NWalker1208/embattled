@@ -59,6 +59,11 @@ void DestroyTextContents(TextContents* text);
 // Checks if the TextContents struct has been initialized.
 bool IsTextContentsInitialized(const TextContents* text);
 
+// Gets the final offset for the given text contents, which is defined as (lineCount - 1, len(lines[lineCount - 1])).
+static inline TextOffset GetTextContentsEnd(const TextContents* text) {
+  return (TextOffset){ text->lineCount - 1, text->lines[text->lineCount - 1].length };
+}
+
 // Gets the character at the specified offset into the text.
 // If the offset lies at or beyond the end of the last line, returns '\0'.
 // If the offset lies at the end of any other line, returns '\n'.
@@ -66,8 +71,11 @@ char GetCharAtTextOffset(const TextContents* text, TextOffset offset);
 
 // Normalizes an offset relative to the text.
 // If column is greater than the length of the line, wraps the offset onto the next line.
-// If after wrapping line is greater than or equal to lineCount, returns (lineCount - 1, len(lines[lineCount - 1])).
+// If after wrapping line is greater than or equal to lineCount, returns the result of GetTextContentsEnd(text).
 TextOffset NormalizeTextOffset(const TextContents* text, TextOffset offset);
+
+// Increments and normalizes an offset relative to the text.
+TextOffset IncrementTextOffset(const TextContents* text, TextOffset offset);
 
 // Compares the positions of two text offsets.
 // If offsetA appears before offsetB, returns a negative value.

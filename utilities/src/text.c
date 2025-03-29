@@ -77,8 +77,7 @@ TextOffset NormalizeTextOffset(const TextContents* text, TextOffset offset) {
     offset.line++;
   }
   if (offset.line >= text->lineCount) {
-    offset.line = text->lineCount - 1;
-    offset.column = text->lines[offset.line].length;
+    offset = GetTextContentsEnd(text);
   }
   return offset;
 }
@@ -97,6 +96,23 @@ int CompareTextOffsets_normalized(TextOffset offsetA, TextOffset offsetB) {
   }
 }
 
+TextOffset IncrementTextOffset_normalized(const TextContents* text, TextOffset offset) {
+  TextOffset end = GetTextContentsEnd(text);
+  if (offset.line == end.line && offset.column == end.column) {
+    return offset;
+  }
+  offset.column++;
+  if (offset.column > text->lines[offset.line].length) {
+    offset.column = 0;
+    offset.line++;
+  }
+  return offset;
+}
+
+TextOffset IncrementTextOffset(const TextContents* text, TextOffset offset) {
+  return NormalizeTextOffset(text, (TextOffset){ offset.line, offset.column + 1 });
+}
+
 int CompareTextOffsets(const TextContents* text, TextOffset offsetA, TextOffset offsetB) {
   return CompareTextOffsets_normalized(NormalizeTextOffset(text, offsetA), NormalizeTextOffset(text, offsetB));
 }
@@ -108,18 +124,6 @@ TextSpan NormalizeTextSpan(const TextContents* text, TextSpan span) {
     span.end = span.start;
   }
   return span;
-}
-
-TextOffset incrementNormalizedOffset(const TextContents* text, TextOffset offset) {
-  if (offset.line == text->lineCount - 1 && offset.column == text->lines[offset.line].length) {
-    return offset;
-  }
-  offset.column++;
-  if (offset.column > text->lines[offset.line].length) {
-    offset.column = 0;
-    offset.line++;
-  }
-  return offset;
 }
 
 int CompareTextSpans(const TextContents* textA, TextSpan spanA, const TextContents* textB, TextSpan spanB) {
@@ -137,8 +141,8 @@ int CompareTextSpans(const TextContents* textA, TextSpan spanA, const TextConten
       return 1;
     }
 
-    offsetA = incrementNormalizedOffset(textA, offsetA);
-    offsetB = incrementNormalizedOffset(textB, offsetB);
+    offsetA = IncrementTextOffset_normalized(textA, offsetA);
+    offsetB = IncrementTextOffset_normalized(textB, offsetB);
   }
 
   // Reached the end of one or both spans. Return result based on lengths.
