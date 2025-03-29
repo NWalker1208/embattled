@@ -29,10 +29,8 @@ void skipToNextWhitespace(const TextContents* text, TextOffset* position);
 void skipToNextSatisfies(const TextContents* text, TextOffset* position, bool (*predicate)(char));
 
 // Advances position to the next line or the end of the text.
-static inline void skipToNextLine(const TextContents* text, TextOffset* position) {
-  position->line++;
-  position->column = 0;
-  NormalizeTextOffset(text, position);
+static inline void skipToEndOfLine(const TextContents* text, TextOffset* position) {
+  *position = GetTextContentsEndOfLine(text, *position);
 }
 
 // Searches one line of text for the specified character starting at the specified offset.

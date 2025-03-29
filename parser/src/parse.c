@@ -94,7 +94,7 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
     if (!tryParseLabel(text, position, &line->label, error)) {
       // Error already set by tryParseLabel
       DestroyAssemblyLine(line);
-      skipToNextLine(text, position);
+      SkipToEndOfLine(text, position);
       return false; // Failed to parse assembly instruction
     }
 
@@ -108,7 +108,7 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
     if (!tryParseAssemblyData(text, position, &line->data, error)) {
       // Error already set by tryParseAssemblyData
       DestroyAssemblyLine(line);
-      skipToNextLine(text, position);
+      SkipToEndOfLine(text, position);
       return false; // Failed to parse assembly data
     }
 
@@ -118,16 +118,13 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
     if (!tryParseInstruction(text, position, &line->instruction, error)) {
       // Error already set by tryParseInstruction
       DestroyAssemblyLine(line);
-      skipToNextLine(text, position);
+      SkipToEndOfLine(text, position);
       return false; // Failed to parse assembly instruction
     }
   }
   assert(CompareTextOffsets(text, *position, GetTextContentsEndOfLine(text, start)) == 0);
 
   line->sourceSpan = (TextSpan){start, *position};
-
-  // Advance to next line and return success.
-  skipToNextLine(text, position);
   return true;
 }
 

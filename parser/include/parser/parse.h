@@ -48,7 +48,8 @@ typedef struct {
 size_t TryParseAssemblyProgram(TextContents* text, AssemblyProgram* program, ParsingError** errors);
 
 // Parses the next line of assembly from the given text and advances the position.
-// Always advances the position to the beginning of some subsequent line or the end of the text.
+// Skips leading whitespace and newlines.
+// Always advances the position to the end of the line, even when parsing fails.
 // If parsing succeeds, outputs the parsed line through line and returns true.
 // If parsing fails, outputs the cause through error and returns false.
 bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, AssemblyLine* line, ParsingError* error);
