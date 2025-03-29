@@ -33,16 +33,15 @@ extern const char* INVALID_HEX_BYTE;
 extern const char* UNEXPECTED_CHARACTER;
 extern const char* UNEXPECTED_END_OF_FILE;
 
-struct ParsingError {
+typedef struct {
   // The message describing the error. Should be a string with a static lifetime.
   const char* message;
-  // The pointer to the location in the text at which the error occurred. Has the same lifetime as the text string.
-  const char* location;
-};
+  // The span of the source TextContents at which the error occurred.
+  TextContentsSpan sourceSpan;
+} ParsingError;
 
-// Parses the next line of assembly code from the given text and advances the text pointer.
-// Compatible with both Unix and Windows line endings.
-// Always advances text past the end of the current line.
+// Parses the next line of assembly code from the given text and advances the position.
+// Always advances the position to the beginning of a subsequent line.
 // If parsing succeeds, outputs the parsed line through line and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct ParsingError* error);
+bool TryParseAssemblyLine(const TextContents* text, TextContentsOffset* position, AssemblyLine* line, ParsingError* error);

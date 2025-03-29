@@ -17,7 +17,8 @@ const char* INVALID_HEX_BYTE = "Invalid hexadecimal byte";
 const char* UNEXPECTED_CHARACTER = "Unexpected character";
 const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 
-#define PARSING_ERROR(_message, _location) (struct ParsingError){.message = (_message), .location = (_location)}
+#define PARSING_ERROR(_message, _location) (ParsingError){.message = (_message), .location = (_location)}
+#define SKIP_TO_NEXT_LINE(_position) { _position->line++; _position->column = 0; }
 
 #pragma endregion
 
@@ -27,20 +28,20 @@ const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 // If the current line is a valid instruction, advances text to the end of the line,
 // outputs the instruction through result, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruction, struct ParsingError* error);
+bool tryParseInstruction(const char** text, AssemblyInstruction* instruction, ParsingError* error);
 
 // Parses hexadecimal assembly data bytes.
 // Expects text to be at the first hexadecimal byte (past the '.data' sequence).
 // If text contains valid hexadecimal bytes from the start to the end of the line,
 // advances text to the end of the line, outputs the data through result, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseAssemblyData(const char** text, struct AssemblyData* data, struct ParsingError* error);
+bool tryParseAssemblyData(const char** text, AssemblyData* data, ParsingError* error);
 
 // Parses an assembly instruction parameter.
 // If parsing succeeds, advances text past the end of the parameter,
 // outputs the parameter through result, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseParameter(const char** text, struct AssemblyParameter* parameter, struct ParsingError* error);
+bool tryParseParameter(const char** text, AssemblyParameter* parameter, ParsingError* error);
 
 // Parses an opcode name.
 // Expects text to be at the start of the opcode name.
@@ -78,7 +79,7 @@ char* tryCopyLabel(const char** text);
 
 #pragma endregion
 
-bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct ParsingError* error) {
+bool TryParseAssemblyLine(const TextContents* text, TextContentsOffset* position, AssemblyLine* line, ParsingError* error) {
   skipAllWhitespace(text);
 
   // Parse the label if one is present
@@ -86,15 +87,15 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
     line->label = tryCopyLabel(text);
     if (line->label == NULL) {
       *error = PARSING_ERROR(INVALID_LABEL, *text);
-      destroyAssemblyLine(line);
-      skipToNextLine(text);
+      DestroyAssemblyLine(line);
+      SKIP_TO_NEXT_LINE(position);
       return false; // Failed to parse label
     }
     skipInlineWhitespace(text);
     if (**text != ':') {
       *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *text);
-      destroyAssemblyLine(line);
-      skipToNextLine(text);
+      DestroyAssemblyLine(line);
+      SKIP_TO_NEXT_LINE(position);
       return false; // Expected ':' after label
     }
     (*text)++;
@@ -104,7 +105,7 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
   // Check for end of file
   if (**text == '\0') {
     *error = PARSING_ERROR(UNEXPECTED_END_OF_FILE, *text);
-    destroyAssemblyLine(line);
+    DestroyAssemblyLine(line);
     return false;
   }
 
@@ -115,15 +116,15 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
     skipInlineWhitespace(text);
     line->kind = DATA;
     if (!tryParseAssemblyData(text, &line->data, error)) {
-      destroyAssemblyLine(line);
-      skipToNextLine(text);
+      DestroyAssemblyLine(line);
+      SKIP_TO_NEXT_LINE(position);
       return false; // Failed to parse assembly data
     }
   } else {
     line->kind = INSTRUCTION;
     if (!tryParseInstruction(text, &line->instruction, error)) {
-      destroyAssemblyLine(line);
-      skipToNextLine(text);
+      DestroyAssemblyLine(line);
+      SKIP_TO_NEXT_LINE(position);
       return false; // Failed to parse assembly instruction
     }
   }
@@ -134,7 +135,7 @@ bool tryParseAssemblyLine(const char** text, struct AssemblyLine* line, struct P
   return true;
 }
 
-bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruction, struct ParsingError* error) {
+bool tryParseInstruction(const char** text, AssemblyInstruction* instruction, ParsingError* error) {
   // Parse the opcode
   if (!tryParseOpcode(text, &instruction->opcode)) {
     *error = PARSING_ERROR(INVALID_OPCODE, *text);
@@ -148,9 +149,9 @@ bool tryParseInstruction(const char** text, struct AssemblyInstruction* instruct
     instruction->parameters = NULL;
     while (true) {
       instruction->parameterCount++;
-      instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(struct AssemblyParameter));
-      struct AssemblyParameter* nextParam = &instruction->parameters[instruction->parameterCount - 1];
-      memset(nextParam, 0, sizeof(struct AssemblyParameter)); // Ensure all fields are initialized to 0
+      instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(AssemblyParameter));
+      AssemblyParameter* nextParam = &instruction->parameters[instruction->parameterCount - 1];
+      memset(nextParam, 0, sizeof(AssemblyParameter)); // Ensure all fields are initialized to 0
 
       if (!tryParseParameter(text, nextParam, error)) {
         return false; // Failed to parse parameter
@@ -189,7 +190,7 @@ bool tryParseOpcode(const char** text, enum Opcode* opcode) {
   return false;
 }
 
-bool tryParseParameter(const char** text, struct AssemblyParameter* parameter, struct ParsingError* error) {
+bool tryParseParameter(const char** text, AssemblyParameter* parameter, ParsingError* error) {
   switch (**text) {
     case '$':  {
       // Parse as a register
@@ -315,7 +316,7 @@ bool tryParseImmediateDecValue(const char** text, signed int* value) {
   // assertions about the range of legal values for any given instruction.
 }
 
-bool tryParseAssemblyData(const char** text, struct AssemblyData* data, struct ParsingError* error) {
+bool tryParseAssemblyData(const char** text, AssemblyData* data, ParsingError* error) {
   data->length = 0;
   data->bytes = NULL;
   while (!isEndOfLineOrFile(**text)) {
