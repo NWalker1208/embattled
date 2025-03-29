@@ -7,6 +7,16 @@
 // TODO: Add support for storing references in data sections
 // TODO: Add support for relative references?
 
+// The label represented by an assembly line.
+typedef struct {
+  // The span of the name portion of the label. If not present, has a length of 0.
+  TextContentsSpan nameSpan;
+  // The span of the address portion of the label. If not present, has a length of 0.
+  TextContentsSpan addressSpan;
+  // The value of the address portion of the label, if present.
+  unsigned short address;
+} AssemblyLabel;
+
 // The kind of an assembly parameter.
 typedef enum {
   ASSEMBLY_PARAM_REGISTER,
@@ -48,7 +58,6 @@ typedef struct {
 // The kind of an assembly line.
 typedef enum {
   ASSEMBLY_LINE_LABEL,
-  ASSEMBLY_LINE_ADDRESS,
   ASSEMBLY_LINE_INSTRUCTION,
   ASSEMBLY_LINE_DATA,
 } AssemblyLineKind;
@@ -60,8 +69,7 @@ typedef struct {
   // The kind of line that this is.
   AssemblyLineKind kind;
   union {
-    TextContentsSpan labelSpan;      // kind == LABEL. Should be a dynamically allocated string.
-    unsigned short address;          // kind == ADDRESS
+    AssemblyLabel label;             // kind == LABEL
     AssemblyInstruction instruction; // kind == INSTRUCTION
     AssemblyData data;               // kind == DATA
   };
