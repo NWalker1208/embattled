@@ -9,7 +9,7 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
   unsigned short currentMemoryAddr = 0;
 
   // Setup label and reference tables for filling in addresses
-  TextContentsSpan* currentLabelSpan = NULL;
+  AssemblyLabel* currentLabel = NULL;
 
   TextContentsSpan* labelTableLabelSpans = malloc(sizeof(TextContentsSpan) * program->lineCount);
   unsigned short* labelTableAddresses = malloc(sizeof(unsigned short) * program->lineCount);
@@ -23,140 +23,152 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
   for (size_t i = 0; i < program->lineCount; i++) {
     AssemblyLine line = program->lines[i];
 
-    switch (line.kind) {
-      case ASSEMBLY_LINE_LABEL: {
-        if (currentLabelSpan != NULL) {
-          *error = ASSEMBLING_ERROR(MULTIPLE_LABELS, line.sourceSpan);
-          return false;
-        }
+    if (line.kind == ASSEMBLY_LINE_LABEL) {
+      if (currentLabel != NULL) {
+        *error = ASSEMBLING_ERROR(MULTIPLE_LABELS, line.sourceSpan);
+        goto failed;
+      }
+      
+      if (line.label.nameSpan.length == 0 && line.label.addressSpan.length == 0) {
+        *error = ASSEMBLING_ERROR(INVALID_LABEL, line.sourceSpan);
+        goto failed;
+      }
+
+      if (line.label.nameSpan.length > 0) {
         for (size_t j = 0; j < labelCount; j++) {
-          if (CompareTextContentsSpans(&program->sourceText, line.labelSpan, &program->sourceText, labelTableLabelSpans[j]) == 0) {
-            *error = ASSEMBLING_ERROR(DUPLICATE_LABEL, line.labelSpan);
-            return false;
+          if (CompareTextContentsSpans(&program->sourceText, line.label.nameSpan, &program->sourceText, labelTableLabelSpans[j]) == 0) {
+            *error = ASSEMBLING_ERROR(DUPLICATE_LABEL_NAME, line.label.nameSpan);
+            goto failed;
           }
         }
-        currentLabelSpan = &line.labelSpan;
-      } break;
+      }
 
-      case ASSEMBLY_LINE_ADDRESS: {
-        if (line.address < currentMemoryAddr) {
-          *error = ASSEMBLING_ERROR(ADDRESS_TOO_LOW, line.sourceSpan);
-          return false;
+      if (line.label.addressSpan.length > 0) {
+        if (line.label.address < currentMemoryAddr) {
+          *error = ASSEMBLING_ERROR(LABEL_ADDRESS_TOO_LOW, line.sourceSpan);
+          goto failed;
         }
-        currentMemoryAddr = line.address;
-      } break;
 
+        currentMemoryAddr = line.label.address;
+      }
 
-      case ASSEMBLY_LINE_INSTRUCTION:
-      case ASSEMBLY_LINE_DATA: {
-        if (currentLabelSpan != NULL) {
-          labelTableLabelSpans[labelCount] = *currentLabelSpan;
+      currentLabel = &line.label;
+    } else if (line.kind == ASSEMBLY_LINE_INSTRUCTION || line.kind == ASSEMBLY_LINE_DATA) {
+      if (currentLabel != NULL) {
+        if (currentLabel->nameSpan.length > 0) {
+          labelTableLabelSpans[labelCount] = currentLabel->nameSpan;
           labelTableAddresses[labelCount] = currentMemoryAddr;
           labelCount++;
-          currentLabelSpan = NULL;
         }
-
-        if (line.kind == ASSEMBLY_LINE_INSTRUCTION) {
-          struct Instruction instruction;
-          instruction.opcode = line.instruction.opcode;
-          
-          const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
-          bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
-          bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
-          bool hasImmediate = opcodeInfo->parameterLayout.numImmBits != 0;
-          
-          unsigned int requiredParameterCount =
-            (hasRegA ? 1 : 0) + (hasRegB ? 1 : 0) + (hasImmediate ? 1 : 0);
-          if (line.instruction.parameterCount < requiredParameterCount) {
-            *error = ASSEMBLING_ERROR(TOO_FEW_PARAMS, line.sourceSpan);
-            goto failed;
-          } else if (line.instruction.parameterCount > requiredParameterCount) {
-            *error = ASSEMBLING_ERROR(TOO_MANY_PARAMS, line.sourceSpan);
-            goto failed;
-          }
-
-          // Extract the parameters
-          unsigned int p = 0;
-
-          if (hasRegA) {
-            AssemblyParameter param = line.instruction.parameters[p];
-            if (param.kind != ASSEMBLY_PARAM_REGISTER) {
-              *error = ASSEMBLING_ERROR(EXPECTED_REGISTER, param.sourceSpan);
-              goto failed;
-            }
-            p++;
-
-            instruction.parameters.registerA = param.registerName;
-          }
-
-          if (hasRegB) {
-            AssemblyParameter param = line.instruction.parameters[p];
-            if (param.kind != ASSEMBLY_PARAM_REGISTER) {
-              *error = ASSEMBLING_ERROR(EXPECTED_REGISTER, param.sourceSpan);
-              goto failed;
-            }
-            p++;
-
-            instruction.parameters.registerB = param.registerName;
-          }
-
-          if (hasImmediate) {
-            bool immIsSigned = opcodeInfo->parameterLayout.immIsSigned;
-            unsigned char numImmBits = opcodeInfo->parameterLayout.numImmBits;
-            AssemblyParameter param = line.instruction.parameters[p];
-            if (numImmBits != 16) {
-              if (param.kind != ASSEMBLY_PARAM_IMMEDIATE) {
-                *error = ASSEMBLING_ERROR(EXPECTED_IMMEDIATE_VALUE, param.sourceSpan);
-                goto failed;
-              }
-            } else {
-              if (param.kind != ASSEMBLY_PARAM_IMMEDIATE && param.kind != ASSEMBLY_PARAM_LABEL) {
-                *error = ASSEMBLING_ERROR(EXPECTED_IMMEDIATE_VALUE_OR_LABEL_REF, param.sourceSpan);
-                goto failed;
-              }
-            }
-
-            if (param.kind == ASSEMBLY_PARAM_IMMEDIATE) {
-              signed int minValue = immIsSigned ? (~0U << (numImmBits - 1)) : 0;
-              signed int maxValue = immIsSigned ? ((1 << (numImmBits - 1)) - 1) : ((1 << numImmBits) - 1);
-
-              signed int immediateValue = param.immediateValue;
-              if (immediateValue < minValue || immediateValue > maxValue) {
-                *error = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE, param.sourceSpan);
-                goto failed;
-              }
-
-              instruction.parameters.immediate.u16 = (unsigned short)immediateValue;
-            } else { // LABEL_REFERENCE
-              referenceTableAddresses[referenceCount] = currentMemoryAddr + 1; // Immediate value always starts on the second byte of the instruction
-              referenceTableLabelSpans[referenceCount] = param.labelSpan;
-              referenceCount++;
-
-              instruction.parameters.immediate.u16 = 0; // Will be filled in later
-            }
-          }
-
-          unsigned short bytesWritten = storeInstruction(memory, currentMemoryAddr, instruction);
-          if (bytesWritten == 0) {
-            *error = ASSEMBLING_ERROR(INVALID_INSTRUCTION, line.sourceSpan);
-            goto failed;
-          }
-
-          currentMemoryAddr += bytesWritten;
-        } else { // DATA
-          AssemblyData data = line.data;
-          
-          // Write the data directly to memory
-          memcpy(&memory[currentMemoryAddr], data.bytes, data.length);
-          currentMemoryAddr += data.length;
-        }
-      } break;
-
-      default: {
-        *error = ASSEMBLING_ERROR(INVALID_LINE, line.sourceSpan);
-        return false;
+        currentLabel = NULL;
       }
+
+      if (line.kind == ASSEMBLY_LINE_INSTRUCTION) {
+        struct Instruction instruction;
+        instruction.opcode = line.instruction.opcode;
+        
+        const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
+        bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
+        bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
+        bool hasImmediate = opcodeInfo->parameterLayout.numImmBits != 0;
+        
+        unsigned int requiredParameterCount =
+          (hasRegA ? 1 : 0) + (hasRegB ? 1 : 0) + (hasImmediate ? 1 : 0);
+        if (line.instruction.parameterCount < requiredParameterCount) {
+          *error = ASSEMBLING_ERROR(TOO_FEW_PARAMS, line.sourceSpan);
+          goto failed;
+        } else if (line.instruction.parameterCount > requiredParameterCount) {
+          *error = ASSEMBLING_ERROR(TOO_MANY_PARAMS, line.sourceSpan);
+          goto failed;
+        }
+
+        // Extract the parameters
+        unsigned int p = 0;
+
+        if (hasRegA) {
+          AssemblyParameter param = line.instruction.parameters[p];
+          if (param.kind != ASSEMBLY_PARAM_REGISTER) {
+            *error = ASSEMBLING_ERROR(EXPECTED_REGISTER, param.sourceSpan);
+            goto failed;
+          }
+          p++;
+
+          instruction.parameters.registerA = param.registerName;
+        }
+
+        if (hasRegB) {
+          AssemblyParameter param = line.instruction.parameters[p];
+          if (param.kind != ASSEMBLY_PARAM_REGISTER) {
+            *error = ASSEMBLING_ERROR(EXPECTED_REGISTER, param.sourceSpan);
+            goto failed;
+          }
+          p++;
+
+          instruction.parameters.registerB = param.registerName;
+        }
+
+        if (hasImmediate) {
+          bool immIsSigned = opcodeInfo->parameterLayout.immIsSigned;
+          unsigned char numImmBits = opcodeInfo->parameterLayout.numImmBits;
+          AssemblyParameter param = line.instruction.parameters[p];
+          if (numImmBits != 16) {
+            if (param.kind != ASSEMBLY_PARAM_IMMEDIATE) {
+              *error = ASSEMBLING_ERROR(EXPECTED_IMMEDIATE_VALUE, param.sourceSpan);
+              goto failed;
+            }
+          } else {
+            if (param.kind != ASSEMBLY_PARAM_IMMEDIATE && param.kind != ASSEMBLY_PARAM_LABEL) {
+              *error = ASSEMBLING_ERROR(EXPECTED_IMMEDIATE_VALUE_OR_LABEL_REF, param.sourceSpan);
+              goto failed;
+            }
+          }
+
+          if (param.kind == ASSEMBLY_PARAM_IMMEDIATE) {
+            signed int minValue = immIsSigned ? (~0U << (numImmBits - 1)) : 0;
+            signed int maxValue = immIsSigned ? ((1 << (numImmBits - 1)) - 1) : ((1 << numImmBits) - 1);
+
+            signed int immediateValue = param.immediateValue;
+            if (immediateValue < minValue || immediateValue > maxValue) {
+              *error = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE, param.sourceSpan);
+              goto failed;
+            }
+
+            instruction.parameters.immediate.u16 = (unsigned short)immediateValue;
+          } else { // LABEL_REFERENCE
+            referenceTableAddresses[referenceCount] = currentMemoryAddr + 1; // Immediate value always starts on the second byte of the instruction
+            referenceTableLabelSpans[referenceCount] = param.labelSpan;
+            referenceCount++;
+
+            instruction.parameters.immediate.u16 = 0; // Will be filled in later
+          }
+        }
+
+        unsigned short bytesWritten = storeInstruction(memory, currentMemoryAddr, instruction);
+        if (bytesWritten == 0) {
+          *error = ASSEMBLING_ERROR(INVALID_INSTRUCTION, line.sourceSpan);
+          goto failed;
+        }
+
+        currentMemoryAddr += bytesWritten;
+      } else { // DATA
+        AssemblyData data = line.data;
+        
+        // Write the data directly to memory
+        memcpy(&memory[currentMemoryAddr], data.bytes, data.length);
+        currentMemoryAddr += data.length;
+      }
+    } else {
+      *error = ASSEMBLING_ERROR(INVALID_LINE, line.sourceSpan);
+      goto failed;
     }
+  }
+
+  if (currentLabel != NULL) {
+    *error = ASSEMBLING_ERROR(EXPECTED_INSTRUCTION_OR_DATA, ((TextContentsSpan){
+      .start = currentLabel->nameSpan.start,
+      .length = currentLabel->nameSpan.length + 1 + currentLabel->addressSpan.length,
+    }));
+    goto failed;
   }
 
   // Fill in label references
@@ -174,7 +186,7 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
       }
     }
     if (!foundLabel) {
-      *error = ASSEMBLING_ERROR(UNDEFINED_LABEL, labelSpan);
+      *error = ASSEMBLING_ERROR(UNDEFINED_LABEL_NAME, labelSpan);
       goto failed;
     }
 

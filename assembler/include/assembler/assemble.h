@@ -4,10 +4,10 @@
 #include "assembler/assembly.h"
 
 static const char INVALID_LINE[] = "Invalid line";
-static const char DUPLICATE_LABEL[] = "Label is defined more than once";
-static const char MULTIPLE_LABELS[] = "Multiple labels applied to the same line";
-static const char EXPECTED_INSTRUCTION_OR_DATA[] = "Expected instruction or data after label";
-static const char ADDRESS_TOO_LOW[] = "Address is lower than current address being written";
+static const char MULTIPLE_LABELS[] = "Multiple labels applied to the same instruction or data";
+static const char DUPLICATE_LABEL_NAME[] = "Label name is defined more than once";
+static const char LABEL_ADDRESS_TOO_LOW[] = "Label address is lower than the current address being written";
+static const char INVALID_LABEL[] = "Invalid label";
 static const char TOO_FEW_PARAMS[] = "Too few parameters";
 static const char TOO_MANY_PARAMS[] = "Too many parameters";
 static const char EXPECTED_REGISTER[] = "Expected register as parameter";
@@ -15,7 +15,8 @@ static const char EXPECTED_IMMEDIATE_VALUE[] = "Expected immediate value as para
 static const char EXPECTED_IMMEDIATE_VALUE_OR_LABEL_REF[] = "Expected immediate value or label reference as parameter";
 static const char IMMEDIATE_VALUE_OUT_OF_RANGE[] = "Immediate value is outside the allowed range";
 static const char INVALID_INSTRUCTION[] = "Invalid instruction";
-static const char UNDEFINED_LABEL[] = "Undefined label";
+static const char EXPECTED_INSTRUCTION_OR_DATA[] = "Expected instruction or data after label";
+static const char UNDEFINED_LABEL_NAME[] = "Undefined label name";
 
 typedef struct {
   // The message describing the error. Should be a string with a static lifetime.
