@@ -322,17 +322,21 @@ bool tryParseAssemblyData(const TextContents* text, TextOffset* position, Assemb
   data->bytes = NULL;
   TextOffset endOfLine = GetTextContentsEndOfLine(text, position->line);
   while (CompareTextOffsets(text, *position, endOfLine) < 0) {
+    TextOffset start = *position;
+
     // Parse the next hexadecimal byte
     unsigned char nibble;
     if (!tryHexToNibble(GetCharAtTextOffset(text, *position), &nibble)) {
-      *error = PARSING_ERROR(INVALID_HEX_BYTE, ((TextSpan){ .start = *position, .end = endOfLine }));
+      skipToNextWhitespace(text, position);
+      *error = PARSING_ERROR(INVALID_HEX_BYTE, ((TextSpan){ start, *position }));
       return false;
     }
     IncrementTextOffset(text, position);
     unsigned char byte = nibble << 4;
 
     if (!tryHexToNibble(GetCharAtTextOffset(text, *position), &nibble)) {
-      *error = PARSING_ERROR(INVALID_HEX_BYTE, ((TextSpan){ .start = *position, .end = endOfLine }));
+      skipToNextWhitespace(text, position);
+      *error = PARSING_ERROR(INVALID_HEX_BYTE, ((TextSpan){ start, *position }));
       return false;
     }
     IncrementTextOffset(text, position);

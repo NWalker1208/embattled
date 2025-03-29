@@ -28,6 +28,9 @@ bool skipInlineWhitespace(const TextContents* text, TextOffset* position);
 // Advances position to the next non-whitespace character.
 void skipAllWhitespace(const TextContents* text, TextOffset* position);
 
+// Advances position to the next whitespace character.
+void skipToNextWhitespace(const TextContents* text, TextOffset* position);
+
 // Advances position to the next line.
 static inline void skipToNextLine(TextOffset* position) {
   position->line++;

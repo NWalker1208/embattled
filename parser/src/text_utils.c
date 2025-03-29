@@ -33,6 +33,12 @@ void skipAllWhitespace(const TextContents* text, TextOffset* position) {
   }
 }
 
+void skipToNextWhitespace(const TextContents* text, TextOffset* position) {
+  while (!isAnyWhitespace(GetCharAtTextOffset(text, *position))) {
+    IncrementTextOffset(text, position);
+  }
+}
+
 bool lineContainsChar(const TextContents* text, TextOffset start, char c) {
   char current;
   while (!isEndOfLineOrFile(current = GetCharAtTextOffset(text, start))) {
