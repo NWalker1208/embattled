@@ -64,6 +64,16 @@ static inline TextOffset GetTextContentsEnd(const TextContents* text) {
   return (TextOffset){ text->lineCount - 1, text->lines[text->lineCount - 1].length };
 }
 
+// Gets the final offset for the specified line of the given text contents.
+// If line is greater than or equal to lineCount, returns the result of GetTextContentsEnd.
+static inline TextOffset GetTextContentsEndOfLine(const TextContents* text, size_t line) {
+  if (line >= text->lineCount) {
+    return GetTextContentsEnd(text);
+  } else {
+    return (TextOffset){ line, text->lines[line].length };
+  }
+}
+
 // Gets the character at the specified offset into the text.
 // If the offset lies at or beyond the end of the last line, returns '\0'.
 // If the offset lies at the end of any other line, returns '\n'.
