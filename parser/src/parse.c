@@ -7,7 +7,8 @@
 
 #pragma region Error messages
 
-const char* INVALID_LABEL = "Invalid label";
+const char* INVALID_LABEL_NAME = "Invalid label name";
+const char* INVALID_LABEL_ADDR = "Invalid address";
 const char* INVALID_OPCODE = "Invalid opcode";
 const char* INVALID_PARAMETER = "Invalid parameter";
 const char* INVALID_REGISTER = "Invalid register";
@@ -15,7 +16,6 @@ const char* INVALID_HEX_VALUE = "Invalid or out-of-range hexadecimal value";
 const char* INVALID_INT_VALUE = "Invalid or out-of-range integer value";
 const char* INVALID_HEX_BYTE = "Invalid hexadecimal byte";
 const char* UNEXPECTED_CHARACTER = "Unexpected character";
-const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 
 #define PARSING_ERROR(_message, _start, _end) (ParsingError){.message = (_message), .sourceSpan = (TextSpan){.start = (_start), .end = (_end)}}
 
@@ -42,18 +42,18 @@ bool tryParseInstruction(const TextContents* text, TextOffset* position, Assembl
 // If parsing fails, outputs the cause through error and returns false.
 bool tryParseAssemblyData(const TextContents* text, TextOffset* position, AssemblyData* data, ParsingError* error);
 
-// Parses an assembly instruction parameter.
-// If parsing succeeds, advances position past the end of the parameter,
-// outputs the parameter through parameter, and returns true.
-// If parsing fails, outputs the cause through error and returns false.
-bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyParameter* parameter, ParsingError* error);
-
 // Parses an opcode name.
 // Expects text to be at the start of the opcode name.
 // If parsing succeeds, advances position past the end of the opcode name,
 // outputs the opcode through opcode, and returns true.
 // If parsing fails, returns false.
 bool tryParseOpcode(const TextContents* text, TextOffset* position, enum Opcode* opcode);
+
+// Parses an assembly instruction parameter.
+// If parsing succeeds, advances position past the end of the parameter,
+// outputs the parameter through parameter, and returns true.
+// If parsing fails, outputs the cause through error and returns false.
+bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyParameter* parameter, ParsingError* error);
 
 // Parses a register name.
 // Expects text to be at the start of the register name (past the "$" character).
@@ -63,18 +63,18 @@ bool tryParseOpcode(const TextContents* text, TextOffset* position, enum Opcode*
 bool tryParseRegister(const TextContents* text, TextOffset* position, enum Register* reg);
 
 // Parses a hexadecimal immediate value.
-// Expects text to be at the first hexadecimal digit (pase the "0x" sequence).
+// Expects text to be at the first hexadecimal digit (past the "0x" sequence).
 // If parsing succeeds, advances position past the end of the hexadecimal digits,
 // outputs the immediate value through result and returns true.
 // If parsing fails, returns false.
-bool tryParseImmediateHexValue(const TextContents* text, TextOffset* position, signed int* value);
+bool tryParseHexadecimalValue(const TextContents* text, TextOffset* position, unsigned int* value);
 
 // Parses a decimal immediate value.
 // Expects text to be at the first digit, or at the sign character if one is present.
 // If parsing succeeds, advances position past the end of the digits,
 // outputs the immediate value through result and returns true.
 // If parsing fails, returns false.
-bool tryParseImmediateDecValue(const TextContents* text, TextOffset* position, signed int* value);
+bool tryParseDecimalValue(const TextContents* text, TextOffset* position, signed int* value);
 
 // Parses a name.
 // If parsing succeeds, advances position past the end of the name,
@@ -131,12 +131,47 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
   return true;
 }
 
+bool isWhiteSpaceOrAtOrColon(char c) { return isAnyWhitespace(c) || c == '@' || c == ':'; }
+
 bool tryParseLabel(const TextContents* text, TextOffset* position, AssemblyLabel* label, ParsingError* error) {
-  (void)text;
-  (void)position;
-  (void)label;
-  (void)error;
-  return false;
+  if (GetCharAtTextOffset(text, *position) != '@') {
+    TextOffset start = *position;
+    if (!tryParseName(text, position, &label->nameSpan)) {
+      skipToNextSatisfies(text, position, isWhiteSpaceOrAtOrColon);
+      *error = PARSING_ERROR(INVALID_LABEL_NAME, start, *position);
+      return false; // Failed to parse label name
+    }
+  } else {
+    label->nameSpan = (TextSpan){*position, *position};
+  }
+
+  if (GetCharAtTextOffset(text, *position) == '@') {
+    IncrementTextOffset(text, position);
+
+    TextOffset start = *position;
+    unsigned int hexValue;
+    if (!tryParseHexadecimalValue(text, position, &hexValue) || hexValue > 0xFFFF) {
+      skipToNextWhitespace(text, position);
+      *error = PARSING_ERROR(INVALID_LABEL_ADDR, start, *position);
+      return false; // Failed to parse label address
+    }
+    label->address = (unsigned short)hexValue;
+    label->addressSpan = (TextSpan){start, *position};
+  } else {
+    label->addressSpan = (TextSpan){*position, *position};
+    label->address = 0;
+  }
+
+  if (GetCharAtTextOffset(text, *position) != ':') {
+    TextOffset end = *position; IncrementTextOffset(text, &end);
+    *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *position, end);
+    return false; // Unexpected character in label
+  }
+
+  IncrementTextOffset(text, position);
+  skipInlineWhitespace(text, position);
+
+  return true;
 }
 
 bool tryParseInstruction(const TextContents* text, TextOffset* position, AssemblyInstruction* instruction, ParsingError* error) {
@@ -179,11 +214,11 @@ bool tryParseInstruction(const TextContents* text, TextOffset* position, Assembl
 
     // Check for end of line or file after parameter list
     if (CompareTextOffsets(text, *position, endOfLine) < 0) {
-      assert(CompareTextOffsets(text, *position, endOfLine) == 0);
       TextOffset end = *position; IncrementTextOffset(text, &end);
       *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *position, end);
       return false; // Expected end of line or file
     }
+    assert(CompareTextOffsets(text, *position, endOfLine) == 0);
   }  
 
   return true;
@@ -238,14 +273,16 @@ bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyP
         // Parse as a hexadecimal immediate value
         position->column += 2;
         NormalizeTextOffset(text, position);
-        if (!tryParseImmediateHexValue(text, position, &parameter->immediateValue)) {
+        unsigned int hexValue;
+        if (!tryParseHexadecimalValue(text, position, &hexValue)) {
           skipToNextSatisfies(text, position, isWhitespaceOrComma);
           *error = PARSING_ERROR(INVALID_HEX_VALUE, start, *position);
           return false; // Failed to parse hexadecimal immediate value
         }
+        parameter->immediateValue = (signed int)hexValue;
       } else if (isdigit(c) || c == '-' || c == '+') {
         // Parse as a decimal immediate value
-        if (!tryParseImmediateDecValue(text, position, &parameter->immediateValue)) {
+        if (!tryParseDecimalValue(text, position, &parameter->immediateValue)) {
           skipToNextSatisfies(text, position, isWhitespaceOrComma);
           *error = PARSING_ERROR(INVALID_INT_VALUE, start, *position);
           return false; // Failed to parse decimal immediate value
@@ -275,7 +312,7 @@ bool tryParseRegister(const TextContents* text, TextOffset* position, enum Regis
   return false;
 }
 
-bool tryParseImmediateHexValue(const TextContents* text, TextOffset* position, signed int* value) {
+bool tryParseHexadecimalValue(const TextContents* text, TextOffset* position, unsigned int* value) {
   // Check that first character is valid hex
   unsigned char nibble;
   if (!tryHexToNibble(GetCharAtTextOffset(text, *position), &nibble)) {
@@ -293,11 +330,11 @@ bool tryParseImmediateHexValue(const TextContents* text, TextOffset* position, s
     IncrementTextOffset(text, position);
   }
 
-  *value = (signed int)hexValue;
+  *value = hexValue;
   return true;
 }
 
-bool tryParseImmediateDecValue(const TextContents* text, TextOffset* position, signed int* value) {
+bool tryParseDecimalValue(const TextContents* text, TextOffset* position, signed int* value) {
   // Check for sign character (- or +)
   char c = GetCharAtTextOffset(text, *position);
   bool isNegative = c == '-';

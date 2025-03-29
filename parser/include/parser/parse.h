@@ -23,7 +23,8 @@
 // (Except in the case of a label, which does not allow whitespace between either the name or address and the '@' symbol).
 // Any whitespace between two lines is ignored.
 
-extern const char* INVALID_LABEL;
+extern const char* INVALID_LABEL_NAME;
+extern const char* INVALID_LABEL_ADDR;
 extern const char* INVALID_OPCODE;
 extern const char* INVALID_PARAMETER;
 extern const char* INVALID_REGISTER;
