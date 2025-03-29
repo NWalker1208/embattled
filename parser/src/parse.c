@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include "parser/parse.h"
-#include "parser/utilities.h"
+#include "text_utils.h"
 
 #pragma region Error messages
 
@@ -34,7 +34,7 @@ bool tryParseInstruction(const TextContents* text, TextOffset* position, Assembl
 // If text contains valid hexadecimal bytes from the current position to the end of the current line,
 // advances position to the end of the line, outputs the data through data, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseAssemblyData(const TextContents* text, TextOffset* position,  AssemblyData* data, ParsingError* error);
+bool tryParseAssemblyData(const TextContents* text, TextOffset* position, AssemblyData* data, ParsingError* error);
 
 // Parses an assembly instruction parameter.
 // If parsing succeeds, advances position past the end of the parameter,
@@ -345,18 +345,18 @@ bool tryParseAssemblyData(const char** text, AssemblyData* data, ParsingError* e
   return true;
 }
 
-char* tryCopyLabel(const char** text) {
-  if (!isWordChar(**text) || isdigit(**text)) {
-    return NULL;
+bool tryParseName(const TextContents* text, TextOffset* position, TextSpan* span) {
+  char c = GetCharAtTextOffset(text, *position);
+  if (!isWordChar(c) || isdigit(c)) {
+    return false;
   }
 
+  TextOffset start = *position;
   size_t len = 1;
-  for (; isWordChar((*text)[len]); len++) { }
+  while (isWordChar(GetCharAtTextOffset(text, *position))) {
+    *position = IncrementTextOffset(text, *position);
+  }
 
-  size_t size = sizeof(char) * len;
-  char* label = malloc(size + 1);
-  memcpy(label, *text, size);
-  label[size] = '\0';
-  *text += len;
-  return label;
+  *span = (TextSpan){ .start = start, .end = *position };
+  return true;
 }

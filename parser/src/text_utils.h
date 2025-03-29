@@ -8,7 +8,7 @@ static inline bool isInlineWhitespace(char c) { return c == ' ' || c == '\t'; }
 // Returns true if c is a newline. Otherwise, returns false.
 static inline bool isEndOfLine(char c) { return c == '\n'; }
 
-// Returns true if c is a newline, carriage return, or null terminator. Otherwise, returns false.
+// Returns true if c is a newline or null terminator. Otherwise, returns false.
 static inline bool isEndOfLineOrFile(char c) { return c == '\0' || isEndOfLine(c); }
 
 // Returns true if c is an inline whitespace or end-of-line character. Otherwise, returns false.
