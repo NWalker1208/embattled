@@ -34,7 +34,11 @@ void skipAllWhitespace(const TextContents* text, TextOffset* position) {
 }
 
 void skipToNextWhitespace(const TextContents* text, TextOffset* position) {
-  while (!isAnyWhitespace(GetCharAtTextOffset(text, *position))) {
+  skipToNextSatisfies(text, position, isAnyWhitespace);
+}
+
+void skipToNextSatisfies(const TextContents* text, TextOffset* position, bool (*predicate)(char)) {
+  while (!IsTextOffsetEndOfLine(text, *position) && !predicate(GetCharAtTextOffset(text, *position))) {
     IncrementTextOffset(text, position);
   }
 }

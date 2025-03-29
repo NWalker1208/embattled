@@ -202,6 +202,8 @@ bool tryParseOpcode(const TextContents* text, TextOffset* position, enum Opcode*
   return false;
 }
 
+bool isWhitespaceOrComma(char c) { return isAnyWhitespace(c) || c == ','; }
+
 bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyParameter* parameter, ParsingError* error) {
   TextOffset start = *position;
   char c = GetCharAtTextOffset(text, *position);
@@ -211,7 +213,7 @@ bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyP
       IncrementTextOffset(text, position);
       parameter->kind = ASSEMBLY_PARAM_REGISTER;
       if (!tryParseRegister(text, position, &parameter->registerName)) {
-        skipToNextWhitespace(text, position);
+        skipToNextSatisfies(text, position, isWhitespaceOrComma);
         *error = PARSING_ERROR(INVALID_REGISTER, start, *position);
         return false; // Failed to parse register
       }
@@ -222,7 +224,7 @@ bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyP
       IncrementTextOffset(text, position);
       parameter->kind = ASSEMBLY_PARAM_LABEL;
       if (!tryParseName(text, position, &parameter->labelSpan)) {
-        skipToNextWhitespace(text, position);
+        skipToNextSatisfies(text, position, isWhitespaceOrComma);
         *error = PARSING_ERROR(INVALID_REGISTER, start, *position);
         return false; // Failed to parse label
       }
@@ -237,19 +239,19 @@ bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyP
         position->column += 2;
         NormalizeTextOffset(text, position);
         if (!tryParseImmediateHexValue(text, position, &parameter->immediateValue)) {
-          skipToNextWhitespace(text, position);
+          skipToNextSatisfies(text, position, isWhitespaceOrComma);
           *error = PARSING_ERROR(INVALID_HEX_VALUE, start, *position);
           return false; // Failed to parse hexadecimal immediate value
         }
       } else if (isdigit(c) || c == '-' || c == '+') {
         // Parse as a decimal immediate value
         if (!tryParseImmediateDecValue(text, position, &parameter->immediateValue)) {
-          skipToNextWhitespace(text, position);
+          skipToNextSatisfies(text, position, isWhitespaceOrComma);
           *error = PARSING_ERROR(INVALID_INT_VALUE, start, *position);
           return false; // Failed to parse decimal immediate value
         }
       } else {
-        skipToNextWhitespace(text, position);
+        skipToNextSatisfies(text, position, isWhitespaceOrComma);
         *error = PARSING_ERROR(INVALID_PARAMETER, start, *position);
         return false; // Failed to parse as any kind of parameter
       }

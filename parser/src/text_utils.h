@@ -25,6 +25,9 @@ void skipAllWhitespace(const TextContents* text, TextOffset* position);
 // Advances position to the next whitespace character.
 void skipToNextWhitespace(const TextContents* text, TextOffset* position);
 
+// Advances position to the next character that satisfies the predicate.
+void skipToNextSatisfies(const TextContents* text, TextOffset* position, bool (*predicate)(char));
+
 // Advances position to the next line or the end of the text.
 static inline void skipToNextLine(const TextContents* text, TextOffset* position) {
   position->line++;
