@@ -11,12 +11,12 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
   // Setup label and reference tables for filling in addresses
   AssemblyLabel* currentLabel = NULL;
 
-  TextContentsSpan* labelTableLabelSpans = malloc(sizeof(TextContentsSpan) * program->lineCount);
+  TextSpan* labelTableLabelSpans = malloc(sizeof(TextSpan) * program->lineCount);
   unsigned short* labelTableAddresses = malloc(sizeof(unsigned short) * program->lineCount);
   size_t labelCount = 0;
 
   unsigned short* referenceTableAddresses = malloc(sizeof(unsigned short) * program->lineCount);
-  TextContentsSpan* referenceTableLabelSpans = malloc(sizeof(TextContentsSpan) * program->lineCount);
+  TextSpan* referenceTableLabelSpans = malloc(sizeof(TextSpan) * program->lineCount);
   size_t referenceCount = 0;
 
   // Write all lines to memory
@@ -164,7 +164,7 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
   }
 
   if (currentLabel != NULL) {
-    *error = ASSEMBLING_ERROR(EXPECTED_INSTRUCTION_OR_DATA, ((TextContentsSpan){
+    *error = ASSEMBLING_ERROR(EXPECTED_INSTRUCTION_OR_DATA, ((TextSpan){
       .start = currentLabel->nameSpan.start,
       .length = currentLabel->nameSpan.length + 1 + currentLabel->addressSpan.length,
     }));
@@ -174,7 +174,7 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
   // Fill in label references
   for (size_t i = 0; i < referenceCount; i++) {
     unsigned short referenceAddress = referenceTableAddresses[i];
-    TextContentsSpan labelSpan = referenceTableLabelSpans[i];
+    TextSpan labelSpan = referenceTableLabelSpans[i];
 
     unsigned short labelAddress;
     bool foundLabel = false;

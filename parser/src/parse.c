@@ -28,58 +28,58 @@ const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 // If the current line is a valid instruction, advances position to the end of the current line,
 // outputs the instruction through instruction, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseInstruction(const TextContents* text, TextContentsOffset* position, AssemblyInstruction* instruction, ParsingError* error);
+bool tryParseInstruction(const TextContents* text, TextOffset* position, AssemblyInstruction* instruction, ParsingError* error);
 
 // Parses hexadecimal assembly data bytes.
 // Expects position to be at the first hexadecimal byte (past the '.data' sequence).
 // If text contains valid hexadecimal bytes from the current position to the end of the current line,
 // advances position to the end of the line, outputs the data through data, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseAssemblyData(const TextContents* text, TextContentsOffset* position,  AssemblyData* data, ParsingError* error);
+bool tryParseAssemblyData(const TextContents* text, TextOffset* position,  AssemblyData* data, ParsingError* error);
 
 // Parses an assembly instruction parameter.
 // If parsing succeeds, advances position past the end of the parameter,
 // outputs the parameter through parameter, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseParameter(const TextContents* text, TextContentsOffset* position, AssemblyParameter* parameter, ParsingError* error);
+bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyParameter* parameter, ParsingError* error);
 
 // Parses an opcode name.
 // Expects text to be at the start of the opcode name.
 // If parsing succeeds, advances position past the end of the opcode name,
 // outputs the opcode through opcode, and returns true.
 // If parsing fails, returns false.
-bool tryParseOpcode(const TextContents* text, TextContentsOffset* position, enum Opcode* opcode);
+bool tryParseOpcode(const TextContents* text, TextOffset* position, enum Opcode* opcode);
 
 // Parses a register name.
 // Expects text to be at the start of the register name (past the "$" character).
 // If parsing succeeds, advances position past the end of the register name,
 // outputs the register through reg and returns true.
 // If parsing fails, returns false.
-bool tryParseRegister(const TextContents* text, TextContentsOffset* position, enum Register* reg);
+bool tryParseRegister(const TextContents* text, TextOffset* position, enum Register* reg);
 
 // Parses a hexadecimal immediate value.
 // Expects text to be at the first hexadecimal digit (pase the "0x" sequence).
 // If parsing succeeds, advances position past the end of the hexadecimal digits,
 // outputs the immediate value through result and returns true.
 // If parsing fails, returns false.
-bool tryParseImmediateHexValue(const TextContents* text, TextContentsOffset* position, signed int* value);
+bool tryParseImmediateHexValue(const TextContents* text, TextOffset* position, signed int* value);
 
 // Parses a decimal immediate value.
 // Expects text to be at the first digit, or at the sign character if one is present.
 // If parsing succeeds, advances position past the end of the digits,
 // outputs the immediate value through result and returns true.
 // If parsing fails, returns false.
-bool tryParseImmediateDecValue(const TextContents* text, TextContentsOffset* position, signed int* value);
+bool tryParseImmediateDecValue(const TextContents* text, TextOffset* position, signed int* value);
 
 // Parses a name.
 // If parsing succeeds, advances position past the end of the name,
 // outputs the span of the name through span, and returns true.
 // If parsing fails, returns false.
-bool tryParseName(const TextContents* text, TextContentsOffset* position, TextContentsSpan* span);
+bool tryParseName(const TextContents* text, TextOffset* position, TextSpan* span);
 
 #pragma endregion
 
-bool TryParseAssemblyLine(const TextContents* text, TextContentsOffset* position, AssemblyLine* line, ParsingError* error) {
+bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, AssemblyLine* line, ParsingError* error) {
   skipAllWhitespace(text);
 
   // Parse the label if one is present

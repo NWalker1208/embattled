@@ -37,7 +37,7 @@ typedef struct {
   // The message describing the error. Should be a string with a static lifetime.
   const char* message;
   // The span of the source TextContents at which the error occurred.
-  TextContentsSpan sourceSpan;
+  TextSpan sourceSpan;
 } ParsingError;
 
 // Parses an assembly program from the provided text.
@@ -50,4 +50,4 @@ size_t TryParseAssemblyProgram(TextContents* text, AssemblyProgram* program, Par
 // Always advances the position to the beginning of some subsequent line.
 // If parsing succeeds, outputs the parsed line through line and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool TryParseAssemblyLine(const TextContents* text, TextContentsOffset* position, AssemblyLine* line, ParsingError* error);
+bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, AssemblyLine* line, ParsingError* error);

@@ -23,7 +23,7 @@ typedef struct {
   unsigned int lineCount;
 } TextContents;
 
-// An offset within a TextContents struct.
+// The offset of a character within some text.
 typedef struct {
   // The line number of the offset.
   size_t line;
@@ -31,17 +31,17 @@ typedef struct {
   // If equal to the length of the line, represents the end of the line.
   // If greater than the length of the line, represents an offset of (line + 1, column - len(line) - 1).
   size_t column;
-} TextContentsOffset;
+} TextOffset;
 
-// A span within a TextContents struct.
+// A span of characters within some text.
 typedef struct {
   // The offset of the first character in the span.
-  TextContentsOffset start;
+  TextOffset start;
   // The offset of the first character after the span.
   // If equal to or less than start, the span is empty.
   // If greater than the last character of the text, the span extends to the end of the text.
-  TextContentsOffset end;
-} TextContentsSpan;
+  TextOffset end;
+} TextSpan;
 
 // Initializes a TextContents struct with the given chars array.
 TextContents InitTextContents(char* chars, size_t length);
@@ -62,12 +62,12 @@ bool IsTextContentsInitialized(const TextContents* text);
 // greater than the length of the current line.
 // If the offset lies outside the bounds of the text, wrapping continues as if there are an infinite number of 0-length lines
 // past the end of the text.
-TextContentsOffset NormalizeTextContentsOffset(const TextContents* text, TextContentsOffset offset);
+TextOffset NormalizeTextContentsOffset(const TextContents* text, TextOffset offset);
 
 // Gets the character at the specified offset into the text.
 // If the offset lies at or beyond the end of the last line, returns '\0'.
 // If the offset lies at the end of any other line, returns '\n'.
-char GetCharAtTextContentsOffset(const TextContents* text, TextContentsOffset offset);
+char GetCharAtTextContentsOffset(const TextContents* text, TextOffset offset);
 
 // Compares two spans of text according to strcmp rules.
-int CompareTextContentsSpans(const TextContents* textA, TextContentsSpan spanA, const TextContents* textB, TextContentsSpan spanB);
+int CompareTextContentsSpans(const TextContents* textA, TextSpan spanA, const TextContents* textB, TextSpan spanB);

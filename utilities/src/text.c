@@ -53,7 +53,7 @@ bool IsTextContentsInitialized(const TextContents* text) {
   return text->chars != NULL && text->lines != NULL;
 }
 
-TextContentsOffset NormalizeTextContentsOffset(const TextContents* text, TextContentsOffset offset) {
+TextOffset NormalizeTextContentsOffset(const TextContents* text, TextOffset offset) {
   while (offset.line < text->lineCount && offset.column > text->lines[offset.line].length) {
     offset.column -= text->lines[offset.line].length + 1;
     offset.line++;
@@ -67,7 +67,7 @@ TextContentsOffset NormalizeTextContentsOffset(const TextContents* text, TextCon
   return offset;
 }
 
-char GetCharAtNormalizedOffset(const TextContents* text, TextContentsOffset offset) {
+char GetCharAtNormalizedOffset(const TextContents* text, TextOffset offset) {
   if (offset.line >= text->lineCount) {
     return '\0';
   }
@@ -80,13 +80,13 @@ char GetCharAtNormalizedOffset(const TextContents* text, TextContentsOffset offs
   }
 }
 
-char GetCharAtTextContentsOffset(const TextContents* text, TextContentsOffset offset) {
+char GetCharAtTextContentsOffset(const TextContents* text, TextOffset offset) {
   return GetCharAtNormalizedOffset(text, NormalizeTextContentsOffset(text, offset));
 }
 
-int CompareTextContentsSpans(const TextContents* textA, TextContentsSpan spanA, const TextContents* textB, TextContentsSpan spanB) {
-  TextContentsOffset offsetA = NormalizeTextContentsOffset(textA, spanA.start);
-  TextContentsOffset offsetB = NormalizeTextContentsOffset(textB, spanB.start);
+int CompareTextContentsSpans(const TextContents* textA, TextSpan spanA, const TextContents* textB, TextSpan spanB) {
+  TextOffset offsetA = NormalizeTextContentsOffset(textA, spanA.start);
+  TextOffset offsetB = NormalizeTextContentsOffset(textB, spanB.start);
   
   size_t i;
   for (i = 0; i < spanA.length && i < spanB.length && offsetA.line < textA->lineCount && offsetB.line < textB->lineCount; i++) {

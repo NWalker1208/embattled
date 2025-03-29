@@ -22,7 +22,7 @@ typedef struct {
   // The message describing the error. Should be a string with a static lifetime.
   const char* message;
   // The span of the source TextContents at which the error occurred.
-  TextContentsSpan sourceSpan;
+  TextSpan sourceSpan;
 } AssemblingError;
 
 // Attempts to assemble the given assembly program into bytes in the memory space provided.

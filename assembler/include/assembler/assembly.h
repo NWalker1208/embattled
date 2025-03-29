@@ -10,9 +10,9 @@
 // The label represented by an assembly line.
 typedef struct {
   // The span of the name portion of the label. If not present, has a length of 0.
-  TextContentsSpan nameSpan;
+  TextSpan nameSpan;
   // The span of the address portion of the label. If not present, has a length of 0.
-  TextContentsSpan addressSpan;
+  TextSpan addressSpan;
   // The value of the address portion of the label, if present.
   unsigned short address;
 } AssemblyLabel;
@@ -27,13 +27,13 @@ typedef enum {
 // The parameter of an assembly instruction.
 typedef struct {
   // The location of the parameter in the source TextContents.
-  TextContentsSpan sourceSpan;
+  TextSpan sourceSpan;
   // The kind of parameter that this is.
   AssemblyParameterKind kind;
   union {
     enum Register registerName; // kind == ASSEMBLY_PARAM_REGISTER
     signed int immediateValue;  // kind == ASSEMBLY_PARAM_IMMEDIATE
-    TextContentsSpan labelSpan; // kind == ASSEMBLY_PARAM_LABEL
+    TextSpan labelSpan;         // kind == ASSEMBLY_PARAM_LABEL
   };
 } AssemblyParameter;
 
@@ -65,7 +65,7 @@ typedef enum {
 // A line of an assembly program.
 typedef struct {
   // The location of the line in the source TextContents.
-  TextContentsSpan sourceSpan;
+  TextSpan sourceSpan;
   // The kind of line that this is.
   AssemblyLineKind kind;
   union {
