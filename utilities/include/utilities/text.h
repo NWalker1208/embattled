@@ -29,16 +29,18 @@ typedef struct {
   size_t line;
   // The column number of the offset.
   // If equal to the length of the line, represents the end of the line.
-  // If greater than the length of the line, treated as equivalent to the offset (line + 1, column - len(line) - 1).
+  // If greater than the length of the line, represents an offset of (line + 1, column - len(line) - 1).
   size_t column;
 } TextContentsOffset;
 
 // A span within a TextContents struct.
 typedef struct {
-  // The starting offset of the span.
+  // The offset of the first character in the span.
   TextContentsOffset start;
-  // The number of characters in the span, where the end of each line counts as one character.
-  size_t length;
+  // The offset of the first character after the span.
+  // If equal to or less than start, the span is empty.
+  // If greater than the last character of the text, the span extends to the end of the text.
+  TextContentsOffset end;
 } TextContentsSpan;
 
 // Initializes a TextContents struct with the given chars array.
