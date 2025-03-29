@@ -134,33 +134,38 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
   return true;
 }
 
-bool tryParseInstruction(const char** text, AssemblyInstruction* instruction, ParsingError* error) {
+bool tryParseInstruction(const TextContents* text, TextOffset* position, AssemblyInstruction* instruction, ParsingError* error) {
+  TextOffset endOfLine = GetTextContentsEndOfLine(text, position->line);
+
   // Parse the opcode
-  if (!tryParseOpcode(text, &instruction->opcode)) {
-    *error = PARSING_ERROR(INVALID_OPCODE, *text);
+  TextOffset start = *position;
+  if (!tryParseOpcode(text, position, &instruction->opcode)) {
+    skipToNextWhitespace(text, position);
+    *error = PARSING_ERROR(INVALID_OPCODE, start, *position);
     return false; // Failed to parse opcode
   }
-  skipInlineWhitespace(text);
+  skipInlineWhitespace(text, position);
 
   // Parse the parameters, if present
-  if (!isEndOfLineOrFile(**text)) {
+  if (CompareTextOffsets(text, *position, endOfLine) < 0) {
     instruction->parameterCount = 0;
     instruction->parameters = NULL;
     while (true) {
       instruction->parameterCount++;
       instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(AssemblyParameter));
       AssemblyParameter* nextParam = &instruction->parameters[instruction->parameterCount - 1];
-      memset(nextParam, 0, sizeof(AssemblyParameter)); // Ensure all fields are initialized to 0
+      *nextParam = (AssemblyParameter){ 0 }; // Initialize all fields to 0
 
-      if (!tryParseParameter(text, nextParam, error)) {
+      if (!tryParseParameter(text, position, nextParam, error)) {
+        // Error already set by tryParseParameter
         return false; // Failed to parse parameter
       }
-      skipInlineWhitespace(text);
+      skipInlineWhitespace(text, position);
 
-      if (**text == ',') {
+      if (GetCharAtTextOffset(text, *position) == ',') {
         // If there's a comma, we expect to find another parameter
-        (*text)++;
-        skipInlineWhitespace(text);
+        IncrementTextOffset(text, position);
+        skipInlineWhitespace(text, position);
       } else {
         // Otherwise, this was the last parameter
         break;
@@ -168,8 +173,10 @@ bool tryParseInstruction(const char** text, AssemblyInstruction* instruction, Pa
     }
 
     // Check for end of line or file after parameter list
-    if (!isEndOfLineOrFile(**text)) {
-      *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *text);
+    if (CompareTextOffsets(text, *position, endOfLine) < 0) {
+      assert(CompareTextOffsets(text, *position, endOfLine) == 0);
+      TextOffset end = *position; IncrementTextOffset(text, &end);
+      *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *position, end);
       return false; // Expected end of line or file
     }
   }  
