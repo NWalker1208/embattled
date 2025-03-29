@@ -12,7 +12,7 @@ bool startsWithWordCaseInsensitive(const TextContents* text, TextOffset start, c
     if (tolower(GetCharAtTextOffset(text, start)) != tolower(*word)) {
       return false;
     }
-    start = IncrementTextOffset(text, start);
+    IncrementTextOffset(text, &start);
     word++;
   }
   return *word == '\0' && !isWordChar(GetCharAtTextOffset(text, start));
@@ -21,7 +21,7 @@ bool startsWithWordCaseInsensitive(const TextContents* text, TextOffset start, c
 bool skipInlineWhitespace(const TextContents* text, TextOffset* position) {
   bool skippedAny = false;
   while (isInlineWhitespace(GetCharAtTextOffset(text, *position))) {
-    *position = IncrementTextOffset(text, *position);
+    IncrementTextOffset(text, position);
     skippedAny = true;
   }
   return skippedAny;
@@ -29,7 +29,7 @@ bool skipInlineWhitespace(const TextContents* text, TextOffset* position) {
 
 void skipAllWhitespace(const TextContents* text, TextOffset* position) {
   while (isAnyWhitespace(GetCharAtTextOffset(text, *position))) {
-    *position = IncrementTextOffset(text, *position);
+    IncrementTextOffset(text, position);
   }
 }
 
@@ -39,7 +39,7 @@ bool lineContainsChar(const TextContents* text, TextOffset start, char c) {
     if (current == c) {
       return true;
     }
-    start = IncrementTextOffset(text, start);
+    IncrementTextOffset(text, &start);
   }
   return false;
 }

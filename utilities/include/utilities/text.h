@@ -82,10 +82,10 @@ char GetCharAtTextOffset(const TextContents* text, TextOffset offset);
 // Normalizes an offset relative to the text.
 // If column is greater than the length of the line, wraps the offset onto the next line.
 // If after wrapping line is greater than or equal to lineCount, returns the result of GetTextContentsEnd(text).
-TextOffset NormalizeTextOffset(const TextContents* text, TextOffset offset);
+void NormalizeTextOffset(const TextContents* text, TextOffset* offset);
 
 // Increments and normalizes an offset relative to the text.
-TextOffset IncrementTextOffset(const TextContents* text, TextOffset offset);
+void IncrementTextOffset(const TextContents* text, TextOffset* offset);
 
 // Compares the positions of two text offsets.
 // If offsetA appears before offsetB, returns a negative value.
@@ -96,7 +96,7 @@ int CompareTextOffsets(const TextContents* text, TextOffset offsetA, TextOffset 
 // Normalizes a span.
 // Normalizes both start and end offsets.
 // If end is less than start, sets end equal to start.
-TextSpan NormalizeTextSpan(const TextContents* text, TextSpan span);
+void NormalizeTextSpan(const TextContents* text, TextSpan* span);
 
 // Compares two spans of text according to strcmp rules.
 int CompareTextSpans(const TextContents* textA, TextSpan spanA, const TextContents* textB, TextSpan spanB);
