@@ -79,55 +79,39 @@ bool tryParseName(const TextContents* text, TextOffset* position, TextSpan* span
 #pragma endregion
 
 bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, AssemblyLine* line, ParsingError* error) {
-  skipAllWhitespace(text);
+  skipAllWhitespace(text, position);
+  TextOffset start = *position;
 
-  // Parse the label if one is present
-  if (findCharOnLine(*text, ':') != NULL) {
-    line->label = tryCopyLabel(text);
-    if (line->label == NULL) {
-      *error = PARSING_ERROR(INVALID_LABEL, *text);
-      DestroyAssemblyLine(line);
-      SKIP_TO_NEXT_LINE(position);
-      return false; // Failed to parse label
-    }
-    skipInlineWhitespace(text);
-    if (**text != ':') {
-      *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *text);
-      DestroyAssemblyLine(line);
-      SKIP_TO_NEXT_LINE(position);
-      return false; // Expected ':' after label
-    }
-    (*text)++;
-    skipAllWhitespace(text);
-  }
+  // If the line contains a ':', parse as a label.
+  if (lineContainsChar(text, *position, ':')) {
+    // TODO
 
-  // Check for end of file
-  if (**text == '\0') {
-    *error = PARSING_ERROR(UNEXPECTED_END_OF_FILE, *text);
-    DestroyAssemblyLine(line);
-    return false;
-  }
-
-  // If line starts with ".data", parse as assembly data.
-  // Otherwise, parse as an assembly instruction.
-  if (startsWithWordCaseInsensitive(*text, ".data")) {
-    (*text) += 5;
-    skipInlineWhitespace(text);
-    line->kind = DATA;
-    if (!tryParseAssemblyData(text, &line->data, error)) {
+  // If the line starts with ".data", parse as assembly data.
+  } else if (startsWithWordCaseInsensitive(text, *position, ".data")) {
+    position->column += 5;
+    NormalizeTextOffset(text, position);
+    skipInlineWhitespace(text, position);
+    line->kind = ASSEMBLY_LINE_DATA;
+    if (!tryParseAssemblyData(text, position, &line->data, error)) {
+      // Error already set by tryParseAssemblyData
       DestroyAssemblyLine(line);
-      SKIP_TO_NEXT_LINE(position);
+      skipToNextLine(position);
       return false; // Failed to parse assembly data
     }
+
+  // Otherwise, parse as an assembly instruction.
   } else {
-    line->kind = INSTRUCTION;
-    if (!tryParseInstruction(text, &line->instruction, error)) {
+    line->kind = ASSEMBLY_LINE_INSTRUCTION;
+    if (!tryParseInstruction(text, position, &line->instruction, error)) {
+      // Error already set by tryParseInstruction
       DestroyAssemblyLine(line);
-      SKIP_TO_NEXT_LINE(position);
+      skipToNextLine(position);
       return false; // Failed to parse assembly instruction
     }
   }
-  assert(isEndOfLineOrFile(**text));
+  assert(CompareTextOffsets(text, *position, GetTextContentsEndOfLine(text, start.line)) == 0);
+
+  line->sourceSpan = (TextSpan){start, *position};
 
   // Advance to next line and return success.
   skipToNextLine(text);
