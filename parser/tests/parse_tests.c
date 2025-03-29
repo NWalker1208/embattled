@@ -3,25 +3,32 @@
 #include <unity.h>
 #include "parser/parse.h"
 
-struct AssemblyLine line;
-struct ParsingError error;
+TextContents text;
+TextOffset position;
+AssemblyLine line;
+ParsingError error;
 
 void setUp() {
-  memset(&line, 0, sizeof(line));
-  memset(&error, 0, sizeof(error));
+  text = (TextContents){0};
+  position = (TextOffset){0};
+  line = (AssemblyLine){0};
+  error = (ParsingError){0};
 }
 
 void tearDown() {
-  destroyAssemblyLine(&line);
+  DestroyTextContents(&text);
+  DestroyAssemblyLine(&line);
 }
 
-void test_tryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsValidInstruction(void) {
+#pragma region TryParseAssemblyLine
+
+void test_TryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsValidInstruction(void) {
   // Arrange
-  const char source[] = "add $x0, @reference, 0x0FFFFFFFF, -02147483648, +2147483647, 02147483647\r\n";
+  char source[] = "add $x0, @reference, 0x0FFFFFFFF, -02147483648, +2147483647, 02147483647\n";
+  text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&source, &position, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -51,13 +58,13 @@ void test_tryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsVali
   TEST_ASSERT_EQUAL_INT(2147483647, line.instruction.parameters[5].immediateValue);
 }
 
-void test_tryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(void) {
+void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(void) {
   // Arrange
   const char source[] = ".data 12 34 56 78 9A BC DE F0\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -70,13 +77,13 @@ void test_tryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(v
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expectedBytes, line.data.bytes, sizeof(expectedBytes));
 }
 
-void test_tryParseAssemblyLine_should_succeedWithLabel_when_textStartsWithLabel(void) {
+void test_TryParseAssemblyLine_should_succeedWithLabel_when_textStartsWithLabel(void) {
   // Arrange
   const char source[] = "label:\n  nop\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -89,13 +96,13 @@ void test_tryParseAssemblyLine_should_succeedWithLabel_when_textStartsWithLabel(
   TEST_ASSERT_EQUAL_PTR(NULL, line.instruction.parameters);
 }
 
-void test_tryParseAssemblyLine_should_succeedAndAdvanceToEndOfFile_when_lastLine(void) {
+void test_TryParseAssemblyLine_should_succeedAndAdvanceToEndOfFile_when_lastLine(void) {
   // Arrange
   const char source[] = "nop";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -108,13 +115,13 @@ void test_tryParseAssemblyLine_should_succeedAndAdvanceToEndOfFile_when_lastLine
   TEST_ASSERT_EQUAL_PTR(NULL, line.instruction.parameters);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidLabel_when_labelIsEmpty(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidLabel_when_labelIsEmpty(void) {
   // Arrange
   const char source[] = ":\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -124,13 +131,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidLabel_when_labelIsEmpty(voi
   TEST_ASSERT_EQUAL_PTR(source, error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidLabel_when_noValidLabelCharacters(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidLabel_when_noValidLabelCharacters(void) {
   // Arrange
   const char source[] = "~:\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -140,13 +147,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidLabel_when_noValidLabelChar
   TEST_ASSERT_EQUAL_PTR(source, error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidOpcode_when_firstWordIsNotValidOpcode(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidOpcode_when_firstWordIsNotValidOpcode(void) {
   // Arrange
   const char source[] = "nopbutnotreally\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -156,13 +163,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidOpcode_when_firstWordIsNotV
   TEST_ASSERT_EQUAL_PTR(source, error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_parameterIsNotRegisterOrHexValueOrReferenceOrInteger(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidParameter_when_parameterIsNotRegisterOrHexValueOrReferenceOrInteger(void) {
   // Arrange
   const char source[] = "mov $x0, invalid\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -172,13 +179,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_parameterIsN
   TEST_ASSERT_EQUAL_PTR(&source[9], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_lineEndsAfterComma(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidParameter_when_lineEndsAfterComma(void) {
   // Arrange
   const char source[] = "mov $x0, \n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -188,13 +195,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidParameter_when_lineEndsAfte
   TEST_ASSERT_EQUAL_PTR(&source[9], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidRegister_when_dollarSignFollowedByInvalidRegisterName(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidRegister_when_dollarSignFollowedByInvalidRegisterName(void) {
   // Arrange
   const char source[] = "mov $invalid, 123\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -204,13 +211,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidRegister_when_dollarSignFol
   TEST_ASSERT_EQUAL_PTR(&source[5], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidHexValue_when_zeroExFollowedByInvalidHexDigit(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidHexValue_when_zeroExFollowedByInvalidHexDigit(void) {
   // Arrange
   const char source[] = "mov $x0, 0xg\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -220,13 +227,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidHexValue_when_zeroExFollowe
   TEST_ASSERT_EQUAL_PTR(&source[11], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidHexValue_when_hexParameterIsGreaterThanMaxUnsignedInteger(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidHexValue_when_hexParameterIsGreaterThanMaxUnsignedInteger(void) {
   // Arrange
   const char source[] = "jmp 0x100000000\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -236,13 +243,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidHexValue_when_hexParameterI
   TEST_ASSERT_EQUAL_PTR(&source[6], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidIntValue_when_integerParameterIsGreaterThanMaxSignedInteger(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidIntValue_when_integerParameterIsGreaterThanMaxSignedInteger(void) {
   // Arrange
   const char source[] = "jmp 2147483648\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -252,13 +259,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidIntValue_when_integerParame
   TEST_ASSERT_EQUAL_PTR(&source[4], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidIntValue_when_integerParameterIsLessThanMinSignedInteger(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidIntValue_when_integerParameterIsLessThanMinSignedInteger(void) {
   // Arrange
   const char source[] = "jmp -2147483649\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -268,13 +275,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidIntValue_when_integerParame
   TEST_ASSERT_EQUAL_PTR(&source[4], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithInvalidByte_when_dataLineContainsInvalidByte(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidByte_when_dataLineContainsInvalidByte(void) {
   // Arrange
   const char source[] = ".data FF b\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -284,13 +291,13 @@ void test_tryParseAssemblyLine_should_failWithInvalidByte_when_dataLineContainsI
   TEST_ASSERT_EQUAL_PTR(&source[10], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterValidParameter(void) {
+void test_TryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterValidParameter(void) {
   // Arrange
   const char source[] = "mov $x0, 123~\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -300,13 +307,13 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCh
   TEST_ASSERT_EQUAL_PTR(&source[12], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_missingCommaBetweenParameters(void) {
+void test_TryParseAssemblyLine_should_failWithUnexpectedCharacter_when_missingCommaBetweenParameters(void) {
   // Arrange
   const char source[] = "mov $x0 123\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -316,13 +323,13 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_missingCo
   TEST_ASSERT_EQUAL_PTR(&source[8], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterLabel(void) {
+void test_TryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterLabel(void) {
   // Arrange
   const char source[] = "test~:\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -332,13 +339,13 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCh
   TEST_ASSERT_EQUAL_PTR(&source[4], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_noMoreText(void) {
+void test_TryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_noMoreText(void) {
   // Arrange
   const char source[] = "\n";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -348,13 +355,13 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_noMoreTex
   TEST_ASSERT_EQUAL_PTR(&source[1], error.location);
 }
 
-void test_tryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_atEndOfFile(void) {
+void test_TryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_atEndOfFile(void) {
   // Arrange
   const char source[] = "";
 
   // Act
   const char* textPtr = source;
-  bool success = tryParseAssemblyLine(&textPtr, &line, &error);
+  bool success = TryParseAssemblyLine(&textPtr, &line, &error);
 
   // Assert
   const char* expectedTextPtr = &source[sizeof(source) - 1];
@@ -363,3 +370,5 @@ void test_tryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_atEndOfFi
   TEST_ASSERT_EQUAL_STRING(UNEXPECTED_END_OF_FILE, error.message);
   TEST_ASSERT_EQUAL_PTR(source, error.location);
 }
+
+#pragma endregion
