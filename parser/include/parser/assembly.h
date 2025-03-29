@@ -1,71 +1,88 @@
 #pragma once
+#include <stdint.h>
+#include "utilities/text.h"
 #include "processor/opcode.h"
 #include "processor/register.h"
 
-// TODO: Add support for specifying starting address of sections
 // TODO: Add support for storing references in data sections
 // TODO: Add support for relative references?
 
-enum AssemblyParameterKind {
-  REGISTER,
-  IMMEDIATE_VALUE,
-  LABEL_REFERENCE,
-};
+// The kind of an assembly parameter.
+typedef enum {
+  ASSEMBLY_PARAM_REGISTER,
+  ASSEMBLY_PARAM_IMMEDIATE,
+  ASSEMBLY_PARAM_LABEL,
+} AssemblyParameterKind;
 
-struct AssemblyParameter {
+// The parameter of an assembly instruction.
+typedef struct {
+  // The location of the parameter in the source TextContents.
+  TextContentsSpan sourceSpan;
   // The kind of parameter that this is.
-  enum AssemblyParameterKind kind;
+  AssemblyParameterKind kind;
   union {
-    enum Register registerName; // kind == REGISTER
-    signed int immediateValue; // kind == IMMEDIATE_VALUE
-    char* referencedLabel; // kind == LABEL_REFERENCE. Should be a dynamically allocated string.
+    enum Register registerName;       // kind == ASSEMBLY_PARAM_REGISTER
+    signed int immediateValue;        // kind == ASSEMBLY_PARAM_IMMEDIATE
+    TextContentsSpan referencedLabel; // kind == ASSEMBLY_PARAM_LABEL
   };
-};
+} AssemblyParameter;
 
-struct AssemblyInstruction {
+// The instruction represented by an assembly line.
+typedef struct {
   // The opcode for this instruction.
   enum Opcode opcode;
   // The number of parameters in the parameters array.
-  unsigned int parameterCount;
+  size_t parameterCount;
   // The parameters given to this instruction. Should be a dynamically allocated array.
-  struct AssemblyParameter* parameters;
-};
+  AssemblyParameter* parameters;
+} AssemblyInstruction;
 
-struct AssemblyData {
+// The data represented by an assembly line.
+typedef struct {
   // The number of bytes in the bytes array.
-  unsigned int length;
+  size_t length;
   // The bytes of this data. Should be a dynamically allocated array.
   unsigned char* bytes;
-};
+} AssemblyData;
 
-enum AssemblyLineKind {
-  INSTRUCTION,
-  DATA,
-};
+// The kind of an assembly line.
+typedef enum {
+  ASSEMBLY_LINE_LABEL,
+  ASSEMBLY_LINE_ADDRESS,
+  ASSEMBLY_LINE_INSTRUCTION,
+  ASSEMBLY_LINE_DATA,
+} AssemblyLineKind;
 
-struct AssemblyLine {
-  // The label annotating this line. Should be a dynamically allocated string.
-  char* label;
+// A line of an assembly program.
+typedef struct {
+  // The location of the line in the source TextContents.
+  TextContentsSpan sourceSpan;
   // The kind of line that this is.
-  enum AssemblyLineKind kind; 
+  AssemblyLineKind kind;
   union {
-    struct AssemblyInstruction instruction; // kind == INSTRUCTION
-    struct AssemblyData data; // kind == DATA
+    TextContentsSpan labelSpan;      // kind == LABEL. Should be a dynamically allocated string.
+    unsigned short address;          // kind == ADDRESS
+    AssemblyInstruction instruction; // kind == INSTRUCTION
+    AssemblyData data;               // kind == DATA
   };
-};
+} AssemblyLine;
 
-// Frees all dynamically allocated memory referenced by the assembly line.
-// Replaces freed pointers with NULL.
-void destroyAssemblyLine(struct AssemblyLine* line);
+// An assembly program consisting of zero or more lines.
+typedef struct {
+  // The number of lines in the assembly program.
+  size_t lineCount;
+  // The lines of the assembly program. Should be a dynamically allocated array.
+  AssemblyLine* lines;
+} AssemblyProgram;
 
-// Frees all dynamically allocated memory referenced by the assembly instruction.
-// Replaces freed pointers with NULL.
-void destroyAssemblyInstruction(struct AssemblyInstruction* instruction);
+// Frees all memory referenced by the assembly program and replaces freed pointers with NULL.
+void DestroyAssemblyProgram(AssemblyProgram* program);
 
-// Frees all dynamically allocated memory referenced by the assembly parameter.
-// Replaces freed pointers with NULL.
-void destroyAssemblyParameter(struct AssemblyParameter* parameter);
+// Frees all memory referenced by the assembly line and replaces freed pointers with NULL.
+void DestroyAssemblyLine(AssemblyLine* line);
 
-// Frees all dynamically allocated memory referenced by the assembly data.
-// Replaces freed pointers with NULL.
-void destroyAssemblyData(struct AssemblyData* data);
+// Frees all memory referenced by the assembly instruction and replaces freed pointers with NULL.
+void DestroyAssemblyInstruction(AssemblyInstruction* instruction);
+
+// Frees all memory referenced by the assembly data and replaces freed pointers with NULL.
+void DestroyAssemblyData(AssemblyData* data);
