@@ -23,6 +23,8 @@
 // (Except in the case of a label, which does not allow whitespace between either the name or address and the '@' symbol).
 // Any whitespace between two lines is ignored.
 
+#define MAX_ERRORS 99
+
 extern const char* INVALID_LABEL_NAME;
 extern const char* INVALID_LABEL_ADDR;
 extern const char* INVALID_OPCODE;
@@ -41,11 +43,20 @@ typedef struct {
   TextSpan sourceSpan;
 } ParsingError;
 
+typedef struct {
+  // The number of errors in the list.
+  size_t errorCount;
+  // The array of errors.
+  ParsingError errors[MAX_ERRORS];
+  // Whether there were more than MAX_ERRORS errors.
+  bool moreErrors;
+} ParsingErrorList;
+
 // Parses an assembly program from the provided text.
 // Moves the text contents into the program struct.
-// If no parsing errors occur, sets errors to NULL and returns 0.
-// If any parsing errors occur, sets errors to a dynamically allocated array and returns the number of errors.
-size_t TryParseAssemblyProgram(TextContents* text, AssemblyProgram* program, ParsingError** errors);
+// If no parsing errors occur, returns true.
+// If any parsing errors occur, updates errors and returns false.
+bool TryParseAssemblyProgram(TextContents* text, AssemblyProgram* program, ParsingErrorList* errors);
 
 // Parses the next line of assembly from the given text and advances the position.
 // Skips leading whitespace and newlines.
