@@ -239,12 +239,13 @@ bool tryParseParameter(const char** text, AssemblyParameter* parameter, ParsingE
   return true;
 }
 
-bool tryParseRegister(const char** text, enum Register* reg) {
+bool tryParseRegister(const TextContents* text, TextOffset* position, enum Register* reg) {
   // Loop through the array of register names and output the first match
   for (int i = 0; i < REGISTER_COUNT; i++) {
-    if (startsWithWordCaseInsensitive(*text, REGISTER_NAMES[i])) {
+    if (startsWithWordCaseInsensitive(text, *position, REGISTER_NAMES[i])) {
       *reg = (enum Register)i;
-      (*text) += strlen(REGISTER_NAMES[i]);
+      position->column += strlen(REGISTER_NAMES[i]);
+      NormalizeTextOffset(text, position);
       return true;
     }
   }
