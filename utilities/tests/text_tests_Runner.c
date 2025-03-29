@@ -3,10 +3,15 @@
 /*=======Automagically Detected Files To Include=====*/
 #include "unity.h"
 #include "utilities/text.h"
+#include <string.h>
 
 /*=======External Functions This Runner Calls=====*/
 extern void setUp(void);
 extern void tearDown(void);
+extern void test_InitTextContentsAsCopy_should_returnLines_when_givenStringWithUnixLineEnding();
+extern void test_InitTextContentsAsCopy_should_returnLines_when_givenStringWithWindowsLineEnding();
+extern void test_InitTextContentsAsCopy_should_returnEmptyLastLine_when_givenStringWithTrailingNewline();
+extern void test_InitTextContentsAsCopy_should_returnIgnoreNullCharacter_when_givenStringContainingNull();
 
 
 /*=======Mock Management=====*/
@@ -36,12 +41,44 @@ void verifyTest(void)
   CMock_Verify();
 }
 
+/*=======Test Runner Used To Run Each Test=====*/
+static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE line_num)
+{
+    Unity.CurrentTestName = name;
+    Unity.CurrentTestLineNumber = (UNITY_UINT) line_num;
+#ifdef UNITY_USE_COMMAND_LINE_ARGS
+    if (!UnityTestMatches())
+        return;
+#endif
+    Unity.NumberOfTests++;
+    UNITY_CLR_DETAILS();
+    UNITY_EXEC_TIME_START();
+    CMock_Init();
+    if (TEST_PROTECT())
+    {
+        setUp();
+        func();
+    }
+    if (TEST_PROTECT())
+    {
+        tearDown();
+        CMock_Verify();
+    }
+    CMock_Destroy();
+    UNITY_EXEC_TIME_STOP();
+    UnityConcludeTest();
+}
+
 /*=======Parameterized Test Wrappers=====*/
 
 /*=======MAIN=====*/
 int main(void)
 {
   UnityBegin("./utilities/tests/text_tests.c");
+  run_test(test_InitTextContentsAsCopy_should_returnLines_when_givenStringWithUnixLineEnding, "test_InitTextContentsAsCopy_should_returnLines_when_givenStringWithUnixLineEnding", 17);
+  run_test(test_InitTextContentsAsCopy_should_returnLines_when_givenStringWithWindowsLineEnding, "test_InitTextContentsAsCopy_should_returnLines_when_givenStringWithWindowsLineEnding", 33);
+  run_test(test_InitTextContentsAsCopy_should_returnEmptyLastLine_when_givenStringWithTrailingNewline, "test_InitTextContentsAsCopy_should_returnEmptyLastLine_when_givenStringWithTrailingNewline", 49);
+  run_test(test_InitTextContentsAsCopy_should_returnIgnoreNullCharacter_when_givenStringContainingNull, "test_InitTextContentsAsCopy_should_returnIgnoreNullCharacter_when_givenStringContainingNull", 67);
 
   return UNITY_END();
 }
