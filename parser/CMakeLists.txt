@@ -5,7 +5,7 @@ add_subdirectory(tests)
 add_library(
   ${PROJECT_NAME}
   src/parse.c
-  src/utilities.c
+  src/text_utils.c
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <ctype.h>
-#include "parser/utilities.h"
+#include "text_utils.h"
 
 bool isWordChar(char c) {
   return isalnum(c) || c == '_';
