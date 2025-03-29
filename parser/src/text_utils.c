@@ -40,9 +40,8 @@ void skipToNextWhitespace(const TextContents* text, TextOffset* position) {
 }
 
 bool lineContainsChar(const TextContents* text, TextOffset start, char c) {
-  char current;
-  while (!isEndOfLineOrFile(current = GetCharAtTextOffset(text, start))) {
-    if (current == c) {
+  while (!IsTextOffsetEndOfLine(text, start)) {
+    if (GetCharAtTextOffset(text, start) == c) {
       return true;
     }
     IncrementTextOffset(text, &start);

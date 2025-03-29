@@ -54,6 +54,11 @@ bool IsTextContentsInitialized(const TextContents* text) {
   return text->chars != NULL && text->lines != NULL;
 }
 
+TextOffset GetTextContentsEndOfLine(const TextContents* text, TextOffset offset) {
+  NormalizeTextOffset(text, &offset);
+  return (TextOffset){ offset.line, text->lines[offset.line].length };
+}
+
 char GetCharAtTextOffset_normalized(const TextContents* text, TextOffset offset) {
   assert(offset.line < text->lineCount);
   assert(offset.column <= text->lines[offset.line].length);
@@ -109,6 +114,11 @@ void IncrementTextOffset_normalized(const TextContents* text, TextOffset* offset
 void IncrementTextOffset(const TextContents* text, TextOffset* offset) {
   offset->column++;
   NormalizeTextOffset(text, offset);
+}
+
+bool IsTextOffsetEndOfLine(const TextContents* text, TextOffset offset) {
+  NormalizeTextOffset(text, &offset);
+  return offset.column == text->lines[offset.line].length;
 }
 
 int CompareTextOffsets(const TextContents* text, TextOffset offsetA, TextOffset offsetB) {

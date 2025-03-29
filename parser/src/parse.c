@@ -122,7 +122,7 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
       return false; // Failed to parse assembly instruction
     }
   }
-  assert(CompareTextOffsets(text, *position, GetTextContentsEndOfLine(text, start.line)) == 0);
+  assert(CompareTextOffsets(text, *position, GetTextContentsEndOfLine(text, start)) == 0);
 
   line->sourceSpan = (TextSpan){start, *position};
 
@@ -140,7 +140,7 @@ bool tryParseLabel(const TextContents* text, TextOffset* position, AssemblyLabel
 }
 
 bool tryParseInstruction(const TextContents* text, TextOffset* position, AssemblyInstruction* instruction, ParsingError* error) {
-  TextOffset endOfLine = GetTextContentsEndOfLine(text, position->line);
+  TextOffset endOfLine = GetTextContentsEndOfLine(text, *position);
 
   // Parse the opcode
   TextOffset start = *position;
@@ -341,7 +341,7 @@ bool tryParseImmediateDecValue(const TextContents* text, TextOffset* position, s
 bool tryParseAssemblyData(const TextContents* text, TextOffset* position, AssemblyData* data, ParsingError* error) {
   data->length = 0;
   data->bytes = NULL;
-  TextOffset endOfLine = GetTextContentsEndOfLine(text, position->line);
+  TextOffset endOfLine = GetTextContentsEndOfLine(text, *position);
   while (CompareTextOffsets(text, *position, endOfLine) < 0) {
     TextOffset start = *position;
 
