@@ -177,12 +177,13 @@ bool tryParseInstruction(const char** text, AssemblyInstruction* instruction, Pa
   return true;
 }
 
-bool tryParseOpcode(const char** text, enum Opcode* opcode) {
+bool tryParseOpcode(const TextContents* text, TextOffset* position, enum Opcode* opcode) {
   // Loop through the array of opcode definitions and output the first match
   for (int i = 0; i < OPCODE_COUNT; i++) {
-    if (startsWithWordCaseInsensitive(*text, OPCODE_INFO[i].name)) {
+    if (startsWithWordCaseInsensitive(text, *position, OPCODE_INFO[i].name)) {
       *opcode = (enum Opcode)i;
-      (*text) += strlen(OPCODE_INFO[i].name);
+      position->column += strlen(OPCODE_INFO[i].name);
+      NormalizeTextOffset(text, position);
       return true;
     }
   }
