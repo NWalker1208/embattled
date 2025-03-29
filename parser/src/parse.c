@@ -25,57 +25,57 @@ const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 #pragma region Helper function signatures
 
 // Parses an assembly instruction.
-// If the current line is a valid instruction, advances text to the end of the line,
-// outputs the instruction through result, and returns true.
+// If the current line is a valid instruction, advances position to the end of the current line,
+// outputs the instruction through instruction, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseInstruction(const char** text, AssemblyInstruction* instruction, ParsingError* error);
+bool tryParseInstruction(const TextContents* text, TextContentsOffset* position, AssemblyInstruction* instruction, ParsingError* error);
 
 // Parses hexadecimal assembly data bytes.
-// Expects text to be at the first hexadecimal byte (past the '.data' sequence).
-// If text contains valid hexadecimal bytes from the start to the end of the line,
-// advances text to the end of the line, outputs the data through result, and returns true.
+// Expects position to be at the first hexadecimal byte (past the '.data' sequence).
+// If text contains valid hexadecimal bytes from the current position to the end of the current line,
+// advances position to the end of the line, outputs the data through data, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseAssemblyData(const char** text, AssemblyData* data, ParsingError* error);
+bool tryParseAssemblyData(const TextContents* text, TextContentsOffset* position,  AssemblyData* data, ParsingError* error);
 
 // Parses an assembly instruction parameter.
-// If parsing succeeds, advances text past the end of the parameter,
-// outputs the parameter through result, and returns true.
+// If parsing succeeds, advances position past the end of the parameter,
+// outputs the parameter through parameter, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseParameter(const char** text, AssemblyParameter* parameter, ParsingError* error);
+bool tryParseParameter(const TextContents* text, TextContentsOffset* position, AssemblyParameter* parameter, ParsingError* error);
 
 // Parses an opcode name.
 // Expects text to be at the start of the opcode name.
-// If parsing succeeds, advances text past the end of the opcode name,
-// outputs the opcode through result and returns true.
+// If parsing succeeds, advances position past the end of the opcode name,
+// outputs the opcode through opcode, and returns true.
 // If parsing fails, returns false.
-bool tryParseOpcode(const char** text, enum Opcode* opcode);
+bool tryParseOpcode(const TextContents* text, TextContentsOffset* position, enum Opcode* opcode);
 
 // Parses a register name.
 // Expects text to be at the start of the register name (past the "$" character).
-// If parsing succeeds, advances text past the end of the register name,
-// outputs the register through result and returns true.
+// If parsing succeeds, advances position past the end of the register name,
+// outputs the register through reg and returns true.
 // If parsing fails, returns false.
-bool tryParseRegister(const char** text, enum Register* reg);
+bool tryParseRegister(const TextContents* text, TextContentsOffset* position, enum Register* reg);
 
 // Parses a hexadecimal immediate value.
 // Expects text to be at the first hexadecimal digit (pase the "0x" sequence).
-// If parsing succeeds, advances text past the end of the hexadecimal digits,
+// If parsing succeeds, advances position past the end of the hexadecimal digits,
 // outputs the immediate value through result and returns true.
 // If parsing fails, returns false.
-bool tryParseImmediateHexValue(const char** text, signed int* value);
+bool tryParseImmediateHexValue(const TextContents* text, TextContentsOffset* position, signed int* value);
 
 // Parses a decimal immediate value.
 // Expects text to be at the first digit, or at the sign character if one is present.
-// If parsing succeeds, advances text past the end of the digits,
+// If parsing succeeds, advances position past the end of the digits,
 // outputs the immediate value through result and returns true.
 // If parsing fails, returns false.
-bool tryParseImmediateDecValue(const char** text, signed int* value);
+bool tryParseImmediateDecValue(const TextContents* text, TextContentsOffset* position, signed int* value);
 
-// Parses and copies a label name.
-// If parsing succeeds, advances text past the end of the label and returns a pointer to a new
-// null-terminated array containing a copy of the label.
-// If parsing fails, leaves text as it is and returns NULL.
-char* tryCopyLabel(const char** text);
+// Parses a name.
+// If parsing succeeds, advances position past the end of the name,
+// outputs the span of the name through span, and returns true.
+// If parsing fails, returns false.
+bool tryParseName(const TextContents* text, TextContentsOffset* position, TextContentsSpan* span);
 
 #pragma endregion
 
