@@ -54,7 +54,7 @@ TextContents InitTextContentsAsCopyCStr(const char* str);
 void DestroyTextContents(TextContents* text);
 
 // Checks if the TextContents struct has been initialized.
-bool TextContentsIsInitialized(const TextContents* text);
+bool IsTextContentsInitialized(const TextContents* text);
 
 // Normalizes an offset such that the column number causes the offset to wrap onto the next line if it is
 // greater than the length of the current line.
