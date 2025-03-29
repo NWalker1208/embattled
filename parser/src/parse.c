@@ -18,7 +18,6 @@ const char* UNEXPECTED_CHARACTER = "Unexpected character";
 const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 
 #define PARSING_ERROR(_message, _location) (ParsingError){.message = (_message), .location = (_location)}
-#define SKIP_TO_NEXT_LINE(_position) { _position->line++; _position->column = 0; }
 
 #pragma endregion
 

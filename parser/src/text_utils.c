@@ -6,49 +6,42 @@ bool isWordChar(char c) {
   return isalnum(c) || c == '_';
 }
 
-bool startsWithWordCaseInsensitive(const char* text, const char* word) {
-  while (*text != '\0' && *word != '\0') {
-    if (tolower(*text) != tolower(*word)) {
+bool startsWithWordCaseInsensitive(const TextContents* text, TextOffset start, const char* word) {
+  TextOffset textEnd = GetTextContentsEnd(text);
+  while (*word != '\0' && CompareTextOffsets(text, start, textEnd) < 0) {
+    if (tolower(GetCharAtTextOffset(text, start)) != tolower(*word)) {
       return false;
     }
-    text++;
+    start = IncrementTextOffset(text, start);
     word++;
   }
-  return *word == '\0' && !isWordChar(*text);
+  return *word == '\0' && !isWordChar(GetCharAtTextOffset(text, start));
 }
 
-bool skipInlineWhitespace(const char** text) {
+bool skipInlineWhitespace(const TextContents* text, TextOffset* position) {
   bool skippedAny = false;
-  while (isInlineWhitespace(**text)) {
-    (*text)++;
+  while (isInlineWhitespace(GetCharAtTextOffset(text, *position))) {
+    *position = IncrementTextOffset(text, *position);
     skippedAny = true;
   }
   return skippedAny;
 }
 
-void skipAllWhitespace(const char** text) {
-  while (isAnyWhitespace(**text)) {
-    (*text)++;
+void skipAllWhitespace(const TextContents* text, TextOffset* position) {
+  while (isAnyWhitespace(GetCharAtTextOffset(text, *position))) {
+    *position = IncrementTextOffset(text, *position);
   }
 }
 
-void skipToNextLine(const char** text) {
-  while (**text != '\0' && **text != '\n') {
-    (*text)++;
-  }
-  if (**text == '\n') {
-    (*text)++;
-  }
-}
-
-const char* findCharOnLine(const char* str, char c) {
-  while (!isEndOfLineOrFile(*str)) {
-    if (*str == c) {
-      return str;
+bool lineContainsChar(const TextContents* text, TextOffset start, char c) {
+  char current;
+  while (!isEndOfLineOrFile(current = GetCharAtTextOffset(text, start))) {
+    if (current == c) {
+      return true;
     }
-    str++;
+    start = IncrementTextOffset(text, start);
   }
-  return NULL;
+  return false;
 }
 
 bool tryHexToNibble(char c, unsigned char* result) {

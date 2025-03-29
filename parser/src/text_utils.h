@@ -5,8 +5,8 @@
 // Returns true if c is a space or a tab character. Otherwise, returns false.
 static inline bool isInlineWhitespace(char c) { return c == ' ' || c == '\t'; }
 
-// Returns true if c is a newline or a carriage return. Otherwise, returns false.
-static inline bool isEndOfLine(char c) { return c == '\n' || c == '\r'; }
+// Returns true if c is a newline. Otherwise, returns false.
+static inline bool isEndOfLine(char c) { return c == '\n'; }
 
 // Returns true if c is a newline, carriage return, or null terminator. Otherwise, returns false.
 static inline bool isEndOfLineOrFile(char c) { return c == '\0' || isEndOfLine(c); }
@@ -27,6 +27,12 @@ bool skipInlineWhitespace(const TextContents* text, TextOffset* position);
 
 // Advances position to the next non-whitespace character.
 void skipAllWhitespace(const TextContents* text, TextOffset* position);
+
+// Advances position to the next line.
+static inline void skipToNextLine(TextOffset* position) {
+  position->line++;
+  position->column = 0;
+}
 
 // Searches one line of text for the specified character starting at the specified offset.
 // Returns true if the character is found. Otherwise, returns false.
