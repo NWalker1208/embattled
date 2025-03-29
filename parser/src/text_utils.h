@@ -31,10 +31,11 @@ void skipAllWhitespace(const TextContents* text, TextOffset* position);
 // Advances position to the next whitespace character.
 void skipToNextWhitespace(const TextContents* text, TextOffset* position);
 
-// Advances position to the next line.
-static inline void skipToNextLine(TextOffset* position) {
+// Advances position to the next line or the end of the text.
+static inline void skipToNextLine(const TextContents* text, TextOffset* position) {
   position->line++;
   position->column = 0;
+  NormalizeTextOffset(text, position);
 }
 
 // Searches one line of text for the specified character starting at the specified offset.
