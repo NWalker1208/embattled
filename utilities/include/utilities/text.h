@@ -11,7 +11,7 @@ typedef struct {
 // A collection of lines of text.
 typedef struct {
   // The text as an array of chars with null characters between each line.
-  const char* chars;
+  char* chars;
   // The length of the chars array.
   size_t length;
 
@@ -42,3 +42,6 @@ bool TextContentsIsInitialized(const TextContents* contents);
 // Gets the line of text at the specified line number.
 // If the line number is out of bounds, returns NULL.
 const char* TextContentsGetLine(const TextContents* contents, size_t line);
+
+// Compares two spans of TextContents according to strcmp rules.
+int TextContentsCompareSpans(const TextContents* contentsA, TextContentsSpan spanA, const TextContents* contentsB, TextContentsSpan spanB);

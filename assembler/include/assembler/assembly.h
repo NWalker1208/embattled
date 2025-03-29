@@ -21,9 +21,9 @@ typedef struct {
   // The kind of parameter that this is.
   AssemblyParameterKind kind;
   union {
-    enum Register registerName;       // kind == ASSEMBLY_PARAM_REGISTER
-    signed int immediateValue;        // kind == ASSEMBLY_PARAM_IMMEDIATE
-    TextContentsSpan referencedLabel; // kind == ASSEMBLY_PARAM_LABEL
+    enum Register registerName; // kind == ASSEMBLY_PARAM_REGISTER
+    signed int immediateValue;  // kind == ASSEMBLY_PARAM_IMMEDIATE
+    TextContentsSpan labelSpan; // kind == ASSEMBLY_PARAM_LABEL
   };
 } AssemblyParameter;
 
@@ -69,6 +69,8 @@ typedef struct {
 
 // An assembly program consisting of zero or more lines.
 typedef struct {
+  // The text from which this program was parsed.
+  TextContents sourceText;
   // The number of lines in the assembly program.
   size_t lineCount;
   // The lines of the assembly program. Should be a dynamically allocated array.

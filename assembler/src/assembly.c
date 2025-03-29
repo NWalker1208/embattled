@@ -2,6 +2,7 @@
 #include "assembler/assembly.h"
 
 void DestroyAssemblyProgram(AssemblyProgram* program) {
+  DestroyTextContents(&program->sourceText);
   free(program->lines);
   program->lines = NULL;
   program->lineCount = 0;
@@ -17,6 +18,7 @@ void DestroyAssemblyLine(AssemblyLine* line) {
       DestroyAssemblyData(&line->data);
       break;
     }
+    default: break;
   }
 }
 
