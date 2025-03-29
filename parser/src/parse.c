@@ -274,36 +274,38 @@ bool tryParseImmediateHexValue(const char** text, signed int* value) {
   return true;
 }
 
-bool tryParseImmediateDecValue(const char** text, signed int* value) {
+bool tryParseImmediateDecValue(const TextContents* text, TextOffset* position, signed int* value) {
   // Check for sign character (- or +)
-  bool isNegative = **text == '-';
-  unsigned int i = (isNegative || **text == '+') ? 1 : 0;
+  char c = GetCharAtTextOffset(text, *position);
+  bool isNegative = c == '-';
+  if (isNegative || c == '+') {
+    IncrementTextOffset(text, position);
+  }
 
   // Check that first character after sign is valid digit
-  if (!isdigit((*text)[i])) {
+  if (!isdigit(c = GetCharAtTextOffset(text, *position))) {
     return false; // Not a decimal integer
   }
-  unsigned char nextDigit = (*text)[i] - '0';
-  i++;
+  unsigned char nextDigit = c - '0';
+  IncrementTextOffset(text, position);
 
   // Parse remaining digits
   signed int decValue = isNegative ? -nextDigit : nextDigit;
 
-  while (isdigit((*text)[i])) {
+  while (isdigit(c = GetCharAtTextOffset(text, *position))) {
     if ((isNegative && decValue < INT_MIN / 10) || (!isNegative && decValue > INT_MAX / 10)) {
       return false; // Overflow
     }
     decValue = decValue * 10;
 
-    nextDigit = (*text)[i] - '0';
+    nextDigit = c - '0';
     if ((isNegative && decValue < INT_MIN + nextDigit) || (!isNegative && decValue > INT_MAX - nextDigit)) {
       return false; // Overflow
     }
     decValue += isNegative ? -nextDigit : nextDigit;
-    i++;
+    IncrementTextOffset(text, position);
   }
 
-  *text += i;
   *value = decValue;
   return true;
   
