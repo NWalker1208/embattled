@@ -80,54 +80,54 @@ void test_InitTextContentsAsCopy_should_returnIgnoreNullCharacter_when_givenStri
 
 #pragma endregion
 
-#pragma region CompareTextContentsSpans
+#pragma region CompareTextSpans
 
-void test_CompareTextContentsSpans_should_returnZero_when_givenIdenticalSpans() {
+void test_CompareTextSpans_should_returnZero_when_givenIdenticalSpans() {
   // Arrange
   text = InitTextContentsAsCopyCStr("some text");
-  TextSpan span = { .start = { 0, 0 }, .length = 4 };
+  TextSpan span = {{0, 0}, {0, 4}};
 
   // Act
-  int result = CompareTextContentsSpans(&text, span, &text, span);
+  int result = CompareTextSpans(&text, span, &text, span);
 
   // Assert
   TEST_ASSERT_EQUAL_INT(0, result);
 }
 
-void test_CompareTextContentsSpans_should_returnZero_when_givenSpansWithIdenticalChars() {
+void test_CompareTextSpans_should_returnZero_when_givenSpansWithIdenticalChars() {
   // Arrange
   text = InitTextContentsAsCopyCStr("text text");
-  TextSpan spanA = { .start = { 0, 0 }, .length = 4 };
-  TextSpan spanB = { .start = { 0, 5 }, .length = 4 };
+  TextSpan spanA = {{0, 0}, {0, 4}};
+  TextSpan spanB = {{0, 5}, {0, 9}};
 
   // Act
-  int result = CompareTextContentsSpans(&text, spanA, &text, spanB);
+  int result = CompareTextSpans(&text, spanA, &text, spanB);
 
   // Assert
   TEST_ASSERT_EQUAL_INT(0, result);
 }
 
-void test_CompareTextContentsSpans_should_returnNegativeInt_when_spanACharsAreLessThanSpanBChars() {
+void test_CompareTextSpans_should_returnNegativeInt_when_spanACharsAreLessThanSpanBChars() {
   // Arrange
   text = InitTextContentsAsCopyCStr("abc bcd");
-  TextSpan spanA = { .start = { 0, 0 }, .length = 3 };
-  TextSpan spanB = { .start = { 0, 4 }, .length = 3 };
+  TextSpan spanA = {{0, 0}, {0, 3}};
+  TextSpan spanB = {{0, 4}, {0, 7}};
 
   // Act
-  int result = CompareTextContentsSpans(&text, spanA, &text, spanB);
+  int result = CompareTextSpans(&text, spanA, &text, spanB);
 
   // Assert
   TEST_ASSERT_LESS_THAN(0, result);
 }
 
-void test_CompareTextContentsSpans_should_returnPositiveInt_when_spanACharsAreGreaterThanSpanBChars() {
+void test_CompareTextSpans_should_returnPositiveInt_when_spanACharsAreGreaterThanSpanBChars() {
   // Arrange
   text = InitTextContentsAsCopyCStr("bcd abc");
-  TextSpan spanA = { .start = { 0, 0 }, .length = 3 };
-  TextSpan spanB = { .start = { 0, 4 }, .length = 3 };
+  TextSpan spanA = {{0, 0}, {0, 3}};
+  TextSpan spanB = {{0, 4}, {0, 7}};
 
   // Act
-  int result = CompareTextContentsSpans(&text, spanA, &text, spanB);
+  int result = CompareTextSpans(&text, spanA, &text, spanB);
 
   // Assert
   TEST_ASSERT_GREATER_THAN(0, result);
