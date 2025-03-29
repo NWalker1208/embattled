@@ -1,5 +1,6 @@
 #pragma once
 #include <stdbool.h>
+#include "utilities/text.h"
 
 // Returns true if c is a space or a tab character. Otherwise, returns false.
 static inline bool isInlineWhitespace(char c) { return c == ' ' || c == '\t'; }
@@ -17,22 +18,19 @@ static inline bool isAnyWhitespace(char c) { return isInlineWhitespace(c) || isE
 // Returns true if c is a letter, number, or underscore. Otherwise, returns false.
 bool isWordChar(char c);
 
-// Returns true if text begins with the specified word. Otherwise, returns false.
-bool startsWithWordCaseInsensitive(const char* text, const char* word);
+// Returns true if text begins with the specified word at the specified offset. Otherwise, returns false.
+bool startsWithWordCaseInsensitive(const TextContents* text, TextOffset start, const char* word);
 
-// Advances text to the next character that isn't a space or a tab.
+// Advances position to the next character that isn't a space or a tab.
 // Returns true if any characters were skipped. Otherwise, returns false.
-bool skipInlineWhitespace(const char** text);
+bool skipInlineWhitespace(const TextContents* text, TextOffset* position);
 
-// Advances text to the next non-whitespace character.
-void skipAllWhitespace(const char** text);
+// Advances position to the next non-whitespace character.
+void skipAllWhitespace(const TextContents* text, TextOffset* position);
 
-// Advances text past the next newline character.
-void skipToNextLine(const char** text);
-
-// Returns a pointer to the first occurrence of c in the first line of text.
-// If c is not found in the first line of text, returns NULL.
-const char* findCharOnLine(const char* text, char c);
+// Searches one line of text for the specified character starting at the specified offset.
+// Returns true if the character is found. Otherwise, returns false.
+bool lineContainsChar(const TextContents* text, TextOffset start, char c);
 
 // Attempts to convert the given character to a nibble value.
 // If the character is a hexadecimal digit, sets the byte at nibble to the digit's value and returns true.
