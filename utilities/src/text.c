@@ -1,5 +1,43 @@
 #include "utilities/text.h"
 #include <stdlib.h>
+#include <string.h>
+
+TextContents InitTextContents(char* chars, size_t length) {
+  // Split the chars into lines, allowing for both Unix and Windows style line endings
+  TextContentsLine* lines = NULL;
+  size_t lineCount = 0;
+  size_t currentLineStart = 0;
+
+  for (size_t i = 0; i < length; i++) {
+    if (chars[i] == '\n') {
+      size_t currentLineEnd = (i > 0 && chars[i - 1] == '\r') ? i - 1 : i;
+      chars[currentLineEnd] = '\0';
+
+      lines = realloc(lines, sizeof(TextContentsLine) * (lineCount + 1));
+      lines[lineCount] = (TextContentsLine){ currentLineStart, currentLineEnd - currentLineStart };
+      lineCount++;
+
+      currentLineStart = i + 1;
+    }
+  }
+
+  lines = realloc(lines, sizeof(TextContentsLine) * (lineCount + 1));
+  lines[lineCount] = (TextContentsLine){ currentLineStart, length - currentLineStart };
+  lineCount++;
+
+  return (TextContents){ chars, length, lines, lineCount };
+}
+
+TextContents InitTextContentsAsCopy(const char* chars, size_t length) {
+  char* charsCopy = malloc(sizeof(char) * (length + 1));
+  memcpy(charsCopy, chars, sizeof(char) * length);
+  charsCopy[length] = '\0';
+  return InitTextContents(charsCopy, length);
+}
+
+TextContents InitTextContentsAsCopyCStr(const char* str) {
+  return InitTextContentsAsCopy(str, strlen(str));
+}
 
 void DestroyTextContents(TextContents* text) {
   free(text->chars);

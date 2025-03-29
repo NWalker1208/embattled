@@ -41,6 +41,15 @@ typedef struct {
   size_t length;
 } TextContentsSpan;
 
+// Initializes a TextContents struct with the given chars array.
+TextContents InitTextContents(char* chars, size_t length);
+
+// Initializes a TextContents struct with a copy of the given chars array.
+TextContents InitTextContentsAsCopy(const char* chars, size_t length);
+
+// Initializes a TextContents struct with a copy of the given null-terminated C string.
+TextContents InitTextContentsAsCopyCStr(const char* str);
+
 // Frees the memory referenced by a TextContents struct.
 void DestroyTextContents(TextContents* text);
 
