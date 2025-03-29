@@ -125,6 +125,10 @@ void NormalizeTextSpan(const TextContents* text, TextSpan* span) {
   }
 }
 
+bool IsEmptyTextSpan(const TextContents* text, TextSpan span) {
+  return CompareTextOffsets(text, span.start, span.end) == 0;
+}
+
 int CompareTextSpans(const TextContents* textA, TextSpan spanA, const TextContents* textB, TextSpan spanB) {
   NormalizeTextSpan(textA, &spanA);
   NormalizeTextSpan(textB, &spanB);

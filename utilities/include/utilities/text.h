@@ -98,5 +98,8 @@ int CompareTextOffsets(const TextContents* text, TextOffset offsetA, TextOffset 
 // If end is less than start, sets end equal to start.
 void NormalizeTextSpan(const TextContents* text, TextSpan* span);
 
+// Returns true if the start offset is equivalent to the end offset.
+bool IsEmptyTextSpan(const TextContents* text, TextSpan span);
+
 // Compares two spans of text according to strcmp rules.
 int CompareTextSpans(const TextContents* textA, TextSpan spanA, const TextContents* textB, TextSpan spanB);

@@ -29,21 +29,23 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
         goto failed;
       }
       
-      if (line.label.nameSpan.length == 0 && line.label.addressSpan.length == 0) {
+      bool hasName = !IsEmptyTextSpan(&program->sourceText, line.label.nameSpan);
+      bool hasAddress = !IsEmptyTextSpan(&program->sourceText, line.label.addressSpan);
+      if (!hasName && !hasAddress) {
         *error = ASSEMBLING_ERROR(INVALID_LABEL, line.sourceSpan);
         goto failed;
       }
 
-      if (line.label.nameSpan.length > 0) {
+      if (hasName) {
         for (size_t j = 0; j < labelCount; j++) {
-          if (CompareTextContentsSpans(&program->sourceText, line.label.nameSpan, &program->sourceText, labelTableLabelSpans[j]) == 0) {
+          if (CompareTextSpans(&program->sourceText, line.label.nameSpan, &program->sourceText, labelTableLabelSpans[j]) == 0) {
             *error = ASSEMBLING_ERROR(DUPLICATE_LABEL_NAME, line.label.nameSpan);
             goto failed;
           }
         }
       }
 
-      if (line.label.addressSpan.length > 0) {
+      if (hasAddress) {
         if (line.label.address < currentMemoryAddr) {
           *error = ASSEMBLING_ERROR(LABEL_ADDRESS_TOO_LOW, line.sourceSpan);
           goto failed;
@@ -55,7 +57,7 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
       currentLabel = &line.label;
     } else if (line.kind == ASSEMBLY_LINE_INSTRUCTION || line.kind == ASSEMBLY_LINE_DATA) {
       if (currentLabel != NULL) {
-        if (currentLabel->nameSpan.length > 0) {
+        if (!IsEmptyTextSpan(&program->sourceText, currentLabel->nameSpan)) {
           labelTableLabelSpans[labelCount] = currentLabel->nameSpan;
           labelTableAddresses[labelCount] = currentMemoryAddr;
           labelCount++;
@@ -166,7 +168,7 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
   if (currentLabel != NULL) {
     *error = ASSEMBLING_ERROR(EXPECTED_INSTRUCTION_OR_DATA, ((TextSpan){
       .start = currentLabel->nameSpan.start,
-      .length = currentLabel->nameSpan.length + 1 + currentLabel->addressSpan.length,
+      .end = currentLabel->addressSpan.end,
     }));
     goto failed;
   }
@@ -179,7 +181,7 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
     unsigned short labelAddress;
     bool foundLabel = false;
     for (unsigned int j = 0; j < labelCount; j++) {
-      if (CompareTextContentsSpans(&program->sourceText, labelTableLabelSpans[j], &program->sourceText, labelSpan) == 0) {
+      if (CompareTextSpans(&program->sourceText, labelTableLabelSpans[j], &program->sourceText, labelSpan) == 0) {
         labelAddress = labelTableAddresses[j];
         foundLabel = true;
         break;

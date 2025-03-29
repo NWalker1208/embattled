@@ -9,9 +9,9 @@
 
 // The label represented by an assembly line.
 typedef struct {
-  // The span of the name portion of the label. If not present, has a length of 0.
+  // The span of the name portion of the label. Empty if name is not present.
   TextSpan nameSpan;
-  // The span of the address portion of the label. If not present, has a length of 0.
+  // The span of the address portion of the label. Empty if address is not present.
   TextSpan addressSpan;
   // The value of the address portion of the label, if present.
   unsigned short address;
