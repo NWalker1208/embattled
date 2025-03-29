@@ -1,7 +1,8 @@
 #pragma once
 #include <stdio.h>
 #include <stdbool.h>
-#include "parser/assembly.h"
+#include "utilities/text.h"
+#include "assembler/assembly.h"
 
 // Assembly Syntax:
 //   <file> -> <line>*

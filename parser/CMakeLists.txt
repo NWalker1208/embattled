@@ -4,12 +4,11 @@ add_subdirectory(tests)
 
 add_library(
   ${PROJECT_NAME}
-  src/assembly.c
   src/parse.c
   src/utilities.c
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
-target_link_libraries(${PROJECT_NAME} PUBLIC utilities processor)
+target_link_libraries(${PROJECT_NAME} PUBLIC utilities processor assembler)
 
 enable_testing()
