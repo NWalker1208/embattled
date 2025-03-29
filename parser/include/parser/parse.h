@@ -5,22 +5,23 @@
 #include "assembler/assembly.h"
 
 // Assembly Syntax:
-//   <file> -> <line>*
+//   <program> -> <line>*
 //   <line> ->
-//     (<label> ':')? (
-//       (<opcode> (<parameter> (',' <parameter>)*)?) |
-//       ('.data' <hexByte>+)
-//     )
+//     ((<name> | (<name>? '@' <address>)) ':') |
+//     (<opcode> (<parameter> (',' <parameter>)*)?) |
+//     ('.data' <hexByte>+)
+//   <address> -> <hexDigit>{1,4}
+//   <name> -> [a-zA-Z_][a-zA-Z0-9_]*
 //   <parameter> -> <register> | <immediateValue> | <labelReference>
 //   <register> -> '$' <registerName>
 //   <immediateValue> -> '0x' <hexDigit>+ | ('-' | '+')? <digit>+
-//   <labelReference> -> '@' <label>
-//   <label> -> [a-zA-Z_][a-zA-Z0-9_]*
+//   <labelReference> -> '@' <name>
 //   <hexByte> -> <hexDigit><hexDigit>
 //   <hexDigit> -> [0-9a-fA-F]
 //   <digit> -> [0-9]
 // Spaces and tabs between any two tokens are ignored.
-// Any whitespace between a label and the subsequent token is ignored.
+// (Except in the case of a label, which does not allow whitespace between either the name or address and the '@' symbol).
+// Any whitespace between two lines is ignored.
 
 extern const char* INVALID_LABEL;
 extern const char* INVALID_OPCODE;
