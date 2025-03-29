@@ -189,53 +189,61 @@ bool tryParseOpcode(const char** text, enum Opcode* opcode) {
   return false;
 }
 
-bool tryParseParameter(const char** text, AssemblyParameter* parameter, ParsingError* error) {
-  switch (**text) {
+bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyParameter* parameter, ParsingError* error) {
+  TextOffset start = *position;
+  char c = GetCharAtTextOffset(text, *position);
+  switch (c) {
     case '$':  {
       // Parse as a register
-      (*text)++;
-      parameter->kind = REGISTER;
-      if (!tryParseRegister(text, &parameter->registerName)) {
-        *error = PARSING_ERROR(INVALID_REGISTER, *text);
+      IncrementTextOffset(text, position);
+      parameter->kind = ASSEMBLY_PARAM_REGISTER;
+      if (!tryParseRegister(text, position, &parameter->registerName)) {
+        skipToNextWhitespace(text, position);
+        *error = PARSING_ERROR(INVALID_REGISTER, start, *position);
         return false; // Failed to parse register
       }
       break;
     }
     case '@': {
       // Parse as a label reference
-      (*text)++;
-      parameter->kind = LABEL_REFERENCE;
-      parameter->referencedLabel = tryCopyLabel(text);
-      if (parameter->referencedLabel == NULL) {
-        *error = PARSING_ERROR(INVALID_LABEL, *text);
+      IncrementTextOffset(text, position);
+      parameter->kind = ASSEMBLY_PARAM_LABEL;
+      if (!tryParseName(text, position, &parameter->labelSpan)) {
+        skipToNextWhitespace(text, position);
+        *error = PARSING_ERROR(INVALID_REGISTER, start, *position);
         return false; // Failed to parse label
       }
       break;
     }
     default: {
       // Parse as an immediate value
-      parameter->kind = IMMEDIATE_VALUE;
+      parameter->kind = ASSEMBLY_PARAM_IMMEDIATE;
       
-      if ((*text)[0] == '0' && (*text)[1] == 'x') {
+      if (c == '0' && GetCharAtTextOffset(text, (TextOffset){position->line, position->column + 1}) == 'x') {
         // Parse as a hexadecimal immediate value
-        (*text) += 2;
-        if (!tryParseImmediateHexValue(text, &parameter->immediateValue)) {
-          *error = PARSING_ERROR(INVALID_HEX_VALUE, *text);
+        position->column += 2;
+        NormalizeTextOffset(text, position);
+        if (!tryParseImmediateHexValue(text, position, &parameter->immediateValue)) {
+          skipToNextWhitespace(text, position);
+          *error = PARSING_ERROR(INVALID_HEX_VALUE, start, *position);
           return false; // Failed to parse hexadecimal immediate value
         }
-      } else if (isdigit(**text) || **text == '-' || **text == '+') {
+      } else if (isdigit(c) || c == '-' || c == '+') {
         // Parse as a decimal immediate value
-        if (!tryParseImmediateDecValue(text, &parameter->immediateValue)) {
-          *error = PARSING_ERROR(INVALID_INT_VALUE, *text);
+        if (!tryParseImmediateDecValue(text, position, &parameter->immediateValue)) {
+          skipToNextWhitespace(text, position);
+          *error = PARSING_ERROR(INVALID_INT_VALUE, start, *position);
           return false; // Failed to parse decimal immediate value
         }
       } else {
-        *error = PARSING_ERROR(INVALID_PARAMETER, *text);
+        skipToNextWhitespace(text, position);
+        *error = PARSING_ERROR(INVALID_PARAMETER, start, *position);
         return false; // Failed to parse as any kind of parameter
       }
       break;
     }
   }
+  parameter->sourceSpan = (TextSpan){start, *position};
   return true;
 }
 
