@@ -84,6 +84,44 @@ bool tryParseName(const TextContents* text, TextOffset* position, TextSpan* span
 
 #pragma endregion
 
+bool TryParseAssemblyProgram(TextContents* text, AssemblyProgram* program, ParsingErrorList* errors) {
+  TextOffset position = { 0, 0 };
+  TextOffset end = GetTextContentsEnd(text);
+  
+  bool anyErrors = false;
+  program->lines = NULL;
+  program->lineCount = 0;
+
+  TextOffset previous = end;
+  while (CompareTextOffsets(text, position, end) < 0) {
+    assert(CompareTextOffsets(text, position, previous) != 0);
+    previous = position;
+
+    skipAllWhitespace(text, &position);
+    if (CompareTextOffsets(text, position, end) >= 0) { break; }
+
+    AssemblyLine currentLine = { 0 };
+    ParsingError currentError = { 0 };
+    if (TryParseAssemblyLine(text, &position, &currentLine, &currentError)) {
+      program->lines = realloc(program->lines, sizeof(AssemblyLine) * (program->lineCount + 1));
+      program->lines[program->lineCount] = currentLine;
+      program->lineCount++;
+    } else {
+      anyErrors = true;
+      if (errors->errorCount == MAX_ERRORS) {
+        errors->moreErrors = true;
+      } else {
+        errors->errors[errors->errorCount] = currentError;
+        errors->errorCount++;
+      }
+    }
+  }
+  
+  program->sourceText = *text;
+  *text = (TextContents){ 0 };
+  return !anyErrors;
+}
+
 bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, AssemblyLine* line, ParsingError* error) {
   skipAllWhitespace(text, position);
   TextOffset start = *position;
@@ -94,7 +132,7 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
     if (!tryParseLabel(text, position, &line->label, error)) {
       // Error already set by tryParseLabel
       DestroyAssemblyLine(line);
-      SkipToEndOfLine(text, position);
+      skipToEndOfLine(text, position);
       return false; // Failed to parse assembly instruction
     }
 
@@ -108,7 +146,7 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
     if (!tryParseAssemblyData(text, position, &line->data, error)) {
       // Error already set by tryParseAssemblyData
       DestroyAssemblyLine(line);
-      SkipToEndOfLine(text, position);
+      skipToEndOfLine(text, position);
       return false; // Failed to parse assembly data
     }
 
@@ -118,7 +156,7 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
     if (!tryParseInstruction(text, position, &line->instruction, error)) {
       // Error already set by tryParseInstruction
       DestroyAssemblyLine(line);
-      SkipToEndOfLine(text, position);
+      skipToEndOfLine(text, position);
       return false; // Failed to parse assembly instruction
     }
   }
