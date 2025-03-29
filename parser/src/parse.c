@@ -17,7 +17,7 @@ const char* INVALID_HEX_BYTE = "Invalid hexadecimal byte";
 const char* UNEXPECTED_CHARACTER = "Unexpected character";
 const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 
-#define PARSING_ERROR(_message, _location) (ParsingError){.message = (_message), .location = (_location)}
+#define PARSING_ERROR(_message, _sourceSpan) (ParsingError){.message = (_message), .sourceSpan = (_sourceSpan)}
 
 #pragma endregion
 
@@ -315,31 +315,32 @@ bool tryParseImmediateDecValue(const char** text, signed int* value) {
   // assertions about the range of legal values for any given instruction.
 }
 
-bool tryParseAssemblyData(const char** text, AssemblyData* data, ParsingError* error) {
+bool tryParseAssemblyData(const TextContents* text, TextOffset* position, AssemblyData* data, ParsingError* error) {
   data->length = 0;
   data->bytes = NULL;
-  while (!isEndOfLineOrFile(**text)) {
+  TextOffset endOfLine = GetTextContentsEndOfLine(text, position->line);
+  while (CompareTextOffsets(text, *position, endOfLine) < 0) {
     // Parse the next hexadecimal byte
     unsigned char nibble;
-    if (!tryHexToNibble(**text, &nibble)) {
-      *error = PARSING_ERROR(INVALID_HEX_BYTE, *text);
+    if (!tryHexToNibble(GetCharAtTextOffset(text, *position), &nibble)) {
+      *error = PARSING_ERROR(INVALID_HEX_BYTE, ((TextSpan){ .start = *position, .end = endOfLine }));
       return false;
     }
-    (*text)++;
+    IncrementTextOffset(text, position);
     unsigned char byte = nibble << 4;
 
-    if (!tryHexToNibble(**text, &nibble)) {
-      *error = PARSING_ERROR(INVALID_HEX_BYTE, *text);
+    if (!tryHexToNibble(GetCharAtTextOffset(text, *position), &nibble)) {
+      *error = PARSING_ERROR(INVALID_HEX_BYTE, ((TextSpan){ .start = *position, .end = endOfLine }));
       return false;
     }
-    (*text)++;
+    IncrementTextOffset(text, position);
     byte |= nibble;
 
     data->length++;
     data->bytes = realloc(data->bytes, sizeof(unsigned char) * data->length);
     data->bytes[data->length - 1] = byte;
 
-    skipInlineWhitespace(text);
+    skipInlineWhitespace(text, position);
   }
 
   return true;
@@ -354,7 +355,7 @@ bool tryParseName(const TextContents* text, TextOffset* position, TextSpan* span
   TextOffset start = *position;
   size_t len = 1;
   while (isWordChar(GetCharAtTextOffset(text, *position))) {
-    *position = IncrementTextOffset(text, *position);
+    IncrementTextOffset(text, position);
   }
 
   *span = (TextSpan){ .start = start, .end = *position };
