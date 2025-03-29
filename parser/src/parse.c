@@ -132,7 +132,11 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
 }
 
 bool tryParseLabel(const TextContents* text, TextOffset* position, AssemblyLabel* label, ParsingError* error) {
-  // TODO
+  (void)text;
+  (void)position;
+  (void)label;
+  (void)error;
+  return false;
 }
 
 bool tryParseInstruction(const TextContents* text, TextOffset* position, AssemblyInstruction* instruction, ParsingError* error) {
@@ -376,7 +380,6 @@ bool tryParseName(const TextContents* text, TextOffset* position, TextSpan* span
   }
 
   TextOffset start = *position;
-  size_t len = 1;
   while (isWordChar(GetCharAtTextOffset(text, *position))) {
     IncrementTextOffset(text, position);
   }
