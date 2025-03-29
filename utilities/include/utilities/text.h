@@ -26,10 +26,11 @@ typedef struct {
 // The offset of a character within some text.
 typedef struct {
   // The line number of the offset.
+  // If greater than or equal to the number of lines, the offset is equivalent to (lineCount - 1, len(lines[lineCount - 1])).
   size_t line;
   // The column number of the offset.
-  // If equal to the length of the line, represents the end of the line.
-  // If greater than the length of the line, represents an offset of (line + 1, column - len(line) - 1).
+  // If equal to the length of the line, the offset represents the end of the line.
+  // If greater than the length of the line, the offset is equivalent to (line + 1, column - len(lines[line]) - 1).
   size_t column;
 } TextOffset;
 
@@ -58,16 +59,26 @@ void DestroyTextContents(TextContents* text);
 // Checks if the TextContents struct has been initialized.
 bool IsTextContentsInitialized(const TextContents* text);
 
-// Normalizes an offset such that the column number causes the offset to wrap onto the next line if it is
-// greater than the length of the current line.
-// If the offset lies outside the bounds of the text, wrapping continues as if there are an infinite number of 0-length lines
-// past the end of the text.
-TextOffset NormalizeTextContentsOffset(const TextContents* text, TextOffset offset);
-
 // Gets the character at the specified offset into the text.
 // If the offset lies at or beyond the end of the last line, returns '\0'.
 // If the offset lies at the end of any other line, returns '\n'.
-char GetCharAtTextContentsOffset(const TextContents* text, TextOffset offset);
+char GetCharAtTextOffset(const TextContents* text, TextOffset offset);
+
+// Normalizes an offset relative to the text.
+// If column is greater than the length of the line, wraps the offset onto the next line.
+// If after wrapping line is greater than or equal to lineCount, returns (lineCount - 1, len(lines[lineCount - 1])).
+TextOffset NormalizeTextOffset(const TextContents* text, TextOffset offset);
+
+// Compares the positions of two text offsets.
+// If offsetA appears before offsetB, returns a negative value.
+// If offsetA appears after offsetB, returns a positive value.
+// If offsetA is equivalent to offsetB, returns zero.
+int CompareTextOffsets(const TextContents* text, TextOffset offsetA, TextOffset offsetB);
+
+// Normalizes a span.
+// Normalizes both start and end offsets.
+// If end is less than start, sets end equal to start.
+TextSpan NormalizeTextSpan(const TextContents* text, TextSpan span);
 
 // Compares two spans of text according to strcmp rules.
-int CompareTextContentsSpans(const TextContents* textA, TextSpan spanA, const TextContents* textB, TextSpan spanB);
+int CompareTextSpans(const TextContents* textA, TextSpan spanA, const TextContents* textB, TextSpan spanB);

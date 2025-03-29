@@ -1,6 +1,7 @@
 #include "utilities/text.h"
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 TextContents InitTextContents(char* chars, size_t length) {
   // Split the chars into lines, allowing for both Unix and Windows style line endings
@@ -53,77 +54,101 @@ bool IsTextContentsInitialized(const TextContents* text) {
   return text->chars != NULL && text->lines != NULL;
 }
 
-TextOffset NormalizeTextContentsOffset(const TextContents* text, TextOffset offset) {
+char GetCharAtTextOffset_normalized(const TextContents* text, TextOffset offset) {
+  assert(offset.line < text->lineCount);
+  assert(offset.column <= text->lines[offset.line].length);
+
+  TextContentsLine line = text->lines[offset.line];
+  if (offset.column < line.length) {
+    assert(line.startIndex + offset.column < text->length);
+    return text->chars[line.startIndex + offset.column];
+  } else {
+    return (offset.line == text->lineCount - 1) ? '\0' : '\n';
+  }
+}
+
+char GetCharAtTextOffset(const TextContents* text, TextOffset offset) {
+  return GetCharAtTextOffset_normalized(text, NormalizeTextOffset(text, offset));
+}
+
+TextOffset NormalizeTextOffset(const TextContents* text, TextOffset offset) {
   while (offset.line < text->lineCount && offset.column > text->lines[offset.line].length) {
     offset.column -= text->lines[offset.line].length + 1;
     offset.line++;
   }
-
   if (offset.line >= text->lineCount) {
-    offset.line += offset.column;
-    offset.column = 0;
+    offset.line = text->lineCount - 1;
+    offset.column = text->lines[offset.line].length;
   }
-  
   return offset;
 }
 
-char GetCharAtNormalizedOffset(const TextContents* text, TextOffset offset) {
-  if (offset.line >= text->lineCount) {
-    return '\0';
-  }
-
-  TextContentsLine line = text->lines[offset.line];
-  if (offset.column >= line.length) {
-    return (offset.line == text->lineCount - 1) ? '\0' : '\n';
+int CompareTextOffsets_normalized(TextOffset offsetA, TextOffset offsetB) {
+  if (offsetA.line < offsetB.line) {
+    return -1;
+  } else if (offsetA.line > offsetB.line) {
+    return 1;
+  } else if (offsetA.column < offsetB.column) {
+    return -1;
+  } else if (offsetA.column > offsetB.column) {
+    return 1;
   } else {
-    return text->chars[line.startIndex + offset.column];
+    return 0;
   }
 }
 
-char GetCharAtTextContentsOffset(const TextContents* text, TextOffset offset) {
-  return GetCharAtNormalizedOffset(text, NormalizeTextContentsOffset(text, offset));
+int CompareTextOffsets(const TextContents* text, TextOffset offsetA, TextOffset offsetB) {
+  return CompareTextOffsets_normalized(NormalizeTextOffset(text, offsetA), NormalizeTextOffset(text, offsetB));
 }
 
-int CompareTextContentsSpans(const TextContents* textA, TextSpan spanA, const TextContents* textB, TextSpan spanB) {
-  TextOffset offsetA = NormalizeTextContentsOffset(textA, spanA.start);
-  TextOffset offsetB = NormalizeTextContentsOffset(textB, spanB.start);
+TextSpan NormalizeTextSpan(const TextContents* text, TextSpan span) {
+  span.start = NormalizeTextOffset(text, span.start);
+  span.end = NormalizeTextOffset(text, span.end);
+  if (CompareTextOffsets_normalized(span.start, span.end) > 0) {
+    span.end = span.start;
+  }
+  return span;
+}
+
+TextOffset incrementNormalizedOffset(const TextContents* text, TextOffset offset) {
+  if (offset.line == text->lineCount - 1 && offset.column == text->lines[offset.line].length) {
+    return offset;
+  }
+  offset.column++;
+  if (offset.column > text->lines[offset.line].length) {
+    offset.column = 0;
+    offset.line++;
+  }
+  return offset;
+}
+
+int CompareTextSpans(const TextContents* textA, TextSpan spanA, const TextContents* textB, TextSpan spanB) {
+  spanA = NormalizeTextSpan(textA, spanA);
+  spanB = NormalizeTextSpan(textB, spanB);
+
+  TextOffset offsetA = spanA.start, offsetB = spanB.start;
   
-  size_t i;
-  for (i = 0; i < spanA.length && i < spanB.length && offsetA.line < textA->lineCount && offsetB.line < textB->lineCount; i++) {
-    char charA = GetCharAtNormalizedOffset(textA, offsetA);
-    char charB = GetCharAtNormalizedOffset(textB, offsetB);
+  while (CompareTextOffsets_normalized(offsetA, spanA.end) < 0 && CompareTextOffsets_normalized(offsetB, spanB.end) < 0) {
+    char charA = GetCharAtTextOffset_normalized(textA, offsetA);
+    char charB = GetCharAtTextOffset_normalized(textB, offsetB);
     if (charA < charB) {
       return -1;
     } else if (charA > charB) {
       return 1;
     }
 
-    offsetA.column++;
-    if (offsetA.column > textA->lines[offsetA.line].length) {
-      offsetA.column = 0;
-      offsetA.line++;
-    }
-
-    offsetB.column++;
-    if (offsetB.column > textB->lines[offsetB.line].length) {
-      offsetB.column = 0;
-      offsetB.line++;
-    }
+    offsetA = incrementNormalizedOffset(textA, offsetA);
+    offsetB = incrementNormalizedOffset(textB, offsetB);
   }
 
-  // Reached the end of one or both spans. Compare lengths.
-  if (offsetA.line >= textA->lineCount) {
-    spanA.length = i;
-  }
-  if (offsetB.line >= textB->lineCount) {
-    spanB.length = i;
-  }
-
-  if (spanA.length < spanB.length) {
-    return -1;
-  } else if (spanA.length > spanB.length) {
-    return 1;
-  } else {
+  // Reached the end of one or both spans. Return result based on lengths.
+  int compareEndA = CompareTextOffsets_normalized(offsetA, spanA.end);
+  int compareEndB = CompareTextOffsets_normalized(offsetB, spanB.end);
+  if (compareEndA >= 0 && compareEndB >= 0) { // Both spans ended at the same time.
     return 0;
+  } else if (compareEndA >= 0) { // Span A ended first
+    return -1;
+  } else { // Span B ended first
+    return 1;
   }
 }
