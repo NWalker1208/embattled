@@ -1,35 +1,32 @@
 #include <stdlib.h>
-#include "parser/assembly.h"
+#include "assembler/assembly.h"
 
-void destroyAssemblyLine(struct AssemblyLine* line) {
-  free(line->label);
-  line->label = NULL;
-  if (line->kind == INSTRUCTION) {
-    destroyAssemblyInstruction(&line->instruction);
-  } else {
-    destroyAssemblyData(&line->data);
+void DestroyAssemblyProgram(AssemblyProgram* program) {
+  free(program->lines);
+  program->lines = NULL;
+  program->lineCount = 0;
+}
+
+void DestroyAssemblyLine(AssemblyLine* line) {
+  switch (line->kind) {
+    case ASSEMBLY_LINE_INSTRUCTION: {
+      DestroyAssemblyInstruction(&line->instruction);
+      break;
+    }
+    case ASSEMBLY_LINE_DATA: {
+      DestroyAssemblyData(&line->data);
+      break;
+    }
   }
 }
 
-void destroyAssemblyInstruction(struct AssemblyInstruction* instruction) {
-  if (instruction->parameters != NULL) {
-    for (unsigned int i = 0; i < instruction->parameterCount; i++) {
-      destroyAssemblyParameter(&instruction->parameters[i]);
-    }
-    free(instruction->parameters);
-    instruction->parameters = NULL;
-  }
+void DestroyAssemblyInstruction(AssemblyInstruction* instruction) {
+  free(instruction->parameters);
+  instruction->parameters = NULL;
   instruction->parameterCount = 0;
 }
 
-void destroyAssemblyParameter(struct AssemblyParameter* parameter) {
-  if (parameter->kind == LABEL_REFERENCE) {
-    free(parameter->referencedLabel);
-    parameter->referencedLabel = NULL;
-  }
-}
-
-void destroyAssemblyData(struct AssemblyData* data) {
+void DestroyAssemblyData(AssemblyData* data) {
   free(data->bytes);
   data->bytes = NULL;
   data->length = 0;
