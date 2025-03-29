@@ -23,6 +23,12 @@ const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 
 #pragma region Helper function signatures
 
+// Parses an assembly label.
+// If the current line is a valid label, advances position past the ':' character,
+// outputs the label through label, and returns true.
+// If parsing fails, outputs the cause through error and returns false.
+bool tryParseLabel(const TextContents* text, TextOffset* position, AssemblyLabel* label, ParsingError* error);
+
 // Parses an assembly instruction.
 // If the current line is a valid instruction, advances position to the end of the current line,
 // outputs the instruction through instruction, and returns true.
@@ -84,18 +90,25 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
 
   // If the line contains a ':', parse as a label.
   if (lineContainsChar(text, *position, ':')) {
-    // TODO
+    line->kind = ASSEMBLY_LINE_LABEL;
+    if (!tryParseLabel(text, position, &line->label, error)) {
+      // Error already set by tryParseLabel
+      DestroyAssemblyLine(line);
+      skipToNextLine(text, position);
+      return false; // Failed to parse assembly instruction
+    }
 
   // If the line starts with ".data", parse as assembly data.
   } else if (startsWithWordCaseInsensitive(text, *position, ".data")) {
     position->column += 5;
     NormalizeTextOffset(text, position);
     skipInlineWhitespace(text, position);
+
     line->kind = ASSEMBLY_LINE_DATA;
     if (!tryParseAssemblyData(text, position, &line->data, error)) {
       // Error already set by tryParseAssemblyData
       DestroyAssemblyLine(line);
-      skipToNextLine(position);
+      skipToNextLine(text, position);
       return false; // Failed to parse assembly data
     }
 
@@ -105,7 +118,7 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
     if (!tryParseInstruction(text, position, &line->instruction, error)) {
       // Error already set by tryParseInstruction
       DestroyAssemblyLine(line);
-      skipToNextLine(position);
+      skipToNextLine(text, position);
       return false; // Failed to parse assembly instruction
     }
   }
@@ -114,8 +127,12 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
   line->sourceSpan = (TextSpan){start, *position};
 
   // Advance to next line and return success.
-  skipToNextLine(text);
+  skipToNextLine(text, position);
   return true;
+}
+
+bool tryParseLabel(const TextContents* text, TextOffset* position, AssemblyLabel* label, ParsingError* error) {
+  // TODO
 }
 
 bool tryParseInstruction(const TextContents* text, TextOffset* position, AssemblyInstruction* instruction, ParsingError* error) {
