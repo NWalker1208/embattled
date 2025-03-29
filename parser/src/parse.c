@@ -17,7 +17,7 @@ const char* INVALID_HEX_BYTE = "Invalid hexadecimal byte";
 const char* UNEXPECTED_CHARACTER = "Unexpected character";
 const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 
-#define PARSING_ERROR(_message, _sourceSpan) (ParsingError){.message = (_message), .sourceSpan = (_sourceSpan)}
+#define PARSING_ERROR(_message, _start, _end) (ParsingError){.message = (_message), .sourceSpan = (TextSpan){.start = (_start), .end = (_end)}}
 
 #pragma endregion
 
@@ -328,7 +328,7 @@ bool tryParseAssemblyData(const TextContents* text, TextOffset* position, Assemb
     unsigned char nibble;
     if (!tryHexToNibble(GetCharAtTextOffset(text, *position), &nibble)) {
       skipToNextWhitespace(text, position);
-      *error = PARSING_ERROR(INVALID_HEX_BYTE, ((TextSpan){ start, *position }));
+      *error = PARSING_ERROR(INVALID_HEX_BYTE, start, *position);
       return false;
     }
     IncrementTextOffset(text, position);
@@ -336,7 +336,7 @@ bool tryParseAssemblyData(const TextContents* text, TextOffset* position, Assemb
 
     if (!tryHexToNibble(GetCharAtTextOffset(text, *position), &nibble)) {
       skipToNextWhitespace(text, position);
-      *error = PARSING_ERROR(INVALID_HEX_BYTE, ((TextSpan){ start, *position }));
+      *error = PARSING_ERROR(INVALID_HEX_BYTE, start, *position);
       return false;
     }
     IncrementTextOffset(text, position);
