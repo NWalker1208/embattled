@@ -1,23 +1,91 @@
 #include "utilities/text.h"
 #include <stdlib.h>
 
-void DestroyTextContents(TextContents* contents) {
-  free(contents->chars);
-  contents->chars = NULL;
-  contents->length = 0;
+void DestroyTextContents(TextContents* text) {
+  free(text->chars);
+  text->chars = NULL;
+  text->length = 0;
 
-  free(contents->lines);
-  contents->lines = NULL;
-  contents->lineCount = 0;
+  free(text->lines);
+  text->lines = NULL;
+  text->lineCount = 0;
 }
 
-bool IsTextContentsInitialized(const TextContents* contents) {
-  return contents->chars != NULL && contents->lines != NULL;
+bool IsTextContentsInitialized(const TextContents* text) {
+  return text->chars != NULL && text->lines != NULL;
 }
 
-const char* GetLineOfTextContents(const TextContents* contents, size_t line) {
-  if (line >= contents->lineCount) {
-    return NULL;
+TextContentsOffset NormalizeTextContentsOffset(const TextContents* text, TextContentsOffset offset) {
+  while (offset.line < text->lineCount && offset.column > text->lines[offset.line].length) {
+    offset.column -= text->lines[offset.line].length + 1;
+    offset.line++;
   }
-  return &contents->chars[contents->lines[line].startIndex];
+
+  if (offset.line >= text->lineCount) {
+    offset.line += offset.column;
+    offset.column = 0;
+  }
+  
+  return offset;
+}
+
+char GetCharAtNormalizedOffset(const TextContents* text, TextContentsOffset offset) {
+  if (offset.line >= text->lineCount) {
+    return '\0';
+  }
+
+  TextContentsLine line = text->lines[offset.line];
+  if (offset.column >= line.length) {
+    return (offset.line == text->lineCount - 1) ? '\0' : '\n';
+  } else {
+    return text->chars[line.startIndex + offset.column];
+  }
+}
+
+char GetCharAtTextContentsOffset(const TextContents* text, TextContentsOffset offset) {
+  return GetCharAtNormalizedOffset(text, NormalizeTextContentsOffset(text, offset));
+}
+
+int CompareTextContentsSpans(const TextContents* textA, TextContentsSpan spanA, const TextContents* textB, TextContentsSpan spanB) {
+  TextContentsOffset offsetA = NormalizeTextContentsOffset(textA, spanA.start);
+  TextContentsOffset offsetB = NormalizeTextContentsOffset(textB, spanB.start);
+  
+  size_t i;
+  for (i = 0; i < spanA.length && i < spanB.length && offsetA.line < textA->lineCount && offsetB.line < textB->lineCount; i++) {
+    char charA = GetCharAtNormalizedOffset(textA, offsetA);
+    char charB = GetCharAtNormalizedOffset(textB, offsetB);
+    if (charA < charB) {
+      return -1;
+    } else if (charA > charB) {
+      return 1;
+    }
+
+    offsetA.column++;
+    if (offsetA.column > textA->lines[offsetA.line].length) {
+      offsetA.column = 0;
+      offsetA.line++;
+    }
+
+    offsetB.column++;
+    if (offsetB.column > textB->lines[offsetB.line].length) {
+      offsetB.column = 0;
+      offsetB.line++;
+    }
+  }
+
+  // Reached the end of one or both spans. Compare lengths.
+  if (offsetA.line >= textA->lineCount) {
+    spanA.length = i;
+  }
+  if (offsetB.line >= textB->lineCount) {
+    spanB.length = i;
+  }
+
+  if (spanA.length < spanB.length) {
+    return -1;
+  } else if (spanA.length > spanB.length) {
+    return 1;
+  } else {
+    return 0;
+  }
 }

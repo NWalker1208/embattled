@@ -4,7 +4,9 @@
 
 // A line of a text contents struct.
 typedef struct {
+  // The index in the chars array at which the line begins.
   size_t startIndex;
+  // The number of characters in the line, excluding the null terminator/line ending.
   size_t length;
 } TextContentsLine;
 
@@ -23,25 +25,38 @@ typedef struct {
 
 // An offset within a TextContents struct.
 typedef struct {
+  // The line number of the offset.
   size_t line;
+  // The column number of the offset.
+  // If equal to the length of the line, represents the end of the line.
+  // If greater than the length of the line, treated as equivalent to the offset (line + 1, column - len(line) - 1).
   size_t column;
 } TextContentsOffset;
 
 // A span within a TextContents struct.
 typedef struct {
+  // The starting offset of the span.
   TextContentsOffset start;
+  // The number of characters in the span, where the end of each line counts as one character.
   size_t length;
 } TextContentsSpan;
 
 // Frees the memory referenced by a TextContents struct.
-void DestroyTextContents(TextContents* contents);
+void DestroyTextContents(TextContents* text);
 
 // Checks if the TextContents struct has been initialized.
-bool TextContentsIsInitialized(const TextContents* contents);
+bool TextContentsIsInitialized(const TextContents* text);
 
-// Gets the line of text at the specified line number.
-// If the line number is out of bounds, returns NULL.
-const char* TextContentsGetLine(const TextContents* contents, size_t line);
+// Normalizes an offset such that the column number causes the offset to wrap onto the next line if it is
+// greater than the length of the current line.
+// If the offset lies outside the bounds of the text, wrapping continues as if there are an infinite number of 0-length lines
+// past the end of the text.
+TextContentsOffset NormalizeTextContentsOffset(const TextContents* text, TextContentsOffset offset);
 
-// Compares two spans of TextContents according to strcmp rules.
-int TextContentsCompareSpans(const TextContents* contentsA, TextContentsSpan spanA, const TextContents* contentsB, TextContentsSpan spanB);
+// Gets the character at the specified offset into the text.
+// If the offset lies at or beyond the end of the last line, returns '\0'.
+// If the offset lies at the end of any other line, returns '\n'.
+char GetCharAtTextContentsOffset(const TextContents* text, TextContentsOffset offset);
+
+// Compares two spans of text according to strcmp rules.
+int CompareTextContentsSpans(const TextContents* textA, TextContentsSpan spanA, const TextContents* textB, TextContentsSpan spanB);

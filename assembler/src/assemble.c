@@ -30,7 +30,7 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
           return false;
         }
         for (size_t j = 0; j < labelCount; j++) {
-          if (TextContentsCompareSpans(&program->sourceText, line.labelSpan, &program->sourceText, labelTableLabelSpans[j]) == 0) {
+          if (CompareTextContentsSpans(&program->sourceText, line.labelSpan, &program->sourceText, labelTableLabelSpans[j]) == 0) {
             *error = ASSEMBLING_ERROR(DUPLICATE_LABEL, line.labelSpan);
             return false;
           }
@@ -167,7 +167,7 @@ bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, Assembli
     unsigned short labelAddress;
     bool foundLabel = false;
     for (unsigned int j = 0; j < labelCount; j++) {
-      if (TextContentsCompareSpans(&program->sourceText, labelTableLabelSpans[j], &program->sourceText, labelSpan) == 0) {
+      if (CompareTextContentsSpans(&program->sourceText, labelTableLabelSpans[j], &program->sourceText, labelSpan) == 0) {
         labelAddress = labelTableAddresses[j];
         foundLabel = true;
         break;
