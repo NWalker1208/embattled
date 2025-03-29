@@ -1,7 +1,7 @@
 #include "utilities/text.h"
 #include <stdlib.h>
 
-void destroyTextContents(TextContents* contents) {
+void DestroyTextContents(TextContents* contents) {
   free(contents->chars);
   contents->chars = NULL;
   contents->length = 0;
@@ -11,13 +11,13 @@ void destroyTextContents(TextContents* contents) {
   contents->lineCount = 0;
 }
 
-bool isTextContentsInitialized(const TextContents* contents) {
+bool IsTextContentsInitialized(const TextContents* contents) {
   return contents->chars != NULL && contents->lines != NULL;
 }
 
-const char* getLineOfTextContents(const TextContents* contents, size_t lineNumber) {
-  if (lineNumber >= contents->lineCount) {
+const char* GetLineOfTextContents(const TextContents* contents, size_t line) {
+  if (line >= contents->lineCount) {
     return NULL;
   }
-  return &contents->chars[contents->lines[lineNumber].startIndex];
+  return &contents->chars[contents->lines[line].startIndex];
 }

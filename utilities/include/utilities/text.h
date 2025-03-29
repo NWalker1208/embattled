@@ -21,11 +21,24 @@ typedef struct {
   unsigned int lineCount;
 } TextContents;
 
-void destroyTextContents(TextContents* contents);
+// An offset within a TextContents struct.
+typedef struct {
+  size_t line;
+  size_t column;
+} TextContentsOffset;
 
-// Checks if the text contents struct has been initialized.
-bool isTextContentsInitialized(const TextContents* contents);
+// A span within a TextContents struct.
+typedef struct {
+  TextContentsOffset start;
+  size_t length;
+} TextContentsSpan;
+
+// Frees the memory referenced by a TextContents struct.
+void DestroyTextContents(TextContents* contents);
+
+// Checks if the TextContents struct has been initialized.
+bool TextContentsIsInitialized(const TextContents* contents);
 
 // Gets the line of text at the specified line number.
 // If the line number is out of bounds, returns NULL.
-const char* getLineOfTextContents(const TextContents* contents, size_t lineNumber);
+const char* TextContentsGetLine(const TextContents* contents, size_t line);
