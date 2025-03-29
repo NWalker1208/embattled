@@ -40,8 +40,14 @@ typedef struct {
   TextContentsSpan sourceSpan;
 } ParsingError;
 
-// Parses the next line of assembly code from the given text and advances the position.
-// Always advances the position to the beginning of a subsequent line.
+// Parses an assembly program from the provided text.
+// Moves the text contents into the program struct.
+// If no parsing errors occur, sets errors to NULL and returns 0.
+// If any parsing errors occur, sets errors to a dynamically allocated array and returns the number of errors.
+size_t TryParseAssemblyProgram(TextContents* text, AssemblyProgram* program, ParsingError** errors);
+
+// Parses the next line of assembly from the given text and advances the position.
+// Always advances the position to the beginning of some subsequent line.
 // If parsing succeeds, outputs the parsed line through line and returns true.
 // If parsing fails, outputs the cause through error and returns false.
 bool TryParseAssemblyLine(const TextContents* text, TextContentsOffset* position, AssemblyLine* line, ParsingError* error);
