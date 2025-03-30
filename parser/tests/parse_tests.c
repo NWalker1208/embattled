@@ -25,15 +25,16 @@ void tearDown() {
 
 void test_TryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsValidInstruction(void) {
   // Arrange
-  char source[] = "add $x0, @reference, 0x0FFFFFFFF, -02147483648, +2147483647, 02147483647\n";
+  const char source[] = "add $x0, @reference, 0x0FFFFFFFF, -02147483648, +2147483647, 02147483647\n";
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
   bool success = TryParseAssemblyLine(&text, &position, &line, &error);
 
   // Assert
+  const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
-  TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(((TextOffset){0, sizeof(source) - 2}), position, text);
+  TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
   TEST_ASSERT_EQUAL(ASSEMBLY_LINE_INSTRUCTION, line.kind);
   TEST_ASSERT_EQUAL(ADD, line.instruction.opcode);
   TEST_ASSERT_EQUAL_size_t(6, line.instruction.parameterCount);
@@ -71,7 +72,7 @@ void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(v
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(NULL, line.label);
-  TEST_ASSERT_EQUAL(DATA, line.kind);
+  TEST_ASSERT_EQUAL(ASSEMBLY_LINE_DATA, line.kind);
   TEST_ASSERT_EQUAL(8, line.data.length);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expectedBytes, line.data.bytes, sizeof(expectedBytes));
 }
@@ -89,7 +90,7 @@ void test_TryParseAssemblyLine_should_succeedWithLabel_when_textStartsWithLabel(
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_STRING("label", line.label);
-  TEST_ASSERT_EQUAL(INSTRUCTION, line.kind);
+  TEST_ASSERT_EQUAL(ASSEMBLY_LINE_INSTRUCTION, line.kind);
   TEST_ASSERT_EQUAL(NOP, line.instruction.opcode);
   TEST_ASSERT_EQUAL(0, line.instruction.parameterCount);
   TEST_ASSERT_EQUAL_PTR(NULL, line.instruction.parameters);
@@ -108,7 +109,7 @@ void test_TryParseAssemblyLine_should_succeedAndAdvanceToEndOfFile_when_lastLine
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
   TEST_ASSERT_EQUAL_PTR(NULL, line.label);
-  TEST_ASSERT_EQUAL(INSTRUCTION, line.kind);
+  TEST_ASSERT_EQUAL(ASSEMBLY_LINE_INSTRUCTION, line.kind);
   TEST_ASSERT_EQUAL(NOP, line.instruction.opcode);
   TEST_ASSERT_EQUAL(0, line.instruction.parameterCount);
   TEST_ASSERT_EQUAL_PTR(NULL, line.instruction.parameters);
