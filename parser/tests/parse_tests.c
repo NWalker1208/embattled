@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <unity.h>
+#include "text_assertions.h"
 #include "parser/parse.h"
 
 TextContents text;
@@ -28,33 +29,31 @@ void test_TryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsVali
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&source, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
 
   // Assert
-  const char* expectedTextPtr = &source[sizeof(source) - 1];
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
-  TEST_ASSERT_EQUAL_PTR(expectedTextPtr, textPtr);
-  TEST_ASSERT_EQUAL_PTR(NULL, line.label);
-  TEST_ASSERT_EQUAL(INSTRUCTION, line.kind);
+  TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(((TextOffset){0, sizeof(source) - 2}), position, text);
+  TEST_ASSERT_EQUAL(ASSEMBLY_LINE_INSTRUCTION, line.kind);
   TEST_ASSERT_EQUAL(ADD, line.instruction.opcode);
-  TEST_ASSERT_EQUAL_UINT(6, line.instruction.parameterCount);
+  TEST_ASSERT_EQUAL_size_t(6, line.instruction.parameterCount);
 
-  TEST_ASSERT_EQUAL(REGISTER, line.instruction.parameters[0].kind);
+  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_REGISTER, line.instruction.parameters[0].kind);
   TEST_ASSERT_EQUAL(X0, line.instruction.parameters[0].registerName);
 
-  TEST_ASSERT_EQUAL(LABEL_REFERENCE, line.instruction.parameters[1].kind);
-  TEST_ASSERT_EQUAL_STRING("reference", line.instruction.parameters[1].referencedLabel);
+  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_LABEL, line.instruction.parameters[1].kind);
+  TEST_ASSERT_EQUAL_TEXT_SPAN_CHARS("reference", line.instruction.parameters[1].labelSpan, text);
 
-  TEST_ASSERT_EQUAL(IMMEDIATE_VALUE, line.instruction.parameters[2].kind);
+  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[2].kind);
   TEST_ASSERT_EQUAL_HEX32(0xFFFFFFFF, line.instruction.parameters[2].immediateValue);
 
-  TEST_ASSERT_EQUAL(IMMEDIATE_VALUE, line.instruction.parameters[3].kind);
+  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[3].kind);
   TEST_ASSERT_EQUAL_INT(-2147483648, line.instruction.parameters[3].immediateValue);
 
-  TEST_ASSERT_EQUAL(IMMEDIATE_VALUE, line.instruction.parameters[4].kind);
+  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[4].kind);
   TEST_ASSERT_EQUAL_INT(+2147483647, line.instruction.parameters[4].immediateValue);
 
-  TEST_ASSERT_EQUAL(IMMEDIATE_VALUE, line.instruction.parameters[5].kind);
+  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[5].kind);
   TEST_ASSERT_EQUAL_INT(2147483647, line.instruction.parameters[5].immediateValue);
 }
 
