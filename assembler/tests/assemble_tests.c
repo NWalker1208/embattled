@@ -30,22 +30,9 @@ void initializeProgram(const char* source) {
   }
 }
 
-void test_tryAssemble_should_outputInstructionBytes_when_lineIsValidAssemblyInstruction(void) {
+void test_TryAssembleProgram_should_outputInstructionBytes_when_lineIsValidAssemblyInstruction(void) {
   // Arrange
-  struct AssemblyParameter parameters[] = {
-    { .kind = REGISTER, .registerName = X0 },
-    { .kind = REGISTER, .registerName = X1 },
-  };
-  struct AssemblyLine lines[] = {
-    {
-      .kind = INSTRUCTION,
-      .instruction = {
-        .opcode = ADD,
-        .parameterCount = 2,
-        .parameters = parameters,
-      },
-    }
-  };
+  initializeProgram("add $x0, $x1");
 
   storeInstruction(expectedMemory, 0x0000, (struct Instruction){ 
     .opcode = ADD,
@@ -54,7 +41,7 @@ void test_tryAssemble_should_outputInstructionBytes_when_lineIsValidAssemblyInst
   });
 
   // Act
-  bool success = tryAssemble(lines, 1, memory, &error);
+  bool success = TryAssembleProgram(&program, memory, &error);
 
   // Assert
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
