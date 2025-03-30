@@ -30,8 +30,18 @@ int main(int argc, char* argv[]) {
   AssemblyProgram program;
   ParsingErrorList parsingErrors = { 0 };
   if (!TryParseAssemblyProgram(&text, &program, &parsingErrors)) {
-    fprintf(stderr, "Failed to parse assembly file due to one or more errors.\n");
-    // TODO: Print error details
+    if (parsingErrors.moreErrors) {
+      fprintf(stderr, "Failed to parse assembly file due to %zu+ errors.\n", parsingErrors.errorCount);
+    } else {
+      fprintf(stderr, "Failed to parse assembly file due to %zu errors.\n", parsingErrors.errorCount);
+    }
+
+    for (size_t i = 0; i < parsingErrors.errorCount; i++) {
+      fprintf(stderr, "Line %zu, column %zu: %s\n",
+        parsingErrors.errors[i].sourceSpan.start.line + 1,
+        parsingErrors.errors[i].sourceSpan.start.column + 1,
+        parsingErrors.errors[i].message);
+    }
     return 1;
   }
   printf("Parsed %zu lines of assembly code\n", program.lineCount);
