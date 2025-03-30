@@ -44,8 +44,9 @@ typedef struct {
   TextOffset end;
 } TextSpan;
 
-// Initializes a TextContents struct with the given chars array.
-TextContents InitTextContents(char* chars, size_t length);
+// Initializes a TextContents struct with the given dynamically allocated chars array.
+// Moves the array reference from the pointer into the struct.
+TextContents InitTextContents(char** charsPtr, size_t length);
 
 // Initializes a TextContents struct with a copy of the given chars array.
 TextContents InitTextContentsAsCopy(const char* chars, size_t length);

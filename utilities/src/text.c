@@ -3,7 +3,10 @@
 #include <string.h>
 #include <assert.h>
 
-TextContents InitTextContents(char* chars, size_t length) {
+TextContents InitTextContents(char** charsPtr, size_t length) {
+  char* chars = *charsPtr;
+  *charsPtr = NULL;
+
   // Split the chars into lines, allowing for both Unix and Windows style line endings
   TextContentsLine* lines = NULL;
   size_t lineCount = 0;
@@ -33,7 +36,7 @@ TextContents InitTextContentsAsCopy(const char* chars, size_t length) {
   char* charsCopy = malloc(sizeof(char) * (length + 1));
   memcpy(charsCopy, chars, sizeof(char) * length);
   charsCopy[length] = '\0';
-  return InitTextContents(charsCopy, length);
+  return InitTextContents(&charsCopy, length);
 }
 
 TextContents InitTextContentsAsCopyCStr(const char* str) {
