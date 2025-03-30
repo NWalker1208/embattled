@@ -174,7 +174,8 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
   return true;
 }
 
-bool isWhiteSpaceOrAtOrColon(char c) { return isAnyWhitespace(c) || c == '@' || c == ':'; }
+bool isWhiteSpaceOrColon(char c) { return isAnyWhitespace(c) || c == ':'; }
+bool isWhiteSpaceOrAtOrColon(char c) { return isWhiteSpaceOrColon(c) || c == '@'; }
 
 bool tryParseLabel(const TextContents* text, TextOffset* position, AssemblyLabel* label, ParsingError* error) {
   if (GetCharAtTextOffset(text, *position) != '@') {
@@ -194,7 +195,7 @@ bool tryParseLabel(const TextContents* text, TextOffset* position, AssemblyLabel
     TextOffset start = *position;
     unsigned int hexValue;
     if (!tryParseHexadecimalValue(text, position, &hexValue) || hexValue > 0xFFFF) {
-      skipToNextWhitespace(text, position);
+      skipToNextSatisfies(text, position, isWhiteSpaceOrColon);
       *error = PARSING_ERROR(INVALID_LABEL_ADDR, start, *position);
       return false; // Failed to parse label address
     }
