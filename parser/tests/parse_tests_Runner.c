@@ -2,7 +2,7 @@
 
 /*=======Automagically Detected Files To Include=====*/
 #include "unity.h"
-#include "text_assertions.h"
+#include "test_utilities/text_assertions.h"
 #include "parser/parse.h"
 #include <string.h>
 #include <stdbool.h>

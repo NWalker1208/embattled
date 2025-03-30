@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <unity.h>
-#include "text_assertions.h"
+#include "test_utilities/text_assertions.h"
 #include "parser/parse.h"
 
 TextContents text;

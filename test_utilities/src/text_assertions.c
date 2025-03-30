@@ -1,4 +1,4 @@
-#include "text_assertions.h"
+#include "test_utilities/text_assertions.h"
 
 void CustomAssertEquivalentTextOffset(TextOffset expected, TextOffset actual, const TextContents* text, const UNITY_LINE_TYPE lineNumber) {
   UNITY_TEST_ASSERT(CompareTextOffsets(text, expected, actual) == 0, lineNumber, "Actual offset is not equivalent to expected offset.");
