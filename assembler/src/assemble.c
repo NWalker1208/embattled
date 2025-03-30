@@ -10,6 +10,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
 
   // Setup label and reference tables for filling in addresses
   AssemblyLabel* currentLabel = NULL;
+  TextSpan currentLabelLineSpan;
 
   TextSpan* labelTableLabelSpans = malloc(sizeof(TextSpan) * program->lineCount);
   unsigned short* labelTableAddresses = malloc(sizeof(unsigned short) * program->lineCount);
@@ -17,6 +18,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
 
   unsigned short* referenceTableAddresses = malloc(sizeof(unsigned short) * program->lineCount);
   TextSpan* referenceTableLabelSpans = malloc(sizeof(TextSpan) * program->lineCount);
+  TextSpan* referenceTableParamSpans = malloc(sizeof(TextSpan) * program->lineCount);
   size_t referenceCount = 0;
 
   // Write all lines to memory
@@ -55,6 +57,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
       }
 
       currentLabel = &line->label;
+      currentLabelLineSpan = line->sourceSpan;
     } else if (line->kind == ASSEMBLY_LINE_INSTRUCTION || line->kind == ASSEMBLY_LINE_DATA) {
       if (currentLabel != NULL) {
         if (!IsEmptyTextSpan(&program->sourceText, currentLabel->nameSpan)) {
@@ -139,6 +142,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
           } else { // LABEL_REFERENCE
             referenceTableAddresses[referenceCount] = currentMemoryAddr + 1; // Immediate value always starts on the second byte of the instruction
             referenceTableLabelSpans[referenceCount] = param.labelSpan;
+            referenceTableParamSpans[referenceCount] = param.sourceSpan;
             referenceCount++;
 
             instruction.parameters.immediate.u16 = 0; // Will be filled in later
@@ -166,10 +170,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
   }
 
   if (currentLabel != NULL) {
-    *error = ASSEMBLING_ERROR(EXPECTED_INSTRUCTION_OR_DATA, ((TextSpan){
-      .start = currentLabel->nameSpan.start,
-      .end = currentLabel->addressSpan.end,
-    }));
+    *error = ASSEMBLING_ERROR(EXPECTED_INSTRUCTION_OR_DATA, currentLabelLineSpan);
     goto failed;
   }
 
@@ -188,7 +189,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
       }
     }
     if (!foundLabel) {
-      *error = ASSEMBLING_ERROR(UNDEFINED_LABEL_NAME, labelSpan);
+      *error = ASSEMBLING_ERROR(UNDEFINED_LABEL_NAME, referenceTableParamSpans[i]);
       goto failed;
     }
 
@@ -201,6 +202,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
   free(labelTableAddresses);
   free(referenceTableLabelSpans);
   free(referenceTableAddresses);
+  free(referenceTableParamSpans);
 
   return true;
 
@@ -209,6 +211,7 @@ failed:
   free(labelTableAddresses);
   free(referenceTableLabelSpans);
   free(referenceTableAddresses);
+  free(referenceTableParamSpans);
   
   return false;
 }
