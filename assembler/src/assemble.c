@@ -21,41 +21,41 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
 
   // Write all lines to memory
   for (size_t i = 0; i < program->lineCount; i++) {
-    AssemblyLine line = program->lines[i];
+    AssemblyLine* line = &program->lines[i];
 
-    if (line.kind == ASSEMBLY_LINE_LABEL) {
+    if (line->kind == ASSEMBLY_LINE_LABEL) {
       if (currentLabel != NULL) {
-        *error = ASSEMBLING_ERROR(MULTIPLE_LABELS, line.sourceSpan);
+        *error = ASSEMBLING_ERROR(MULTIPLE_LABELS, line->sourceSpan);
         goto failed;
       }
       
-      bool hasName = !IsEmptyTextSpan(&program->sourceText, line.label.nameSpan);
-      bool hasAddress = !IsEmptyTextSpan(&program->sourceText, line.label.addressSpan);
+      bool hasName = !IsEmptyTextSpan(&program->sourceText, line->label.nameSpan);
+      bool hasAddress = !IsEmptyTextSpan(&program->sourceText, line->label.addressSpan);
       if (!hasName && !hasAddress) {
-        *error = ASSEMBLING_ERROR(INVALID_LABEL, line.sourceSpan);
+        *error = ASSEMBLING_ERROR(INVALID_LABEL, line->sourceSpan);
         goto failed;
       }
 
       if (hasName) {
         for (size_t j = 0; j < labelCount; j++) {
-          if (CompareTextSpans(&program->sourceText, line.label.nameSpan, &program->sourceText, labelTableLabelSpans[j]) == 0) {
-            *error = ASSEMBLING_ERROR(DUPLICATE_LABEL_NAME, line.label.nameSpan);
+          if (CompareTextSpans(&program->sourceText, line->label.nameSpan, &program->sourceText, labelTableLabelSpans[j]) == 0) {
+            *error = ASSEMBLING_ERROR(DUPLICATE_LABEL_NAME, line->label.nameSpan);
             goto failed;
           }
         }
       }
 
       if (hasAddress) {
-        if (line.label.address < currentMemoryAddr) {
-          *error = ASSEMBLING_ERROR(LABEL_ADDRESS_TOO_LOW, line.sourceSpan);
+        if (line->label.address < currentMemoryAddr) {
+          *error = ASSEMBLING_ERROR(LABEL_ADDRESS_TOO_LOW, line->sourceSpan);
           goto failed;
         }
 
-        currentMemoryAddr = line.label.address;
+        currentMemoryAddr = line->label.address;
       }
 
-      currentLabel = &line.label;
-    } else if (line.kind == ASSEMBLY_LINE_INSTRUCTION || line.kind == ASSEMBLY_LINE_DATA) {
+      currentLabel = &line->label;
+    } else if (line->kind == ASSEMBLY_LINE_INSTRUCTION || line->kind == ASSEMBLY_LINE_DATA) {
       if (currentLabel != NULL) {
         if (!IsEmptyTextSpan(&program->sourceText, currentLabel->nameSpan)) {
           labelTableLabelSpans[labelCount] = currentLabel->nameSpan;
@@ -65,9 +65,9 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
         currentLabel = NULL;
       }
 
-      if (line.kind == ASSEMBLY_LINE_INSTRUCTION) {
+      if (line->kind == ASSEMBLY_LINE_INSTRUCTION) {
         struct Instruction instruction;
-        instruction.opcode = line.instruction.opcode;
+        instruction.opcode = line->instruction.opcode;
         
         const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
         bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
@@ -76,11 +76,11 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
         
         unsigned int requiredParameterCount =
           (hasRegA ? 1 : 0) + (hasRegB ? 1 : 0) + (hasImmediate ? 1 : 0);
-        if (line.instruction.parameterCount < requiredParameterCount) {
-          *error = ASSEMBLING_ERROR(TOO_FEW_PARAMS, line.sourceSpan);
+        if (line->instruction.parameterCount < requiredParameterCount) {
+          *error = ASSEMBLING_ERROR(TOO_FEW_PARAMS, line->sourceSpan);
           goto failed;
-        } else if (line.instruction.parameterCount > requiredParameterCount) {
-          *error = ASSEMBLING_ERROR(TOO_MANY_PARAMS, line.sourceSpan);
+        } else if (line->instruction.parameterCount > requiredParameterCount) {
+          *error = ASSEMBLING_ERROR(TOO_MANY_PARAMS, line->sourceSpan);
           goto failed;
         }
 
@@ -88,7 +88,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
         unsigned int p = 0;
 
         if (hasRegA) {
-          AssemblyParameter param = line.instruction.parameters[p];
+          AssemblyParameter param = line->instruction.parameters[p];
           if (param.kind != ASSEMBLY_PARAM_REGISTER) {
             *error = ASSEMBLING_ERROR(EXPECTED_REGISTER, param.sourceSpan);
             goto failed;
@@ -99,7 +99,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
         }
 
         if (hasRegB) {
-          AssemblyParameter param = line.instruction.parameters[p];
+          AssemblyParameter param = line->instruction.parameters[p];
           if (param.kind != ASSEMBLY_PARAM_REGISTER) {
             *error = ASSEMBLING_ERROR(EXPECTED_REGISTER, param.sourceSpan);
             goto failed;
@@ -112,7 +112,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
         if (hasImmediate) {
           bool immIsSigned = opcodeInfo->parameterLayout.immIsSigned;
           unsigned char numImmBits = opcodeInfo->parameterLayout.numImmBits;
-          AssemblyParameter param = line.instruction.parameters[p];
+          AssemblyParameter param = line->instruction.parameters[p];
           if (numImmBits != 16) {
             if (param.kind != ASSEMBLY_PARAM_IMMEDIATE) {
               *error = ASSEMBLING_ERROR(EXPECTED_IMMEDIATE_VALUE, param.sourceSpan);
@@ -147,20 +147,20 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
 
         unsigned short bytesWritten = storeInstruction(memory, currentMemoryAddr, instruction);
         if (bytesWritten == 0) {
-          *error = ASSEMBLING_ERROR(INVALID_INSTRUCTION, line.sourceSpan);
+          *error = ASSEMBLING_ERROR(INVALID_INSTRUCTION, line->sourceSpan);
           goto failed;
         }
 
         currentMemoryAddr += bytesWritten;
       } else { // DATA
-        AssemblyData data = line.data;
+        AssemblyData data = line->data;
         
         // Write the data directly to memory
         memcpy(&memory[currentMemoryAddr], data.bytes, data.length);
         currentMemoryAddr += data.length;
       }
     } else {
-      *error = ASSEMBLING_ERROR(INVALID_LINE, line.sourceSpan);
+      *error = ASSEMBLING_ERROR(INVALID_LINE, line->sourceSpan);
       goto failed;
     }
   }
