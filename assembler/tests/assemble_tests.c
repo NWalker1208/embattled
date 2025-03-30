@@ -2,17 +2,32 @@
 #include <unity.h>
 #include <string.h>
 #include "assembler/assemble.h"
+#include "parser/parse.h"
 #include "processor/process.h"
 #include "processor/instruction.h"
 
+AssemblyProgram program;
 unsigned char memory[MEMORY_SIZE];
 unsigned char expectedMemory[MEMORY_SIZE];
-struct AssemblingError error;
+AssemblingError error;
 
 void setUp() {
+  program = (AssemblyProgram){0};
   memset(memory, 0x00, sizeof(memory));
   memset(expectedMemory, 0x00, sizeof(expectedMemory));
-  memset(&error, 0, sizeof(error));
+  error = (AssemblingError){0};
+}
+
+void tearDown() {
+  DestroyAssemblyProgram(&program);
+}
+
+void initializeProgram(const char* source) {
+  TextContents text = InitTextContentsAsCopyCStr(source);
+  ParsingErrorList parsingErrors = {0};
+  if (!TryParseAssemblyProgram(&text, &program, &parsingErrors)) {
+    TEST_FAIL_MESSAGE("Failed to parse input assembly file for test.");
+  }
 }
 
 void test_tryAssemble_should_outputInstructionBytes_when_lineIsValidAssemblyInstruction(void) {
