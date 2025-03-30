@@ -5,7 +5,7 @@
 
 #define ASSEMBLING_ERROR(_message, _sourceSpan) (AssemblingError){.message = (_message), .sourceSpan = (_sourceSpan)}
 
-bool TryAssemble(const AssemblyProgram* program, unsigned char* memory, AssemblingError* error) {
+bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, AssemblingError* error) {
   unsigned short currentMemoryAddr = 0;
 
   // Setup label and reference tables for filling in addresses

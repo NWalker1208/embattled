@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "utilities/file.h"
-#include "parser/assembly.h"
 #include "parser/parse.h"
+#include "assembler/assembly.h"
 #include "assembler/assemble.h"
 #include "processor/process.h"
 #include "processor/instruction.h"
@@ -17,41 +17,34 @@ int main(int argc, char* argv[]) {
   char* assemblyFilePath = argv[1];
 
   // Load the contents of the assembly file
-  const char* text = readAllText(assemblyFilePath);
-  if (text == NULL) {
+  size_t fileLength;
+  char* chars = ReadAllText(assemblyFilePath, &fileLength);
+  if (chars == NULL) {
     fprintf(stderr, "Failed to read assembly file\n");
     return 1;
   }
 
-  // Parse the assembly file line by line
+  // Parse the assembly file
   printf("Parsing file\n");
-  struct AssemblyLine* lines = NULL;
-  unsigned int lineCount = 0;
-  bool anyErrors = false;
-  while (*text != '\0') {
-    lineCount++;
-    lines = realloc(lines, sizeof(struct AssemblyLine) * lineCount);
-    struct AssemblyLine* nextLine = &lines[lineCount - 1];
-    memset(nextLine, 0, sizeof(struct AssemblyLine)); // Ensure all fields are initialized to 0
-
-    struct ParsingError parseError;
-    if (!tryParseAssemblyLine(&text, nextLine, &parseError)) {
-      fprintf(stderr, "Failed to parse line %u: %s\n", lineCount, parseError.message);
-      anyErrors = true;
-    }
-  }
-
-  if (anyErrors) {
+  TextContents text = InitTextContents(&chars, fileLength);
+  AssemblyProgram program;
+  ParsingErrorList parsingErrors = { 0 };
+  if (!TryParseAssemblyProgram(&text, &program, &parsingErrors)) {
+    fprintf(stderr, "Failed to parse assembly file due to one or more errors.\n");
+    // TODO: Print error details
     return 1;
   }
-  printf("Parsed %d lines of assembly code\n", lineCount);
+  printf("Parsed %zu lines of assembly code\n", program.lineCount);
 
   // Assemble the program from the parsed lines
   printf("Assembling program\n");
   struct ProcessState processState = { 0 };
-  struct AssemblingError asmError;
-  if (!tryAssemble(lines, lineCount, processState.memory, &asmError)) {
-    fprintf(stderr, "Failed to assemble program due to error on line %u: %s\n", asmError.lineNumber, asmError.message);
+  AssemblingError assemblingError;
+  if (!TryAssembleProgram(&program, processState.memory, &assemblingError)) {
+    fprintf(stderr, "Failed to assemble program due to error on line %zu, column %zu: %s\n",
+      assemblingError.sourceSpan.start.line + 1,
+      assemblingError.sourceSpan.start.column + 1,
+      assemblingError.message);
     return 1;
   }
 
