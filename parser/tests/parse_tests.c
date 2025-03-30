@@ -165,7 +165,7 @@ void test_TryParseAssemblyLine_should_succeedAndAdvanceToEndOfFile_when_lastLine
   TEST_ASSERT_EQUAL_PTR(NULL, line.instruction.parameters);
 }
 
-void test_TryParseAssemblyLine_should_failWithInvalidLabel_when_labelIsEmpty(void) {
+void test_TryParseAssemblyLine_should_failWithInvalidLabelName_when_labelNameIsEmpty(void) {
   // Arrange
   const char source[] = ":\n";
   text = InitTextContentsAsCopyCStr(source);
@@ -179,6 +179,40 @@ void test_TryParseAssemblyLine_should_failWithInvalidLabel_when_labelIsEmpty(voi
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
   TEST_ASSERT_EQUAL_STRING(INVALID_LABEL_NAME, error.message);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, text);
+}
+
+void test_TryParseAssemblyLine_should_failWithInvalidLabelAddress_when_labelAddressIsEmpty(void) {
+  // Arrange
+  const char source[] = "@:\n";
+  text = InitTextContentsAsCopyCStr(source);
+
+  // Act
+  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+
+  // Assert
+  const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
+  const TextSpan expectedErrorSpan = { {0, 1}, {0, 1} };
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
+  TEST_ASSERT_EQUAL_STRING(INVALID_LABEL_ADDR, error.message);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, text);
+}
+
+void test_TryParseAssemblyLine_should_failWithInvalidLabelAddress_when_labelAddressIsTooLarge(void) {
+  // Arrange
+  const char source[] = "@10000:\n";
+  text = InitTextContentsAsCopyCStr(source);
+
+  // Act
+  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+
+  // Assert
+  const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
+  const TextSpan expectedErrorSpan = { {0, 1}, {0, 6} };
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
+  TEST_ASSERT_EQUAL_STRING(INVALID_LABEL_ADDR, error.message);
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, text);
 }
 
