@@ -127,6 +127,13 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
   skipAllWhitespace(text, position);
   TextOffset start = *position;
 
+  // Check for end-of-file
+  if (CompareTextOffsets(text, *position, GetTextContentsEnd(text)) >= 0) {
+    *error = PARSING_ERROR(UNEXPECTED_END_OF_FILE, *position, *position);
+    DestroyAssemblyLine(line);
+    return false;
+  }
+
   // If the line contains a ':', parse as a label.
   if (lineContainsChar(text, *position, ':')) {
     line->kind = ASSEMBLY_LINE_LABEL;
