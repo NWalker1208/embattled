@@ -2,6 +2,12 @@
 #include <pthread.h>
 #include <math.h>
 #include <raylib.h>
+#include "utilities/file.h"
+#include "utilities/text.h"
+#include "assembler/assembly.h"
+#include "assembler/assemble.h"
+#include "parser/parse.h"
+#include "processor/instruction.h"
 #include "arena/simulation.h"
 
 #define WINDOW_MARGIN 20
@@ -19,12 +25,36 @@ const Rectangle ARENA_DRAW_RECT = {
 };
 
 
+bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut);
+
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor);
 void DrawRobotWeapon(const Robot* robot);
 void DrawRobotSensors(const Robot* robot);
 
 
-int main(void) {
+int main(int argc, char* argv[]) {
+  // Get command line arguments
+  if (argc != 3) {
+    fprintf(stderr, "Usage: %s <assembly file A> <assembly file B>\n", argv[0]);
+    return 1;
+  }
+  char* assemblyFilePathA = argv[1];
+  char* assemblyFilePathB = argv[2];
+
+  // Load, parse, and assemble assembly files
+  TextContents textA, textB;
+  AssemblyProgram programA, programB;
+  unsigned char initialMemoryA[MEMORY_SIZE], initialMemoryB[MEMORY_SIZE];
+
+  if (!TryReadParseAndAssembleFile(assemblyFilePathA, &textA, &programA, initialMemoryA)) {
+    return 1;
+  }
+
+  if (!TryReadParseAndAssembleFile(assemblyFilePathB, &textB, &programB, initialMemoryB)) {
+    return 1;
+  }
+
+  // Start simulation
   SimulationArguments simulationArguments = {
     .robotCount = 2,
     .robots = {
@@ -47,6 +77,9 @@ int main(void) {
     fprintf(stderr, "Failed to initialize simulation.\n");
     exit(1);
   }
+
+  memcpy(simulationArguments.robots[0].processState.memory, initialMemoryA, sizeof(initialMemoryA));
+  memcpy(simulationArguments.robots[1].processState.memory, initialMemoryB, sizeof(initialMemoryB));
 
   pthread_t simulationThread;
   pthread_create(&simulationThread, NULL, StartSimulation, &simulationArguments);
@@ -102,6 +135,41 @@ int main(void) {
   pthread_mutex_destroy(simulationMutex);
 
   return 0;
+}
+
+
+bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut) {
+  char* chars;
+  size_t fileLength;
+  if ((chars = ReadAllText(path, &fileLength)) == NULL) {
+    fprintf(stderr, "Failed to read assembly file.\n");
+    return false;
+  }
+
+  *textOut = InitTextContents(&chars, fileLength);
+  ParsingErrorList parsingErrors = { 0 };
+  if (!TryParseAssemblyProgram(textOut, assemblyProgramOut, &parsingErrors)) {
+    fprintf(stderr, "Failed to parse assembly file.\n");
+    for (size_t i = 0; i < parsingErrors.errorCount; i++) {
+      fprintf(stderr, "Line %zu, column %zu: %s.\n",
+        parsingErrors.errors[i].sourceSpan.start.line + 1,
+        parsingErrors.errors[i].sourceSpan.start.column + 1,
+        parsingErrors.errors[i].message);
+    }
+    return false;
+  }
+
+  AssemblingError assemblingError = { 0 };
+  if (!TryAssembleProgram(textOut, assemblyProgramOut, memoryOut, &assemblingError)) {
+    fprintf(stderr, "Failed to assemble program from file.\n");
+    fprintf(stderr, "Line %zu, column %zu: %s.",
+      assemblingError.sourceSpan.start.line + 1,
+      assemblingError.sourceSpan.start.column + 1,
+      assemblingError.message);
+    return false;
+  }
+
+  return true;
 }
 
 

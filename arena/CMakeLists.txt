@@ -9,6 +9,6 @@ target_include_directories(${PROJECT_LIB_NAME} PUBLIC include)
 target_link_libraries(${PROJECT_LIB_NAME} PUBLIC processor utilities raylib)
 
 add_executable(${PROJECT_NAME} main.c)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIB_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIB_NAME} parser assembler)
 
 enable_testing()
