@@ -10,6 +10,7 @@ typedef struct {
 } AssemblyMemoryMapping;
 
 // An assembled binary program.
+// TODO: Make this the output of TryAssembleProgram instead of a plain memory array.
 typedef struct {
   // The number of assembly-memory mappings.
   size_t assemblyMemoryMappingsCount;
