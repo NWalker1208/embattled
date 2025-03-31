@@ -3,20 +3,18 @@
 #include "utilities/text.h"
 #include "processor/process.h"
 
-// A mapping between a source span and a memory address.
+// A mapping between an assembly line and a memory address.
 typedef struct {
-  TextSpan sourceSpan;
+  size_t assemblyLineIndex;
   unsigned short memoryAddress;
-} SourceMemoryMapping;
+} AssemblyMemoryMapping;
 
 // An assembled binary program.
 typedef struct {
-  // The number of source-memory mappings.
-  size_t mappingsCount;
-  // The array of source-memory mappings sorted by source span.
-  SourceMemoryMapping* sourceToMemoryMappings;
-  // The array of source-memory mappings sorted by memory address.
-  SourceMemoryMapping* memoryToSourceMappings;
+  // The number of assembly-memory mappings.
+  size_t assemblyMemoryMappingsCount;
+  // The array of assembly-memory mappings.
+  AssemblyMemoryMapping* assemblyMemoryMappings;
 
   // The bytes of the program.
   unsigned char bytes[MEMORY_SIZE];
