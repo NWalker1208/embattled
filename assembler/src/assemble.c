@@ -5,25 +5,25 @@
 
 #define ASSEMBLING_ERROR(_message, _sourceSpan) (AssemblingError){.message = (_message), .sourceSpan = (_sourceSpan)}
 
-bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, AssemblingError* error) {
+bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, unsigned char* memory, AssemblingError* error) {
   unsigned short currentMemoryAddr = 0;
 
   // Setup label and reference tables for filling in addresses
   AssemblyLabel* currentLabel = NULL;
   TextSpan currentLabelLineSpan;
 
-  TextSpan* labelTableLabelSpans = malloc(sizeof(TextSpan) * program->lineCount);
-  unsigned short* labelTableAddresses = malloc(sizeof(unsigned short) * program->lineCount);
+  TextSpan* labelTableLabelSpans = malloc(sizeof(TextSpan) * assemblyProgram->lineCount);
+  unsigned short* labelTableAddresses = malloc(sizeof(unsigned short) * assemblyProgram->lineCount);
   size_t labelCount = 0;
 
-  unsigned short* referenceTableAddresses = malloc(sizeof(unsigned short) * program->lineCount);
-  TextSpan* referenceTableLabelSpans = malloc(sizeof(TextSpan) * program->lineCount);
-  TextSpan* referenceTableParamSpans = malloc(sizeof(TextSpan) * program->lineCount);
+  unsigned short* referenceTableAddresses = malloc(sizeof(unsigned short) * assemblyProgram->lineCount);
+  TextSpan* referenceTableLabelSpans = malloc(sizeof(TextSpan) * assemblyProgram->lineCount);
+  TextSpan* referenceTableParamSpans = malloc(sizeof(TextSpan) * assemblyProgram->lineCount);
   size_t referenceCount = 0;
 
   // Write all lines to memory
-  for (size_t i = 0; i < program->lineCount; i++) {
-    AssemblyLine* line = &program->lines[i];
+  for (size_t i = 0; i < assemblyProgram->lineCount; i++) {
+    AssemblyLine* line = &assemblyProgram->lines[i];
 
     if (line->kind == ASSEMBLY_LINE_LABEL) {
       if (currentLabel != NULL) {
@@ -31,8 +31,8 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
         goto failed;
       }
       
-      bool hasName = !IsEmptyTextSpan(&program->sourceText, line->label.nameSpan);
-      bool hasAddress = !IsEmptyTextSpan(&program->sourceText, line->label.addressSpan);
+      bool hasName = !IsEmptyTextSpan(sourceText, line->label.nameSpan);
+      bool hasAddress = !IsEmptyTextSpan(sourceText, line->label.addressSpan);
       if (!hasName && !hasAddress) {
         *error = ASSEMBLING_ERROR(INVALID_LABEL, line->sourceSpan);
         goto failed;
@@ -40,7 +40,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
 
       if (hasName) {
         for (size_t j = 0; j < labelCount; j++) {
-          if (CompareTextSpans(&program->sourceText, line->label.nameSpan, &program->sourceText, labelTableLabelSpans[j]) == 0) {
+          if (CompareTextSpans(sourceText, line->label.nameSpan, sourceText, labelTableLabelSpans[j]) == 0) {
             *error = ASSEMBLING_ERROR(DUPLICATE_LABEL_NAME, line->label.nameSpan);
             goto failed;
           }
@@ -60,7 +60,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
       currentLabelLineSpan = line->sourceSpan;
     } else if (line->kind == ASSEMBLY_LINE_INSTRUCTION || line->kind == ASSEMBLY_LINE_DATA) {
       if (currentLabel != NULL) {
-        if (!IsEmptyTextSpan(&program->sourceText, currentLabel->nameSpan)) {
+        if (!IsEmptyTextSpan(sourceText, currentLabel->nameSpan)) {
           labelTableLabelSpans[labelCount] = currentLabel->nameSpan;
           labelTableAddresses[labelCount] = currentMemoryAddr;
           labelCount++;
@@ -182,7 +182,7 @@ bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, A
     unsigned short labelAddress;
     bool foundLabel = false;
     for (unsigned int j = 0; j < labelCount; j++) {
-      if (CompareTextSpans(&program->sourceText, labelTableLabelSpans[j], &program->sourceText, labelSpan) == 0) {
+      if (CompareTextSpans(sourceText, labelTableLabelSpans[j], sourceText, labelSpan) == 0) {
         labelAddress = labelTableAddresses[j];
         foundLabel = true;
         break;

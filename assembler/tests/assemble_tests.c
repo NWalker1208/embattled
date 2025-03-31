@@ -7,12 +7,14 @@
 #include "processor/process.h"
 #include "processor/instruction.h"
 
+TextContents sourceText;
 AssemblyProgram program;
 unsigned char memory[MEMORY_SIZE];
 unsigned char expectedMemory[MEMORY_SIZE];
 AssemblingError error;
 
 void setUp() {
+  sourceText = (TextContents){0};
   program = (AssemblyProgram){0};
   memset(memory, 0x00, sizeof(memory));
   memset(expectedMemory, 0x00, sizeof(expectedMemory));
@@ -20,13 +22,14 @@ void setUp() {
 }
 
 void tearDown() {
+  DestroyTextContents(&sourceText);
   DestroyAssemblyProgram(&program);
 }
 
 void initializeProgram(const char* source) {
-  TextContents text = InitTextContentsAsCopyCStr(source);
+  sourceText = InitTextContentsAsCopyCStr(source);
   ParsingErrorList parsingErrors = {0};
-  if (!TryParseAssemblyProgram(&text, &program, &parsingErrors)) {
+  if (!TryParseAssemblyProgram(&sourceText, &program, &parsingErrors)) {
     TEST_FAIL_MESSAGE("Failed to parse input assembly file for test.");
   }
 }
@@ -42,7 +45,7 @@ void test_TryAssembleProgram_should_outputInstructionBytes_when_lineIsValidAssem
   });
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
@@ -57,7 +60,7 @@ void test_TryAssembleProgram_should_outputDataBytes_when_lineIsValidAssemblyData
   memcpy(expectedMemory, bytes, sizeof(bytes));
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
@@ -81,7 +84,7 @@ void test_TryAssembleProgram_should_outputInstructionWithReference_when_instruct
   });
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
@@ -104,7 +107,7 @@ void test_TryAssembleProgram_should_outputInstructionWithReference_when_instruct
   memcpy(&expectedMemory[3], bytes, sizeof(bytes));
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
@@ -118,12 +121,12 @@ void test_TryAssembleProgram_should_outputErrorTooFewParams_when_instructionHasT
   TextSpan expectedErrorSpan = {{0, 0}, {0, 7}};
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_STRING(TOO_FEW_PARAMS, error.message);
-  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, program.sourceText);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
 }
 
 void test_TryAssembleProgram_should_outputErrorTooManyParams_when_instructionHasTooManyParams(void) {
@@ -133,12 +136,12 @@ void test_TryAssembleProgram_should_outputErrorTooManyParams_when_instructionHas
   TextSpan expectedErrorSpan = {{0, 0}, {0, 17}};
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_STRING(TOO_MANY_PARAMS, error.message);
-  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, program.sourceText);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
 }
 
 void test_TryAssembleProgram_should_outputErrorExpectedRegister_when_instructionHasImmediateValueInsteadOfRegister(void) {
@@ -148,12 +151,12 @@ void test_TryAssembleProgram_should_outputErrorExpectedRegister_when_instruction
   TextSpan expectedErrorSpan = {{0, 9}, {0, 15}};
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_STRING(EXPECTED_REGISTER, error.message);
-  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, program.sourceText);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
 }
 
 void test_TryAssembleProgram_should_outputErrorExpectedImmediateValue_when_instructionHasRegisterInsteadOfUnder16BitImmediateValue(void) {
@@ -163,12 +166,12 @@ void test_TryAssembleProgram_should_outputErrorExpectedImmediateValue_when_instr
   TextSpan expectedErrorSpan = {{0, 9}, {0, 12}};
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_STRING(EXPECTED_IMMEDIATE_VALUE, error.message);
-  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, program.sourceText);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
 }
 
 void test_TryAssembleProgram_should_outputErrorExpectedImmediateValueOrLabelRef_when_instructionHasRegisterInsteadOf16BitImmediateValue(void) {
@@ -178,12 +181,12 @@ void test_TryAssembleProgram_should_outputErrorExpectedImmediateValueOrLabelRef_
   TextSpan expectedErrorSpan = {{0, 4}, {0, 7}};
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_STRING(EXPECTED_IMMEDIATE_VALUE_OR_LABEL_REF, error.message);
-  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, program.sourceText);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
 }
 
 TEST_CASE("jmp -1", 4, 6)
@@ -201,12 +204,12 @@ void test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_ins
   TextSpan expectedErrorSpan = {{0, errorSpanStartCol}, {0, errorSpanEndCol}};
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_STRING(IMMEDIATE_VALUE_OUT_OF_RANGE, error.message);
-  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, program.sourceText);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
 }
 
 void test_TryAssembleProgram_should_outputErrorInvalidInstruction_when_instructionHasUndefinedOpcode(void) {
@@ -217,12 +220,12 @@ void test_TryAssembleProgram_should_outputErrorInvalidInstruction_when_instructi
   TextSpan expectedErrorSpan = {{0, 0}, {0, 3}};
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_STRING(INVALID_INSTRUCTION, error.message);
-  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, program.sourceText);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
 }
 
 void test_TryAssembleProgram_should_outputErrorUndefinedLabel_when_instructionReferencesUndefinedLabel(void) {
@@ -232,10 +235,10 @@ void test_TryAssembleProgram_should_outputErrorUndefinedLabel_when_instructionRe
   TextSpan expectedErrorSpan = {{0, 4}, {0, 9}};
 
   // Act
-  bool success = TryAssembleProgram(&program, memory, &error);
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
   // Assert
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUAL_STRING(UNDEFINED_LABEL_NAME, error.message);
-  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, program.sourceText);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
 }

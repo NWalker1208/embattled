@@ -85,7 +85,7 @@ bool tryParseName(const TextContents* text, TextOffset* position, TextSpan* span
 
 #pragma endregion
 
-bool TryParseAssemblyProgram(TextContents* text, AssemblyProgram* program, ParsingErrorList* errors) {
+bool TryParseAssemblyProgram(const TextContents* text, AssemblyProgram* program, ParsingErrorList* errors) {
   TextOffset position = { 0, 0 };
   TextOffset end = GetTextContentsEnd(text);
   
@@ -118,8 +118,6 @@ bool TryParseAssemblyProgram(TextContents* text, AssemblyProgram* program, Parsi
     }
   }
   
-  program->sourceText = *text;
-  *text = (TextContents){ 0 };
   return !anyErrors;
 }
 

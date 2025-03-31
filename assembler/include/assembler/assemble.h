@@ -28,4 +28,4 @@ typedef struct {
 // Attempts to assemble the given assembly program into bytes in the memory space provided.
 // If successful, writes the assembled bytes to memory and returns true.
 // Otherwise, outputs the cause through error and returns false.
-bool TryAssembleProgram(const AssemblyProgram* program, unsigned char* memory, AssemblingError* error);
+bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, unsigned char* memory, AssemblingError* error);

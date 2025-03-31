@@ -2,7 +2,6 @@
 #include "assembler/assembly.h"
 
 void DestroyAssemblyProgram(AssemblyProgram* program) {
-  DestroyTextContents(&program->sourceText);
   free(program->lines);
   program->lines = NULL;
   program->lineCount = 0;

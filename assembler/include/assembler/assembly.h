@@ -77,8 +77,6 @@ typedef struct {
 
 // An assembly program consisting of zero or more lines.
 typedef struct {
-  // The text from which this program was parsed.
-  TextContents sourceText;
   // The number of lines in the assembly program.
   size_t lineCount;
   // The lines of the assembly program. Should be a dynamically allocated array.

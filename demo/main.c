@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
   printf("Assembling program\n");
   struct ProcessState processState = { 0 };
   AssemblingError assemblingError;
-  if (!TryAssembleProgram(&program, processState.memory, &assemblingError)) {
+  if (!TryAssembleProgram(&text, &program, processState.memory, &assemblingError)) {
     fprintf(stderr, "Failed to assemble program due to error on line %zu, column %zu: %s\n",
       assemblingError.sourceSpan.start.line + 1,
       assemblingError.sourceSpan.start.column + 1,

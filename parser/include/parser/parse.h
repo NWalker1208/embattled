@@ -53,10 +53,10 @@ typedef struct {
 } ParsingErrorList;
 
 // Parses an assembly program from the provided text.
-// Moves the text contents into the program struct.
+// Outputs all successfully parsed lines through program.
 // If no parsing errors occur, returns true.
 // If any parsing errors occur, updates errors and returns false.
-bool TryParseAssemblyProgram(TextContents* text, AssemblyProgram* program, ParsingErrorList* errors);
+bool TryParseAssemblyProgram(const TextContents* text, AssemblyProgram* program, ParsingErrorList* errors);
 
 // Parses the next line of assembly from the given text and advances the position.
 // Skips leading whitespace and newlines.
