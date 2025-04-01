@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // Start simulation
+  // Setup simulation
   SimulationArguments simulationArguments = {
     .robotCount = 2,
     .robots = {
@@ -84,6 +84,7 @@ int main(int argc, char* argv[]) {
   pthread_t simulationThread;
   pthread_create(&simulationThread, NULL, StartSimulation, &simulationArguments);
 
+  // Setup window
   int windowWidth = 800;
   int windowHeight = 450;
 
@@ -91,14 +92,16 @@ int main(int argc, char* argv[]) {
   InitWindow(windowWidth, windowHeight, "Hello Raylib");
   SetWindowMinSize(WINDOW_MARGIN, WINDOW_MARGIN);
 
+  SetTargetFPS(60);
+
+  // Setup camera
   Camera2D camera = { 0 };
   camera.target = (Vector2){ 0, 0 };
   camera.offset = (Vector2){ ARENA_DRAW_RECT.width / 2, ARENA_DRAW_RECT.height / 2 };
   camera.rotation = 0.0f;
   camera.zoom = 1.0f;
 
-  SetTargetFPS(60);
-
+  // Enter main loop
   while (!WindowShouldClose()) {
     windowWidth = GetScreenWidth(); windowHeight = GetScreenHeight();
 
@@ -109,20 +112,21 @@ int main(int argc, char* argv[]) {
     // Draw frame
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    BeginMode2D(camera); {
-      DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
-      pthread_mutex_lock(simulationMutex);
-      for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
-        DrawRobotSensors(&simulationArguments.robots[i]);
-      }
-      for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
-        DrawRobotWeapon(&simulationArguments.robots[i]);
-      }
-      for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
-        DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], PURPLE);
-      }
-      pthread_mutex_unlock(simulationMutex);
-    } EndMode2D();
+    pthread_mutex_lock(simulationMutex); {
+      // Draw arena and robots
+      BeginMode2D(camera); {
+        DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
+        for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
+          DrawRobotSensors(&simulationArguments.robots[i]);
+        }
+        for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
+          DrawRobotWeapon(&simulationArguments.robots[i]);
+        }
+        for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
+          DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], PURPLE);
+        }
+      } EndMode2D();
+    } pthread_mutex_unlock(simulationMutex);
     EndDrawing();
   }
 
