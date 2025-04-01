@@ -2,11 +2,14 @@
 #include <string.h>
 #include "assembler/assemble.h"
 #include "processor/instruction.h"
+#include "processor/process.h"
 
 #define ASSEMBLING_ERROR(_message, _sourceSpan) (AssemblingError){.message = (_message), .sourceSpan = (_sourceSpan)}
 
 bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, unsigned char* memory, AssemblingError* error) {
   unsigned short currentMemoryAddr = 0;
+  memset(memory, 0x00, sizeof(unsigned char) * MEMORY_SIZE); // Clear memory
+  // TODO: Check if program goes beyond max address.
 
   // Setup label and reference tables for filling in addresses
   AssemblyLabel* currentLabel = NULL;
