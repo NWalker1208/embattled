@@ -1,0 +1,10 @@
+  ldiw @controls
+  mov  $x0, $ac
+  ldib 0x7F
+  stmb $x0, 0
+  stmb $x0, 1
+loop:
+  jmp @loop
+
+controls@F000:
+  .data 00 00
