@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
   // Setup window
   int windowWidth = 800, windowHeight = 450;
 
-  SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+  SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT);
   InitWindow(windowWidth, windowHeight, "Hello Raylib");
   UpdateDpiAndMinWindowSize();
   SetWindowSize(dpi * (STATE_PANEL_WIDTH + STATE_PANEL_HEIGHT * 2), dpi * (STATE_PANEL_HEIGHT * 2));
