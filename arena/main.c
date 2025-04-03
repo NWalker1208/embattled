@@ -24,8 +24,12 @@ const Rectangle ARENA_DRAW_RECT = {
   .width=ARENA_WIDTH + ARENA_BORDER_THICKNESS * 2, .height=ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2
 };
 
+Vector2 dpi = { -1, -1 };
+
 
 bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut);
+
+void UpdateDpiAndMinWindowSize();
 
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor);
 void DrawRobotWeapon(const Robot* robot);
@@ -90,21 +94,18 @@ int main(int argc, char* argv[]) {
 
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(windowWidth, windowHeight, "Hello Raylib");
-  SetWindowMinSize(WINDOW_MARGIN, WINDOW_MARGIN);
-
   SetTargetFPS(60);
 
   // Setup camera
   Camera2D camera = { 0 };
   camera.target = (Vector2){ 0, 0 };
-  camera.offset = (Vector2){ ARENA_DRAW_RECT.width / 2, ARENA_DRAW_RECT.height / 2 };
   camera.rotation = 0.0f;
-  camera.zoom = 1.0f;
 
   // Enter main loop
   while (!WindowShouldClose()) {
     windowWidth = GetScreenWidth(); windowHeight = GetScreenHeight();
-
+    UpdateDpiAndMinWindowSize();
+    
     // Update camera based on current window size
     camera.offset = (Vector2){ windowWidth / 2, windowHeight / 2 };
     camera.zoom = fmin((windowWidth - WINDOW_MARGIN) / ARENA_DRAW_RECT.width, (windowHeight - WINDOW_MARGIN) / ARENA_DRAW_RECT.height);
@@ -174,6 +175,15 @@ bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, Assemb
   }
 
   return true;
+}
+
+
+void UpdateDpiAndMinWindowSize() {
+  Vector2 newDpi;
+  if (newDpi.x != dpi.x || newDpi.y != dpi.y) {
+    dpi = newDpi;
+    SetWindowMinSize(dpi.x * (WINDOW_MARGIN * 2 + STATE_PANEL_WIDTH), dpi.y * (WINDOW_MARGIN * 2 + STATE_PANEL_HEIGHT * 2));
+  }
 }
 
 
