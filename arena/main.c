@@ -24,7 +24,7 @@ const Rectangle ARENA_DRAW_RECT = {
   .width=ARENA_WIDTH + ARENA_BORDER_THICKNESS * 2, .height=ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2
 };
 
-Vector2 dpi = { -1, -1 };
+float dpi = -1;
 
 
 bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut);
@@ -96,10 +96,9 @@ int main(int argc, char* argv[]) {
   InitWindow(windowWidth, windowHeight, "Hello Raylib");
   SetTargetFPS(60);
 
-  // Setup camera
-  Camera2D camera = { 0 };
-  camera.target = (Vector2){ 0, 0 };
-  camera.rotation = 0.0f;
+  // Setup cameras
+  Camera2D uiCamera = { 0 };
+  Camera2D arenaCamera = { 0 };
 
   // Enter main loop
   while (!WindowShouldClose()) {
@@ -107,15 +106,17 @@ int main(int argc, char* argv[]) {
     UpdateDpiAndMinWindowSize();
     
     // Update camera based on current window size
-    camera.offset = (Vector2){ windowWidth / 2, windowHeight / 2 };
-    camera.zoom = fmin((windowWidth - WINDOW_MARGIN) / ARENA_DRAW_RECT.width, (windowHeight - WINDOW_MARGIN) / ARENA_DRAW_RECT.height);
+    uiCamera.zoom = dpi;
+
+    arenaCamera.offset = (Vector2){ windowWidth / 2, windowHeight / 2 };
+    arenaCamera.zoom = fmin((windowWidth - WINDOW_MARGIN) / ARENA_DRAW_RECT.width, (windowHeight - WINDOW_MARGIN) / ARENA_DRAW_RECT.height);
 
     // Draw frame
     BeginDrawing();
     ClearBackground(RAYWHITE);
     pthread_mutex_lock(simulationMutex); {
       // Draw arena and robots
-      BeginMode2D(camera); {
+      BeginMode2D(arenaCamera); {
         DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
         for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
           DrawRobotSensors(&simulationArguments.robots[i]);
@@ -126,6 +127,10 @@ int main(int argc, char* argv[]) {
         for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
           DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], PURPLE);
         }
+      } EndMode2D();
+
+      // Draw user interface
+      BeginMode2D(uiCamera); {
       } EndMode2D();
     } pthread_mutex_unlock(simulationMutex);
     EndDrawing();
@@ -179,10 +184,10 @@ bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, Assemb
 
 
 void UpdateDpiAndMinWindowSize() {
-  Vector2 newDpi;
-  if (newDpi.x != dpi.x || newDpi.y != dpi.y) {
+  float newDpi = GetWindowScaleDPI().x;
+  if (newDpi != dpi) {
     dpi = newDpi;
-    SetWindowMinSize(dpi.x * (WINDOW_MARGIN * 2 + STATE_PANEL_WIDTH), dpi.y * (WINDOW_MARGIN * 2 + STATE_PANEL_HEIGHT * 2));
+    SetWindowMinSize(dpi * (WINDOW_MARGIN * 2 + STATE_PANEL_WIDTH), dpi * (WINDOW_MARGIN * 2 + STATE_PANEL_HEIGHT * 2));
   }
 }
 
