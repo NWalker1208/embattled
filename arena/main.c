@@ -10,11 +10,15 @@
 #include "processor/instruction.h"
 #include "arena/simulation.h"
 
-#define WINDOW_MARGIN 20
-
 #define ARENA_WIDTH 500.0
 #define ARENA_HEIGHT 500.0
 #define ARENA_BORDER_THICKNESS 4
+#define ARENA_MARGIN 10
+#define ARENA_MIN_SCREEN_WIDTH 100
+
+#define STATE_PANEL_WIDTH 200
+#define STATE_PANEL_HEIGHT 200
+#define STATE_PANEL_MARGIN 10
 
 #define ROBOT_RADIUS 50.0
 
@@ -89,11 +93,12 @@ int main(int argc, char* argv[]) {
   pthread_create(&simulationThread, NULL, StartSimulation, &simulationArguments);
 
   // Setup window
-  int windowWidth = 800;
-  int windowHeight = 450;
+  int windowWidth = 800, windowHeight = 450;
 
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(windowWidth, windowHeight, "Hello Raylib");
+  UpdateDpiAndMinWindowSize();
+  SetWindowSize(dpi * (STATE_PANEL_WIDTH + STATE_PANEL_HEIGHT * 2), dpi * (STATE_PANEL_HEIGHT * 2));
   SetTargetFPS(60);
 
   // Setup cameras
@@ -108,8 +113,10 @@ int main(int argc, char* argv[]) {
     // Update camera based on current window size
     uiCamera.zoom = dpi;
 
-    arenaCamera.offset = (Vector2){ windowWidth / 2, windowHeight / 2 };
-    arenaCamera.zoom = fmin((windowWidth - WINDOW_MARGIN) / ARENA_DRAW_RECT.width, (windowHeight - WINDOW_MARGIN) / ARENA_DRAW_RECT.height);
+    float statePanelScreenWidth = dpi * STATE_PANEL_WIDTH;
+    float arenaScreenWidth = windowWidth - statePanelScreenWidth;
+    arenaCamera.offset = (Vector2){ statePanelScreenWidth + (arenaScreenWidth / 2), windowHeight / 2 };
+    arenaCamera.zoom = fmin((arenaScreenWidth - 2 * ARENA_MARGIN) / ARENA_DRAW_RECT.width, (windowHeight - 2 * ARENA_MARGIN) / ARENA_DRAW_RECT.height);
 
     // Draw frame
     BeginDrawing();
@@ -131,6 +138,7 @@ int main(int argc, char* argv[]) {
 
       // Draw user interface
       BeginMode2D(uiCamera); {
+        DrawRectangleRec((Rectangle){ 0.0f, 0.0f, STATE_PANEL_WIDTH, windowHeight / dpi }, LIGHTGRAY);
       } EndMode2D();
     } pthread_mutex_unlock(simulationMutex);
     EndDrawing();
@@ -187,7 +195,7 @@ void UpdateDpiAndMinWindowSize() {
   float newDpi = GetWindowScaleDPI().x;
   if (newDpi != dpi) {
     dpi = newDpi;
-    SetWindowMinSize(dpi * (WINDOW_MARGIN * 2 + STATE_PANEL_WIDTH), dpi * (WINDOW_MARGIN * 2 + STATE_PANEL_HEIGHT * 2));
+    SetWindowMinSize(dpi * (ARENA_MARGIN * 2 + STATE_PANEL_WIDTH + ARENA_MIN_SCREEN_WIDTH), dpi * fmax(ARENA_MARGIN * 2, STATE_PANEL_HEIGHT * 2));
   }
 }
 
