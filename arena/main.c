@@ -38,6 +38,7 @@ void UpdateDpiAndMinWindowSize();
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor);
 void DrawRobotWeapon(const Robot* robot);
 void DrawRobotSensors(const Robot* robot);
+void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position);
 
 
 int main(int argc, char* argv[]) {
@@ -139,6 +140,9 @@ int main(int argc, char* argv[]) {
       // Draw user interface
       BeginMode2D(uiCamera); {
         DrawRectangleRec((Rectangle){ 0.0f, 0.0f, STATE_PANEL_WIDTH, windowHeight / dpi }, LIGHTGRAY);
+        for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
+          DrawRobotProcessState(&simulationArguments.robots[i], i, (Vector2){ 0, STATE_PANEL_HEIGHT * i });
+        }
       } EndMode2D();
     } pthread_mutex_unlock(simulationMutex);
     EndDrawing();
@@ -218,4 +222,22 @@ void DrawRobotSensors(const Robot* robot) {
   for (unsigned int i = 0; i < ROBOT_NUM_SENSORS; i++) {
     DrawLineEx(robot->sensors[i].start, robot->sensors[i].end, 1.0, BLUE);
   }
+}
+
+void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position) {
+  Vector2 topLeft = { position.x + STATE_PANEL_MARGIN, position.y + STATE_PANEL_MARGIN };
+  Vector2 bottomRight = { position.x + STATE_PANEL_WIDTH - STATE_PANEL_MARGIN, position.y + STATE_PANEL_HEIGHT - STATE_PANEL_MARGIN };
+
+  char title[100];
+  sprintf_s(title, sizeof(title), "Robot %zu", index + 1);
+  DrawText(title, topLeft.x, topLeft.y, 15, BLACK);
+  
+  Vector2 labelSize = MeasureTextEx(GetFontDefault(), "Energy", 12, 1.0);
+  DrawText("Energy", topLeft.x, topLeft.y + 20, 12, BLACK);
+  float energyBarY =  topLeft.y + 20 + (labelSize.y / 2);
+  float energyBarLeftX = topLeft.x + labelSize.x + 10;
+  float energyBarRightX = bottomRight.x;
+  float energyPercent = fmax(0.0f, fmin(1.0f, (float)robot->energyRemaining / ROBOT_INITIAL_ENERGY));
+  DrawLineEx((Vector2){ energyBarLeftX, energyBarY }, (Vector2){ energyBarRightX, energyBarY }, 4, energyPercent > 0 ? BLACK : RED);
+  DrawLineEx((Vector2){ energyBarLeftX, energyBarY }, (Vector2){ energyBarLeftX + (energyBarRightX - energyBarLeftX) * energyPercent, energyBarY }, 4, GREEN);
 }
