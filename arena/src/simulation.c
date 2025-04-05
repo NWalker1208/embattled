@@ -7,7 +7,7 @@
 #include "utilities/sleep.h"
 
 
-#define STEPS_PER_SEC 1000
+#define STEPS_PER_SEC 1024
 #define MAX_SEC_BEHIND 1
 
 #define ROBOT_SENSORS_FOV_RAD (DEG2RAD * 90.0)
@@ -40,10 +40,13 @@ void* StartSimulation(void* arg) {
   ticks_t relativeTicks = 0; // The difference between the simulation time and realtime measured in ticks
   double timeScale = 0; // The number of simulation seconds per realtime second. Infinity = maximum speed
   bool timeScaleChanged = true; // Whether timeScale changed during the last iteration
-  clock_t lastRealtimeClock = clock();
+  clock_t lastRealtimeClock;
   while (!simulation->shouldStop) {
     // Update the difference between simulation and realtime
-    clock_t currentRealtimeClock = clock();
+    clock_t currentRealtimeClock = clock() * timeScale; // TODO: Detect overflow, handle infinity
+    if (timeScaleChanged) {
+      lastRealtimeClock = currentRealtimeClock;
+    }
     clock_t elapsedRealtimeClocks = currentRealtimeClock - lastRealtimeClock;
     lastRealtimeClock = currentRealtimeClock;
 
