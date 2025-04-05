@@ -23,7 +23,8 @@ typedef long simtime_t;
 #define SIMTIME_PER_STEP  (simtime_t)(CLOCKS_PER_SEC) // (SIMTIME_PER_SEC / STEPS_PER_SEC)
 #define SIMTIME_PER_CLOCK (simtime_t)(STEPS_PER_SEC)  // (SIMTIME_PER_SEC / CLOCKS_PER_SEC)
 
-#define DELTA_TIME_SEC (double)(1.0 / STEPS_PER_SEC)
+#define DELTA_TIME_SEC     (double)(1.0 / STEPS_PER_SEC)
+#define MAX_SIMTIME_BEHIND (simtime_t)(MAX_SEC_BEHIND * SIMTIME_PER_SEC)
 
 #define MAX(a, b) ((a) > (b)) ? (a) : (b)
 #define MIN(a, b) ((a) < (b)) ? (a) : (b)
@@ -36,16 +37,12 @@ void* StartSimulation(void* arg) {
   SimulationArguments* simulation = arg;
   pthread_mutex_t* mutex = &simulation->mutex;
 
-  clock_t lastClock = clock();
-  simtime_t simtimeBehind = 0;
+  simtime_t relativeSimtime = 0; // The difference between the simulation and realtime measured in simtime units
+  double timeScale = 0; // The number of simulation seconds per realtime second. Infinity = maximum speed.
+  bool timeScaleChanged = true; // Whether timeScale changed during the last iteration.
+  clock_t lastRealtimeClock = clock();
   while (!simulation->shouldStop) {
-    while (!simulation->shouldStop && simtimeBehind > 0) {
-      pthread_mutex_lock(mutex); {
-        StepSimulation(simulation, DELTA_TIME_SEC);
-      } pthread_mutex_unlock(mutex);
-      simtimeBehind -= SIMTIME_PER_STEP;
-    }
-
+    // Update the difference between simulation time and realtime
     clock_t currentClock = clock();
     clock_t elapsedClocks = currentClock - lastClock;
     simtime_t elapsedSimtime = elapsedClocks * SIMTIME_PER_CLOCK;
@@ -56,9 +53,30 @@ void* StartSimulation(void* arg) {
     }
     lastClock = currentClock;
 
-    long millisecondsAhead = (-simtimeBehind) / (SIMTIME_PER_SEC / 1000);
-    if (millisecondsAhead > 0) {
-      psleep(millisecondsAhead);
+    // Access/modify the simulation state
+    long msToSleep;
+    pthread_mutex_lock(mutex); {
+      if (relativeSimtime < 0) {
+        // Running behind realtime -> step the simulation
+        StepSimulation(simulation, DELTA_TIME_SEC);
+        relativeSimtime += SIMTIME_PER_STEP;
+        msToSleep = -1;
+      } else {
+        // Running ahead of realtime -> sleep
+        msToSleep = relativeSimtime / (SIMTIME_PER_SEC / 1000);
+      }
+
+      // Update timeScale
+      if (simulation->timeScale != timeScale) {
+        timeScale = simulation->timeScale;
+        timeScaleChanged = true;
+      } else {
+        timeScaleChanged = false;
+      }
+    } pthread_mutex_unlock(mutex);
+
+    if (msToSleep >= 0) {
+      psleep(msToSleep);
     }
   }
 
