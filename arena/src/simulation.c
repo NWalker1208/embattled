@@ -15,16 +15,16 @@
 #define ROBOT_MAX_SPEED 300.0
 #define ROBOT_ROT_SPEED 6.0
 
-// A unit of simulation time.
+// A unit of time used to compare realtime and simulation time.
 // Defined such that both simulation steps and clocks can be represented as whole numbers.
-typedef long simtime_t;
+typedef long ticks_t;
 
-#define SIMTIME_PER_SEC   (simtime_t)(STEPS_PER_SEC * CLOCKS_PER_SEC)
-#define SIMTIME_PER_STEP  (simtime_t)(CLOCKS_PER_SEC) // (SIMTIME_PER_SEC / STEPS_PER_SEC)
-#define SIMTIME_PER_CLOCK (simtime_t)(STEPS_PER_SEC)  // (SIMTIME_PER_SEC / CLOCKS_PER_SEC)
+#define TICKS_PER_SEC   (ticks_t)(STEPS_PER_SEC * CLOCKS_PER_SEC)
+#define TICKS_PER_STEP  (ticks_t)(CLOCKS_PER_SEC) // (SIMTIME_PER_SEC / STEPS_PER_SEC)
+#define TICKS_PER_CLOCK (ticks_t)(STEPS_PER_SEC)  // (SIMTIME_PER_SEC / CLOCKS_PER_SEC)
 
-#define DELTA_TIME_SEC     (double)(1.0 / STEPS_PER_SEC)
-#define MAX_SIMTIME_BEHIND (simtime_t)(MAX_SEC_BEHIND * SIMTIME_PER_SEC)
+#define DELTA_TIME_SEC   (double)(1.0 / STEPS_PER_SEC)
+#define MAX_TICKS_BEHIND (ticks_t)(MAX_SEC_BEHIND * TICKS_PER_SEC)
 
 #define MAX(a, b) ((a) > (b)) ? (a) : (b)
 #define MIN(a, b) ((a) < (b)) ? (a) : (b)
@@ -37,33 +37,34 @@ void* StartSimulation(void* arg) {
   SimulationArguments* simulation = arg;
   pthread_mutex_t* mutex = &simulation->mutex;
 
-  simtime_t relativeSimtime = 0; // The difference between the simulation and realtime measured in simtime units
-  double timeScale = 0; // The number of simulation seconds per realtime second. Infinity = maximum speed.
-  bool timeScaleChanged = true; // Whether timeScale changed during the last iteration.
+  ticks_t relativeTicks = 0; // The difference between the simulation time and realtime measured in ticks
+  double timeScale = 0; // The number of simulation seconds per realtime second. Infinity = maximum speed
+  bool timeScaleChanged = true; // Whether timeScale changed during the last iteration
   clock_t lastRealtimeClock = clock();
   while (!simulation->shouldStop) {
-    // Update the difference between simulation time and realtime
-    clock_t currentClock = clock();
-    clock_t elapsedClocks = currentClock - lastClock;
-    simtime_t elapsedSimtime = elapsedClocks * SIMTIME_PER_CLOCK;
-    if (elapsedClocks > (MAX_SEC_BEHIND * CLOCKS_PER_SEC) || simtimeBehind + elapsedSimtime > (MAX_SEC_BEHIND * SIMTIME_PER_SEC)) {
-      simtimeBehind = CLOCKS_PER_SEC; // Cap the measure of how far we are behind realtime at MAX_SEC_BEHIND.
-    } else {
-      simtimeBehind += elapsedSimtime;
+    // Update the difference between simulation and realtime
+    clock_t currentRealtimeClock = clock();
+    clock_t elapsedRealtimeClocks = currentRealtimeClock - lastRealtimeClock;
+    lastRealtimeClock = currentRealtimeClock;
+
+    ticks_t elapsedRealtimeTicks = elapsedRealtimeClocks * TICKS_PER_CLOCK;
+    relativeTicks -= elapsedRealtimeTicks;
+    
+    if (relativeTicks < -MAX_TICKS_BEHIND) {
+      relativeTicks = -MAX_TICKS_BEHIND; // Cap the measure of how far we are behind realtime at MAX_SEC_BEHIND.
     }
-    lastClock = currentClock;
 
     // Access/modify the simulation state
     long msToSleep;
     pthread_mutex_lock(mutex); {
-      if (relativeSimtime < 0) {
+      if (relativeTicks < 0) {
         // Running behind realtime -> step the simulation
         StepSimulation(simulation, DELTA_TIME_SEC);
-        relativeSimtime += SIMTIME_PER_STEP;
+        relativeTicks += TICKS_PER_STEP;
         msToSleep = -1;
       } else {
         // Running ahead of realtime -> sleep
-        msToSleep = relativeSimtime / (SIMTIME_PER_SEC / 1000);
+        msToSleep = relativeTicks / (TICKS_PER_SEC / 1000);
       }
 
       // Update timeScale
