@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
         { .radius = ROBOT_RADIUS },
       }
     },
-    .timeScale = NEUTRAL_TIME_SCALE,
+    .timeScale = 0,
     .shouldStop = false,
   };
   pthread_mutex_t* simulationMutex = &simulationArguments.mutex;
@@ -119,10 +119,37 @@ int main(int argc, char* argv[]) {
     arenaCamera.offset = (Vector2){ statePanelScreenWidth + (arenaScreenWidth / 2), windowHeight / 2 };
     arenaCamera.zoom = fmin((arenaScreenWidth - 2 * ARENA_MARGIN) / ARENA_DRAW_RECT.width, (windowHeight - 2 * ARENA_MARGIN) / ARENA_DRAW_RECT.height);
 
+    // Handle input
+    pthread_mutex_lock(simulationMutex); {
+      // Temporary code for manipulating time scale
+      if (IsKeyPressed(KEY_ZERO)) {
+        simulationArguments.timeScale = 0;
+      } else if (IsKeyPressed(KEY_ONE)) {
+        simulationArguments.timeScale = 1;
+      } else if (IsKeyPressed(KEY_TWO)) {
+        simulationArguments.timeScale = NEUTRAL_TIME_SCALE / 4;
+      } else if (IsKeyPressed(KEY_THREE)) {
+        simulationArguments.timeScale = NEUTRAL_TIME_SCALE / 2;
+      } else if (IsKeyPressed(KEY_FOUR)) {
+        simulationArguments.timeScale = NEUTRAL_TIME_SCALE;
+      } else if (IsKeyPressed(KEY_FIVE)) {
+        simulationArguments.timeScale = NEUTRAL_TIME_SCALE * 2;
+      } else if (IsKeyPressed(KEY_SIX)) {
+        simulationArguments.timeScale = NEUTRAL_TIME_SCALE * 4;
+      } else if (IsKeyPressed(KEY_SEVEN)) {
+        simulationArguments.timeScale = UINT_MAX;
+      }
+
+      if (IsKeyPressed(KEY_SPACE)) {
+        simulationArguments.forceStep = true;
+      }
+    } pthread_mutex_unlock(simulationMutex);
+
     // Draw frame
     BeginDrawing();
-    ClearBackground(RAYWHITE);
     pthread_mutex_lock(simulationMutex); {
+      ClearBackground(RAYWHITE);
+      
       // Draw arena and robots
       BeginMode2D(arenaCamera); {
         DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
