@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
         { .radius = ROBOT_RADIUS },
       }
     },
-    .timeScale = 1.0,
+    .timeScale = NEUTRAL_TIME_SCALE,
     .shouldStop = false,
   };
   pthread_mutex_t* simulationMutex = &simulationArguments.mutex;

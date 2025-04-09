@@ -1,6 +1,7 @@
 #include "arena/simulation.h"
 #include <math.h>
 #include <time.h>
+#include <limits.h>
 #include <raylib.h>
 #include <raymath.h>
 #include "arena/raycast.h"
@@ -8,7 +9,7 @@
 
 
 #define STEPS_PER_SEC 1024
-#define MAX_SEC_BEHIND 1
+#define MAX_MS_BEHIND 100
 
 #define ROBOT_SENSORS_FOV_RAD (DEG2RAD * 90.0)
 #define ROBOT_MAX_SENSOR_DIST 500.0
@@ -23,8 +24,9 @@ typedef long ticks_t;
 #define TICKS_PER_STEP  (ticks_t)(CLOCKS_PER_SEC) // (SIMTIME_PER_SEC / STEPS_PER_SEC)
 #define TICKS_PER_CLOCK (ticks_t)(STEPS_PER_SEC)  // (SIMTIME_PER_SEC / CLOCKS_PER_SEC)
 
-#define DELTA_TIME_SEC   (double)(1.0 / STEPS_PER_SEC)
-#define MAX_TICKS_BEHIND (ticks_t)(MAX_SEC_BEHIND * TICKS_PER_SEC)
+#define DELTA_TIME_SEC    (double)(1.0 / STEPS_PER_SEC)
+#define MAX_CLOCKS_BEHIND (clock_t)(MAX_MS_BEHIND * (CLOCKS_PER_SEC / 1000))
+#define MAX_TICKS_BEHIND  (ticks_t)(MAX_MS_BEHIND * (TICKS_PER_SEC / 1000))
 
 #define MAX(a, b) ((a) > (b)) ? (a) : (b)
 #define MIN(a, b) ((a) < (b)) ? (a) : (b)
@@ -38,22 +40,22 @@ void* StartSimulation(void* arg) {
   pthread_mutex_t* mutex = &simulation->mutex;
 
   ticks_t relativeTicks = 0; // The difference between the simulation time and realtime measured in ticks
-  unsigned int timeScale = 0; // The number of simulation seconds per realtime second multiplied by NEUTRAL_TIME_SCALE.
-  bool timeScaleChanged = true; // Whether timeScale changed during the last iteration
+  unsigned int timeScale = 0; // The number of simulation seconds per realtime second multiplied by NEUTRAL_TIME_SCALE
   clock_t lastRealtimeClock;
+  ticks_t lastElapsedScaledTicksRemainder = 0; // The remainder of the previous iteration's elapsed ticks (0 <= elapsedTicksRemainder < NEUTRAL_TIME_SCALE)
+
   while (!simulation->shouldStop) {
     // Update the difference between simulation and realtime
-    clock_t currentRealtimeClock = clock() * timeScale; // TODO: Detect overflow, handle infinity
-    if (timeScaleChanged) {
-      lastRealtimeClock = currentRealtimeClock;
-    }
+    clock_t currentRealtimeClock = clock();
     clock_t elapsedRealtimeClocks = currentRealtimeClock - lastRealtimeClock;
     lastRealtimeClock = currentRealtimeClock;
+    elapsedRealtimeClocks = MAX(0, MIN(elapsedRealtimeClocks, MAX_CLOCKS_BEHIND));
 
-    ticks_t elapsedRealtimeTicks = elapsedRealtimeClocks * TICKS_PER_CLOCK;
-    relativeTicks -= elapsedRealtimeTicks;
+    ticks_t elapsedScaledTicks = ((elapsedRealtimeClocks * TICKS_PER_CLOCK) * timeScale) + lastElapsedScaledTicksRemainder;
+    relativeTicks -= elapsedScaledTicks / NEUTRAL_TIME_SCALE;
+    lastElapsedScaledTicksRemainder = elapsedScaledTicks % NEUTRAL_TIME_SCALE;
     
-    if (relativeTicks < -MAX_TICKS_BEHIND) {
+    if (relativeTicks < -MAX_TICKS_BEHIND || timeScale == UINT_MAX) {
       relativeTicks = -MAX_TICKS_BEHIND; // Cap the measure of how far we are behind realtime at MAX_SEC_BEHIND.
     }
 
@@ -71,12 +73,7 @@ void* StartSimulation(void* arg) {
       }
 
       // Update timeScale
-      if (simulation->timeScale != timeScale) {
-        timeScale = simulation->timeScale;
-        timeScaleChanged = true;
-      } else {
-        timeScaleChanged = false;
-      }
+      timeScale = simulation->timeScale;
     } pthread_mutex_unlock(mutex);
 
     if (msToSleep >= 0) {
