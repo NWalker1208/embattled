@@ -5,9 +5,12 @@
 #include "processor/process.h"
 
 #define MAX_ROBOTS 2
+
 #define ROBOT_INITIAL_ENERGY 4000000
 #define ROBOT_WEAPON_COOLDOWN_STEPS 1000
 #define ROBOT_NUM_SENSORS 9
+
+#define NEUTRAL_TIME_SCALE 1024
 
 // A robot that is being simulated.
 typedef struct {
@@ -42,8 +45,11 @@ typedef struct {
   PhysicsWorld physicsWorld;
   // A mutex protecting reads/writes to the robots and physics world.
   pthread_mutex_t mutex;
-  // The scaling factor applied to the passage of time in the simulation. +inf for maximum speed.
-  double timeScale;
+  // The scaling factor applied to the passage of time in the simulation.
+  //   0 = Paused
+  //   NEUTRAL_TIME_SCALE = Same as realtime
+  //   UINT_MAX = Unlimited
+  unsigned int timeScale;
   // Whether the simulation loop should stop.
   bool shouldStop;
 } SimulationArguments;

@@ -38,7 +38,7 @@ void* StartSimulation(void* arg) {
   pthread_mutex_t* mutex = &simulation->mutex;
 
   ticks_t relativeTicks = 0; // The difference between the simulation time and realtime measured in ticks
-  double timeScale = 0; // The number of simulation seconds per realtime second. Infinity = maximum speed
+  unsigned int timeScale = 0; // The number of simulation seconds per realtime second multiplied by NEUTRAL_TIME_SCALE.
   bool timeScaleChanged = true; // Whether timeScale changed during the last iteration
   clock_t lastRealtimeClock;
   while (!simulation->shouldStop) {
