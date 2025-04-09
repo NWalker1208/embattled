@@ -62,6 +62,11 @@ void* StartSimulation(void* arg) {
     // Access/modify the simulation state
     long msToSleep;
     pthread_mutex_lock(mutex); {
+      if (simulation->forceStep && relativeTicks >= 0) {
+        relativeTicks = -TICKS_PER_STEP;
+        simulation->forceStep = false;
+      }
+
       if (relativeTicks < 0) {
         // Running behind realtime -> step the simulation
         StepSimulation(simulation, DELTA_TIME_SEC);
@@ -73,6 +78,29 @@ void* StartSimulation(void* arg) {
       }
 
       // Update timeScale
+      // Temporary code for manipulating time scale
+      if (IsKeyPressed(KEY_ZERO)) {
+        simulation->timeScale = 0;
+      } else if (IsKeyPressed(KEY_ONE)) {
+        simulation->timeScale = 1;
+      } else if (IsKeyPressed(KEY_TWO)) {
+        simulation->timeScale = NEUTRAL_TIME_SCALE / 4;
+      } else if (IsKeyPressed(KEY_THREE)) {
+        simulation->timeScale = NEUTRAL_TIME_SCALE / 2;
+      } else if (IsKeyPressed(KEY_FOUR)) {
+        simulation->timeScale = NEUTRAL_TIME_SCALE;
+      } else if (IsKeyPressed(KEY_FIVE)) {
+        simulation->timeScale = NEUTRAL_TIME_SCALE * 2;
+      } else if (IsKeyPressed(KEY_SIX)) {
+        simulation->timeScale = NEUTRAL_TIME_SCALE * 4;
+      } else if (IsKeyPressed(KEY_SEVEN)) {
+        simulation->timeScale = UINT_MAX;
+      }
+
+      if (IsKeyPressed(KEY_SPACE)) {
+        simulation->forceStep = true;
+      }
+
       timeScale = simulation->timeScale;
     } pthread_mutex_unlock(mutex);
 

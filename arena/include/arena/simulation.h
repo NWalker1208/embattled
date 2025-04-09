@@ -50,6 +50,8 @@ typedef struct {
   //   NEUTRAL_TIME_SCALE = Same as realtime
   //   UINT_MAX = Unlimited
   unsigned int timeScale;
+  // Whether a simulation step should occur on the next iteration regardless of the current time scale.
+  bool forceStep;
   // Whether the simulation loop should stop.
   bool shouldStop;
 } SimulationArguments;
