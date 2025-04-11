@@ -257,53 +257,60 @@ void DrawRobotSensors(const Robot* robot) {
 }
 
 void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position) {
+  char buffer[1024];
   Vector2 topLeft = { position.x + STATE_PANEL_MARGIN, position.y + STATE_PANEL_MARGIN };
   Vector2 bottomRight = { position.x + STATE_PANEL_WIDTH - STATE_PANEL_MARGIN, position.y + STATE_PANEL_HEIGHT - STATE_PANEL_MARGIN };
-
-  // Draw title
-  char title[100];
-  sprintf_s(title, sizeof(title), "Robot %zu", index + 1);
-  DrawTextEx(primaryFont, title, topLeft, 20, 1.0, BLACK);
-  topLeft.y += 25;
   
   // Compute state info
   float energyPercent = fmax(0.0f, fmin(1.0f, (float)robot->energyRemaining / ROBOT_INITIAL_ENERGY));
   struct Instruction nextInstruction;
   fetchInstruction(robot->processState.memory, robot->processState.registers.ip, &nextInstruction);
+  
   const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[nextInstruction.opcode];
+  unsigned char numImmBits = opcodeInfo->parameterLayout.numImmBits;
+  bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
+  bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
+
+  // Draw title
+  sprintf_s(buffer, sizeof(buffer), "Robot %zu", index + 1);
+  DrawTextEx(primaryFont, buffer, topLeft, 22, 1.0, BLACK);
+  topLeft.y += 30;
 
   // Draw energy remaining
-  Vector2 labelSize = MeasureTextEx(primaryFont, "Energy", 15, 1.0);
-  DrawTextEx(primaryFont, "Energy", (Vector2){ topLeft.x, topLeft.y }, 15, 1.0, BLACK);
+  float labelWidth = MeasureTextEx(primaryFont, "Energy", 18, 1.0).x;
+  DrawTextEx(primaryFont, "Energy", (Vector2){ topLeft.x, topLeft.y }, 18, 1.0, BLACK);
   
-  float energyBarY =  topLeft.y + (labelSize.y / 2);
-  float energyBarLeftX = topLeft.x + labelSize.x + 10;
+  float energyBarY =  topLeft.y + 9;
+  float energyBarLeftX = topLeft.x + labelWidth + 10;
   float energyBarRightX = bottomRight.x;
   DrawLineEx((Vector2){ energyBarLeftX, energyBarY }, (Vector2){ energyBarRightX, energyBarY }, 4, energyPercent > 0 ? BLACK : RED);
   DrawLineEx((Vector2){ energyBarLeftX, energyBarY }, (Vector2){ energyBarLeftX + (energyBarRightX - energyBarLeftX) * energyPercent, energyBarY }, 4, GREEN);
   topLeft.y += 20;
 
   // Draw next instruction
-  labelSize = MeasureTextEx(primaryFont, "Next instruction", 15, 1.0);
-  DrawTextEx(primaryFont, "Next instruction:", (Vector2){ topLeft.x, topLeft.y }, 15, 1.0, BLACK);
+  DrawTextEx(primaryFont, "Next instruction:", (Vector2){ topLeft.x, topLeft.y }, 18, 1.0, BLACK);
   topLeft.y += 20;
 
-  float maxLabelWidth = 0;
-  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(primaryFont, "Opcode", 12, 1.0).x);
-  DrawTextEx(primaryFont, "Opcode:", (Vector2){ topLeft.x + 10, topLeft.y }, 12, 1.0, BLACK);
-  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(primaryFont, "Reg. A", 12, 1.0).x);
-  DrawTextEx(primaryFont, "Reg. A:", (Vector2){ topLeft.x + 10, topLeft.y + 15 }, 12, 1.0, BLACK);
-  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(primaryFont, "Reg. B", 12, 1.0).x);
-  DrawTextEx(primaryFont, "Reg. B:", (Vector2){ topLeft.x + 10, topLeft.y + 30 }, 12, 1.0, BLACK);
-  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(primaryFont, "Imm. Value:", 12, 1.0).x);
-  DrawTextEx(primaryFont, "Imm. Value:", (Vector2){ topLeft.x + 10, topLeft.y + 45 }, 12, 1.0, BLACK);
-
-  DrawTextEx(primaryFont, opcodeInfo->name, (Vector2){ topLeft.x + 10 + maxLabelWidth + 10, topLeft.y }, 12, 1.0, BLACK);
-  DrawTextEx(primaryFont, opcodeInfo->parameterLayout.hasRegA ? REGISTER_NAMES[nextInstruction.parameters.registerA] : "N/A", (Vector2){ topLeft.x + 10 + maxLabelWidth + 10, topLeft.y + 15 }, 12, 1.0, BLACK);
-  DrawTextEx(primaryFont, opcodeInfo->parameterLayout.hasRegB ? REGISTER_NAMES[nextInstruction.parameters.registerB] : "N/A", (Vector2){ topLeft.x + 10 + maxLabelWidth + 10, topLeft.y + 30 }, 12, 1.0, BLACK);
   char immValue[5] = "N/A";
-  if (opcodeInfo->parameterLayout.numImmBits > 0) {
+  if (numImmBits > 12) {
     sprintf_s(immValue, sizeof(immValue), "%04x", nextInstruction.parameters.immediate.u16);
+  } else if (numImmBits > 8) {
+    sprintf_s(immValue, sizeof(immValue), "%03x", nextInstruction.parameters.immediate.u12);
+  } else if (numImmBits > 4) {
+    sprintf_s(immValue, sizeof(immValue), "%02x", nextInstruction.parameters.immediate.u8);
+  } else if (numImmBits > 0) {
+    sprintf_s(immValue, sizeof(immValue), "%01x", nextInstruction.parameters.immediate.u4);
   }
-  DrawTextEx(primaryFont, immValue, (Vector2){ topLeft.x + 10 + maxLabelWidth + 10, topLeft.y + 45 }, 12, 1.0, BLACK);
+
+  sprintf_s(buffer, sizeof(buffer),
+    "Opcode:     %s\n"
+    "Reg. A:     %s\n"
+    "Reg. B:     %s\n"
+    "Imm. Value: %s",
+    opcodeInfo->name,
+    hasRegA ? REGISTER_NAMES[nextInstruction.parameters.registerA] : "N/A",
+    hasRegB ? REGISTER_NAMES[nextInstruction.parameters.registerB] : "N/A",
+    immValue
+  );
+  DrawTextEx(primaryFont, buffer, (Vector2){ topLeft.x + 10, topLeft.y }, 15, 1.0, BLACK);
 }
