@@ -29,6 +29,7 @@ const Rectangle ARENA_DRAW_RECT = {
 };
 
 float dpi = -1;
+Font primaryFont = { 0 };
 
 
 bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut);
@@ -106,6 +107,9 @@ int main(int argc, char* argv[]) {
   Camera2D uiCamera = { 0 };
   Camera2D arenaCamera = { 0 };
 
+  // Load resources
+  primaryFont = LoadFontEx("resources/fonts/Roboto_Mono/static/RobotoMono-SemiBold.ttf", 100, NULL, 0);
+
   // Enter main loop
   while (!WindowShouldClose()) {
     windowWidth = GetScreenWidth(); windowHeight = GetScreenHeight();
@@ -149,7 +153,7 @@ int main(int argc, char* argv[]) {
     BeginDrawing();
     pthread_mutex_lock(simulationMutex); {
       ClearBackground(RAYWHITE);
-      
+
       // Draw arena and robots
       BeginMode2D(arenaCamera); {
         DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
@@ -175,6 +179,7 @@ int main(int argc, char* argv[]) {
     EndDrawing();
   }
 
+  UnloadFont(primaryFont);
   CloseWindow();
 
   printf("Stopping simulation thread\n");
@@ -258,7 +263,7 @@ void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position) {
   // Draw title
   char title[100];
   sprintf_s(title, sizeof(title), "Robot %zu", index + 1);
-  DrawText(title, topLeft.x, topLeft.y, 18, BLACK);
+  DrawTextEx(primaryFont, title, topLeft, 20, 1.0, BLACK);
   topLeft.y += 25;
   
   // Compute state info
@@ -268,8 +273,8 @@ void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position) {
   const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[nextInstruction.opcode];
 
   // Draw energy remaining
-  Vector2 labelSize = MeasureTextEx(GetFontDefault(), "Energy", 15, 1.0);
-  DrawText("Energy", topLeft.x, topLeft.y, 15, BLACK);
+  Vector2 labelSize = MeasureTextEx(primaryFont, "Energy", 15, 1.0);
+  DrawTextEx(primaryFont, "Energy", (Vector2){ topLeft.x, topLeft.y }, 15, 1.0, BLACK);
   
   float energyBarY =  topLeft.y + (labelSize.y / 2);
   float energyBarLeftX = topLeft.x + labelSize.x + 10;
@@ -279,26 +284,26 @@ void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position) {
   topLeft.y += 20;
 
   // Draw next instruction
-  labelSize = MeasureTextEx(GetFontDefault(), "Next instruction", 15, 1.0);
-  DrawText("Next instruction:", topLeft.x, topLeft.y, 15, BLACK);
+  labelSize = MeasureTextEx(primaryFont, "Next instruction", 15, 1.0);
+  DrawTextEx(primaryFont, "Next instruction:", (Vector2){ topLeft.x, topLeft.y }, 15, 1.0, BLACK);
   topLeft.y += 20;
 
   float maxLabelWidth = 0;
-  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(GetFontDefault(), "Opcode", 12, 1.0).x);
-  DrawText("Opcode:", topLeft.x + 10, topLeft.y, 12, BLACK);
-  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(GetFontDefault(), "Reg. A", 12, 1.0).x);
-  DrawText("Reg. A:", topLeft.x + 10, topLeft.y + 15, 12, BLACK);
-  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(GetFontDefault(), "Reg. B", 12, 1.0).x);
-  DrawText("Reg. B:", topLeft.x + 10, topLeft.y + 30, 12, BLACK);
-  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(GetFontDefault(), "Imm. Value:", 12, 1.0).x);
-  DrawText("Imm. Value:", topLeft.x + 10, topLeft.y + 45, 12, BLACK);
+  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(primaryFont, "Opcode", 12, 1.0).x);
+  DrawTextEx(primaryFont, "Opcode:", (Vector2){ topLeft.x + 10, topLeft.y }, 12, 1.0, BLACK);
+  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(primaryFont, "Reg. A", 12, 1.0).x);
+  DrawTextEx(primaryFont, "Reg. A:", (Vector2){ topLeft.x + 10, topLeft.y + 15 }, 12, 1.0, BLACK);
+  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(primaryFont, "Reg. B", 12, 1.0).x);
+  DrawTextEx(primaryFont, "Reg. B:", (Vector2){ topLeft.x + 10, topLeft.y + 30 }, 12, 1.0, BLACK);
+  maxLabelWidth = fmax(maxLabelWidth, MeasureTextEx(primaryFont, "Imm. Value:", 12, 1.0).x);
+  DrawTextEx(primaryFont, "Imm. Value:", (Vector2){ topLeft.x + 10, topLeft.y + 45 }, 12, 1.0, BLACK);
 
-  DrawText(opcodeInfo->name, topLeft.x + 10 + maxLabelWidth + 10, topLeft.y, 12, BLACK);
-  DrawText(opcodeInfo->parameterLayout.hasRegA ? REGISTER_NAMES[nextInstruction.parameters.registerA] : "N/A", topLeft.x + 10 + maxLabelWidth + 10, topLeft.y + 15, 12, BLACK);
-  DrawText(opcodeInfo->parameterLayout.hasRegB ? REGISTER_NAMES[nextInstruction.parameters.registerB] : "N/A", topLeft.x + 10 + maxLabelWidth + 10, topLeft.y + 30, 12, BLACK);
+  DrawTextEx(primaryFont, opcodeInfo->name, (Vector2){ topLeft.x + 10 + maxLabelWidth + 10, topLeft.y }, 12, 1.0, BLACK);
+  DrawTextEx(primaryFont, opcodeInfo->parameterLayout.hasRegA ? REGISTER_NAMES[nextInstruction.parameters.registerA] : "N/A", (Vector2){ topLeft.x + 10 + maxLabelWidth + 10, topLeft.y + 15 }, 12, 1.0, BLACK);
+  DrawTextEx(primaryFont, opcodeInfo->parameterLayout.hasRegB ? REGISTER_NAMES[nextInstruction.parameters.registerB] : "N/A", (Vector2){ topLeft.x + 10 + maxLabelWidth + 10, topLeft.y + 30 }, 12, 1.0, BLACK);
   char immValue[5] = "N/A";
   if (opcodeInfo->parameterLayout.numImmBits > 0) {
     sprintf_s(immValue, sizeof(immValue), "%04x", nextInstruction.parameters.immediate.u16);
   }
-  DrawText(immValue, topLeft.x + 10 + maxLabelWidth + 10, topLeft.y + 45, 12, BLACK);
+  DrawTextEx(primaryFont, immValue, (Vector2){ topLeft.x + 10 + maxLabelWidth + 10, topLeft.y + 45 }, 12, 1.0, BLACK);
 }
