@@ -9,9 +9,9 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${command:cmake.buildDirectory}/demo/demo.exe",
-      "args": ["demo/example.easm"],
+      "args": ["example.easm"],
       "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/demo",
       "environment": [
         {
           "name": "Path",
@@ -39,9 +39,9 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${command:cmake.buildDirectory}/arena/arena.exe",
-      "args": ["arena/nop.easm", "arena/spin.easm"],
+      "args": ["nop.easm", "spin.easm"],
       "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/arena",
       "environment": [
         {
           "name": "Path",
