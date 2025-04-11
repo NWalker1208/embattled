@@ -16,8 +16,8 @@
 #define ARENA_MARGIN 10
 #define ARENA_MIN_SCREEN_WIDTH 100
 
-#define STATE_PANEL_WIDTH 200
-#define STATE_PANEL_HEIGHT 200
+#define STATE_PANEL_WIDTH 250
+#define STATE_PANEL_HEIGHT 270
 #define STATE_PANEL_MARGIN 10
 
 #define ROBOT_RADIUS 50.0
@@ -263,8 +263,10 @@ void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position) {
   
   // Compute state info
   float energyPercent = fmax(0.0f, fmin(1.0f, (float)robot->energyRemaining / ROBOT_INITIAL_ENERGY));
+  const struct ProcessState* processState = &robot->processState;
+
   struct Instruction nextInstruction;
-  fetchInstruction(robot->processState.memory, robot->processState.registers.ip, &nextInstruction);
+  fetchInstruction(processState->memory, processState->registers.ip, &nextInstruction);
   
   const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[nextInstruction.opcode];
   unsigned char numImmBits = opcodeInfo->parameterLayout.numImmBits;
@@ -286,6 +288,25 @@ void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position) {
   DrawLineEx((Vector2){ energyBarLeftX, energyBarY }, (Vector2){ energyBarRightX, energyBarY }, 4, energyPercent > 0 ? BLACK : RED);
   DrawLineEx((Vector2){ energyBarLeftX, energyBarY }, (Vector2){ energyBarLeftX + (energyBarRightX - energyBarLeftX) * energyPercent, energyBarY }, 4, GREEN);
   topLeft.y += 20;
+
+  // Draw registers
+  DrawTextEx(primaryFont, "Registers:", (Vector2){ topLeft.x, topLeft.y }, 18, 1.0, BLACK);
+  topLeft.y += 20;
+
+  sprintf_s(buffer, sizeof(buffer),
+    "ip: %04x  sp: %04x  ac: %04x\n"
+    "x0: %04x  x1: %04x  x2: %04x\n"
+    "x3: %04x  x4: %04x  x5: %04x\n"
+    "x6: %04x  x7: %04x  x8: %04x\n"
+    "x9: %04x  x10:%04x  x11:%04x",
+    processState->registers.ip, processState->registers.sp, processState->registers.ac,
+    processState->registers.x0, processState->registers.x1, processState->registers.x2,
+    processState->registers.x3, processState->registers.x4, processState->registers.x5,
+    processState->registers.x6, processState->registers.x7, processState->registers.x8,
+    processState->registers.x9, processState->registers.x10, processState->registers.x11
+  );
+  DrawTextEx(primaryFont, buffer, (Vector2){ topLeft.x + 10, topLeft.y }, 15, 1.0, BLACK);
+  topLeft.y += 5*15 + 4*2 + 2;
 
   // Draw next instruction
   DrawTextEx(primaryFont, "Next instruction:", (Vector2){ topLeft.x, topLeft.y }, 18, 1.0, BLACK);
@@ -313,4 +334,5 @@ void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position) {
     immValue
   );
   DrawTextEx(primaryFont, buffer, (Vector2){ topLeft.x + 10, topLeft.y }, 15, 1.0, BLACK);
+  //topLeft.y += 4*15 + 3*2 + STATE_PANEL_MARGIN;
 }
