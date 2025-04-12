@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
         simulationArguments.timeScale = UINT_MAX;
       }
 
-      if (IsKeyPressed(KEY_SPACE)) {
+      if (IsKeyPressed(KEY_TAB) || IsKeyPressedRepeat(KEY_TAB)) {
         simulationArguments.forceStep = true;
       }
     } pthread_mutex_unlock(simulationMutex);
