@@ -11,8 +11,12 @@
 
 // The state of a simulation.
 typedef struct {
-  // A mutex protecting reads/writes to the robots and physics world.
+  // A mutex protecting reads and writes to this struct.
   pthread_mutex_t mutex;
+  // The thread that is running the simulation.
+  pthread_t thread;
+  // Whether the thread has been started.
+  bool isThreadValid;
   
   // The physics world being simulated.
   PhysicsWorld physicsWorld;
@@ -37,6 +41,8 @@ typedef struct {
 // Initializes a simulation with the given number of robots.
 Simulation InitSimulation(size_t robotCount);
 
-// Starts the simulation loop on the current thread. Expects a pointer to a Simulation.
-// Returns NULL.
-void* StartSimulation(void* arg);
+// Destroys the simulation and cleans up any system resources.
+void DestroySimulation(Simulation* simulation);
+
+// Starts the simulation loop on a new thread.
+void StartSimulationThread(Simulation* arg);

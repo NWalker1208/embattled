@@ -30,4 +30,8 @@ typedef struct {
   struct ProcessState processState;
 } Robot;
 
+// Initializes a robot.
 Robot InitRobot(size_t physicsBodyIndex);
+
+// Steps the robot's internal simulation.
+void ApplyRobotControls(const Robot* robot, PhysicsWorld* physicsWorld);
