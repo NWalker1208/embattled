@@ -10,6 +10,9 @@
 #include "processor/instruction.h"
 #include "arena/simulation.h"
 
+
+#define BACKGROUND_COLOR WHITE
+
 #define ARENA_WIDTH 500.0
 #define ARENA_HEIGHT 500.0
 #define ARENA_BORDER_THICKNESS 4
@@ -141,7 +144,7 @@ int main(int argc, char* argv[]) {
     // Draw frame
     BeginDrawing();
     pthread_mutex_lock(&simulation.mutex); {
-      ClearBackground(WHITE);
+      ClearBackground(BACKGROUND_COLOR);
 
       // Draw arena and robots
       BeginMode2D(arenaCamera); {
@@ -232,19 +235,19 @@ void DrawArenaForeground() {
   DrawRectangleRec((Rectangle){
     .x=-ARENA_WIDTH / 2 - 100, .y=-ARENA_HEIGHT / 2 - 100,
     .width=ARENA_WIDTH + 200, .height=100
-  }, WHITE);
+  }, BACKGROUND_COLOR);
   DrawRectangleRec((Rectangle){
     .x=-ARENA_WIDTH / 2 - 100, .y=ARENA_HEIGHT / 2,
     .width=ARENA_WIDTH + 200, .height=100
-  }, WHITE);
+  }, BACKGROUND_COLOR);
   DrawRectangleRec((Rectangle){
     .x=-ARENA_WIDTH / 2 - 100, .y=-ARENA_HEIGHT / 2 - 100,
     .width=100, .height=ARENA_HEIGHT + 200
-  }, WHITE);
+  }, BACKGROUND_COLOR);
   DrawRectangleRec((Rectangle){
     .x=ARENA_WIDTH / 2, .y=-ARENA_HEIGHT / 2 - 100,
     .width=100, .height=ARENA_HEIGHT + 200
-  }, WHITE);
+  }, BACKGROUND_COLOR);
 
   // Draw border
   DrawRectangleLinesEx((Rectangle){
