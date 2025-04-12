@@ -11,9 +11,6 @@
 #define STEPS_PER_SEC 1024
 #define MAX_MS_BEHIND 100
 
-#define ROBOT_SENSORS_FOV_RAD (DEG2RAD * 90.0)
-#define ROBOT_MAX_SENSOR_DIST 500.0
-
 #define MAX(a, b) ((a) > (b)) ? (a) : (b)
 #define MIN(a, b) ((a) < (b)) ? (a) : (b)
 
@@ -92,6 +89,14 @@ void* simulationThread(void* arg) {
   Simulation* simulation = arg;
   pthread_mutex_t* mutex = &simulation->mutex;
 
+  // Initialize sensors
+  pthread_mutex_lock(mutex); {
+    for (unsigned int i = 0; i < simulation->robotCount; i++) {
+      UpdateRobotSensors(&simulation->robots[i], &simulation->physicsWorld);
+    }
+  } pthread_mutex_unlock(mutex);
+
+  // Enter simulation loop
   ticks_t relativeTicks = 0; // The difference between the simulation time and realtime measured in ticks
   unsigned int timeScale = 0; // The number of simulation seconds per realtime second multiplied by NEUTRAL_TIME_SCALE
   clock_t lastRealtimeClock;
@@ -146,50 +151,21 @@ void* simulationThread(void* arg) {
 void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
   PhysicsWorld* physicsWorld = &simulation->physicsWorld;
 
-  // Step processes
+  // Step robot processes
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     stepProcess(&simulation->robots[i].processState);
   }
 
-  // Perform actions based on robot processes
+  // Apply robot controls
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
-    Robot* robot = &simulation->robots[i];
-    PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
-
-    if (robot->weaponCooldownRemaining > 0) {
-      robot->weaponCooldownRemaining--;
-    }
-
-    if (robot->energyRemaining <= 0) {
-      robot->energyRemaining = 0;
-      body->linearVelocity = (Vector2){ 0, 0 };
-      body->angularVelocity = 0;
-      continue;
-    }
-
-    ApplyRobotControls(robot, &simulation->physicsWorld);
+    ApplyRobotControls(&simulation->robots[i], &simulation->physicsWorld);
   }
 
-  // Step the physics world
+  // Step physics world
   StepPhysicsWorld(physicsWorld, deltaTimeSeconds);
 
-  // Update sensors using raycasts
+  // Update robot sensors
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
-    Robot* robot = &simulation->robots[i];
-    PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
-
-    for (unsigned int j = 0; j < ROBOT_NUM_SENSORS; j++) {
-      float angle = body->rotation - (ROBOT_SENSORS_FOV_RAD / 2) + j * (ROBOT_SENSORS_FOV_RAD / (ROBOT_NUM_SENSORS - 1));
-      Vector2 rayDirection = (Vector2){ cos(angle), sin(angle) };
-      Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
-      RaycastResult result = ComputeRaycast(&simulation->physicsWorld, rayOrigin, rayDirection);
-      
-      float distance = result.distance;
-      if (distance > ROBOT_MAX_SENSOR_DIST) { distance = ROBOT_MAX_SENSOR_DIST; }
-      robot->sensors[j].start = rayOrigin;
-      robot->sensors[j].end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, distance));
-      robot->processState.memory[0xE000 + (j * 2)] = (unsigned char)(distance / ROBOT_MAX_SENSOR_DIST * 255.0);
-      robot->processState.memory[0xE001 + (j * 2)] = (unsigned char)result.type;
-    }
+    UpdateRobotSensors(&simulation->robots[i], &simulation->physicsWorld);
   }
 }

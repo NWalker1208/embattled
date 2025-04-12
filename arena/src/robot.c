@@ -14,6 +14,9 @@
 #define ROTATE_COST 1
 #define WEAPON_COST 1024
 
+#define SENSORS_FOV_RAD (DEG2RAD * 90.0)
+#define MAX_SENSOR_DIST 500.0
+
 
 Robot InitRobot(size_t physicsBodyIndex) {
   return (Robot){
@@ -24,6 +27,17 @@ Robot InitRobot(size_t physicsBodyIndex) {
 
 void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld) {
   PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
+
+  if (robot->weaponCooldownRemaining > 0) {
+    robot->weaponCooldownRemaining--;
+  }
+
+  if (robot->energyRemaining <= 0) {
+    robot->energyRemaining = 0;
+    body->linearVelocity = (Vector2){ 0, 0 };
+    body->angularVelocity = 0;
+    return;
+  }
 
   signed char moveControl = MAX((signed char)robot->processState.memory[MOVE_ADDRESS], -127);
   signed char rotateControl = MAX((signed char)robot->processState.memory[ROTATE_ADDRESS], -127);
@@ -86,5 +100,23 @@ void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld) {
         }
       }
     }
+  }
+}
+
+void UpdateRobotSensors(Robot* robot, PhysicsWorld* physicsWorld) {
+  PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
+
+  for (unsigned int j = 0; j < ROBOT_NUM_SENSORS; j++) {
+    float angle = body->rotation - (SENSORS_FOV_RAD / 2) + j * (SENSORS_FOV_RAD / (ROBOT_NUM_SENSORS - 1));
+    Vector2 rayDirection = (Vector2){ cos(angle), sin(angle) };
+    Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
+    RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
+    
+    float distance = result.distance;
+    if (distance > MAX_SENSOR_DIST) { distance = MAX_SENSOR_DIST; }
+    robot->sensors[j].start = rayOrigin;
+    robot->sensors[j].end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, distance));
+    robot->processState.memory[0xE000 + (j * 2)] = (unsigned char)(distance / MAX_SENSOR_DIST * 255.0);
+    robot->processState.memory[0xE001 + (j * 2)] = (unsigned char)result.type;
   }
 }

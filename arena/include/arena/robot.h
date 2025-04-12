@@ -38,3 +38,6 @@ Robot InitRobot(size_t physicsBodyIndex);
 
 // Steps the robot's internal simulation.
 void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld);
+
+// Updates the robot's sensors.
+void UpdateRobotSensors(Robot* robot, PhysicsWorld* physicsWorld);
