@@ -13,8 +13,13 @@
 
 #define ROBOT_SENSORS_FOV_RAD (DEG2RAD * 90.0)
 #define ROBOT_MAX_SENSOR_DIST 500.0
-#define ROBOT_MAX_SPEED 300.0
-#define ROBOT_ROT_SPEED 6.0
+#define ROBOT_LINEAR_SPEED 300.0
+#define ROBOT_ROTATE_SPEED 6.0
+
+#define LINEAR_MOVE_COST  1
+#define ANGULAR_MOVE_COST 1
+#define WEAPON_COST       1024
+#define WEAPON_DAMAGE     (WEAPON_COST * 4)
 
 // A unit of time used to compare realtime and simulation time.
 // Defined such that both simulation steps and clocks can be represented as whole numbers.
@@ -125,6 +130,7 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     Robot* robot = &simulation->robots[i];
     if (robot->energyRemaining <= 0) {
+      robot->energyRemaining = 0;
       if (robot->weaponCooldownRemaining > 0) {
         robot->weaponCooldownRemaining--;
       }
@@ -133,22 +139,22 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
 
     PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
 
-    signed char rotationControl = MAX((signed char)robot->processState.memory[0xF000], -127);
-    signed char velocityControl = MAX((signed char)robot->processState.memory[0xF001], -127);
+    signed char linearControl = MAX((signed char)robot->processState.memory[0xF000], -127);
+    signed char angularControl = MAX((signed char)robot->processState.memory[0xF001], -127);
     unsigned char weaponControl = robot->weaponCooldownRemaining > 0 ? 0 : robot->processState.memory[0xF002];
 
     // Temporary user control code
     if (i == 0) {
-      if (IsKeyDown(KEY_RIGHT)) {
-        rotationControl = 127;
-      } else if (IsKeyDown(KEY_LEFT)) {
-        rotationControl = -127;
+      if (IsKeyDown(KEY_UP)) {
+        linearControl = 127;
+      } else if (IsKeyDown(KEY_DOWN)) {
+        linearControl = -127;
       }
 
-      if (IsKeyDown(KEY_UP)) {
-        velocityControl = 127;
-      } else if (IsKeyDown(KEY_DOWN)) {
-        velocityControl = -127;
+      if (IsKeyDown(KEY_RIGHT)) {
+        angularControl = 127;
+      } else if (IsKeyDown(KEY_LEFT)) {
+        angularControl = -127;
       }
 
       if (IsKeyDown(KEY_SPACE)) {
@@ -156,24 +162,23 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
       }
     }
 
-    robot->energyRemaining -= abs(rotationControl);
-    robot->energyRemaining -= abs(velocityControl);
+    robot->energyRemaining -= abs(linearControl) * LINEAR_MOVE_COST;
+    robot->energyRemaining -= abs(angularControl) * ANGULAR_MOVE_COST;
     if (robot->weaponCooldownRemaining > 0) {
       weaponControl = 0;
       robot->weaponCooldownRemaining--;
     } else if (weaponControl > 0) {
-      weaponControl = MIN(robot->energyRemaining, weaponControl);
-      robot->energyRemaining -= weaponControl;
+      weaponControl = MIN(robot->energyRemaining / WEAPON_COST, weaponControl);
+      robot->energyRemaining -= weaponControl * WEAPON_COST;
       robot->weaponCooldownRemaining = ROBOT_WEAPON_COOLDOWN_STEPS;
     }
 
-    double angularVelocity = rotationControl / 127.0;
-    double velocity = velocityControl / 127.0;
-    double weaponStrength = weaponControl / 256.0;
+    double linearVelocity = ROBOT_LINEAR_SPEED * (linearControl / 127.0);
+    double angularVelocity = ROBOT_ROTATE_SPEED * (angularControl / 127.0);
 
-    body->rotation += ROBOT_ROT_SPEED * angularVelocity * deltaTimeSeconds;
-    body->position.x += ROBOT_MAX_SPEED * cos(body->rotation) * velocity * deltaTimeSeconds;
-    body->position.y += ROBOT_MAX_SPEED * sin(body->rotation) * velocity * deltaTimeSeconds;
+    body->rotation += angularVelocity * deltaTimeSeconds;
+    body->position.x += cos(body->rotation) * linearVelocity * deltaTimeSeconds;
+    body->position.y += sin(body->rotation) * linearVelocity * deltaTimeSeconds;
 
     if (weaponControl > 0) {
       // Fire laser at other robots using a raycast.
@@ -195,7 +200,7 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
           }
           // Apply damage to the other robot
           if (otherRobot != NULL && otherRobot->energyRemaining > 0) {
-            otherRobot->energyRemaining -= (int)(weaponStrength * 4096);
+            otherRobot->energyRemaining -= weaponControl * WEAPON_DAMAGE;
           }
         }
       }
