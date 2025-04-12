@@ -25,6 +25,10 @@
 #define ROBOT_WHEEL_RADIUS 40.0
 #define ROBOT_WHEEL_WIDTH 20.0
 
+const Color ROBOT_COLORS[] = {
+  PURPLE,
+  GREEN
+};
 
 float dpi = -1;
 Font primaryFont = { 0 };
@@ -36,6 +40,7 @@ void UpdateDpiAndMinWindowSize();
 
 void DrawArenaForeground();
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor);
+void DrawRobotShadow(const PhysicsWorld* physicsWorld, const Robot* robot);
 void DrawRobotWeapon(const Robot* robot);
 void DrawRobotSensors(const Robot* robot);
 void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position);
@@ -157,13 +162,16 @@ int main(int argc, char* argv[]) {
       // Draw arena and robots
       BeginMode2D(arenaCamera); {
         for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
+          DrawRobotShadow(&simulationArguments.physicsWorld, &simulationArguments.robots[i]);
+        }
+        for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
           DrawRobotSensors(&simulationArguments.robots[i]);
         }
         for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
           DrawRobotWeapon(&simulationArguments.robots[i]);
         }
         for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
-          DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], PURPLE);
+          DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], ROBOT_COLORS[i]);
         }
         DrawArenaForeground();
       } EndMode2D();
@@ -264,7 +272,7 @@ void DrawArenaForeground() {
 
 void DrawWheel(Vector2 position, int side, double rotation) {
   DrawRectanglePro(
-    (Rectangle){ .x=position.x, .y=position.y, .width=ROBOT_WHEEL_RADIUS * 2, .height=ROBOT_WHEEL_WIDTH },
+    (Rectangle){ .x=position.x, .y=position.y + 2, .width=ROBOT_WHEEL_RADIUS * 2, .height=ROBOT_WHEEL_WIDTH },
     (Vector2){ ROBOT_WHEEL_RADIUS, ROBOT_WHEEL_WIDTH / 2 - side * ROBOT_WHEEL_OFFSET },
     rotation * RAD2DEG, DARKGRAY);
 }
@@ -278,6 +286,12 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
   DrawWheel(position, -1, rotation);
   DrawCircleV(position, ROBOT_RADIUS, robot->energyRemaining > 0 ? baseColor : ColorLerp(baseColor, GRAY, 0.75f));
   DrawLineEx(position, (Vector2){ position.x + cos(rotation) * ROBOT_RADIUS, position.y + sin(rotation) * ROBOT_RADIUS }, 3.0, BLACK);
+}
+
+void DrawRobotShadow(const PhysicsWorld* physicsWorld, const Robot* robot) {
+  const PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
+  Vector2 position = { body->position.x, body->position.y + 3 };
+  DrawCircleV(position, ROBOT_RADIUS + 3, ColorAlpha(BLACK, 0.2f));
 }
 
 void DrawRobotWeapon(const Robot* robot) {
