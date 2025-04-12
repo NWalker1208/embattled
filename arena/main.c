@@ -11,6 +11,7 @@
 #include "arena/simulation.h"
 
 
+#define LAYER_COUNT 8
 #define BACKGROUND_COLOR WHITE
 
 #define ARENA_WIDTH 500.0
@@ -41,11 +42,8 @@ bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, Assemb
 void UpdateDpiAndMinWindowSize();
 
 void DrawArenaForeground();
-void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor);
-void DrawRobotShadow(const PhysicsWorld* physicsWorld, const Robot* robot);
-void DrawRobotWeapon(const Robot* robot);
-void DrawRobotSensors(const Robot* robot);
-void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position);
+void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor, unsigned int layer);
+void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 
 
 int main(int argc, char* argv[]) {
@@ -148,17 +146,11 @@ int main(int argc, char* argv[]) {
 
       // Draw arena and robots
       BeginMode2D(arenaCamera); {
-        for (unsigned int i = 0; i < simulation.robotCount; i++) {
-          DrawRobotShadow(&simulation.physicsWorld, &simulation.robots[i]);
-        }
-        for (unsigned int i = 0; i < simulation.robotCount; i++) {
-          DrawRobotSensors(&simulation.robots[i]);
-        }
-        for (unsigned int i = 0; i < simulation.robotCount; i++) {
-          DrawRobotWeapon(&simulation.robots[i]);
-        }
-        for (unsigned int i = 0; i < simulation.robotCount; i++) {
-          DrawRobot(&simulation.physicsWorld, &simulation.robots[i], ROBOT_COLORS[i]);
+        // TODO: Draw some kind of backdrop
+        for (unsigned int layer = 0; layer < LAYER_COUNT; layer++) {
+          for (unsigned int i = 0; i < simulation.robotCount; i++) {
+            DrawRobot(&simulation.physicsWorld, &simulation.robots[i], ROBOT_COLORS[i], layer);
+          }
         }
         DrawArenaForeground();
       } EndMode2D();
@@ -167,7 +159,7 @@ int main(int argc, char* argv[]) {
       BeginMode2D(uiCamera); {
         DrawRectangleRec((Rectangle){ 0.0f, 0.0f, STATE_PANEL_WIDTH, windowHeight / dpi }, LIGHTGRAY);
         for (unsigned int i = 0; i < simulation.robotCount; i++) {
-          DrawRobotProcessState(&simulation.robots[i], i, (Vector2){ 0, STATE_PANEL_HEIGHT * i });
+          DrawStatePanel(&simulation.robots[i], i, (Vector2){ 0, STATE_PANEL_HEIGHT * i });
         }
       } EndMode2D();
     } pthread_mutex_unlock(&simulation.mutex);
@@ -263,36 +255,45 @@ void DrawWheel(Vector2 position, int side, double rotation) {
     rotation * RAD2DEG, DARKGRAY);
 }
 
-void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor) {
+void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor, unsigned int layer) {
   const PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
   Vector2 position = { body->position.x, body->position.y };
   double rotation = body->rotation;
 
-  DrawWheel(position, 1, rotation);
-  DrawWheel(position, -1, rotation);
-  DrawCircleV(position, ROBOT_RADIUS, robot->energyRemaining > 0 ? baseColor : ColorLerp(baseColor, GRAY, 0.75f));
-  DrawLineEx(position, (Vector2){ position.x + cos(rotation) * ROBOT_RADIUS, position.y + sin(rotation) * ROBOT_RADIUS }, 3.0, BLACK);
-}
-
-void DrawRobotShadow(const PhysicsWorld* physicsWorld, const Robot* robot) {
-  const PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
-  Vector2 position = { body->position.x, body->position.y + 3 };
-  DrawCircleV(position, ROBOT_RADIUS + 3, ColorAlpha(BLACK, 0.2f));
-}
-
-void DrawRobotWeapon(const Robot* robot) {
-  if (robot->weaponCooldownRemaining > 0) {
-    DrawLineEx(robot->lastWeaponFire.start, robot->lastWeaponFire.end, 4.0, ColorAlpha(RED, robot->weaponCooldownRemaining / (float)ROBOT_WEAPON_COOLDOWN_STEPS));
+  switch (layer) {
+    case 1: {
+      // Shadows
+      DrawCircleV((Vector2){ position.x, position.y + 3 }, ROBOT_RADIUS + 3, ColorAlpha(BLACK, 0.2f));
+    } break;
+    case 2: {
+      // Wheels
+      DrawWheel(position, 1, rotation);
+      DrawWheel(position, -1, rotation);
+    } break;
+    case 3: {
+      // Weapon fire
+      if (robot->weaponCooldownRemaining > 0) {
+        DrawLineEx(robot->lastWeaponFire.start, robot->lastWeaponFire.end, 4.0, ColorAlpha(RED, robot->weaponCooldownRemaining / (float)ROBOT_WEAPON_COOLDOWN_STEPS));
+      }
+    } break;
+    case 4: {
+      // Sensors
+      for (unsigned int i = 0; i < ROBOT_NUM_SENSORS; i++) {
+        DrawLineEx(robot->sensors[i].start, robot->sensors[i].end, 1.0, ColorAlpha(BLUE, 0.5f));
+      }
+    } break;
+    case 5: {
+      // Body
+      DrawCircleV(position, ROBOT_RADIUS, robot->energyRemaining > 0 ? baseColor : ColorLerp(baseColor, GRAY, 0.75f));
+    } break;
+    case 6: {
+      // Turret
+      DrawLineEx(position, (Vector2){ position.x + cos(rotation) * ROBOT_RADIUS, position.y + sin(rotation) * ROBOT_RADIUS }, 3.0, BLACK);
+    } break;
   }
 }
 
-void DrawRobotSensors(const Robot* robot) {
-  for (unsigned int i = 0; i < ROBOT_NUM_SENSORS; i++) {
-    DrawLineEx(robot->sensors[i].start, robot->sensors[i].end, 1.0, ColorAlpha(BLUE, 0.5f));
-  }
-}
-
-void DrawRobotProcessState(const Robot* robot, size_t index, Vector2 position) {
+void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
   char buffer[1024];
   Vector2 topLeft = { position.x + STATE_PANEL_MARGIN, position.y + STATE_PANEL_MARGIN };
   Vector2 bottomRight = { position.x + STATE_PANEL_WIDTH - STATE_PANEL_MARGIN, position.y + STATE_PANEL_HEIGHT - STATE_PANEL_MARGIN };
