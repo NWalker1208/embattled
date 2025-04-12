@@ -17,6 +17,9 @@
 #define SENSORS_FOV_RAD (DEG2RAD * 90.0)
 #define MAX_SENSOR_DIST 500.0
 
+#define MAX(a, b) ((a) > (b)) ? (a) : (b)
+#define MIN(a, b) ((a) < (b)) ? (a) : (b)
+
 
 Robot InitRobot(size_t physicsBodyIndex) {
   return (Robot){
@@ -25,7 +28,7 @@ Robot InitRobot(size_t physicsBodyIndex) {
   };
 }
 
-void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld) {
+void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld, WeaponDamageCallback weaponDamageCallback) {
   PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
 
   if (robot->weaponCooldownRemaining > 0) {
@@ -86,18 +89,7 @@ void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld) {
       robot->lastWeaponFire.end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, result.distance));
       
       if (result.type == INTERSECTION_BODY && result.bodyIndex >= 0) {
-        // Find the robot index corresponding to the body index
-        Robot* otherRobot = NULL;
-        for (unsigned int j = 0; j < simulation->robotCount; j++) {
-          if (simulation->robots[j].physicsBodyIndex == (unsigned int)result.bodyIndex) {
-            otherRobot = &simulation->robots[j];
-            break;
-          }
-        }
-        // Apply damage to the other robot
-        if (otherRobot != NULL && otherRobot->energyRemaining > 0) {
-          otherRobot->energyRemaining -= weaponControl * WEAPON_DAMAGE;
-        }
+        weaponDamageCallback.func(weaponDamageCallback.context, result.bodyIndex, weaponControl * WEAPON_DAMAGE);
       }
     }
   }

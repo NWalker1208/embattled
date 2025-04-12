@@ -33,11 +33,17 @@ typedef struct {
   struct ProcessState processState;
 } Robot;
 
+// A callback to be invoked when a robot's weapon hits a physics body.
+typedef struct {
+  void* context;
+  void (*func)(void* context, size_t physicsBodyIndex, int damageAmount);
+} WeaponDamageCallback;
+
 // Initializes a robot.
 Robot InitRobot(size_t physicsBodyIndex);
 
 // Steps the robot's internal simulation.
-void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld);
+void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld, WeaponDamageCallback weaponDamageCallback);
 
 // Updates the robot's sensors.
 void UpdateRobotSensors(Robot* robot, PhysicsWorld* physicsWorld);

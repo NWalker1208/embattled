@@ -36,6 +36,7 @@ typedef long ticks_t;
 
 void* simulationThread(void* arg);
 void stepSimulation(Simulation* simulation, double deltaTimeSeconds);
+void onWeaponDamage(void* context, size_t physicsBodyIndex, int damageAmount);
 
 
 bool TryInitSimulation(Simulation* simulation, size_t robotCount, Rectangle boundary) {
@@ -147,7 +148,6 @@ void* simulationThread(void* arg) {
   return NULL;
 }
 
-
 void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
   PhysicsWorld* physicsWorld = &simulation->physicsWorld;
 
@@ -158,7 +158,7 @@ void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
 
   // Apply robot controls
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
-    ApplyRobotControls(&simulation->robots[i], &simulation->physicsWorld);
+    ApplyRobotControls(&simulation->robots[i], &simulation->physicsWorld, (WeaponDamageCallback){ simulation, onWeaponDamage });
   }
 
   // Step physics world
@@ -167,5 +167,23 @@ void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
   // Update robot sensors
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     UpdateRobotSensors(&simulation->robots[i], &simulation->physicsWorld);
+  }
+}
+
+void onWeaponDamage(void* context, size_t physicsBodyIndex, int damageAmount) {
+  Simulation* simulation = context;
+
+  // Find the robot index corresponding to the body index
+  Robot* otherRobot = NULL;
+  for (unsigned int j = 0; j < simulation->robotCount; j++) {
+    if (simulation->robots[j].physicsBodyIndex == physicsBodyIndex) {
+      otherRobot = &simulation->robots[j];
+      break;
+    }
+  }
+
+  // Apply damage to the other robot
+  if (otherRobot != NULL && otherRobot->energyRemaining > 0) {
+    otherRobot->energyRemaining -= damageAmount;
   }
 }
