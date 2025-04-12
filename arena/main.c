@@ -252,6 +252,7 @@ void DrawArenaForeground() {
   }, ARENA_BORDER_THICKNESS, GRAY);
 }
 
+
 void DrawWheel(Vector2 position, int side, double rotation) {
   DrawRectanglePro(
     (Rectangle){ .x=position.x, .y=position.y + 5, .width=ROBOT_WHEEL_RADIUS * 2, .height=ROBOT_WHEEL_WIDTH },
@@ -267,7 +268,16 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
   switch (layer) {
     case 1: {
       // Shadows
-      DrawCircleV((Vector2){ position.x, position.y + 3 }, ROBOT_RADIUS + 3, ColorAlpha(BLACK, 0.2f));
+      Color shadowColor = ColorAlpha(BLACK, 0.2f);
+      DrawCircleV((Vector2){ position.x, position.y + 3 }, ROBOT_RADIUS + 3, shadowColor);
+      DrawRectanglePro(
+        (Rectangle){ .x=position.x, .y=position.y + 7, .width=ROBOT_WHEEL_RADIUS * 2 + 6, .height=ROBOT_WHEEL_WIDTH + 6 },
+        (Vector2){ ROBOT_WHEEL_RADIUS + 3, ROBOT_WHEEL_WIDTH / 2 - ROBOT_WHEEL_OFFSET + 3 },
+        rotation * RAD2DEG, shadowColor);
+      DrawRectanglePro(
+        (Rectangle){ .x=position.x, .y=position.y + 7, .width=ROBOT_WHEEL_RADIUS * 2 + 6, .height=ROBOT_WHEEL_WIDTH + 6 },
+        (Vector2){ ROBOT_WHEEL_RADIUS + 3, ROBOT_WHEEL_WIDTH / 2 + ROBOT_WHEEL_OFFSET + 3 },
+        rotation * RAD2DEG, shadowColor);
     } break;
     case 2: {
       // Wheels
