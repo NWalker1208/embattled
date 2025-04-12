@@ -302,7 +302,7 @@ void DrawRobotWeapon(const Robot* robot) {
 
 void DrawRobotSensors(const Robot* robot) {
   for (unsigned int i = 0; i < ROBOT_NUM_SENSORS; i++) {
-    DrawLineEx(robot->sensors[i].start, robot->sensors[i].end, 1.0, BLUE);
+    DrawLineEx(robot->sensors[i].start, robot->sensors[i].end, 1.0, ColorAlpha(BLUE, 0.5f));
   }
 }
 
