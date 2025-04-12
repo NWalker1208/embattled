@@ -37,4 +37,4 @@ typedef struct {
 Robot InitRobot(size_t physicsBodyIndex);
 
 // Steps the robot's internal simulation.
-void ApplyRobotControls(const Robot* robot, PhysicsWorld* physicsWorld);
+void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld);

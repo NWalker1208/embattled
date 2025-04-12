@@ -13,13 +13,6 @@
 
 #define ROBOT_SENSORS_FOV_RAD (DEG2RAD * 90.0)
 #define ROBOT_MAX_SENSOR_DIST 500.0
-#define ROBOT_LINEAR_SPEED    300.0
-#define ROBOT_ROTATE_SPEED    6.0
-
-#define LINEAR_MOVE_COST  1
-#define ANGULAR_MOVE_COST 1
-#define WEAPON_COST       1024
-#define WEAPON_DAMAGE     (WEAPON_COST * 4)
 
 #define MAX(a, b) ((a) > (b)) ? (a) : (b)
 #define MIN(a, b) ((a) < (b)) ? (a) : (b)
@@ -163,79 +156,18 @@ void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
     Robot* robot = &simulation->robots[i];
     PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
 
+    if (robot->weaponCooldownRemaining > 0) {
+      robot->weaponCooldownRemaining--;
+    }
+
     if (robot->energyRemaining <= 0) {
       robot->energyRemaining = 0;
-      if (robot->weaponCooldownRemaining > 0) {
-        robot->weaponCooldownRemaining--;
-      }
       body->linearVelocity = (Vector2){ 0, 0 };
       body->angularVelocity = 0;
       continue;
     }
 
-    signed char linearControl = MAX((signed char)robot->processState.memory[0xF000], -127);
-    signed char angularControl = MAX((signed char)robot->processState.memory[0xF001], -127);
-    unsigned char weaponControl = robot->weaponCooldownRemaining > 0 ? 0 : robot->processState.memory[0xF002];
-
-    // Temporary user control code
-    if (i == 0) {
-      if (IsKeyDown(KEY_UP)) {
-        linearControl = 127;
-      } else if (IsKeyDown(KEY_DOWN)) {
-        linearControl = -127;
-      }
-
-      if (IsKeyDown(KEY_RIGHT)) {
-        angularControl = 127;
-      } else if (IsKeyDown(KEY_LEFT)) {
-        angularControl = -127;
-      }
-
-      if (IsKeyDown(KEY_SPACE)) {
-        weaponControl = 255;
-      }
-    }
-
-    robot->energyRemaining -= abs(linearControl) * LINEAR_MOVE_COST;
-    robot->energyRemaining -= abs(angularControl) * ANGULAR_MOVE_COST;
-    if (robot->weaponCooldownRemaining > 0) {
-      weaponControl = 0;
-      robot->weaponCooldownRemaining--;
-    } else if (weaponControl > 0) {
-      weaponControl = MIN(robot->energyRemaining / WEAPON_COST, weaponControl);
-      robot->energyRemaining -= weaponControl * WEAPON_COST;
-      robot->weaponCooldownRemaining = ROBOT_WEAPON_COOLDOWN_STEPS;
-    }
-
-    double linearMagnitude = ROBOT_LINEAR_SPEED * (linearControl / 127.0);
-    body->linearVelocity = (Vector2){ cos(body->rotation) * linearMagnitude, sin(body->rotation) * linearMagnitude };
-    body->angularVelocity = ROBOT_ROTATE_SPEED * (angularControl / 127.0);
-
-    if (weaponControl > 0) {
-      // Fire laser at other robots using a raycast.
-      Vector2 rayDirection = (Vector2){ cos(body->rotation), sin(body->rotation) };
-      Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
-      RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
-      if (result.type != INTERSECTION_NONE) {
-        robot->lastWeaponFire.start = rayOrigin;
-        robot->lastWeaponFire.end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, result.distance));
-        
-        if (result.type == INTERSECTION_BODY && result.bodyIndex >= 0) {
-          // Find the robot index corresponding to the body index
-          Robot* otherRobot = NULL;
-          for (unsigned int j = 0; j < simulation->robotCount; j++) {
-            if (simulation->robots[j].physicsBodyIndex == (unsigned int)result.bodyIndex) {
-              otherRobot = &simulation->robots[j];
-              break;
-            }
-          }
-          // Apply damage to the other robot
-          if (otherRobot != NULL && otherRobot->energyRemaining > 0) {
-            otherRobot->energyRemaining -= weaponControl * WEAPON_DAMAGE;
-          }
-        }
-      }
-    }
+    ApplyRobotControls(robot, &simulation->physicsWorld);
   }
 
   // Step the physics world
