@@ -98,29 +98,6 @@ void* StartSimulation(void* arg) {
 void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
   PhysicsWorld* physicsWorld = &simulation->physicsWorld;
 
-  // Step the physics world
-  StepPhysicsWorld(physicsWorld, deltaTimeSeconds);
-
-  // Update sensors using raycasts
-  for (unsigned int i = 0; i < simulation->robotCount; i++) {
-    Robot* robot = &simulation->robots[i];
-    PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
-
-    for (unsigned int j = 0; j < ROBOT_NUM_SENSORS; j++) {
-      float angle = body->rotation - (ROBOT_SENSORS_FOV_RAD / 2) + j * (ROBOT_SENSORS_FOV_RAD / (ROBOT_NUM_SENSORS - 1));
-      Vector2 rayDirection = (Vector2){ cos(angle), sin(angle) };
-      Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
-      RaycastResult result = ComputeRaycast(&simulation->physicsWorld, rayOrigin, rayDirection);
-      
-      float distance = result.distance;
-      if (distance > ROBOT_MAX_SENSOR_DIST) { distance = ROBOT_MAX_SENSOR_DIST; }
-      robot->sensors[j].start = rayOrigin;
-      robot->sensors[j].end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, distance));
-      robot->processState.memory[0xE000 + (j * 2)] = (unsigned char)(distance / ROBOT_MAX_SENSOR_DIST * 255.0);
-      robot->processState.memory[0xE001 + (j * 2)] = (unsigned char)result.type;
-    }
-  }
-
   // Step processes
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     stepProcess(&simulation->robots[i].processState);
@@ -129,15 +106,17 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
   // Perform actions based on robot processes
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     Robot* robot = &simulation->robots[i];
+    PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
+
     if (robot->energyRemaining <= 0) {
       robot->energyRemaining = 0;
       if (robot->weaponCooldownRemaining > 0) {
         robot->weaponCooldownRemaining--;
       }
+      body->linearVelocity = (Vector2){ 0, 0 };
+      body->angularVelocity = 0;
       continue;
     }
-
-    PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
 
     signed char linearControl = MAX((signed char)robot->processState.memory[0xF000], -127);
     signed char angularControl = MAX((signed char)robot->processState.memory[0xF001], -127);
@@ -173,12 +152,9 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
       robot->weaponCooldownRemaining = ROBOT_WEAPON_COOLDOWN_STEPS;
     }
 
-    double linearVelocity = ROBOT_LINEAR_SPEED * (linearControl / 127.0);
-    double angularVelocity = ROBOT_ROTATE_SPEED * (angularControl / 127.0);
-
-    body->rotation += angularVelocity * deltaTimeSeconds;
-    body->position.x += cos(body->rotation) * linearVelocity * deltaTimeSeconds;
-    body->position.y += sin(body->rotation) * linearVelocity * deltaTimeSeconds;
+    double linearMagnitude = ROBOT_LINEAR_SPEED * (linearControl / 127.0);
+    body->linearVelocity = (Vector2){ cos(body->rotation) * linearMagnitude, sin(body->rotation) * linearMagnitude };
+    body->angularVelocity = ROBOT_ROTATE_SPEED * (angularControl / 127.0);
 
     if (weaponControl > 0) {
       // Fire laser at other robots using a raycast.
@@ -204,6 +180,29 @@ void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
           }
         }
       }
+    }
+  }
+
+  // Step the physics world
+  StepPhysicsWorld(physicsWorld, deltaTimeSeconds);
+
+  // Update sensors using raycasts
+  for (unsigned int i = 0; i < simulation->robotCount; i++) {
+    Robot* robot = &simulation->robots[i];
+    PhysicsBody* body = &simulation->physicsWorld.bodies[robot->physicsBodyIndex];
+
+    for (unsigned int j = 0; j < ROBOT_NUM_SENSORS; j++) {
+      float angle = body->rotation - (ROBOT_SENSORS_FOV_RAD / 2) + j * (ROBOT_SENSORS_FOV_RAD / (ROBOT_NUM_SENSORS - 1));
+      Vector2 rayDirection = (Vector2){ cos(angle), sin(angle) };
+      Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
+      RaycastResult result = ComputeRaycast(&simulation->physicsWorld, rayOrigin, rayDirection);
+      
+      float distance = result.distance;
+      if (distance > ROBOT_MAX_SENSOR_DIST) { distance = ROBOT_MAX_SENSOR_DIST; }
+      robot->sensors[j].start = rayOrigin;
+      robot->sensors[j].end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, distance));
+      robot->processState.memory[0xE000 + (j * 2)] = (unsigned char)(distance / ROBOT_MAX_SENSOR_DIST * 255.0);
+      robot->processState.memory[0xE001 + (j * 2)] = (unsigned char)result.type;
     }
   }
 }

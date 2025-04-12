@@ -13,8 +13,8 @@ typedef struct {
   // The rotation of the body in radians.
   float rotation;
 
-  // The current velocity of the body in word-space coordinates per second.
-  Vector2 velocity;
+  // The current linear velocity of the body in word-space coordinates per second.
+  Vector2 linearVelocity;
   // The current angular velocity of the body in radians per second.
   float angularVelocity;
 } PhysicsBody;

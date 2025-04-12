@@ -20,6 +20,14 @@ bool CheckCollisionBodies(const PhysicsBody* bodyA, const PhysicsBody* bodyB, Ve
 void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds) {
   (void) deltaTimeSeconds; // The current physics simulator doesn't handle momentum, but this param will be used if that feature is added in the future.
   
+  // Update positions and rotations based on current velocities
+  for (unsigned int i = 0; i < world->bodyCount; i++) {
+    PhysicsBody* body = &world->bodies[i];
+    body->position.x += body->linearVelocity.x * deltaTimeSeconds;
+    body->position.y += body->linearVelocity.y * deltaTimeSeconds;
+    body->rotation += body->angularVelocity * deltaTimeSeconds;
+  }
+
   // Resolve collisions between bodies and the world boundary
   for (unsigned int i = 0; i < world->bodyCount; i++) {
     PhysicsBody* body = &world->bodies[i];
