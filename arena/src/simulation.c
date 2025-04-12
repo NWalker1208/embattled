@@ -49,7 +49,7 @@ void stepSimulation(Simulation* simulation, double deltaTimeSeconds);
 
 
 bool TryInitSimulation(Simulation* simulation, size_t robotCount, Rectangle boundary) {
-  if (!pthread_mutex_init(&simulation->mutex, NULL)) {
+  if (pthread_mutex_init(&simulation->mutex, NULL)) {
     return false;
   }
 
@@ -74,7 +74,7 @@ bool TryInitSimulation(Simulation* simulation, size_t robotCount, Rectangle boun
 
 void DestroySimulation(Simulation* simulation) {
   StopSimulationThread(simulation);
-  pthread_mutex_destroy(simulation->mutex);
+  pthread_mutex_destroy(&simulation->mutex);
 }
 
 void StartSimulationThread(Simulation* simulation) {
@@ -90,7 +90,7 @@ void StopSimulationThread(Simulation* simulation) {
   if (!simulation->isThreadValid) { return; }
 
   simulation->shouldStop = true;
-  pthread_join(simulationThread, NULL);
+  pthread_join(simulation->thread, NULL);
   simulation->isThreadValid = false;
 }
 

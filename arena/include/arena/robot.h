@@ -1,6 +1,8 @@
 #pragma once
+#include <stdint.h>
 #include <raylib.h>
 #include "processor/process.h"
+#include "arena/physics.h"
 
 #define ROBOT_RADIUS                50.0
 #define ROBOT_INITIAL_ENERGY        4000000
@@ -10,7 +12,7 @@
 
 typedef struct {
   // The index of the physics body representing this robot.
-  const size_t physicsBodyIndex;
+  size_t physicsBodyIndex;
   
   // The amount of energy that the robot has left. Also represents the robot's health.
   int energyRemaining;

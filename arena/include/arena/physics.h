@@ -6,7 +6,7 @@
 // A simple circular physics body.
 typedef struct {
   // The radius of the circular body in word-space units.
-  const double radius;
+  double radius;
 
   // The position of the body in world-space coordinates.
   Vector2 position;
@@ -22,7 +22,7 @@ typedef struct {
 // A physics world containing zero or more bodies.
 typedef struct {
   // The boundary in which physics bodies are confined.
-  const Rectangle boundary;
+  Rectangle boundary;
   
   // The number of physics bodies being simulated.
   unsigned int bodyCount;
