@@ -39,10 +39,14 @@ typedef struct {
 } Simulation;
 
 // Initializes a simulation with the given number of robots.
-Simulation InitSimulation(size_t robotCount);
+// On success, returns true. If an error occurs, returns false.
+bool TryInitSimulation(Simulation* simulation, size_t robotCount, Rectangle boundary);
 
 // Destroys the simulation and cleans up any system resources.
 void DestroySimulation(Simulation* simulation);
 
-// Starts the simulation loop on a new thread.
-void StartSimulationThread(Simulation* arg);
+// Starts the simulation loop on a new thread, if it is not already running.
+void StartSimulationThread(Simulation* simulation);
+
+// Stops and cleans up the simulation thread if it is running.
+void StopSimulationThread(Simulation* simulation);

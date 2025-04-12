@@ -2,14 +2,15 @@
 #include <raylib.h>
 #include "processor/process.h"
 
-#define ROBOT_INITIAL_ENERGY 4000000
+#define ROBOT_RADIUS                50.0
+#define ROBOT_INITIAL_ENERGY        4000000
 #define ROBOT_WEAPON_COOLDOWN_STEPS 1000
-#define ROBOT_NUM_SENSORS 3
+#define ROBOT_NUM_SENSORS           3
 
 
 typedef struct {
   // The index of the physics body representing this robot.
-  const unsigned int physicsBodyIndex;
+  const size_t physicsBodyIndex;
   
   // The amount of energy that the robot has left. Also represents the robot's health.
   int energyRemaining;

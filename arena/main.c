@@ -20,7 +20,6 @@
 #define STATE_PANEL_HEIGHT 270
 #define STATE_PANEL_MARGIN 10
 
-#define ROBOT_RADIUS 50.0
 #define ROBOT_WHEEL_OFFSET 45.0
 #define ROBOT_WHEEL_RADIUS 40.0
 #define ROBOT_WHEEL_WIDTH 20.0
@@ -69,34 +68,19 @@ int main(int argc, char* argv[]) {
   }
 
   // Setup simulation
-  SimulationArguments simulationArguments = {
-    .robotCount = 2,
-    .robots = {
-      { .physicsBodyIndex = 0, .energyRemaining = ROBOT_INITIAL_ENERGY },
-      { .physicsBodyIndex = 1, .energyRemaining = ROBOT_INITIAL_ENERGY },
-    },
-    .physicsWorld = {
-      .boundary = (Rectangle){ .x = -ARENA_WIDTH / 2, .y = -ARENA_HEIGHT / 2, .width = ARENA_WIDTH, .height = ARENA_HEIGHT },
-      .bodyCount = 2,
-      .bodies = {
-        { .radius = ROBOT_RADIUS },
-        { .radius = ROBOT_RADIUS },
-      }
-    },
-    .timeScale = 0,
-    .shouldStop = false,
-  };
-  pthread_mutex_t* simulationMutex = &simulationArguments.mutex;
-  if (pthread_mutex_init(simulationMutex, NULL)) {
+  Simulation simulation;
+  if (!TryInitSimulation(&simulation, 2, (Rectangle){
+    .x = -ARENA_WIDTH / 2, .y = -ARENA_HEIGHT / 2,
+    .width = ARENA_WIDTH, .height = ARENA_HEIGHT
+  })) {
     fprintf(stderr, "Failed to initialize simulation.\n");
     exit(1);
   }
 
-  memcpy(simulationArguments.robots[0].processState.memory, initialMemoryA, sizeof(initialMemoryA));
-  memcpy(simulationArguments.robots[1].processState.memory, initialMemoryB, sizeof(initialMemoryB));
+  memcpy(simulation.robots[0].processState.memory, initialMemoryA, sizeof(initialMemoryA));
+  memcpy(simulation.robots[1].processState.memory, initialMemoryB, sizeof(initialMemoryB));
 
-  pthread_t simulationThread;
-  pthread_create(&simulationThread, NULL, StartSimulation, &simulationArguments);
+  StartSimulationThread(&simulation);
 
   // Setup window
   int windowWidth = 800, windowHeight = 450;
@@ -129,49 +113,49 @@ int main(int argc, char* argv[]) {
                             (windowHeight - 2 * ARENA_MARGIN) / (ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2));
 
     // Handle input
-    pthread_mutex_lock(simulationMutex); {
+    pthread_mutex_lock(&simulation.mutex); {
       // Temporary code for manipulating time scale
       if (IsKeyPressed(KEY_ZERO)) {
-        simulationArguments.timeScale = 0;
+        simulation.timeScale = 0;
       } else if (IsKeyPressed(KEY_ONE)) {
-        simulationArguments.timeScale = 1;
+        simulation.timeScale = 1;
       } else if (IsKeyPressed(KEY_TWO)) {
-        simulationArguments.timeScale = NEUTRAL_TIME_SCALE / 4;
+        simulation.timeScale = SIMULATION_NEUTRAL_TIME_SCALE / 4;
       } else if (IsKeyPressed(KEY_THREE)) {
-        simulationArguments.timeScale = NEUTRAL_TIME_SCALE / 2;
+        simulation.timeScale = SIMULATION_NEUTRAL_TIME_SCALE / 2;
       } else if (IsKeyPressed(KEY_FOUR)) {
-        simulationArguments.timeScale = NEUTRAL_TIME_SCALE;
+        simulation.timeScale = SIMULATION_NEUTRAL_TIME_SCALE;
       } else if (IsKeyPressed(KEY_FIVE)) {
-        simulationArguments.timeScale = NEUTRAL_TIME_SCALE * 2;
+        simulation.timeScale = SIMULATION_NEUTRAL_TIME_SCALE * 2;
       } else if (IsKeyPressed(KEY_SIX)) {
-        simulationArguments.timeScale = NEUTRAL_TIME_SCALE * 4;
+        simulation.timeScale = SIMULATION_NEUTRAL_TIME_SCALE * 4;
       } else if (IsKeyPressed(KEY_SEVEN)) {
-        simulationArguments.timeScale = UINT_MAX;
+        simulation.timeScale = UINT_MAX;
       }
 
       if (IsKeyPressed(KEY_TAB) || IsKeyPressedRepeat(KEY_TAB)) {
-        simulationArguments.forceStep = true;
+        simulation.forceStep = true;
       }
-    } pthread_mutex_unlock(simulationMutex);
+    } pthread_mutex_unlock(&simulation.mutex);
 
     // Draw frame
     BeginDrawing();
-    pthread_mutex_lock(simulationMutex); {
+    pthread_mutex_lock(&simulation.mutex); {
       ClearBackground(WHITE);
 
       // Draw arena and robots
       BeginMode2D(arenaCamera); {
-        for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
-          DrawRobotShadow(&simulationArguments.physicsWorld, &simulationArguments.robots[i]);
+        for (unsigned int i = 0; i < simulation.robotCount; i++) {
+          DrawRobotShadow(&simulation.physicsWorld, &simulation.robots[i]);
         }
-        for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
-          DrawRobotSensors(&simulationArguments.robots[i]);
+        for (unsigned int i = 0; i < simulation.robotCount; i++) {
+          DrawRobotSensors(&simulation.robots[i]);
         }
-        for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
-          DrawRobotWeapon(&simulationArguments.robots[i]);
+        for (unsigned int i = 0; i < simulation.robotCount; i++) {
+          DrawRobotWeapon(&simulation.robots[i]);
         }
-        for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
-          DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], ROBOT_COLORS[i]);
+        for (unsigned int i = 0; i < simulation.robotCount; i++) {
+          DrawRobot(&simulation.physicsWorld, &simulation.robots[i], ROBOT_COLORS[i]);
         }
         DrawArenaForeground();
       } EndMode2D();
@@ -179,11 +163,11 @@ int main(int argc, char* argv[]) {
       // Draw user interface
       BeginMode2D(uiCamera); {
         DrawRectangleRec((Rectangle){ 0.0f, 0.0f, STATE_PANEL_WIDTH, windowHeight / dpi }, LIGHTGRAY);
-        for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
-          DrawRobotProcessState(&simulationArguments.robots[i], i, (Vector2){ 0, STATE_PANEL_HEIGHT * i });
+        for (unsigned int i = 0; i < simulation.robotCount; i++) {
+          DrawRobotProcessState(&simulation.robots[i], i, (Vector2){ 0, STATE_PANEL_HEIGHT * i });
         }
       } EndMode2D();
-    } pthread_mutex_unlock(simulationMutex);
+    } pthread_mutex_unlock(&simulation.mutex);
     EndDrawing();
   }
 
@@ -191,10 +175,9 @@ int main(int argc, char* argv[]) {
   CloseWindow();
 
   printf("Stopping simulation thread\n");
-  simulationArguments.shouldStop = true;
-  pthread_join(simulationThread, NULL);
-  printf("Physics thread stopped\n");
-  pthread_mutex_destroy(simulationMutex);
+  StopSimulationThread(&simulation);
+  printf("Simulation thread stopped\n");
+  DestroySimulation(&simulation);
 
   return 0;
 }

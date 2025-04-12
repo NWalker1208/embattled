@@ -13,35 +13,90 @@
 
 #define ROBOT_SENSORS_FOV_RAD (DEG2RAD * 90.0)
 #define ROBOT_MAX_SENSOR_DIST 500.0
-#define ROBOT_LINEAR_SPEED 300.0
-#define ROBOT_ROTATE_SPEED 6.0
+#define ROBOT_LINEAR_SPEED    300.0
+#define ROBOT_ROTATE_SPEED    6.0
 
 #define LINEAR_MOVE_COST  1
 #define ANGULAR_MOVE_COST 1
 #define WEAPON_COST       1024
 #define WEAPON_DAMAGE     (WEAPON_COST * 4)
 
+#define MAX(a, b) ((a) > (b)) ? (a) : (b)
+#define MIN(a, b) ((a) < (b)) ? (a) : (b)
+
+
 // A unit of time used to compare realtime and simulation time.
 // Defined such that both simulation steps and clocks can be represented as whole numbers.
 typedef long ticks_t;
+
+
+#pragma region Computed time constants
+
+#define DELTA_TIME_SEC    (double)(1.0 / STEPS_PER_SEC)
 
 #define TICKS_PER_SEC   (ticks_t)(STEPS_PER_SEC * CLOCKS_PER_SEC)
 #define TICKS_PER_STEP  (ticks_t)(CLOCKS_PER_SEC) // (SIMTIME_PER_SEC / STEPS_PER_SEC)
 #define TICKS_PER_CLOCK (ticks_t)(STEPS_PER_SEC)  // (SIMTIME_PER_SEC / CLOCKS_PER_SEC)
 
-#define DELTA_TIME_SEC    (double)(1.0 / STEPS_PER_SEC)
 #define MAX_CLOCKS_BEHIND (clock_t)(MAX_MS_BEHIND * (CLOCKS_PER_SEC / 1000))
 #define MAX_TICKS_BEHIND  (ticks_t)(MAX_MS_BEHIND * (TICKS_PER_SEC / 1000))
 
-#define MAX(a, b) ((a) > (b)) ? (a) : (b)
-#define MIN(a, b) ((a) < (b)) ? (a) : (b)
+#pragma endregion
 
 
-void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds);
+void* simulationThread(void* arg);
+void stepSimulation(Simulation* simulation, double deltaTimeSeconds);
 
 
-void* StartSimulation(void* arg) {
-  SimulationArguments* simulation = arg;
+bool TryInitSimulation(Simulation* simulation, size_t robotCount, Rectangle boundary) {
+  if (!pthread_mutex_init(&simulation->mutex, NULL)) {
+    return false;
+  }
+
+  *simulation = (Simulation){
+    .robotCount = robotCount,
+    .physicsWorld.boundary = boundary,
+    .physicsWorld.bodyCount = robotCount,
+    .timeScale = 0,
+    .shouldStop = false
+  };
+
+  for (size_t i = 0; i < robotCount; i++) {
+    simulation->robots[i] = InitRobot(i);
+    simulation->physicsWorld.bodies[i] = (PhysicsBody){
+      .radius = ROBOT_RADIUS
+      // TODO: Initialize robot positions to not be on top of one another.
+    };
+  }
+
+  return true;
+}
+
+void DestroySimulation(Simulation* simulation) {
+  StopSimulationThread(simulation);
+  pthread_mutex_destroy(simulation->mutex);
+}
+
+void StartSimulationThread(Simulation* simulation) {
+  if (simulation->isThreadValid) { return; }
+
+  simulation->shouldStop = false;
+  if (!pthread_create(&simulation->thread, NULL, simulationThread, simulation)) {
+    simulation->isThreadValid = true;
+  }
+}
+
+void StopSimulationThread(Simulation* simulation) {
+  if (!simulation->isThreadValid) { return; }
+
+  simulation->shouldStop = true;
+  pthread_join(simulationThread, NULL);
+  simulation->isThreadValid = false;
+}
+
+
+void* simulationThread(void* arg) {
+  Simulation* simulation = arg;
   pthread_mutex_t* mutex = &simulation->mutex;
 
   ticks_t relativeTicks = 0; // The difference between the simulation time and realtime measured in ticks
@@ -57,8 +112,8 @@ void* StartSimulation(void* arg) {
     elapsedRealtimeClocks = MAX(0, MIN(elapsedRealtimeClocks, MAX_CLOCKS_BEHIND));
 
     ticks_t elapsedScaledTicks = ((elapsedRealtimeClocks * TICKS_PER_CLOCK) * timeScale) + lastElapsedScaledTicksRemainder;
-    relativeTicks -= elapsedScaledTicks / NEUTRAL_TIME_SCALE;
-    lastElapsedScaledTicksRemainder = elapsedScaledTicks % NEUTRAL_TIME_SCALE;
+    relativeTicks -= elapsedScaledTicks / SIMULATION_NEUTRAL_TIME_SCALE;
+    lastElapsedScaledTicksRemainder = elapsedScaledTicks % SIMULATION_NEUTRAL_TIME_SCALE;
     
     if (relativeTicks < -MAX_TICKS_BEHIND || timeScale == UINT_MAX) {
       relativeTicks = -MAX_TICKS_BEHIND; // Cap the measure of how far we are behind realtime at MAX_SEC_BEHIND.
@@ -74,7 +129,7 @@ void* StartSimulation(void* arg) {
 
       if (relativeTicks < 0) {
         // Running behind realtime -> step the simulation
-        StepSimulation(simulation, DELTA_TIME_SEC);
+        stepSimulation(simulation, DELTA_TIME_SEC);
         relativeTicks += TICKS_PER_STEP;
         msToSleep = -1;
       } else {
@@ -95,7 +150,7 @@ void* StartSimulation(void* arg) {
 }
 
 
-void StepSimulation(SimulationArguments* simulation, double deltaTimeSeconds) {
+void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
   PhysicsWorld* physicsWorld = &simulation->physicsWorld;
 
   // Step processes
