@@ -28,6 +28,10 @@
 #define ROBOT_WHEEL_RADIUS 40.0
 #define ROBOT_WHEEL_WIDTH 20.0
 
+#define ROBOT_TURRET_LENGTH (ROBOT_RADIUS * 1.2)
+#define ROBOT_TURRET_WIDTH 30.0
+#define ROBOT_TURRET_OFFSET (ROBOT_RADIUS - ROBOT_TURRET_LENGTH)
+
 const Color ROBOT_COLORS[] = {
   PURPLE,
   GREEN
@@ -250,7 +254,7 @@ void DrawArenaForeground() {
 
 void DrawWheel(Vector2 position, int side, double rotation) {
   DrawRectanglePro(
-    (Rectangle){ .x=position.x, .y=position.y + 2, .width=ROBOT_WHEEL_RADIUS * 2, .height=ROBOT_WHEEL_WIDTH },
+    (Rectangle){ .x=position.x, .y=position.y + 5, .width=ROBOT_WHEEL_RADIUS * 2, .height=ROBOT_WHEEL_WIDTH },
     (Vector2){ ROBOT_WHEEL_RADIUS, ROBOT_WHEEL_WIDTH / 2 - side * ROBOT_WHEEL_OFFSET },
     rotation * RAD2DEG, DARKGRAY);
 }
@@ -288,7 +292,14 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
     } break;
     case 6: {
       // Turret
-      DrawLineEx(position, (Vector2){ position.x + cos(rotation) * ROBOT_RADIUS, position.y + sin(rotation) * ROBOT_RADIUS }, 3.0, BLACK);
+      Color turretColor = ColorLerp(baseColor, BLACK, 0.75f);
+      DrawRectanglePro(
+        (Rectangle){ .x=position.x, .y=position.y, .width=ROBOT_TURRET_LENGTH, .height=ROBOT_TURRET_WIDTH},
+        (Vector2){ -ROBOT_TURRET_OFFSET, ROBOT_TURRET_WIDTH / 2 },
+        rotation * RAD2DEG, turretColor);
+      DrawCircleV(
+        (Vector2){ position.x + ROBOT_TURRET_OFFSET * cos(rotation), position.y + ROBOT_TURRET_OFFSET * sin(rotation) },
+        ROBOT_TURRET_WIDTH / 2, turretColor);
     } break;
   }
 }
