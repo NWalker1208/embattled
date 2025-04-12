@@ -21,12 +21,10 @@
 #define STATE_PANEL_MARGIN 10
 
 #define ROBOT_RADIUS 50.0
+#define ROBOT_WHEEL_OFFSET 45.0
+#define ROBOT_WHEEL_RADIUS 40.0
+#define ROBOT_WHEEL_WIDTH 20.0
 
-
-const Rectangle ARENA_DRAW_RECT = {
-  .x=-ARENA_WIDTH / 2 - ARENA_BORDER_THICKNESS, .y=-ARENA_HEIGHT / 2 - ARENA_BORDER_THICKNESS,
-  .width=ARENA_WIDTH + ARENA_BORDER_THICKNESS * 2, .height=ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2
-};
 
 float dpi = -1;
 Font primaryFont = { 0 };
@@ -36,6 +34,7 @@ bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, Assemb
 
 void UpdateDpiAndMinWindowSize();
 
+void DrawArenaForeground();
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor);
 void DrawRobotWeapon(const Robot* robot);
 void DrawRobotSensors(const Robot* robot);
@@ -121,7 +120,8 @@ int main(int argc, char* argv[]) {
     float statePanelScreenWidth = dpi * STATE_PANEL_WIDTH;
     float arenaScreenWidth = windowWidth - statePanelScreenWidth;
     arenaCamera.offset = (Vector2){ statePanelScreenWidth + (arenaScreenWidth / 2), windowHeight / 2 };
-    arenaCamera.zoom = fmin((arenaScreenWidth - 2 * ARENA_MARGIN) / ARENA_DRAW_RECT.width, (windowHeight - 2 * ARENA_MARGIN) / ARENA_DRAW_RECT.height);
+    arenaCamera.zoom = fmin((arenaScreenWidth - 2 * ARENA_MARGIN) / (ARENA_WIDTH + ARENA_BORDER_THICKNESS * 2),
+                            (windowHeight - 2 * ARENA_MARGIN) / (ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2));
 
     // Handle input
     pthread_mutex_lock(simulationMutex); {
@@ -152,11 +152,10 @@ int main(int argc, char* argv[]) {
     // Draw frame
     BeginDrawing();
     pthread_mutex_lock(simulationMutex); {
-      ClearBackground(RAYWHITE);
+      ClearBackground(WHITE);
 
       // Draw arena and robots
       BeginMode2D(arenaCamera); {
-        DrawRectangleLinesEx(ARENA_DRAW_RECT, ARENA_BORDER_THICKNESS, GRAY);
         for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
           DrawRobotSensors(&simulationArguments.robots[i]);
         }
@@ -166,6 +165,7 @@ int main(int argc, char* argv[]) {
         for (unsigned int i = 0; i < simulationArguments.robotCount; i++) {
           DrawRobot(&simulationArguments.physicsWorld, &simulationArguments.robots[i], PURPLE);
         }
+        DrawArenaForeground();
       } EndMode2D();
 
       // Draw user interface
@@ -236,10 +236,46 @@ void UpdateDpiAndMinWindowSize() {
 }
 
 
+void DrawArenaForeground() {
+  // Mask outside of arena in white
+  DrawRectangleRec((Rectangle){
+    .x=-ARENA_WIDTH / 2 - 100, .y=-ARENA_HEIGHT / 2 - 100,
+    .width=ARENA_WIDTH + 200, .height=100
+  }, WHITE);
+  DrawRectangleRec((Rectangle){
+    .x=-ARENA_WIDTH / 2 - 100, .y=ARENA_HEIGHT / 2,
+    .width=ARENA_WIDTH + 200, .height=100
+  }, WHITE);
+  DrawRectangleRec((Rectangle){
+    .x=-ARENA_WIDTH / 2 - 100, .y=-ARENA_HEIGHT / 2 - 100,
+    .width=100, .height=ARENA_HEIGHT + 200
+  }, WHITE);
+  DrawRectangleRec((Rectangle){
+    .x=ARENA_WIDTH / 2, .y=-ARENA_HEIGHT / 2 - 100,
+    .width=100, .height=ARENA_HEIGHT + 200
+  }, WHITE);
+
+  // Draw border
+  DrawRectangleLinesEx((Rectangle){
+    .x=-ARENA_WIDTH / 2 - ARENA_BORDER_THICKNESS, .y=-ARENA_HEIGHT / 2 - ARENA_BORDER_THICKNESS,
+    .width=ARENA_WIDTH + ARENA_BORDER_THICKNESS * 2, .height=ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2
+  }, ARENA_BORDER_THICKNESS, GRAY);
+}
+
+void DrawWheel(Vector2 position, int side, double rotation) {
+  DrawRectanglePro(
+    (Rectangle){ .x=position.x, .y=position.y, .width=ROBOT_WHEEL_RADIUS * 2, .height=ROBOT_WHEEL_WIDTH },
+    (Vector2){ ROBOT_WHEEL_RADIUS, ROBOT_WHEEL_WIDTH / 2 - side * ROBOT_WHEEL_OFFSET },
+    rotation * RAD2DEG, DARKGRAY);
+}
+
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor) {
   const PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
   Vector2 position = { body->position.x, body->position.y };
   double rotation = body->rotation;
+
+  DrawWheel(position, 1, rotation);
+  DrawWheel(position, -1, rotation);
   DrawCircleV(position, ROBOT_RADIUS, robot->energyRemaining > 0 ? baseColor : ColorLerp(baseColor, GRAY, 0.75f));
   DrawLineEx(position, (Vector2){ position.x + cos(rotation) * ROBOT_RADIUS, position.y + sin(rotation) * ROBOT_RADIUS }, 3.0, BLACK);
 }
