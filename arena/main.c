@@ -32,7 +32,7 @@
 #define ROBOT_TURRET_WIDTH 30.0
 #define ROBOT_TURRET_OFFSET (ROBOT_RADIUS - ROBOT_TURRET_LENGTH)
 
-const Color SHADOW_TINT = { .r = 0, .g = 0, .b = 0, .a = 64 };
+const Color SHADOW_TINT = { .r = 255, .g = 255, .b = 255, .a = 64 };
 const Color ROBOT_COLORS[] = {
   PURPLE,
   GREEN
@@ -103,19 +103,33 @@ int main(int argc, char* argv[]) {
 
   // Load resources
   primaryFont = LoadFontEx("resources/fonts/Roboto_Mono/static/RobotoMono-SemiBold.ttf", 100, NULL, 0);
-  Shader blurShader = LoadShader(NULL, "resources/shaders/blur.glsl");
+  Shader hBlurShader = LoadShader(NULL, "resources/shaders/hblur.glsl");
+  int hBlurRenderWidthLocation = GetShaderLocation(hBlurShader, "renderWidth");
+  int hBlurRenderHeightLocation = GetShaderLocation(hBlurShader, "renderHeight");
+  Shader vBlurShader = LoadShader(NULL, "resources/shaders/vblur.glsl");
+  int vBlurRenderWidthLocation = GetShaderLocation(hBlurShader, "renderWidth");
+  int vBlurRenderHeightLocation = GetShaderLocation(hBlurShader, "renderHeight");
 
   // Initialize render texture for shadows
-  RenderTexture2D shadowsTarget = LoadRenderTexture(windowWidth, windowHeight);
+  RenderTexture2D shadowsTarget0 = LoadRenderTexture(windowWidth, windowHeight);
+  RenderTexture2D shadowsTarget1 = LoadRenderTexture(windowWidth, windowHeight);
 
   // Enter main loop
   while (!WindowShouldClose()) {
     windowWidth = GetScreenWidth(); windowHeight = GetScreenHeight();
     UpdateDpiAndMinWindowSize();
 
-    if (windowWidth != shadowsTarget.texture.width || windowHeight != shadowsTarget.texture.height) {
-      UnloadRenderTexture(shadowsTarget);
-      shadowsTarget = LoadRenderTexture(windowWidth, windowHeight);
+    // Update blur shaders and render textures
+    SetShaderValue(hBlurShader, hBlurRenderWidthLocation, &windowWidth, SHADER_UNIFORM_INT);
+    SetShaderValue(hBlurShader, hBlurRenderHeightLocation, &windowHeight, SHADER_UNIFORM_INT);
+    SetShaderValue(vBlurShader, vBlurRenderWidthLocation, &windowWidth, SHADER_UNIFORM_INT);
+    SetShaderValue(vBlurShader, vBlurRenderHeightLocation, &windowHeight, SHADER_UNIFORM_INT);
+
+    if (windowWidth != shadowsTarget0.texture.width || windowHeight != shadowsTarget0.texture.height) {
+      UnloadRenderTexture(shadowsTarget0);
+      UnloadRenderTexture(shadowsTarget1);
+      shadowsTarget0 = LoadRenderTexture(windowWidth, windowHeight);
+      shadowsTarget1 = LoadRenderTexture(windowWidth, windowHeight);
     }
     
     // Update camera based on current window size
@@ -156,9 +170,9 @@ int main(int argc, char* argv[]) {
     // Draw frame
     BeginDrawing();
     pthread_mutex_lock(&simulation.mutex); {
-      // Draw shadows to render texture
-      BeginTextureMode(shadowsTarget); {
-        ClearBackground(ColorAlpha(BLACK, 0.0));
+      // Draw shadows to first stage shadow texture
+      BeginTextureMode(shadowsTarget0); {
+        ClearBackground(WHITE);
 
         BeginMode2D(arenaCamera); {
           for (unsigned int i = 0; i < simulation.robotCount; i++) {
@@ -167,10 +181,20 @@ int main(int argc, char* argv[]) {
         } EndMode2D();
       } EndTextureMode();
 
-      // Draw scene
-      ClearBackground(BACKGROUND_COLOR);
-      DrawTextureRec(shadowsTarget.texture, (Rectangle){ 0, 0, shadowsTarget.texture.width, -shadowsTarget.texture.height }, (Vector2){ 0, 0 }, SHADOW_TINT);
+      // Draw first stage shadow texture to second stage with partial blur
+      BeginTextureMode(shadowsTarget1); BeginShaderMode(hBlurShader); {
+        DrawTextureRec(shadowsTarget0.texture, (Rectangle){ 0, 0, shadowsTarget0.texture.width, -shadowsTarget0.texture.height }, (Vector2){ 0, 0 }, WHITE);
+      } EndShaderMode(); EndTextureMode();
 
+      // Clear screen
+      ClearBackground(BACKGROUND_COLOR);
+
+      // Draw second stage shadow texture to screen with full blur
+      BeginShaderMode(vBlurShader); {
+        DrawTextureRec(shadowsTarget1.texture, (Rectangle){ 0, 0, shadowsTarget1.texture.width, -shadowsTarget1.texture.height }, (Vector2){ 0, 0 }, SHADOW_TINT);
+      } EndShaderMode();
+
+      // Draw scene
       BeginMode2D(arenaCamera); {
         // TODO: Draw some kind of arena backdrop
         for (unsigned int layer = 1; layer < LAYER_COUNT; layer++) { // Layer 0 = Shadows
@@ -193,8 +217,10 @@ int main(int argc, char* argv[]) {
   }
 
   UnloadFont(primaryFont);
-  UnloadShader(blurShader);
-  UnloadRenderTexture(shadowsTarget);
+  UnloadShader(hBlurShader);
+  UnloadShader(vBlurShader);
+  UnloadRenderTexture(shadowsTarget0);
+  UnloadRenderTexture(shadowsTarget1);
   CloseWindow();
 
   printf("Stopping simulation thread\n");
