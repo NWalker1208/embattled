@@ -13,5 +13,15 @@ uniform int renderHeight;
 uniform float blurSize;
 
 void main() {
-  finalColor = texture2D(texture0, fragTexCoord) * colDiffuse * fragColor;
+  vec4 weightedAverage = vec4(0,0,0,0);
+  int intBlurSize = int(ceil(abs(blurSize)));
+  float weight = 1.0 / (intBlurSize * 2 + 1);
+  float totalWeight = 0.0;
+
+  for (int offset = -intBlurSize; offset <= intBlurSize; offset++) {
+    weightedAverage += weight * texture2D(texture0, vec2(fragTexCoord.x + float(offset)/renderWidth, fragTexCoord.y));
+    totalWeight += weight;
+  }
+
+  finalColor = (weightedAverage / totalWeight) * colDiffuse * fragColor;
 }

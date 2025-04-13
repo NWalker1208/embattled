@@ -34,7 +34,7 @@
 
 #define SHADOW_BLUR_SIZE 5
 
-const Color SHADOW_TINT = { .r = 255, .g = 255, .b = 255, .a = 64 };
+const Color SHADOW_TINT = { .r = 255, .g = 255, .b = 255, .a = 128 };
 const Color ROBOT_COLORS[] = {
   PURPLE,
   GREEN
