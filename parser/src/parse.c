@@ -169,7 +169,9 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
       return false; // Failed to parse assembly instruction
     }
   }
-  assert(CompareTextOffsets(text, *position, GetTextContentsEndOfLine(text, start)) == 0);
+  assert(line->kind == ASSEMBLY_LINE_LABEL ||
+         CompareTextOffsets(text, *position, GetTextContentsEndOfLine(text, start)) == 0 ||
+         GetCharAtTextOffset(text, *position) == ';');
 
   line->sourceSpan = (TextSpan){start, *position};
   return true;

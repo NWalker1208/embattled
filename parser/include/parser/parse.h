@@ -61,7 +61,6 @@ bool TryParseAssemblyProgram(const TextContents* text, AssemblyProgram* program,
 
 // Parses the next line of assembly from the given text and advances the position.
 // Skips leading whitespace (including newlines) and comments.
-// Always advances the position to the end of the line (including any end-of-line comment), even when parsing fails.
-// If parsing succeeds, outputs the parsed line through line and returns true.
-// If parsing fails, outputs the cause through error and returns false.
+// If parsing succeeds, outputs the parsed line through line, advances to the end of the parsed text (usually the whole line), and returns true.
+// If parsing fails, outputs the cause through error, advances to the end of the text line, and returns false.
 bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, AssemblyLine* line, ParsingError* error);
