@@ -32,6 +32,8 @@
 #define ROBOT_TURRET_WIDTH 30.0
 #define ROBOT_TURRET_OFFSET (ROBOT_RADIUS - ROBOT_TURRET_LENGTH)
 
+#define SHADOW_BLUR_SIZE 5
+
 const Color SHADOW_TINT = { .r = 255, .g = 255, .b = 255, .a = 64 };
 const Color ROBOT_COLORS[] = {
   PURPLE,
@@ -106,9 +108,11 @@ int main(int argc, char* argv[]) {
   Shader hBlurShader = LoadShader(NULL, "resources/shaders/hblur.glsl");
   int hBlurRenderWidthLocation = GetShaderLocation(hBlurShader, "renderWidth");
   int hBlurRenderHeightLocation = GetShaderLocation(hBlurShader, "renderHeight");
+  int hBlurSizeLocation = GetShaderLocation(hBlurShader, "blurSize");
   Shader vBlurShader = LoadShader(NULL, "resources/shaders/vblur.glsl");
-  int vBlurRenderWidthLocation = GetShaderLocation(hBlurShader, "renderWidth");
-  int vBlurRenderHeightLocation = GetShaderLocation(hBlurShader, "renderHeight");
+  int vBlurRenderWidthLocation = GetShaderLocation(vBlurShader, "renderWidth");
+  int vBlurRenderHeightLocation = GetShaderLocation(vBlurShader, "renderHeight");
+  int vBlurSizeLocation = GetShaderLocation(vBlurShader, "blurSize");
 
   // Initialize render texture for shadows
   RenderTexture2D shadowsTarget0 = LoadRenderTexture(windowWidth, windowHeight);
@@ -119,12 +123,7 @@ int main(int argc, char* argv[]) {
     windowWidth = GetScreenWidth(); windowHeight = GetScreenHeight();
     UpdateDpiAndMinWindowSize();
 
-    // Update blur shaders and render textures
-    SetShaderValue(hBlurShader, hBlurRenderWidthLocation, &windowWidth, SHADER_UNIFORM_INT);
-    SetShaderValue(hBlurShader, hBlurRenderHeightLocation, &windowHeight, SHADER_UNIFORM_INT);
-    SetShaderValue(vBlurShader, vBlurRenderWidthLocation, &windowWidth, SHADER_UNIFORM_INT);
-    SetShaderValue(vBlurShader, vBlurRenderHeightLocation, &windowHeight, SHADER_UNIFORM_INT);
-
+    // Update shadow render textures
     if (windowWidth != shadowsTarget0.texture.width || windowHeight != shadowsTarget0.texture.height) {
       UnloadRenderTexture(shadowsTarget0);
       UnloadRenderTexture(shadowsTarget1);
@@ -140,6 +139,17 @@ int main(int argc, char* argv[]) {
     arenaCamera.offset = (Vector2){ statePanelScreenWidth + (arenaScreenWidth / 2), windowHeight / 2 };
     arenaCamera.zoom = fmin((arenaScreenWidth - 2 * ARENA_MARGIN) / (ARENA_WIDTH + ARENA_BORDER_THICKNESS * 2),
                             (windowHeight - 2 * ARENA_MARGIN) / (ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2));
+
+    // Update blur shader uniforms
+    float blurSize = SHADOW_BLUR_SIZE * arenaCamera.zoom;
+
+    SetShaderValue(hBlurShader, hBlurRenderWidthLocation, &windowWidth, SHADER_UNIFORM_INT);
+    SetShaderValue(hBlurShader, hBlurRenderHeightLocation, &windowHeight, SHADER_UNIFORM_INT);
+    SetShaderValue(hBlurShader, hBlurSizeLocation, &blurSize, SHADER_UNIFORM_FLOAT);
+
+    SetShaderValue(vBlurShader, vBlurRenderWidthLocation, &windowWidth, SHADER_UNIFORM_INT);
+    SetShaderValue(vBlurShader, vBlurRenderHeightLocation, &windowHeight, SHADER_UNIFORM_INT);
+    SetShaderValue(vBlurShader, vBlurSizeLocation, &blurSize, SHADER_UNIFORM_FLOAT);
 
     // Handle input
     pthread_mutex_lock(&simulation.mutex); {
