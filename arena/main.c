@@ -11,8 +11,8 @@
 #include "arena/simulation.h"
 
 
-#define LAYER_COUNT 8
 #define BACKGROUND_COLOR WHITE
+#define LAYER_COUNT 6
 
 #define ARENA_WIDTH 500.0
 #define ARENA_HEIGHT 500.0
@@ -32,6 +32,7 @@
 #define ROBOT_TURRET_WIDTH 30.0
 #define ROBOT_TURRET_OFFSET (ROBOT_RADIUS - ROBOT_TURRET_LENGTH)
 
+const Color SHADOW_TINT = { .r = 0, .g = 0, .b = 0, .a = 64 };
 const Color ROBOT_COLORS[] = {
   PURPLE,
   GREEN
@@ -104,10 +105,18 @@ int main(int argc, char* argv[]) {
   primaryFont = LoadFontEx("resources/fonts/Roboto_Mono/static/RobotoMono-SemiBold.ttf", 100, NULL, 0);
   Shader blurShader = LoadShader(NULL, "resources/shaders/blur.glsl");
 
+  // Initialize render texture for shadows
+  RenderTexture2D shadowsTarget = LoadRenderTexture(windowWidth, windowHeight);
+
   // Enter main loop
   while (!WindowShouldClose()) {
     windowWidth = GetScreenWidth(); windowHeight = GetScreenHeight();
     UpdateDpiAndMinWindowSize();
+
+    if (windowWidth != shadowsTarget.texture.width || windowHeight != shadowsTarget.texture.height) {
+      UnloadRenderTexture(shadowsTarget);
+      shadowsTarget = LoadRenderTexture(windowWidth, windowHeight);
+    }
     
     // Update camera based on current window size
     uiCamera.zoom = dpi;
@@ -147,12 +156,24 @@ int main(int argc, char* argv[]) {
     // Draw frame
     BeginDrawing();
     pthread_mutex_lock(&simulation.mutex); {
-      ClearBackground(BACKGROUND_COLOR);
+      // Draw shadows to render texture
+      BeginTextureMode(shadowsTarget); {
+        ClearBackground(ColorAlpha(BLACK, 0.0));
 
-      // Draw arena and robots
+        BeginMode2D(arenaCamera); {
+          for (unsigned int i = 0; i < simulation.robotCount; i++) {
+            DrawRobot(&simulation.physicsWorld, &simulation.robots[i], ROBOT_COLORS[i], 0);
+          }
+        } EndMode2D();
+      } EndTextureMode();
+
+      // Draw scene
+      ClearBackground(BACKGROUND_COLOR);
+      DrawTextureRec(shadowsTarget.texture, (Rectangle){ 0, 0, shadowsTarget.texture.width, -shadowsTarget.texture.height }, (Vector2){ 0, 0 }, SHADOW_TINT);
+
       BeginMode2D(arenaCamera); {
-        // TODO: Draw some kind of backdrop
-        for (unsigned int layer = 0; layer < LAYER_COUNT; layer++) {
+        // TODO: Draw some kind of arena backdrop
+        for (unsigned int layer = 1; layer < LAYER_COUNT; layer++) { // Layer 0 = Shadows
           for (unsigned int i = 0; i < simulation.robotCount; i++) {
             DrawRobot(&simulation.physicsWorld, &simulation.robots[i], ROBOT_COLORS[i], layer);
           }
@@ -173,6 +194,7 @@ int main(int argc, char* argv[]) {
 
   UnloadFont(primaryFont);
   UnloadShader(blurShader);
+  UnloadRenderTexture(shadowsTarget);
   CloseWindow();
 
   printf("Stopping simulation thread\n");
@@ -268,41 +290,40 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
   double rotation = body->rotation;
 
   switch (layer) {
-    case 1: {
+    case 0: {
       // Shadows
-      Color shadowColor = ColorAlpha(BLACK, 0.2f);
-      DrawCircleV((Vector2){ position.x, position.y + 3 }, ROBOT_RADIUS + 3, shadowColor);
+      DrawCircleV((Vector2){ position.x, position.y + 3 }, ROBOT_RADIUS + 3, BLACK);
       DrawRectanglePro(
         (Rectangle){ .x=position.x, .y=position.y + 7, .width=ROBOT_WHEEL_RADIUS * 2 + 6, .height=ROBOT_WHEEL_WIDTH + 6 },
         (Vector2){ ROBOT_WHEEL_RADIUS + 3, ROBOT_WHEEL_WIDTH / 2 - ROBOT_WHEEL_OFFSET + 3 },
-        rotation * RAD2DEG, shadowColor);
+        rotation * RAD2DEG, BLACK);
       DrawRectanglePro(
         (Rectangle){ .x=position.x, .y=position.y + 7, .width=ROBOT_WHEEL_RADIUS * 2 + 6, .height=ROBOT_WHEEL_WIDTH + 6 },
         (Vector2){ ROBOT_WHEEL_RADIUS + 3, ROBOT_WHEEL_WIDTH / 2 + ROBOT_WHEEL_OFFSET + 3 },
-        rotation * RAD2DEG, shadowColor);
+        rotation * RAD2DEG, BLACK);
     } break;
-    case 2: {
+    case 1: {
       // Wheels
       DrawWheel(position, 1, rotation);
       DrawWheel(position, -1, rotation);
     } break;
-    case 3: {
+    case 2: {
       // Weapon fire
       if (robot->weaponCooldownRemaining > 0) {
         DrawLineEx(robot->lastWeaponFire.start, robot->lastWeaponFire.end, 4.0, ColorAlpha(RED, robot->weaponCooldownRemaining / (float)ROBOT_WEAPON_COOLDOWN_STEPS));
       }
     } break;
-    case 4: {
+    case 3: {
       // Sensors
       for (unsigned int i = 0; i < ROBOT_NUM_SENSORS; i++) {
         DrawLineEx(robot->sensors[i].start, robot->sensors[i].end, 1.0, ColorAlpha(BLUE, 0.5f));
       }
     } break;
-    case 5: {
+    case 4: {
       // Body
       DrawCircleV(position, ROBOT_RADIUS, robot->energyRemaining > 0 ? baseColor : ColorLerp(baseColor, GRAY, 0.75f));
     } break;
-    case 6: {
+    case 5: {
       // Turret
       Color turretColor = ColorLerp(baseColor, BLACK, 0.75f);
       DrawRectanglePro(
