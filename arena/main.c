@@ -102,6 +102,7 @@ int main(int argc, char* argv[]) {
 
   // Load resources
   primaryFont = LoadFontEx("resources/fonts/Roboto_Mono/static/RobotoMono-SemiBold.ttf", 100, NULL, 0);
+  Shader blurShader = LoadShader(NULL, "resources/shaders/blur.glsl");
 
   // Enter main loop
   while (!WindowShouldClose()) {
@@ -171,6 +172,7 @@ int main(int argc, char* argv[]) {
   }
 
   UnloadFont(primaryFont);
+  UnloadShader(blurShader);
   CloseWindow();
 
   printf("Stopping simulation thread\n");
