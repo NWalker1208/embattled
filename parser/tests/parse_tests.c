@@ -78,8 +78,8 @@ void test_TryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsVali
   TEST_ASSERT_EQUAL(NOP, line.instruction.opcode);
   TEST_ASSERT_EQUAL_size_t(1, line.instruction.parameterCount);
 
-  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[1].kind);
-  TEST_ASSERT_EQUAL_HEX32(0, line.instruction.parameters[1].immediateValue);
+  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[0].kind);
+  TEST_ASSERT_EQUAL_HEX32(0, line.instruction.parameters[0].immediateValue);
 }
 
 void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(void) {

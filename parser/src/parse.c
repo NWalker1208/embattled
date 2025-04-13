@@ -24,6 +24,9 @@ const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 
 #pragma region Helper function signatures
 
+// Returns true if the position is at the start of a comment.
+bool isPositionStartOfComment(const TextContents* text, TextOffset position);
+
 // Advances position to the next non-whitespace character that isn't part of a comment.
 void skipAllWhitespaceAndComments(const TextContents* text, TextOffset* position);
 
@@ -171,16 +174,20 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
   }
   assert(line->kind == ASSEMBLY_LINE_LABEL ||
          CompareTextOffsets(text, *position, GetTextContentsEndOfLine(text, start)) == 0 ||
-         GetCharAtTextOffset(text, *position) == ';');
+         isPositionStartOfComment(text, *position));
 
   line->sourceSpan = (TextSpan){start, *position};
   return true;
 }
 
+bool isPositionStartOfComment(const TextContents* text, TextOffset position) {
+  return GetCharAtTextOffset(text, position) == ';';
+}
+
 void skipAllWhitespaceAndComments(const TextContents* text, TextOffset* position) {
   while (true) {
     skipAllWhitespace(text, position);
-    if (GetCharAtTextOffset(text, *position) == ';') {
+    if (isPositionStartOfComment(text, *position)) {
       skipToEndOfLine(text, position);
     } else {
       break;
@@ -227,7 +234,7 @@ bool tryParseLabel(const TextContents* text, TextOffset* position, AssemblyLabel
   }
 
   IncrementTextOffset(text, position);
-  skipInlineWhitespace(text, position);
+  //skipInlineWhitespace(text, position);
 
   return true;
 }
@@ -270,13 +277,14 @@ bool tryParseInstruction(const TextContents* text, TextOffset* position, Assembl
       }
     }
 
-    // Check for end of line or file after parameter list
-    if (CompareTextOffsets(text, *position, endOfLine) < 0) {
+    // Check for comment or end of line/file after parameter list
+    if (CompareTextOffsets(text, *position, endOfLine) < 0 && !isPositionStartOfComment(text, *position)) {
       TextOffset end = *position; IncrementTextOffset(text, &end);
       *error = PARSING_ERROR(UNEXPECTED_CHARACTER, *position, end);
       return false; // Expected end of line or file
     }
-    assert(CompareTextOffsets(text, *position, endOfLine) == 0);
+
+    assert(CompareTextOffsets(text, *position, endOfLine) == 0 || isPositionStartOfComment(text, *position));
   }  
 
   return true;
@@ -295,7 +303,7 @@ bool tryParseOpcode(const TextContents* text, TextOffset* position, enum Opcode*
   return false;
 }
 
-bool isWhitespaceOrComma(char c) { return isAnyWhitespace(c) || c == ','; }
+bool isPastParameter(char c) { return isAnyWhitespace(c) || c == ',' || c == ';'; }
 
 bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyParameter* parameter, ParsingError* error) {
   TextOffset start = *position;
@@ -306,7 +314,7 @@ bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyP
       IncrementTextOffset(text, position);
       parameter->kind = ASSEMBLY_PARAM_REGISTER;
       if (!tryParseRegister(text, position, &parameter->registerName)) {
-        skipToNextSatisfies(text, position, isWhitespaceOrComma);
+        skipToNextSatisfies(text, position, isPastParameter);
         *error = PARSING_ERROR(INVALID_REGISTER, start, *position);
         return false; // Failed to parse register
       }
@@ -317,7 +325,7 @@ bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyP
       IncrementTextOffset(text, position);
       parameter->kind = ASSEMBLY_PARAM_LABEL;
       if (!tryParseName(text, position, &parameter->labelSpan)) {
-        skipToNextSatisfies(text, position, isWhitespaceOrComma);
+        skipToNextSatisfies(text, position, isPastParameter);
         *error = PARSING_ERROR(INVALID_REGISTER, start, *position);
         return false; // Failed to parse label
       }
@@ -333,7 +341,7 @@ bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyP
         NormalizeTextOffset(text, position);
         unsigned int hexValue;
         if (!tryParseHexadecimalValue(text, position, &hexValue)) {
-          skipToNextSatisfies(text, position, isWhitespaceOrComma);
+          skipToNextSatisfies(text, position, isPastParameter);
           *error = PARSING_ERROR(INVALID_HEX_VALUE, start, *position);
           return false; // Failed to parse hexadecimal immediate value
         }
@@ -341,12 +349,12 @@ bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyP
       } else if (isdigit(c) || c == '-' || c == '+') {
         // Parse as a decimal immediate value
         if (!tryParseDecimalValue(text, position, &parameter->immediateValue)) {
-          skipToNextSatisfies(text, position, isWhitespaceOrComma);
+          skipToNextSatisfies(text, position, isPastParameter);
           *error = PARSING_ERROR(INVALID_INT_VALUE, start, *position);
           return false; // Failed to parse decimal immediate value
         }
       } else {
-        skipToNextSatisfies(text, position, isWhitespaceOrComma);
+        skipToNextSatisfies(text, position, isPastParameter);
         *error = PARSING_ERROR(INVALID_PARAMETER, start, *position);
         return false; // Failed to parse as any kind of parameter
       }
@@ -439,7 +447,7 @@ bool tryParseAssemblyData(const TextContents* text, TextOffset* position, Assemb
   data->length = 0;
   data->bytes = NULL;
   TextOffset endOfLine = GetTextContentsEndOfLine(text, *position);
-  while (CompareTextOffsets(text, *position, endOfLine) < 0) {
+  while (CompareTextOffsets(text, *position, endOfLine) < 0 && !isPositionStartOfComment(text, *position)) {
     TextOffset start = *position;
 
     // Parse the next hexadecimal byte
