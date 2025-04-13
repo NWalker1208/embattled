@@ -62,15 +62,15 @@ void test_TryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsVali
 
 void test_TryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsValidInstructionWithComment(void) {
   // Arrange
-  const char source[] = "nop 0 ; comment\n";
+  const char source[] = "nop 0; comment\n";
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
   bool success = TryParseAssemblyLine(&text, &position, &line, &error);
 
   // Assert
-  const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
-  const TextSpan expectedLineSpan = { {0, 0}, {0, 72} };
+  const TextOffset expectedPosition = { 0, 5 };
+  const TextSpan expectedLineSpan = { {0, 0}, {0, 5} };
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedLineSpan, line.sourceSpan, text);
@@ -104,15 +104,15 @@ void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(v
 
 void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidDataWithComment(void) {
   // Arrange
-  const char source[] = ".data 12 ; comment\n";
+  const char source[] = ".data 12; comment\n";
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
   bool success = TryParseAssemblyLine(&text, &position, &line, &error);
 
   // Assert
-  const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
-  const TextSpan expectedLineSpan = { {0, 0}, {0, 29} };
+  const TextOffset expectedPosition = { 0, 8 };
+  const TextSpan expectedLineSpan = { {0, 0}, {0, 8} };
   const unsigned char expectedBytes[] = { 0x12 };
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
@@ -152,7 +152,7 @@ void test_TryParseAssemblyLine_should_succeedWithLabelLine_when_lineIsValidLabel
   bool success = TryParseAssemblyLine(&text, &position, &line, &error);
 
   // Assert
-  const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
+  const TextOffset expectedPosition = { 0, 6 };
   const TextSpan expectedLineSpan = { {0, 0}, {0, 6} };
   const TextSpan expectedNameSpan = { {0, 0}, {0, 5} };
   const TextSpan expectedAddressSpan = { {0, 5}, {0, 5} };
