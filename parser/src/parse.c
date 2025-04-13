@@ -24,6 +24,9 @@ const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
 
 #pragma region Helper function signatures
 
+// Advances position to the next non-whitespace character that isn't part of a comment.
+void skipAllWhitespaceAndComments(const TextContents* text, TextOffset* position);
+
 // Parses an assembly label.
 // If the current line is a valid label, advances position past the ':' character,
 // outputs the label through label, and returns true.
@@ -98,7 +101,7 @@ bool TryParseAssemblyProgram(const TextContents* text, AssemblyProgram* program,
     assert(CompareTextOffsets(text, position, previous) != 0);
     previous = position;
 
-    skipAllWhitespace(text, &position);
+    skipAllWhitespaceAndComments(text, &position);
     if (CompareTextOffsets(text, position, end) >= 0) { break; }
 
     AssemblyLine currentLine = { 0 };
@@ -170,6 +173,17 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, Assemb
 
   line->sourceSpan = (TextSpan){start, *position};
   return true;
+}
+
+void skipAllWhitespaceAndComments(const TextContents* text, TextOffset* position) {
+  while (true) {
+    skipAllWhitespace(text, position);
+    if (GetCharAtTextOffset(text, *position) == ';') {
+      skipToEndOfLine(text, position);
+    } else {
+      break;
+    }
+  }
 }
 
 bool isWhiteSpaceOrColon(char c) { return isAnyWhitespace(c) || c == ':'; }

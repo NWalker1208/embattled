@@ -5,11 +5,12 @@
 #include "assembler/assembly.h"
 
 // Assembly Syntax:
-//   <program> -> <line>*
+//   <program> -> (<line> | <comment>)*
 //   <line> ->
 //     ((<name> | (<name>? '@' <address>)) ':') |
 //     (<opcode> (<parameter> (',' <parameter>)*)?) |
 //     ('.data' <hexByte>+)
+//   <comment> -> ';' <text>
 //   <address> -> <hexDigit>{1,4}
 //   <name> -> [a-zA-Z_][a-zA-Z0-9_]*
 //   <parameter> -> <register> | <immediateValue> | <labelReference>
@@ -59,8 +60,8 @@ typedef struct {
 bool TryParseAssemblyProgram(const TextContents* text, AssemblyProgram* program, ParsingErrorList* errors);
 
 // Parses the next line of assembly from the given text and advances the position.
-// Skips leading whitespace and newlines.
-// Always advances the position to the end of the line, even when parsing fails.
+// Skips leading whitespace (including newlines) and comments.
+// Always advances the position to the end of the line (including any end-of-line comment), even when parsing fails.
 // If parsing succeeds, outputs the parsed line through line and returns true.
 // If parsing fails, outputs the cause through error and returns false.
 bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, AssemblyLine* line, ParsingError* error);
