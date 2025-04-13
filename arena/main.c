@@ -32,9 +32,9 @@
 #define ROBOT_TURRET_WIDTH 30.0
 #define ROBOT_TURRET_OFFSET (ROBOT_RADIUS - ROBOT_TURRET_LENGTH)
 
-#define SHADOW_BLUR_SIZE 5
+#define SHADOW_BLUR_SIZE 10
 
-const Color SHADOW_TINT = { .r = 255, .g = 255, .b = 255, .a = 128 };
+const Color SHADOW_TINT = { .r = 255, .g = 255, .b = 255, .a = 96 };
 const Color ROBOT_COLORS[] = {
   PURPLE,
   GREEN

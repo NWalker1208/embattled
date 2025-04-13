@@ -13,12 +13,16 @@ uniform int renderHeight;
 uniform float blurSize;
 
 void main() {
-  vec4 weightedAverage = vec4(0,0,0,0);
   int intBlurSize = int(ceil(abs(blurSize)));
-  float weight = 1.0 / (intBlurSize * 2 + 1);
+  float stdDev = blurSize * 0.4;
+
+  vec4 weightedAverage = vec4(0,0,0,0);
   float totalWeight = 0.0;
 
   for (int offset = -intBlurSize; offset <= intBlurSize; offset++) {
+    float temp = offset / stdDev;
+    float weight = exp(-(temp * temp));
+
     weightedAverage += weight * texture2D(texture0, vec2(fragTexCoord.x, fragTexCoord.y + float(offset)/renderHeight)); 
     totalWeight += weight;
   }
