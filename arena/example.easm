@@ -1,0 +1,41 @@
+setup:
+  ldiw @rotate
+  mov  $x0, $ac
+
+  ldiw @sensor_dir
+  mov  $x1, $ac
+
+  ldiw @sensor_dist
+  mov  $x2, $ac
+
+  ldiw @sensor_kind
+  mov  $x3, $ac
+
+  ldib 01
+  mov  $x4, $ac
+
+  ldiw @weapon
+  mov  $x5, $ac
+
+loop:
+  ldmb $x3, 0
+  ceq  $ac, $x4
+  jmz  @check_sides
+
+  ldib 0xFF
+  stmb $x5, 0
+  ldib 0x00
+  stmb $x5, 0
+
+check_sides:
+  ; TODO
+  jmp @loop
+
+
+move@F000: .data 00
+rotate@F001: .data 00
+weapon@F002: .data 00
+sensor_dir@F003: .data 00
+
+sensor_dist@E000: .data 00
+sensor_kind@E001: .data 00
