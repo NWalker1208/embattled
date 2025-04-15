@@ -26,6 +26,7 @@ void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds) {
     body->position.x += body->linearVelocity.x * deltaTimeSeconds;
     body->position.y += body->linearVelocity.y * deltaTimeSeconds;
     body->rotation += body->angularVelocity * deltaTimeSeconds;
+    body->rotation -= floor(body->rotation / (M_PI * 2)) * (M_PI * 2);
   }
 
   // Resolve collisions between bodies and the world boundary

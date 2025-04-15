@@ -103,7 +103,7 @@ void UpdateRobotSensor(Robot* robot, PhysicsWorld* physicsWorld) {
   PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
 
   unsigned char sensorDirectionControl = robot->processState.memory[SENSOR_DIR_ADDRESS];
-  float sensorAngle = (sensorDirectionControl / 256.0) * 360.0;
+  float sensorAngle = body->rotation + (sensorDirectionControl / 256.0) * (2 * M_PI);
 
   Vector2 rayDirection = (Vector2){ cos(sensorAngle), sin(sensorAngle) };
   Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
