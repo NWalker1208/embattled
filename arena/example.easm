@@ -32,10 +32,10 @@ check_sides:
   jmp @loop
 
 
+sensor_dist@E000: .data 00
+sensor_kind@E001: .data 00
+
 move@F000: .data 00
 rotate@F001: .data 00
 weapon@F002: .data 00
 sensor_dir@F003: .data 00
-
-sensor_dist@E000: .data 00
-sensor_kind@E001: .data 00
