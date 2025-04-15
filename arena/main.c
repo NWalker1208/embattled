@@ -350,10 +350,8 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
       }
     } break;
     case 3: {
-      // Sensors
-      for (unsigned int i = 0; i < ROBOT_NUM_SENSORS; i++) {
-        DrawLineEx(robot->sensors[i].start, robot->sensors[i].end, 1.0, ColorAlpha(BLUE, 0.5f));
-      }
+      // Sensor
+      DrawLineEx(robot->lastSensorReading.start, robot->lastSensorReading.end, 1.0, ColorAlpha(BLUE, 0.5f));
     } break;
     case 4: {
       // Body

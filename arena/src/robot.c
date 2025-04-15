@@ -2,9 +2,13 @@
 #include <raymath.h>
 #include "arena/raycast.h"
 
-#define MOVE_ADDRESS   0xF000
-#define ROTATE_ADDRESS 0xF001
-#define WEAPON_ADDRESS 0xF002
+#define MOVE_ADDRESS       0xF000
+#define ROTATE_ADDRESS     0xF001
+#define WEAPON_ADDRESS     0xF002
+#define SENSOR_DIR_ADDRESS 0xF003
+
+#define SENSOR_DIST_ADDRESS 0xE000
+#define SENSOR_KIND_ADDRESS 0xE001
 
 #define MOVE_SPEED    300.0
 #define ROTATE_SPEED  6.0
@@ -95,20 +99,20 @@ void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld, WeaponDamageCa
   }
 }
 
-void UpdateRobotSensors(Robot* robot, PhysicsWorld* physicsWorld) {
+void UpdateRobotSensor(Robot* robot, PhysicsWorld* physicsWorld) {
   PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
 
-  for (unsigned int j = 0; j < ROBOT_NUM_SENSORS; j++) {
-    float angle = body->rotation - (SENSORS_FOV_RAD / 2) + j * (SENSORS_FOV_RAD / (ROBOT_NUM_SENSORS - 1));
-    Vector2 rayDirection = (Vector2){ cos(angle), sin(angle) };
-    Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
-    RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
-    
-    float distance = result.distance;
-    if (distance > MAX_SENSOR_DIST) { distance = MAX_SENSOR_DIST; }
-    robot->sensors[j].start = rayOrigin;
-    robot->sensors[j].end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, distance));
-    robot->processState.memory[0xE000 + (j * 2)] = (unsigned char)(distance / MAX_SENSOR_DIST * 255.0);
-    robot->processState.memory[0xE001 + (j * 2)] = (unsigned char)result.type;
-  }
+  unsigned char sensorDirectionControl = robot->processState.memory[SENSOR_DIR_ADDRESS];
+  float sensorAngle = (sensorDirectionControl / 256.0) * 360.0;
+
+  Vector2 rayDirection = (Vector2){ cos(sensorAngle), sin(sensorAngle) };
+  Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
+  RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
+  float distance = result.distance;
+  if (distance > MAX_SENSOR_DIST) { distance = MAX_SENSOR_DIST; }
+
+  robot->lastSensorReading.start = rayOrigin;
+  robot->lastSensorReading.end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, distance));
+  robot->processState.memory[SENSOR_DIST_ADDRESS] = (unsigned char)(distance / MAX_SENSOR_DIST * 255.0);
+  robot->processState.memory[SENSOR_KIND_ADDRESS] = (unsigned char)result.type;
 }

@@ -7,7 +7,6 @@
 #define ROBOT_RADIUS                50.0
 #define ROBOT_INITIAL_ENERGY        4000000
 #define ROBOT_WEAPON_COOLDOWN_STEPS 1000
-#define ROBOT_NUM_SENSORS           3
 
 
 typedef struct {
@@ -24,10 +23,10 @@ typedef struct {
     Vector2 start, end;
   } lastWeaponFire;
 
-  // The current start and end points of the robot's sensors.
+  // The start and end points of the robot's last sensor reading.
   struct {
     Vector2 start, end;
-  } sensors[ROBOT_NUM_SENSORS];
+  } lastSensorReading;
 
   // The state of the robot's processor.
   struct ProcessState processState;
@@ -45,5 +44,5 @@ Robot InitRobot(size_t physicsBodyIndex);
 // Steps the robot's internal simulation.
 void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld, WeaponDamageCallback weaponDamageCallback);
 
-// Updates the robot's sensors.
-void UpdateRobotSensors(Robot* robot, PhysicsWorld* physicsWorld);
+// Updates the robot's sensor.
+void UpdateRobotSensor(Robot* robot, PhysicsWorld* physicsWorld);

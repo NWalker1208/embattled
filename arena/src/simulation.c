@@ -93,7 +93,7 @@ void* simulationThread(void* arg) {
   // Initialize sensors
   pthread_mutex_lock(mutex); {
     for (unsigned int i = 0; i < simulation->robotCount; i++) {
-      UpdateRobotSensors(&simulation->robots[i], &simulation->physicsWorld);
+      UpdateRobotSensor(&simulation->robots[i], &simulation->physicsWorld);
     }
   } pthread_mutex_unlock(mutex);
 
@@ -166,7 +166,7 @@ void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
 
   // Update robot sensors
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
-    UpdateRobotSensors(&simulation->robots[i], &simulation->physicsWorld);
+    UpdateRobotSensor(&simulation->robots[i], &simulation->physicsWorld);
   }
 }
 
