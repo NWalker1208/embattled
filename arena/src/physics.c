@@ -2,19 +2,30 @@
 #include <stdbool.h>
 #include <math.h>
 #include <raymath.h>
+#include <assert.h>
 
 #define MAX_RESOLVER_ITERATIONS 32
 
 
+#pragma region Collision helper functions
+
 // Checks whether the body is colliding with the world boundary.
 // If it is, returns true and outputs a vector indicating how far the body is penetrating into the world boundary.
 // Otherwise, returns false.
-bool CheckCollisionBodyBoundary(const PhysicsBody* body, const PhysicsWorld* world, Vector2* penetrationOut);
+bool checkCollisionBodyBoundary(const PhysicsBody* body, const PhysicsWorld* world, Vector2* penetrationOut);
 
 // Checks whether two bodies are colliding with one another.
 // If they are, returns true and outputs a vector indiciating how far body A is penetrating into body B.
 // Otherwise, returns false.
-bool CheckCollisionBodies(const PhysicsBody* bodyA, const PhysicsBody* bodyB, Vector2* penetrationOut);
+bool checkCollisionBodies(const PhysicsBody* bodyA, const PhysicsBody* bodyB, Vector2* penetrationOut);
+
+bool checkCollisionCircleColliderBoundary(Vector2 position, float radius, const PhysicsWorld* world, Vector2* penetrationOut);
+bool checkCollisionRectangleColliderBoundary(Vector2 position, Vector2 widthHeight, const PhysicsWorld* world, Vector2* penetrationOut);
+bool checkCollisionCircleColliders(Vector2 positionA, float radiusA, Vector2 positionB, float radiusB, Vector2* penetrationOut);
+bool checkCollisionRectangleColliders(Vector2 positionA, Vector2 widthHeightA, Vector2 positionB, Vector2 widthHeightB, Vector2* penetrationOut);
+bool checkCollisionCircleColliderRectangleCollider(Vector2 positionA, float radiusA, Vector2 positionB, Vector2 widthHeightB, Vector2* penetrationOut);
+
+#pragma endregion
 
 
 void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds) {
@@ -31,7 +42,7 @@ void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds) {
   for (unsigned int i = 0; i < world->bodyCount; i++) {
     PhysicsBody* body = &world->bodies[i];
     Vector2 penetration;
-    if (CheckCollisionBodyBoundary(body, world, &penetration)) {
+    if (checkCollisionBodyBoundary(body, world, &penetration)) {
       body->position = Vector2Subtract(body->position, penetration);
     }
   }
@@ -49,7 +60,7 @@ void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds) {
         }
 
         Vector2 penetration;
-        if (CheckCollisionBodies(bodyA, bodyB, &penetration)) {
+        if (checkCollisionBodies(bodyA, bodyB, &penetration)) {
           foundCollision = true;
 
           if (!bodyA->isStatic && !bodyB->isStatic) {
@@ -63,12 +74,12 @@ void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds) {
           }
 
           // Move both bodies away from boundary if either is now colliding
-          if (!bodyA->isStatic && CheckCollisionBodyBoundary(bodyA, world, &penetration)) {
+          if (!bodyA->isStatic && checkCollisionBodyBoundary(bodyA, world, &penetration)) {
             bodyA->position = Vector2Subtract(bodyA->position, penetration);
             if (!bodyB->isStatic) { bodyB->position = Vector2Subtract(bodyB->position, penetration); }
           }
 
-          if (!bodyB->isStatic && CheckCollisionBodyBoundary(bodyB, world, &penetration)) {
+          if (!bodyB->isStatic && checkCollisionBodyBoundary(bodyB, world, &penetration)) {
             if (!bodyA->isStatic) { bodyA->position = Vector2Subtract(bodyA->position, penetration); }
             bodyB->position = Vector2Subtract(bodyB->position, penetration);
           }
@@ -79,25 +90,63 @@ void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds) {
 }
 
 
-bool CheckCollisionBodyBoundary(const PhysicsBody* body, const PhysicsWorld* world, Vector2* penetrationOut) {
+bool checkCollisionBodyBoundary(const PhysicsBody* body, const PhysicsWorld* world, Vector2* penetrationOut) {
+  switch (body->collider.kind) {
+    case PHYSICS_COLLIDER_CIRCLE:
+      return checkCollisionCircleColliderBoundary(body->position, body->collider.radius, world, penetrationOut);
+    case PHYSICS_COLLIDER_RECTANGLE:
+      return checkCollisionRectangleColliderBoundary(body->position, body->collider.widthHeight, world, penetrationOut);
+  }
+
+  assert(false);
+  return false;
+}
+
+bool checkCollisionBodies(const PhysicsBody* bodyA, const PhysicsBody* bodyB, Vector2* penetrationOut) {
+  switch (bodyA->collider.kind) {
+    case PHYSICS_COLLIDER_CIRCLE:
+      switch (bodyB->collider.kind) {
+        case PHYSICS_COLLIDER_CIRCLE:
+          return checkCollisionCircleColliders(bodyA->position, bodyA->collider.radius, bodyB->position, bodyB->collider.radius, penetrationOut);
+        case PHYSICS_COLLIDER_RECTANGLE:
+          return checkCollisionCircleColliderRectangleCollider(bodyA->position, bodyA->collider.radius, bodyB->position, bodyB->collider.widthHeight, penetrationOut);
+      } break;
+
+    case PHYSICS_COLLIDER_RECTANGLE:
+      switch (bodyB->collider.kind) {
+        case PHYSICS_COLLIDER_CIRCLE:
+          bool colliding = checkCollisionCircleColliderRectangleCollider(bodyB->position, bodyB->collider.radius, bodyA->position, bodyA->collider.widthHeight, penetrationOut);
+          *penetrationOut = Vector2Negate(*penetrationOut);
+          return colliding;
+        case PHYSICS_COLLIDER_RECTANGLE:
+          return checkCollisionRectangleColliders(bodyA->position, bodyA->collider.widthHeight, bodyB->position, bodyB->collider.widthHeight, penetrationOut);
+      } break;
+  }
+  
+  assert(false);
+  return false;
+}
+
+
+bool checkCollisionCircleColliderBoundary(Vector2 position, float radius, const PhysicsWorld* world, Vector2* penetrationOut) {
   bool colliding = false;
 
-  if (body->position.x - body->radius < world->boundary.x) {
+  if (position.x - radius < world->boundary.x) {
     colliding = true;
-    penetrationOut->x = body->position.x - body->radius - world->boundary.x - EPSILON;
-  } else if (body->position.x + body->radius > world->boundary.x + world->boundary.width) {
+    penetrationOut->x = position.x - radius - world->boundary.x - EPSILON;
+  } else if (position.x + radius > world->boundary.x + world->boundary.width) {
     colliding = true;
-    penetrationOut->x = body->position.x + body->radius - (world->boundary.x + world->boundary.width) + EPSILON;
+    penetrationOut->x = position.x + radius - (world->boundary.x + world->boundary.width) + EPSILON;
   } else {
     penetrationOut->x = 0;
   }
 
-  if (body->position.y - body->radius < world->boundary.y) {
+  if (position.y - radius < world->boundary.y) {
     colliding = true;
-    penetrationOut->y = body->position.y - body->radius - world->boundary.y - EPSILON;
-  } else if (body->position.y + body->radius > world->boundary.y + world->boundary.height) {
+    penetrationOut->y = position.y - radius - world->boundary.y - EPSILON;
+  } else if (position.y + radius > world->boundary.y + world->boundary.height) {
     colliding = true;
-    penetrationOut->y = body->position.y + body->radius - (world->boundary.y + world->boundary.height) + EPSILON;
+    penetrationOut->y = position.y + radius - (world->boundary.y + world->boundary.height) + EPSILON;
   } else {
     penetrationOut->y = 0;
   }
@@ -105,9 +154,9 @@ bool CheckCollisionBodyBoundary(const PhysicsBody* body, const PhysicsWorld* wor
   return colliding;
 }
 
-bool CheckCollisionBodies(const PhysicsBody* bodyA, const PhysicsBody* bodyB, Vector2* penetrationOut) {
-  Vector2 delta = Vector2Subtract(bodyB->position, bodyA->position);
-  float radii = bodyA->radius + bodyB->radius;
+bool checkCollisionCircleColliders(Vector2 positionA, float radiusA, Vector2 positionB, float radiusB, Vector2* penetrationOut) {
+  Vector2 delta = Vector2Subtract(positionA, positionB);
+  float radii = radiusA + radiusB;
 
   float squareDistance = Vector2LengthSqr(delta);
   if (squareDistance < radii * radii) {
