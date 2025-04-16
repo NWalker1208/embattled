@@ -76,3 +76,27 @@ float checkRaycastWithCircleCollider(Vector2 position, float radius, Vector2 ori
   assert(firstIntersectionDistance >= 0);
   return firstIntersectionDistance;
 }
+
+float checkRaycastWithBoundary(const PhysicsWorld* world, Vector2 origin, Vector2 direction) {
+  float leftRightBoundaryDistance;
+  if (world->boundary.x <= origin.x && direction.x < 0) {
+    leftRightBoundaryDistance = (world->boundary.x - origin.x) / direction.x;
+  } else if (world->boundary.x + world->boundary.width >= origin.x && direction.x > 0) {
+    leftRightBoundaryDistance = (world->boundary.x + world->boundary.width - origin.x) / direction.x;
+  } else if (world->boundary.x > origin.x || world->boundary.x + world->boundary.width < origin.x) {
+    return 0; // Origin is outside the boundaries
+  }
+  assert(leftRightBoundaryDistance >= 0);
+
+  float topBottomBoundaryDistance;
+  if (world->boundary.y <= origin.y && direction.y < 0) {
+    topBottomBoundaryDistance = (world->boundary.y - origin.y) / direction.y;
+  } else if (world->boundary.y + world->boundary.height >= origin.y && direction.y > 0) {
+    topBottomBoundaryDistance = (world->boundary.y + world->boundary.height - origin.y) / direction.y;
+  } else if (world->boundary.y > origin.y || world->boundary.y + world->boundary.height < origin.y) {
+    return 0; // Origin is outside the boundaries
+  }
+  assert(topBottomBoundaryDistance >= 0);
+
+  return fminf(leftRightBoundaryDistance, topBottomBoundaryDistance);
+}
