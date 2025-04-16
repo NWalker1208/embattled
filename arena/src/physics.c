@@ -20,10 +20,10 @@ bool checkCollisionBodyBoundary(const PhysicsBody* body, const PhysicsWorld* wor
 bool checkCollisionBodies(const PhysicsBody* bodyA, const PhysicsBody* bodyB, Vector2* penetrationOut);
 
 bool checkCollisionCircleColliderBoundary(Vector2 position, float radius, const PhysicsWorld* world, Vector2* penetrationOut);
-bool checkCollisionRectangleColliderBoundary(Vector2 position, Vector2 widthHeight, const PhysicsWorld* world, Vector2* penetrationOut);
+bool checkCollisionRectangleColliderBoundary(Vector2 position, float rotation, Vector2 widthHeight, const PhysicsWorld* world, Vector2* penetrationOut);
 bool checkCollisionCircleColliders(Vector2 positionA, float radiusA, Vector2 positionB, float radiusB, Vector2* penetrationOut);
-bool checkCollisionRectangleColliders(Vector2 positionA, Vector2 widthHeightA, Vector2 positionB, Vector2 widthHeightB, Vector2* penetrationOut);
-bool checkCollisionCircleColliderRectangleCollider(Vector2 positionA, float radiusA, Vector2 positionB, Vector2 widthHeightB, Vector2* penetrationOut);
+bool checkCollisionRectangleColliders(Vector2 positionA, float rotationA, Vector2 widthHeightA, Vector2 positionB, float rotationB, Vector2 widthHeightB, Vector2* penetrationOut);
+bool checkCollisionCircleColliderRectangleCollider(Vector2 positionA, float radiusA, Vector2 positionB, float rotationB, Vector2 widthHeightB, Vector2* penetrationOut);
 
 #pragma endregion
 
@@ -95,7 +95,7 @@ bool checkCollisionBodyBoundary(const PhysicsBody* body, const PhysicsWorld* wor
     case PHYSICS_COLLIDER_CIRCLE:
       return checkCollisionCircleColliderBoundary(body->position, body->collider.radius, world, penetrationOut);
     case PHYSICS_COLLIDER_RECTANGLE:
-      return checkCollisionRectangleColliderBoundary(body->position, body->collider.widthHeight, world, penetrationOut);
+      return checkCollisionRectangleColliderBoundary(body->position, body->rotation, body->collider.widthHeight, world, penetrationOut);
   }
 
   assert(false);
@@ -109,17 +109,17 @@ bool checkCollisionBodies(const PhysicsBody* bodyA, const PhysicsBody* bodyB, Ve
         case PHYSICS_COLLIDER_CIRCLE:
           return checkCollisionCircleColliders(bodyA->position, bodyA->collider.radius, bodyB->position, bodyB->collider.radius, penetrationOut);
         case PHYSICS_COLLIDER_RECTANGLE:
-          return checkCollisionCircleColliderRectangleCollider(bodyA->position, bodyA->collider.radius, bodyB->position, bodyB->collider.widthHeight, penetrationOut);
+          return checkCollisionCircleColliderRectangleCollider(bodyA->position, bodyA->collider.radius, bodyB->position, bodyB->rotation, bodyB->collider.widthHeight, penetrationOut);
       } break;
 
     case PHYSICS_COLLIDER_RECTANGLE:
       switch (bodyB->collider.kind) {
         case PHYSICS_COLLIDER_CIRCLE:
-          bool colliding = checkCollisionCircleColliderRectangleCollider(bodyB->position, bodyB->collider.radius, bodyA->position, bodyA->collider.widthHeight, penetrationOut);
+          bool colliding = checkCollisionCircleColliderRectangleCollider(bodyB->position, bodyB->collider.radius, bodyA->position, bodyA->rotation, bodyA->collider.widthHeight, penetrationOut);
           *penetrationOut = Vector2Negate(*penetrationOut);
           return colliding;
         case PHYSICS_COLLIDER_RECTANGLE:
-          return checkCollisionRectangleColliders(bodyA->position, bodyA->collider.widthHeight, bodyB->position, bodyB->collider.widthHeight, penetrationOut);
+          return checkCollisionRectangleColliders(bodyA->position, bodyA->rotation, bodyA->collider.widthHeight, bodyB->position, bodyB->rotation, bodyB->collider.widthHeight, penetrationOut);
       } break;
   }
   
