@@ -3,10 +3,30 @@
 
 #define MAX_PHYSICS_BODIES 16
 
+// A kind of physics collider.
+typedef enum {
+  PHYSICS_COLLIDER_CIRCLE,
+  PHYSICS_COLLIDER_RECTANGLE,
+} PhysicsColliderKind;
+
+// A physics collider.
+typedef struct {
+  // The kind of the collider.
+  PhysicsColliderKind kind;
+  union {
+    // The radius of the circular collider (kind == PHYSICS_COLLIDER_CIRCLE)
+    double radius;
+    // The width and height of the rectangular collider (kind == PHYSICS_COLLIDER_RECTANGLE)
+    Vector2 widthHeight;
+  };
+} PhysicsCollider;
+
 // A simple circular physics body.
 typedef struct {
-  // The radius of the circular body in word-space units.
-  double radius;
+  // The body's collider.
+  PhysicsCollider collider;
+  // Whether or not the body is static (i.e., unaffected by other bodies).
+  bool isStatic;
 
   // The position of the body in world-space coordinates.
   Vector2 position;
