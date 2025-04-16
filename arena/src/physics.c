@@ -18,8 +18,6 @@ bool CheckCollisionBodies(const PhysicsBody* bodyA, const PhysicsBody* bodyB, Ve
 
 
 void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds) {
-  (void) deltaTimeSeconds; // The current physics simulator doesn't handle momentum, but this param will be used if that feature is added in the future.
-  
   // Update positions and rotations based on current velocities
   for (unsigned int i = 0; i < world->bodyCount; i++) {
     PhysicsBody* body = &world->bodies[i];
@@ -46,23 +44,32 @@ void StepPhysicsWorld(PhysicsWorld* world, double deltaTimeSeconds) {
       for (unsigned int j = i + 1; j < world->bodyCount; j++) {
         PhysicsBody* bodyA = &world->bodies[i];
         PhysicsBody* bodyB = &world->bodies[j];
+        if (bodyA->isStatic && bodyB->isStatic) {
+          continue; // Two static bodies don't affect each other.
+        }
 
         Vector2 penetration;
         if (CheckCollisionBodies(bodyA, bodyB, &penetration)) {
           foundCollision = true;
 
-          Vector2 halfPenetration = Vector2Scale(penetration, 0.5);
-          bodyA->position = Vector2Subtract(bodyA->position, halfPenetration);
-          bodyB->position = Vector2Add(bodyB->position, halfPenetration);
-
-          // Move both bodies away from boundary if either is now colliding
-          if (CheckCollisionBodyBoundary(bodyA, world, &penetration)) {
+          if (!bodyA->isStatic && !bodyB->isStatic) {
+            Vector2 halfPenetration = Vector2Scale(penetration, 0.5);
+            bodyA->position = Vector2Subtract(bodyA->position, halfPenetration);
+            bodyB->position = Vector2Add(bodyB->position, halfPenetration);
+          } else if (!bodyA->isStatic) {
             bodyA->position = Vector2Subtract(bodyA->position, penetration);
-            bodyB->position = Vector2Subtract(bodyB->position, penetration);
+          } else {
+            bodyB->position = Vector2Add(bodyB->position, penetration);
           }
 
-          if (CheckCollisionBodyBoundary(bodyB, world, &penetration)) {
+          // Move both bodies away from boundary if either is now colliding
+          if (!bodyA->isStatic && CheckCollisionBodyBoundary(bodyA, world, &penetration)) {
             bodyA->position = Vector2Subtract(bodyA->position, penetration);
+            if (!bodyB->isStatic) { bodyB->position = Vector2Subtract(bodyB->position, penetration); }
+          }
+
+          if (!bodyB->isStatic && CheckCollisionBodyBoundary(bodyB, world, &penetration)) {
+            if (!bodyA->isStatic) { bodyA->position = Vector2Subtract(bodyA->position, penetration); }
             bodyB->position = Vector2Subtract(bodyB->position, penetration);
           }
         }

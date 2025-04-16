@@ -1,5 +1,6 @@
 #include "arena/robot.h"
 #include <raymath.h>
+#include <assert.h>
 #include "arena/raycast.h"
 
 #define MOVE_ADDRESS       0xF000
@@ -34,6 +35,7 @@ Robot InitRobot(size_t physicsBodyIndex) {
 
 void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld, WeaponDamageCallback weaponDamageCallback) {
   PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
+  assert(body->collider.kind == PHYSICS_COLLIDER_CIRCLE);
 
   if (robot->weaponCooldownRemaining > 0) {
     robot->weaponCooldownRemaining--;
@@ -86,7 +88,7 @@ void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld, WeaponDamageCa
   if (weaponControl > 0) {
     // Fire laser at other robots using a raycast.
     Vector2 rayDirection = (Vector2){ cos(body->rotation), sin(body->rotation) };
-    Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
+    Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->collider.radius + 1));
     RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
     if (result.type != INTERSECTION_NONE) {
       robot->lastWeaponFire.start = rayOrigin;
@@ -101,6 +103,7 @@ void ApplyRobotControls(Robot* robot, PhysicsWorld* physicsWorld, WeaponDamageCa
 
 void UpdateRobotSensor(Robot* robot, PhysicsWorld* physicsWorld) {
   PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
+  assert(body->collider.kind == PHYSICS_COLLIDER_CIRCLE);
 
   unsigned char sensorDirectionControl = robot->processState.memory[SENSOR_DIR_ADDRESS];
   float sensorAngle = body->rotation + (sensorDirectionControl / 256.0) * (2 * M_PI);
