@@ -1,5 +1,6 @@
 #include "arena/raycast.h"
 #include <raymath.h>
+#include <assert.h>
 
 
 float checkRaycastWithBody(const PhysicsBody* body, Vector2 origin, Vector2 direction);
@@ -37,3 +38,17 @@ RaycastResult ComputeRaycast(const PhysicsWorld* world, Vector2 origin, Vector2 
 
   return nearestResult;
 }
+
+
+float checkRaycastWithBody(const PhysicsBody* body, Vector2 origin, Vector2 direction) {
+  switch (body->collider.kind) {
+    case PHYSICS_COLLIDER_CIRCLE:
+      return checkRaycastWithCircleCollider(body->position, body->collider.radius, origin, direction);
+    case PHYSICS_COLLIDER_RECTANGLE:
+      return checkRaycastWithRectangleCollider(body->position, body->collider.widthHeight, origin, direction);
+  }
+
+  assert(false);
+  return INFINITY;
+}
+
