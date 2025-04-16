@@ -20,4 +20,4 @@ typedef struct {
   int bodyIndex;
 } RaycastResult;
 
-RaycastResult ComputeRaycast(PhysicsWorld* world, Vector2 origin, Vector2 direction);
+RaycastResult ComputeRaycast(const PhysicsWorld* world, Vector2 origin, Vector2 direction);
