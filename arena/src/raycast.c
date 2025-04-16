@@ -5,7 +5,7 @@
 
 float checkRaycastWithBody(const PhysicsBody* body, Vector2 origin, Vector2 direction);
 float checkRaycastWithCircleCollider(Vector2 position, float radius, Vector2 origin, Vector2 direction);
-float checkRaycastWithRectangleCollider(Vector2 position, Vector2 widthHeight, Vector2 origin, Vector2 direction);
+float checkRaycastWithRectangleCollider(Vector2 position, float rotation, Vector2 widthHeight, Vector2 origin, Vector2 direction);
 float checkRaycastWithBoundary(const PhysicsWorld* world, Vector2 origin, Vector2 direction);
 
 
@@ -45,7 +45,7 @@ float checkRaycastWithBody(const PhysicsBody* body, Vector2 origin, Vector2 dire
     case PHYSICS_COLLIDER_CIRCLE:
       return checkRaycastWithCircleCollider(body->position, body->collider.radius, origin, direction);
     case PHYSICS_COLLIDER_RECTANGLE:
-      return checkRaycastWithRectangleCollider(body->position, body->collider.widthHeight, origin, direction);
+      return checkRaycastWithRectangleCollider(body->position, body->rotation, body->collider.widthHeight, origin, direction);
   }
 
   assert(false);
@@ -75,6 +75,45 @@ float checkRaycastWithCircleCollider(Vector2 position, float radius, Vector2 ori
   float firstIntersectionDistance = projectedDistanceAlongRay - distanceBetweenProjectedPositionAndIntersections;
   assert(firstIntersectionDistance >= 0);
   return firstIntersectionDistance;
+}
+
+float checkRaycastWithRectangleCollider(Vector2 position, float rotation, Vector2 widthHeight, Vector2 origin, Vector2 direction) {
+  // Compute the intersection point between the ray and the rectangle
+  Vector2 relativePosition = Vector2Subtract(position, origin);
+
+  direction = Vector2Rotate(direction, rotation);
+  relativePosition = Vector2Rotate(relativePosition, rotation);
+
+  float left = relativePosition.x - widthHeight.x / 2;
+  float right = relativePosition.x + widthHeight.x / 2;
+  float top = relativePosition.y - widthHeight.y / 2;
+  float bottom = relativePosition.y + widthHeight.y / 2;
+
+  float leftDist = left / direction.x;
+  float leftIntersectionY = leftDist * direction.y;
+  if (isnan(leftDist) || leftIntersectionY < top || leftIntersectionY > bottom) {
+    leftDist = INFINITY;
+  }
+
+  float rightDist = right / direction.x;
+  float rightIntersectionY = rightDist * direction.y;
+  if (isnan(rightDist) || rightIntersectionY < top || rightIntersectionY > bottom) {
+    rightDist = INFINITY;
+  }
+
+  float topDist = top / direction.y;
+  float topIntersectionX = topDist * direction.x;
+  if (isnan(topDist) || topIntersectionX < left || topIntersectionX > right) {
+    topDist = INFINITY;
+  }
+
+  float bottomDist = bottom / direction.y;
+  float bottomIntersectionX = bottomDist * direction.x;
+  if (isnan(bottomDist) || bottomIntersectionX < left || bottomIntersectionX > right) {
+    bottomDist = INFINITY;
+  }
+
+  return fminf(fminf(leftDist, rightDist), fminf(topDist, bottomDist));
 }
 
 float checkRaycastWithBoundary(const PhysicsWorld* world, Vector2 origin, Vector2 direction) {
