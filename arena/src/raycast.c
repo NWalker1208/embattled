@@ -52,3 +52,27 @@ float checkRaycastWithBody(const PhysicsBody* body, Vector2 origin, Vector2 dire
   return INFINITY;
 }
 
+float checkRaycastWithCircleCollider(Vector2 position, float radius, Vector2 origin, Vector2 direction) {
+  // Compute the intersection point between the ray and the circle
+  Vector2 relativePosition = Vector2Subtract(position, origin);
+  float projectedDistanceAlongRay = relativePosition.x * direction.x + relativePosition.y * direction.y;
+  float sqrDistanceBetweenPositionAndProjectedPosition = Vector2LengthSqr(relativePosition) - projectedDistanceAlongRay * projectedDistanceAlongRay;
+  float sqrDistanceBetweenProjectedPositionAndIntersections = radius * radius - sqrDistanceBetweenPositionAndProjectedPosition;
+
+  if (sqrDistanceBetweenProjectedPositionAndIntersections < 0) {
+    return INFINITY; // The ray does not intersect with the collider
+  }
+
+  float distanceBetweenProjectedPositionAndIntersections = sqrt(sqrDistanceBetweenProjectedPositionAndIntersections);
+  if (distanceBetweenProjectedPositionAndIntersections > fabs(projectedDistanceAlongRay)) {
+    return 0; // The ray origin is inside the collider
+  }
+
+  if (projectedDistanceAlongRay < 0) {
+    return INFINITY; // The collider is behind the origin of the ray
+  }
+
+  float firstIntersectionDistance = projectedDistanceAlongRay - distanceBetweenProjectedPositionAndIntersections;
+  assert(firstIntersectionDistance >= 0);
+  return firstIntersectionDistance;
+}
