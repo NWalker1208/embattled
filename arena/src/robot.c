@@ -109,7 +109,7 @@ void UpdateRobotSensor(Robot* robot, PhysicsWorld* physicsWorld) {
   float sensorAngle = body->rotation + (sensorDirectionControl / 256.0) * (2 * M_PI);
 
   Vector2 rayDirection = (Vector2){ cos(sensorAngle), sin(sensorAngle) };
-  Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->radius + 1));
+  Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->collider.radius + 1));
   RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
   float distance = result.distance;
   if (distance > MAX_SENSOR_DIST) { distance = MAX_SENSOR_DIST; }

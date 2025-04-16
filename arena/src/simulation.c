@@ -55,7 +55,10 @@ bool TryInitSimulation(Simulation* simulation, size_t robotCount, Rectangle boun
   for (size_t i = 0; i < robotCount; i++) {
     simulation->robots[i] = InitRobot(i);
     simulation->physicsWorld.bodies[i] = (PhysicsBody){
-      .radius = ROBOT_RADIUS
+      .collider = {
+        .kind = PHYSICS_COLLIDER_CIRCLE,
+        .radius = ROBOT_RADIUS
+      }
       // TODO: Initialize robot positions to not be on top of one another.
     };
   }
