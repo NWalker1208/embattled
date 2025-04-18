@@ -112,10 +112,14 @@ void UpdateRobotSensor(Robot* robot, PhysicsWorld* physicsWorld) {
   Vector2 rayOrigin = Vector2Add(body->position, Vector2Scale(rayDirection, body->collider.radius + 1));
   RaycastResult result = ComputeRaycast(physicsWorld, rayOrigin, rayDirection);
   float distance = result.distance;
-  if (distance > MAX_SENSOR_DIST) { distance = MAX_SENSOR_DIST; }
+  IntersectionType type = result.type;
+  if (distance > MAX_SENSOR_DIST) {
+    distance = MAX_SENSOR_DIST;
+    type = INTERSECTION_NONE;
+  }
 
   robot->lastSensorReading.start = rayOrigin;
   robot->lastSensorReading.end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, distance));
   robot->processState.memory[SENSOR_DIST_ADDRESS] = (unsigned char)(distance / MAX_SENSOR_DIST * 255.0);
-  robot->processState.memory[SENSOR_KIND_ADDRESS] = (unsigned char)result.type;
+  robot->processState.memory[SENSOR_KIND_ADDRESS] = (unsigned char)type;
 }
