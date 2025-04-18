@@ -165,7 +165,7 @@ bool checkCollisionRectangleColliderBoundary(Vector2 position, float rotation, V
 }
 
 bool checkCollisionCircleColliders(Vector2 positionA, float radiusA, Vector2 positionB, float radiusB, Vector2* penetrationOut) {
-  Vector2 delta = Vector2Subtract(positionA, positionB);
+  Vector2 delta = Vector2Subtract(positionB, positionA);
   float radii = radiusA + radiusB;
 
   float squareDistance = Vector2LengthSqr(delta);
