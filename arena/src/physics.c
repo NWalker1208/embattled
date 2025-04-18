@@ -154,6 +154,16 @@ bool checkCollisionCircleColliderBoundary(Vector2 position, float radius, const 
   return colliding;
 }
 
+bool checkCollisionRectangleColliderBoundary(Vector2 position, float rotation, Vector2 widthHeight, const PhysicsWorld* world, Vector2* penetrationOut) {
+  // Check if each of the corners is outside any of the boundaries, and sum the penetration for each
+  (void)position;
+  (void)rotation;
+  (void)widthHeight;
+  (void)world;
+  (void)penetrationOut;
+  return false; // TODO
+}
+
 bool checkCollisionCircleColliders(Vector2 positionA, float radiusA, Vector2 positionB, float radiusB, Vector2* penetrationOut) {
   Vector2 delta = Vector2Subtract(positionA, positionB);
   float radii = radiusA + radiusB;
@@ -174,4 +184,25 @@ bool checkCollisionCircleColliders(Vector2 positionA, float radiusA, Vector2 pos
   } else {
     return false;
   }
+}
+
+bool checkCollisionRectangleColliders(Vector2 positionA, float rotationA, Vector2 widthHeightA, Vector2 positionB, float rotationB, Vector2 widthHeightB, Vector2* penetrationOut) {
+  (void)positionA;
+  (void)rotationA;
+  (void)widthHeightA;
+  (void)positionB;
+  (void)rotationB;
+  (void)widthHeightB;
+  (void)penetrationOut;
+  return false; // TODO
+}
+
+bool checkCollisionCircleColliderRectangleCollider(Vector2 positionA, float radiusA, Vector2 positionB, float rotationB, Vector2 widthHeightB, Vector2* penetrationOut) {
+  (void)positionA;
+  (void)radiusA;
+  (void)positionB;
+  (void)rotationB;
+  (void)widthHeightB;
+  (void)penetrationOut;
+  return false; // TODO
 }
