@@ -85,6 +85,10 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
+  simulation.physicsWorld.bodies[0].position.x = -ARENA_WIDTH / 4;
+  simulation.physicsWorld.bodies[1].position.x = ARENA_WIDTH / 4;
+  simulation.physicsWorld.bodies[1].rotation = M_PI;
+
   memcpy(simulation.robots[0].processState.memory, initialMemoryA, sizeof(initialMemoryA));
   memcpy(simulation.robots[1].processState.memory, initialMemoryB, sizeof(initialMemoryB));
 
