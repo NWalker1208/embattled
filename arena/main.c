@@ -332,13 +332,6 @@ void DrawArenaForeground() {
 }
 
 
-void DrawWheel(Vector2 position, int side, double rotation) {
-  DrawRectanglePro(
-    (Rectangle){ .x=position.x, .y=position.y + 5, .width=ROBOT_WHEEL_RADIUS * 2, .height=ROBOT_WHEEL_WIDTH },
-    (Vector2){ ROBOT_WHEEL_RADIUS, ROBOT_WHEEL_WIDTH / 2 - side * ROBOT_WHEEL_OFFSET },
-    rotation * RAD2DEG, DARKGRAY);
-}
-
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor, unsigned int layer) {
   const PhysicsBody* body = &physicsWorld->bodies[robot->physicsBodyIndex];
   Vector2 position = { body->position.x, body->position.y };
@@ -359,8 +352,14 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
     } break;
     case 1: {
       // Wheels
-      DrawWheel(position, 1, rotation);
-      DrawWheel(position, -1, rotation);
+      DrawRectanglePro(
+        (Rectangle){ .x=position.x, .y=position.y + 5, .width=ROBOT_WHEEL_RADIUS * 2, .height=ROBOT_WHEEL_WIDTH },
+        (Vector2){ ROBOT_WHEEL_RADIUS, ROBOT_WHEEL_WIDTH / 2 - ROBOT_WHEEL_OFFSET },
+        rotation * RAD2DEG, DARKGRAY);
+      DrawRectanglePro(
+        (Rectangle){ .x=position.x, .y=position.y + 5, .width=ROBOT_WHEEL_RADIUS * 2, .height=ROBOT_WHEEL_WIDTH },
+        (Vector2){ ROBOT_WHEEL_RADIUS, ROBOT_WHEEL_WIDTH / 2 + ROBOT_WHEEL_OFFSET },
+        rotation * RAD2DEG, DARKGRAY);
     } break;
     case 2: {
       // Weapon fire
@@ -391,7 +390,23 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
 }
 
 void DrawStaticBody(const PhysicsBody* body, unsigned int layer) {
+  if (layer != 0 && layer != LAYER_COUNT - 1) {
+    return;
+  }
 
+  Color color = layer == 0 ? BLACK : DARKGRAY;
+  Vector2 position = body->position;
+
+  if (body->collider.kind == PHYSICS_COLLIDER_RECTANGLE) {
+    float width = body->collider.widthHeight.x;
+    float height = body->collider.widthHeight.y;
+    DrawRectanglePro(
+      (Rectangle){ .x=body->position.x, .y=body->position.y, .width = width, .height = height },
+      (Vector2){ .x = width/2, .y = height/2 },
+      body->rotation, color);
+  } else if (body->collider.kind == PHYSICS_COLLIDER_CIRCLE) {
+    DrawCircleV(position, body->collider.radius, color);
+  }
 }
 
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
