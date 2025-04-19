@@ -155,13 +155,12 @@ bool checkCollisionCircleColliderBoundary(Vector2 position, float radius, const 
 }
 
 bool checkCollisionRectangleColliderBoundary(Vector2 position, float rotation, Vector2 widthHeight, const PhysicsWorld* world, Vector2* penetrationOut) {
-  // Check if each of the corners is outside any of the boundaries, and sum the penetration for each
   (void)position;
   (void)rotation;
   (void)widthHeight;
   (void)world;
   (void)penetrationOut;
-  return false; // TODO
+  return false; // TODO: Not necessary to implement at the moment. All dynamic bodies are circles.
 }
 
 bool checkCollisionCircleColliders(Vector2 positionA, float radiusA, Vector2 positionB, float radiusB, Vector2* penetrationOut) {
@@ -194,7 +193,7 @@ bool checkCollisionRectangleColliders(Vector2 positionA, float rotationA, Vector
   (void)rotationB;
   (void)widthHeightB;
   (void)penetrationOut;
-  return false; // TODO
+  return false; // TODO: Not necessary to implement at the moment. All dynamic bodies are circles.
 }
 
 bool checkCollisionCircleColliderRectangleCollider(Vector2 positionA, float radiusA, Vector2 positionB, float rotationB, Vector2 widthHeightB, Vector2* penetrationOut) {
