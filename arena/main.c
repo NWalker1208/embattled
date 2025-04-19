@@ -50,6 +50,7 @@ void UpdateDpiAndMinWindowSize();
 
 void DrawArenaForeground();
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor, unsigned int layer);
+void DrawStaticBody(const PhysicsBody* body, unsigned int layer);
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 
 
@@ -189,8 +190,15 @@ int main(int argc, char* argv[]) {
         ClearBackground(WHITE);
 
         BeginMode2D(arenaCamera); {
+          // Draw layer 0 (shadows)
           for (unsigned int i = 0; i < simulation.robotCount; i++) {
             DrawRobot(&simulation.physicsWorld, &simulation.robots[i], ROBOT_COLORS[i], 0);
+          }
+          for (unsigned int i = 0; i < simulation.physicsWorld.bodyCount; i++) {
+            const PhysicsBody* body = &simulation.physicsWorld.bodies[i];
+            if (body->isStatic) {
+              DrawStaticBody(body, 0);
+            }
           }
         } EndMode2D();
       } EndTextureMode();
@@ -211,9 +219,16 @@ int main(int argc, char* argv[]) {
       // Draw scene
       BeginMode2D(arenaCamera); {
         // TODO: Draw some kind of arena backdrop
-        for (unsigned int layer = 1; layer < LAYER_COUNT; layer++) { // Layer 0 = Shadows
+        // Draw layers 1+
+        for (unsigned int layer = 1; layer < LAYER_COUNT; layer++) {
           for (unsigned int i = 0; i < simulation.robotCount; i++) {
             DrawRobot(&simulation.physicsWorld, &simulation.robots[i], ROBOT_COLORS[i], layer);
+          }
+          for (unsigned int i = 0; i < simulation.physicsWorld.bodyCount; i++) {
+            const PhysicsBody* body = &simulation.physicsWorld.bodies[i];
+            if (body->isStatic) {
+              DrawStaticBody(body, layer);
+            }
           }
         }
         DrawArenaForeground();
@@ -373,6 +388,10 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
         ROBOT_TURRET_WIDTH / 2, turretColor);
     } break;
   }
+}
+
+void DrawStaticBody(const PhysicsBody* body, unsigned int layer) {
+
 }
 
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
