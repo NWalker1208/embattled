@@ -197,11 +197,63 @@ bool checkCollisionRectangleColliders(Vector2 positionA, float rotationA, Vector
 }
 
 bool checkCollisionCircleColliderRectangleCollider(Vector2 positionA, float radiusA, Vector2 positionB, float rotationB, Vector2 widthHeightB, Vector2* penetrationOut) {
-  (void)positionA;
-  (void)radiusA;
-  (void)positionB;
-  (void)rotationB;
-  (void)widthHeightB;
-  (void)penetrationOut;
-  return false; // TODO
+  Vector2 circleRelativePosition = Vector2Subtract(positionA, positionB);
+  circleRelativePosition = Vector2Rotate(circleRelativePosition, -rotationB);
+
+  float halfWidth = widthHeightB.x / 2;
+  float halfHeight = widthHeightB.y / 2;
+
+  float leftRightSignedDistance = fabsf(circleRelativePosition.x) - halfWidth;
+  float topBottomSignedDistance = fabsf(circleRelativePosition.y) - halfHeight;
+
+  bool circleIsBetweenLeftAndRight = leftRightSignedDistance <= 0;
+  bool circleIsBetweenTopAndBottom = topBottomSignedDistance <= 0;
+
+  if (circleIsBetweenTopAndBottom && (!circleIsBetweenLeftAndRight || leftRightSignedDistance > topBottomSignedDistance)) {
+    // Check for collision with left-right sides.
+    if (leftRightSignedDistance < radiusA) {
+      float penetrationDepth = radiusA - leftRightSignedDistance + EPSILON;
+      penetrationOut->x = circleRelativePosition.x > 0 ? -penetrationDepth : penetrationDepth;
+      penetrationOut->y = 0;
+      *penetrationOut = Vector2Rotate(*penetrationOut, rotationB);
+      return true;
+    }
+    
+  } else if (circleIsBetweenLeftAndRight) {
+    // Check for collision with top-bottom sides.
+    if (topBottomSignedDistance < radiusA) {
+      float penetrationDepth = radiusA - topBottomSignedDistance + EPSILON;
+      penetrationOut->x = 0;
+      penetrationOut->y = circleRelativePosition.y > 0 ? -penetrationDepth : penetrationDepth;
+      *penetrationOut = Vector2Rotate(*penetrationOut, rotationB);
+      return true;
+    }
+
+
+  } else {
+    // Check for collision with nearest corner.
+    Vector2 deltaToNearestCorner = (Vector2){ leftRightSignedDistance, topBottomSignedDistance };
+    
+    float sqrDistanceToNearestCorner = Vector2LengthSqr(deltaToNearestCorner);
+    if (sqrDistanceToNearestCorner < radiusA * radiusA) {
+      float distanceToNearestCorner = sqrt(sqrDistanceToNearestCorner);
+      if (distanceToNearestCorner > EPSILON) {
+        deltaToNearestCorner.x /= distanceToNearestCorner; deltaToNearestCorner.y /= distanceToNearestCorner;
+      } else {
+        // Arbitrary but deterministic normal vector
+        deltaToNearestCorner = (Vector2){ M_SQRT1_2, M_SQRT1_2 };
+      }
+
+      // Set signs based on which corner the circle is closest to.
+      deltaToNearestCorner.x = circleRelativePosition.x > 0 ? -deltaToNearestCorner.x : deltaToNearestCorner.x;
+      deltaToNearestCorner.y = circleRelativePosition.y > 0 ? -deltaToNearestCorner.y : deltaToNearestCorner.y;
+
+      float penetrationDepth = radiusA - distanceToNearestCorner + EPSILON;
+      *penetrationOut = Vector2Scale(deltaToNearestCorner, penetrationDepth);
+      *penetrationOut = Vector2Rotate(*penetrationOut, rotationB);
+      return true;
+    }
+  }
+
+  return false;
 }
