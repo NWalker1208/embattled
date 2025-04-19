@@ -59,7 +59,6 @@ bool TryInitSimulation(Simulation* simulation, size_t robotCount, Rectangle boun
         .kind = PHYSICS_COLLIDER_CIRCLE,
         .radius = ROBOT_RADIUS
       }
-      // TODO: Initialize robot positions to not be on top of one another.
     };
   }
 

@@ -20,6 +20,9 @@
 #define ARENA_MARGIN 10
 #define ARENA_MIN_SCREEN_WIDTH 100
 
+#define OBSTACLE_WIDTH (ROBOT_RADIUS)
+#define OBSTACLE_HEIGHT (ARENA_HEIGHT / 2)
+
 #define STATE_PANEL_WIDTH 250
 #define STATE_PANEL_HEIGHT 270
 #define STATE_PANEL_MARGIN 10
@@ -86,10 +89,32 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-  simulation.physicsWorld.bodies[0].position.x = -ARENA_WIDTH / 4;
-  simulation.physicsWorld.bodies[1].position.x = ARENA_WIDTH / 4;
+  // Setup robot positions and rotations
+  simulation.physicsWorld.bodies[0].position.x = -ARENA_WIDTH / 2 + ROBOT_RADIUS * 2;
+  simulation.physicsWorld.bodies[1].rotation = 0;
+  simulation.physicsWorld.bodies[1].position.x = ARENA_WIDTH / 2 - ROBOT_RADIUS * 2;
   simulation.physicsWorld.bodies[1].rotation = M_PI;
 
+  // Setup static obstacles
+  simulation.physicsWorld.bodyCount += 2;
+  simulation.physicsWorld.bodies[2] = (PhysicsBody){
+    .isStatic = true,
+    .position = { -ARENA_WIDTH / 4, 0 },
+    .collider = {
+      .kind = PHYSICS_COLLIDER_RECTANGLE,
+      .widthHeight = { OBSTACLE_WIDTH, OBSTACLE_HEIGHT }
+    },
+  };
+  simulation.physicsWorld.bodies[3] = (PhysicsBody){
+    .isStatic = true,
+    .position = { ARENA_WIDTH / 4, 0 },
+    .collider = {
+      .kind = PHYSICS_COLLIDER_RECTANGLE,
+      .widthHeight = { OBSTACLE_WIDTH, OBSTACLE_HEIGHT }
+    },
+  };
+
+  // Load assembly programs into robot memory
   memcpy(simulation.robots[0].processState.memory, initialMemoryA, sizeof(initialMemoryA));
   memcpy(simulation.robots[1].processState.memory, initialMemoryB, sizeof(initialMemoryB));
 
