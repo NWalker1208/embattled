@@ -403,7 +403,7 @@ void DrawStaticBody(const PhysicsBody* body, unsigned int layer) {
     DrawRectanglePro(
       (Rectangle){ .x=body->position.x, .y=body->position.y, .width = width, .height = height },
       (Vector2){ .x = width/2, .y = height/2 },
-      body->rotation, color);
+      body->rotation * RAD2DEG, color);
   } else if (body->collider.kind == PHYSICS_COLLIDER_CIRCLE) {
     DrawCircleV(position, body->collider.radius, color);
   }
