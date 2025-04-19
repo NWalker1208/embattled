@@ -365,7 +365,6 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
   switch (layer) {
     case 0: {
       // Shadows
-      DrawCircleV((Vector2){ position.x, position.y + 3 }, ROBOT_RADIUS + 3, BLACK);
       DrawRectanglePro(
         (Rectangle){ .x=position.x, .y=position.y + 7, .width=ROBOT_WHEEL_RADIUS * 2 + 6, .height=ROBOT_WHEEL_WIDTH + 6 },
         (Vector2){ ROBOT_WHEEL_RADIUS + 3, ROBOT_WHEEL_WIDTH / 2 - ROBOT_WHEEL_OFFSET + 3 },
@@ -374,6 +373,7 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
         (Rectangle){ .x=position.x, .y=position.y + 7, .width=ROBOT_WHEEL_RADIUS * 2 + 6, .height=ROBOT_WHEEL_WIDTH + 6 },
         (Vector2){ ROBOT_WHEEL_RADIUS + 3, ROBOT_WHEEL_WIDTH / 2 + ROBOT_WHEEL_OFFSET + 3 },
         rotation * RAD2DEG, BLACK);
+      DrawCircleV((Vector2){ position.x, position.y + 2 }, ROBOT_RADIUS + 3, BLACK);
     } break;
     case 1: {
       // Wheels
@@ -415,22 +415,39 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
 }
 
 void DrawStaticBody(const PhysicsBody* body, unsigned int layer) {
-  if (layer != 0 && layer != LAYER_COUNT - 1) {
-    return;
-  }
-
-  Color color = layer == 0 ? BLACK : DARKGRAY;
   Vector2 position = body->position;
 
   if (body->collider.kind == PHYSICS_COLLIDER_RECTANGLE) {
     float width = body->collider.widthHeight.x;
     float height = body->collider.widthHeight.y;
-    DrawRectanglePro(
-      (Rectangle){ .x=body->position.x, .y=body->position.y, .width = width, .height = height },
-      (Vector2){ .x = width/2, .y = height/2 },
-      body->rotation * RAD2DEG, color);
+    
+    switch (layer) {
+      case 0: {
+        // Shadow
+        DrawRectanglePro(
+          (Rectangle){ .x=body->position.x, .y=body->position.y + 2, .width = width + 6, .height = height + 6 },
+          (Vector2){ .x = width/2 + 3, .y = height/2 + 3 },
+          body->rotation * RAD2DEG, BLACK);
+      } break;
+      case 5: {
+        // Body
+        DrawRectanglePro(
+          (Rectangle){ .x=body->position.x, .y=body->position.y, .width = width, .height = height },
+          (Vector2){ .x = width/2, .y = height/2 },
+          body->rotation * RAD2DEG, DARKGRAY);
+      } break;
+    }
   } else if (body->collider.kind == PHYSICS_COLLIDER_CIRCLE) {
-    DrawCircleV(position, body->collider.radius, color);
+    switch (layer) {
+      case 0: {
+        // Shadow
+        DrawCircleV((Vector2){ position.x, position.y + 2 }, body->collider.radius + 3, BLACK);
+      } break;
+      case 5: {
+        // Body
+        DrawCircleV(position, body->collider.radius, DARKGRAY);
+      } break;
+    }
   }
 }
 
