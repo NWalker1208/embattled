@@ -415,7 +415,7 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
         ROBOT_TURRET_WIDTH / 2, turretColor);
       DrawCircleV(
         (Vector2){ position.x + ROBOT_TURRET_OFFSET * cos(rotation), position.y + ROBOT_TURRET_OFFSET * sin(rotation) },
-        ROBOT_TURRET_WIDTH / 4, robot->weaponCooldownRemaining > 0 ? GRAY : RED);
+        ROBOT_TURRET_WIDTH / 4, robot->weaponCooldownRemaining > 0 || robot->energyRemaining <= 0 ? GRAY : RED);
     } break;
   }
 }
