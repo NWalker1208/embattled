@@ -118,8 +118,24 @@ void UpdateRobotSensor(Robot* robot, PhysicsWorld* physicsWorld) {
     type = INTERSECTION_NONE;
   }
 
+  unsigned char kindValue;
+  switch (type) {
+    case INTERSECTION_NONE: {
+      kindValue = 0;
+      break;
+    }
+    case INTERSECTION_BODY: {
+      kindValue = physicsWorld->bodies[result.bodyIndex].isStatic ? 2 : 1;
+      break;
+    }
+    case INTERSECTION_BOUNDARY: {
+      kindValue = 2;
+      break;
+    }
+  }
+
   robot->lastSensorReading.start = rayOrigin;
   robot->lastSensorReading.end = Vector2Add(rayOrigin, Vector2Scale(rayDirection, distance));
   robot->processState.memory[SENSOR_DIST_ADDRESS] = (unsigned char)(distance / MAX_SENSOR_DIST * 255.0);
-  robot->processState.memory[SENSOR_KIND_ADDRESS] = (unsigned char)type;
+  robot->processState.memory[SENSOR_KIND_ADDRESS] = kindValue;
 }
