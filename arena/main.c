@@ -35,6 +35,8 @@
 #define ROBOT_TURRET_WIDTH 30.0
 #define ROBOT_TURRET_OFFSET (ROBOT_RADIUS - ROBOT_TURRET_LENGTH)
 
+#define ROBOT_WEAPON_DRAW_STEPS (ROBOT_WEAPON_COOLDOWN_STEPS / 2)
+
 #define SHADOW_BLUR_SIZE 10
 
 const Color SHADOW_TINT = { .r = 255, .g = 255, .b = 255, .a = 96 };
@@ -388,8 +390,9 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
     } break;
     case 2: {
       // Weapon fire
-      if (robot->weaponCooldownRemaining > 0) {
-        DrawLineEx(robot->lastWeaponFire.start, robot->lastWeaponFire.end, 4.0, ColorAlpha(RED, robot->weaponCooldownRemaining / (float)ROBOT_WEAPON_COOLDOWN_STEPS));
+      int weaponDrawStepsRemaining = robot->weaponCooldownRemaining - (ROBOT_WEAPON_COOLDOWN_STEPS - ROBOT_WEAPON_DRAW_STEPS);
+      if (weaponDrawStepsRemaining > 0) {
+        DrawLineEx(robot->lastWeaponFire.start, robot->lastWeaponFire.end, 4.0, ColorAlpha(RED, weaponDrawStepsRemaining / (float)ROBOT_WEAPON_DRAW_STEPS));
       }
     } break;
     case 3: {

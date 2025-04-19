@@ -6,7 +6,7 @@
 
 #define ROBOT_RADIUS                50.0
 #define ROBOT_INITIAL_ENERGY        4000000
-#define ROBOT_WEAPON_COOLDOWN_STEPS 1000
+#define ROBOT_WEAPON_COOLDOWN_STEPS 2048
 
 
 typedef struct {
