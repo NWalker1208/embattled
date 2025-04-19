@@ -155,7 +155,9 @@ void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
 
   // Step robot processes
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
-    stepProcess(&simulation->robots[i].processState);
+    if (simulation->robots[i].energyRemaining > 0) {
+      stepProcess(&simulation->robots[i].processState);
+    }
   }
 
   // Apply robot controls
