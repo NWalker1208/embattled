@@ -81,8 +81,8 @@ float checkRaycastWithRectangleCollider(Vector2 position, float rotation, Vector
   // Compute the intersection point between the ray and the rectangle
   Vector2 relativePosition = Vector2Subtract(position, origin);
 
-  direction = Vector2Rotate(direction, rotation);
-  relativePosition = Vector2Rotate(relativePosition, rotation);
+  direction = Vector2Rotate(direction, -rotation);
+  relativePosition = Vector2Rotate(relativePosition, -rotation);
 
   float left = relativePosition.x - widthHeight.x / 2;
   float right = relativePosition.x + widthHeight.x / 2;
@@ -91,25 +91,25 @@ float checkRaycastWithRectangleCollider(Vector2 position, float rotation, Vector
 
   float leftDist = left / direction.x;
   float leftIntersectionY = leftDist * direction.y;
-  if (isnan(leftDist) || leftIntersectionY < top || leftIntersectionY > bottom) {
+  if (isnan(leftDist) || leftDist < 0 || isnan(leftIntersectionY) || leftIntersectionY < top || leftIntersectionY > bottom) {
     leftDist = INFINITY;
   }
 
   float rightDist = right / direction.x;
   float rightIntersectionY = rightDist * direction.y;
-  if (isnan(rightDist) || rightIntersectionY < top || rightIntersectionY > bottom) {
+  if (isnan(rightDist) || rightDist < 0 || isnan(rightIntersectionY) || rightIntersectionY < top || rightIntersectionY > bottom) {
     rightDist = INFINITY;
   }
 
   float topDist = top / direction.y;
   float topIntersectionX = topDist * direction.x;
-  if (isnan(topDist) || topIntersectionX < left || topIntersectionX > right) {
+  if (isnan(topDist) || topDist < 0 || isnan(topIntersectionX) || topIntersectionX < left || topIntersectionX > right) {
     topDist = INFINITY;
   }
 
   float bottomDist = bottom / direction.y;
   float bottomIntersectionX = bottomDist * direction.x;
-  if (isnan(bottomDist) || bottomIntersectionX < left || bottomIntersectionX > right) {
+  if (isnan(bottomDist) || bottomDist < 0 || isnan(bottomIntersectionX) || bottomIntersectionX < left || bottomIntersectionX > right) {
     bottomDist = INFINITY;
   }
 
