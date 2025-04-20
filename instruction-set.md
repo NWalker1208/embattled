@@ -1,4 +1,4 @@
-# Current Instructions
+# Version 1
 
 | Opcode | Parameters      | Definition |
 |--------|-----------------|------------|
@@ -44,3 +44,34 @@
 | `cltu` | `regA, regB`    | `ac = (regA (unsigned) <  regB (unsigned)) ? 1 : 0`
 | `cges` | `regA, regB`    | `ac = (regA (signed)   >= regB (signed))   ? 1 : 0`
 | `cgeu` | `regA, regB`    | `ac = (regA (unsigned) >= regB (unsigned)) ? 1 : 0`
+
+
+
+# Version 2
+
+## Notes being addressed
+
+- "Need instruction for reading from immediate address."
+- "Need way to load memory or immediate value into any register"
+- "Maybe would be helpful to jump based on different register?"
+
+## Terminology changes
+
+- "Opcode" now refers to the actual encoding of an operator, rather than its name.
+- "Mnemonic" or "opcode mnemonic" refers to the name of an opcode. Multiple opcodes that accept different kinds or numbers of parameters may share or "overload" the same mnemonic.
+- As before, "instruction" refers to the combination of an opcode and some number of operands.
+- "Operand" refers to a parameter of an instruction.
+- "Statement" or "assembly statement" refers to a line of assembly code (label, data, instruction, etc.).
+
+## Architectural changes
+
+- Instructions can accept up to 3 operands instead of only 2.
+- A single mnemonic can map to different opcodes such that the last read-only parameter can be either a register or an immediate value.
+- A single mnemonic can map to different opcodes that accept different sizes of immediate values (4, 8, 12, or 16-bit).
+- Division by zero will result in the most negative/positive representable value, depending on the context.
+  - If performing unsigned division, the result is the maximum unsigned short (`0xFFFF`).
+  - If performing signed division and the dividend is positive, the result is the maximum signed short (`0x7FFF`).
+  - If performing signed division and the dividend is negative, the result is the minimum signed short (`0x8000`).
+- I considered switching to a flags-based approach for comparing values and handling errors. However, I decided to stick with the design of having multiple compare instructions, rather than having flags or multiple jump/branch instructions.
+  - This prevents needing to have many extra instructions for both branching on and loading flags.
+  - This also prevents needing to have multiple jump instructions in addition to multiple compare instructions.

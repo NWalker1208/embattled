@@ -1,15 +1,15 @@
-- Need instruction for reading from immediate address.
+Architecture:
 - Need means of input and output, or at least debugging output.
 - Will probably want some kind of signaling mechanism, flags, or both.
-- Need way to load memory or immediate value into any register
-- Maybe would be helpful to jump based on different register?
-- Need way to specify label reference in data
 - If I implement a sleep opcode, that should provide a mechanism for giving each opcode a "cost" in number of cycles.
-- Should really figure out more scalable approach to implementing instructions.
-- Would be nice to have defines.
 - Need way for robot to know if weapon is ready
 
-- Misc tasks:
-  - Replace old int types with stdint.h types.
-  - Use typedef to get rid of struct, union, enum, etc.
-  - Replace C strings?
+Syntax:
+- Need way to specify label reference in data
+- Would be nice to have defines.
+
+Implementation details:
+- Should really figure out more scalable approach to implementing instructions.
+- Replace old int types with stdint.h types.
+- Use typedef to get rid of struct, union, enum, etc.
+- Replace C strings?
