@@ -67,7 +67,6 @@
 
 - Instructions can accept up to 3 operands instead of only 2.
 - A single mnemonic can map to different opcodes such that the last read-only parameter can be either a register or an immediate value.
-- A single mnemonic can map to different opcodes that accept different sizes of immediate values (4, 8, 12, or 16-bit).
 - Division by zero will result in the most negative/positive representable value, depending on the context.
   - If performing unsigned division, the result is the maximum unsigned short (`0xFFFF`).
   - If performing signed division and the dividend is positive, the result is the maximum signed short (`0x7FFF`).
@@ -75,3 +74,4 @@
 - I considered switching to a flags-based approach for comparing values and handling errors. However, I decided to stick with the design of having multiple compare instructions, rather than having flags or multiple jump/branch instructions.
   - This prevents needing to have many extra instructions for both branching on and loading flags.
   - This also prevents needing to have multiple jump instructions in addition to multiple compare instructions.
+- I considered allowing A single mnemonic to map to different opcodes that accept different sizes of immediate values (4, 8, 12, or 16-bit), but decided this didn't offer enough value to be worth the complexity. Instead, instructions will simply accept the size of immediate value that makes sense for their use case. This decision should be easy to reverse later if necessary.
