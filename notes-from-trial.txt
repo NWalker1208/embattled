@@ -9,7 +9,7 @@
 - If I implement a sleep opcode, that should provide a mechanism for giving each opcode a "cost" in number of cycles.
 - Should really figure out more scalable approach to implementing instructions.
 - Would be nice to have defines.
-- Need more complex arena.
+- Need way for robot to know if weapon is ready
 
 - Misc tasks:
   - Replace old int types with stdint.h types.
