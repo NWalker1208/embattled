@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <limits.h>
 #include <assert.h>
 #include "parser/parse.h"
 #include "text_utils.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
 
 // A line of a text contents struct.
