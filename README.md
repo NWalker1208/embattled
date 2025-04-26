@@ -3,6 +3,28 @@
 ## Requirements
 
 - CMake
+- Emscripten (for web build)
+- Ruby (for regenerating test runners)
+
+## Building for desktop
+
+```sh
+cmake -S . -B ./build
+cmake --build ./build
+```
+
+## Building for web
+
+```sh
+emcmake cmake -S . -B ./build -DPLATFORM=Web
+cmake --build ./build
+```
+
+## Running tests
+
+```sh
+cmake --build ./build --target test
+```
 
 ## Regenerating test runners
 
