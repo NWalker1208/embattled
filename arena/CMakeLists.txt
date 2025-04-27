@@ -15,6 +15,7 @@ if (EMSCRIPTEN)
   add_link_options(--shell-file ${PROJECT_SOURCE_DIR}/web/shell.html)
   add_link_options(--preload-file ${PROJECT_SOURCE_DIR}/resources)
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
+  configure_file("web/coi-serviceworker.js" "${PROJECT_BINARY_DIR}/coi-serviceworker.js" COPYONLY)
 endif ()
 
 add_executable(${PROJECT_NAME} main.c)
