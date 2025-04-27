@@ -114,10 +114,11 @@ bool checkCollisionBodies(const PhysicsBody* bodyA, const PhysicsBody* bodyB, Ve
 
     case PHYSICS_COLLIDER_RECTANGLE:
       switch (bodyB->collider.kind) {
-        case PHYSICS_COLLIDER_CIRCLE:
+        case PHYSICS_COLLIDER_CIRCLE: {
           bool colliding = checkCollisionCircleColliderRectangleCollider(bodyB->position, bodyB->collider.radius, bodyA->position, bodyA->rotation, bodyA->collider.widthHeight, penetrationOut);
           *penetrationOut = Vector2Negate(*penetrationOut);
           return colliding;
+        }
         case PHYSICS_COLLIDER_RECTANGLE:
           return checkCollisionRectangleColliders(bodyA->position, bodyA->rotation, bodyA->collider.widthHeight, bodyB->position, bodyB->rotation, bodyB->collider.widthHeight, penetrationOut);
       } break;

@@ -1,5 +1,5 @@
 #pragma once
-#include <stdint.h>
+#include <stddef.h>
 #include <raylib.h>
 #include "processor/process.h"
 #include "arena/physics.h"

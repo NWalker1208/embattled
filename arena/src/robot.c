@@ -1,4 +1,5 @@
 #include "arena/robot.h"
+#include <stdlib.h>
 #include <raymath.h>
 #include <assert.h>
 #include "arena/raycast.h"

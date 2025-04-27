@@ -1,6 +1,8 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
 #include <math.h>
+#include <limits.h>
 #include <raylib.h>
 #include "utilities/file.h"
 #include "utilities/text.h"
@@ -475,7 +477,7 @@ void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
   bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
 
   // Draw title
-  sprintf_s(buffer, sizeof(buffer), "Robot %zu", index + 1);
+  snprintf(buffer, sizeof(buffer), "Robot %zu", index + 1);
   DrawTextEx(primaryFont, buffer, topLeft, 22, 1.0, BLACK);
   topLeft.y += 30;
 
@@ -494,7 +496,7 @@ void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
   DrawTextEx(primaryFont, "Registers:", (Vector2){ topLeft.x, topLeft.y }, 18, 1.0, BLACK);
   topLeft.y += 20;
 
-  sprintf_s(buffer, sizeof(buffer),
+  snprintf(buffer, sizeof(buffer),
     "ip: %04x  sp: %04x  ac: %04x\n"
     "x0: %04x  x1: %04x  x2: %04x\n"
     "x3: %04x  x4: %04x  x5: %04x\n"
@@ -515,16 +517,16 @@ void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
 
   char immValue[5] = "N/A";
   if (numImmBits > 12) {
-    sprintf_s(immValue, sizeof(immValue), "%04x", nextInstruction.parameters.immediate.u16);
+    snprintf(immValue, sizeof(immValue), "%04x", nextInstruction.parameters.immediate.u16);
   } else if (numImmBits > 8) {
-    sprintf_s(immValue, sizeof(immValue), "%03x", nextInstruction.parameters.immediate.u12);
+    snprintf(immValue, sizeof(immValue), "%03x", nextInstruction.parameters.immediate.u12);
   } else if (numImmBits > 4) {
-    sprintf_s(immValue, sizeof(immValue), "%02x", nextInstruction.parameters.immediate.u8);
+    snprintf(immValue, sizeof(immValue), "%02x", nextInstruction.parameters.immediate.u8);
   } else if (numImmBits > 0) {
-    sprintf_s(immValue, sizeof(immValue), "%01x", nextInstruction.parameters.immediate.u4);
+    snprintf(immValue, sizeof(immValue), "%01x", nextInstruction.parameters.immediate.u4);
   }
 
-  sprintf_s(buffer, sizeof(buffer),
+  snprintf(buffer, sizeof(buffer),
     "Opcode:     %s\n"
     "Reg. A:     %s\n"
     "Reg. B:     %s\n"
