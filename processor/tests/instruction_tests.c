@@ -201,4 +201,16 @@ void test_storeInstruction_shouldSave16BitImmediateValue_whenOpcodeHasLayoutImm1
 // void test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16(void) {
 // }
 
+void test_storeInstruction_shouldReturnZero_whenOpcodeIsInvalid(void) {
+  // Arrange
+  struct Instruction instruction = { .opcode = OPCODE_COUNT };
+
+  // Act
+  unsigned short bytesWritten = storeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(0, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
+}
+
 #pragma endregion
