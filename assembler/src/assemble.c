@@ -74,6 +74,11 @@ bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* a
       if (line->kind == ASSEMBLY_LINE_INSTRUCTION) {
         struct Instruction instruction;
         instruction.opcode = line->instruction.opcode;
+
+        if (instruction.opcode < 0 || instruction.opcode >= OPCODE_COUNT) {
+          *error = ASSEMBLING_ERROR(INVALID_INSTRUCTION, line->sourceSpan);
+          goto failed;
+        }
         
         const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
         bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
