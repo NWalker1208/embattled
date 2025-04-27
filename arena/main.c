@@ -63,12 +63,12 @@ void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 
 int main(int argc, char* argv[]) {
   // Get command line arguments
-  if (argc != 3) {
-    fprintf(stderr, "Usage: %s <assembly file A> <assembly file B>\n", argv[0]);
+  if (argc < 1 || argc > 3) {
+    fprintf(stderr, "Usage: %s [<assembly file A> [<assembly file B>]]\n", argv[0]);
     return 1;
   }
-  char* assemblyFilePathA = argv[1];
-  char* assemblyFilePathB = argv[2];
+  char* assemblyFilePathA = argc >= 2 ? argv[1] : NULL;
+  char* assemblyFilePathB = argc >= 3 ? argv[2] : NULL;
 
   // Load, parse, and assemble assembly files
   TextContents textA, textB;
@@ -307,9 +307,15 @@ int main(int argc, char* argv[]) {
 bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut) {
   char* chars;
   size_t fileLength;
-  if ((chars = ReadAllText(path, &fileLength)) == NULL) {
-    fprintf(stderr, "Failed to read assembly file.\n");
-    return false;
+  if (path != NULL) {
+    if ((chars = ReadAllText(path, &fileLength)) == NULL) {
+      fprintf(stderr, "Failed to read assembly file.\n");
+      return false;
+    }
+  } else {
+    chars = (char*)malloc(1);
+    chars[0] = '\0';
+    fileLength = 0;
   }
 
   *textOut = InitTextContents(&chars, fileLength);
