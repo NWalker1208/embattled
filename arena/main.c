@@ -13,6 +13,12 @@
 #include "arena/simulation.h"
 
 
+#if defined(PLATFORM_DESKTOP)
+#define GLSL_VERSION "330"
+#else
+#define GLSL_VERSION "100"
+#endif
+
 #define BACKGROUND_COLOR WHITE
 #define LAYER_COUNT 6
 
@@ -144,7 +150,7 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-  Shader hBlurShader = LoadShader(NULL, "resources/shaders/hblur.glsl");
+  Shader hBlurShader = LoadShader(NULL, "resources/shaders/glsl"GLSL_VERSION"/hblur.glsl");
   if (!IsShaderValid(hBlurShader)) {
     fprintf(stderr, "Failed to load hblur shader.\n");
     exit(1);
@@ -153,7 +159,7 @@ int main(int argc, char* argv[]) {
   int hBlurRenderHeightLocation = GetShaderLocation(hBlurShader, "renderHeight");
   int hBlurSizeLocation = GetShaderLocation(hBlurShader, "blurSize");
 
-  Shader vBlurShader = LoadShader(NULL, "resources/shaders/vblur.glsl");
+  Shader vBlurShader = LoadShader(NULL, "resources/shaders/glsl"GLSL_VERSION"/vblur.glsl");
   if (!IsShaderValid(vBlurShader)) {
     fprintf(stderr, "Failed to load vblur shader.\n");
     exit(1);
