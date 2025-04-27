@@ -139,11 +139,25 @@ int main(int argc, char* argv[]) {
 
   // Load resources
   primaryFont = LoadFontEx("resources/fonts/Roboto_Mono/static/RobotoMono-SemiBold.ttf", 100, NULL, 0);
+  if (!IsFontValid(primaryFont)) {
+    fprintf(stderr, "Failed to load font.\n");
+    exit(1);
+  }
+
   Shader hBlurShader = LoadShader(NULL, "resources/shaders/hblur.glsl");
+  if (!IsShaderValid(hBlurShader)) {
+    fprintf(stderr, "Failed to load hblur shader.\n");
+    exit(1);
+  }
   int hBlurRenderWidthLocation = GetShaderLocation(hBlurShader, "renderWidth");
   int hBlurRenderHeightLocation = GetShaderLocation(hBlurShader, "renderHeight");
   int hBlurSizeLocation = GetShaderLocation(hBlurShader, "blurSize");
+
   Shader vBlurShader = LoadShader(NULL, "resources/shaders/vblur.glsl");
+  if (!IsShaderValid(vBlurShader)) {
+    fprintf(stderr, "Failed to load vblur shader.\n");
+    exit(1);
+  }
   int vBlurRenderWidthLocation = GetShaderLocation(vBlurShader, "renderWidth");
   int vBlurRenderHeightLocation = GetShaderLocation(vBlurShader, "renderHeight");
   int vBlurSizeLocation = GetShaderLocation(vBlurShader, "blurSize");
