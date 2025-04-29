@@ -11,6 +11,9 @@
 #include "parser/parse.h"
 #include "processor/instruction.h"
 #include "arena/simulation.h"
+#if defined(PLATFORM_WEB)
+#include "emscripten.h"
+#endif
 
 
 #if defined(PLATFORM_DESKTOP)
@@ -352,7 +355,11 @@ bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, Assemb
 
 
 void UpdateDpiAndMinWindowSize() {
+  #if defined(PLATFORM_WEB)
+  float newDpi = emscripten_get_device_pixel_ratio();
+  #else
   float newDpi = GetWindowScaleDPI().x;
+  #endif
   if (newDpi != dpi) {
     dpi = newDpi;
     SetWindowMinSize(dpi * (ARENA_MARGIN * 2 + STATE_PANEL_WIDTH + ARENA_MIN_SCREEN_WIDTH), dpi * fmax(ARENA_MARGIN * 2, STATE_PANEL_HEIGHT * 2));
