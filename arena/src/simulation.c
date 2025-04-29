@@ -6,6 +6,9 @@
 #include <raymath.h>
 #include "arena/raycast.h"
 #include "utilities/sleep.h"
+#if defined(PLATFORM_WEB)
+#include "emscripten.h"
+#endif
 
 
 #define STEPS_PER_SEC 1024
@@ -35,6 +38,7 @@ typedef long ticks_t;
 
 
 void* simulationThread(void* arg);
+clock_t getCurrentClock();
 void stepSimulation(Simulation* simulation, double deltaTimeSeconds);
 void onWeaponDamage(void* context, size_t physicsBodyIndex, int damageAmount);
 
@@ -107,7 +111,7 @@ void* simulationThread(void* arg) {
 
   while (!simulation->shouldStop) {
     // Update the difference between simulation and realtime
-    clock_t currentRealtimeClock = clock();
+    clock_t currentRealtimeClock = getCurrentClock();
     clock_t elapsedRealtimeClocks = currentRealtimeClock - lastRealtimeClock;
     lastRealtimeClock = currentRealtimeClock;
     elapsedRealtimeClocks = MAX(0, MIN(elapsedRealtimeClocks, MAX_CLOCKS_BEHIND));
@@ -148,6 +152,15 @@ void* simulationThread(void* arg) {
   }
 
   return NULL;
+}
+
+clock_t getCurrentClock() {
+  #if defined(PLATFORM_WEB)
+  long long now = (long long)(emscripten_get_now() * ((double)CLOCKS_PER_SEC / 1000));
+  return (clock_t)now;
+  #else
+  return clock();
+  #endif
 }
 
 void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
