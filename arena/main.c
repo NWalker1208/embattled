@@ -69,6 +69,10 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
 void DrawStaticBody(const PhysicsBody* body, unsigned int layer);
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 
+// TODO:
+// - Fix time scale in web build.
+// - Load/reload assembly files created from UI inputs. https://emscripten.org/docs/api_reference/Filesystem-API.html#FS.writeFile
+
 
 int main(int argc, char* argv[]) {
   // Get command line arguments
