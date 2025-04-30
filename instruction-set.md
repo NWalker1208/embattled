@@ -109,3 +109,25 @@
 | `pshw`   | `pshw`    | `regA`                 | `mem[sp - 1]:mem[sp - 2] = regA; sp -= 2` |
 | `popb`   | `popb`    | `regA`                 | `sp += 1; regA = 0:mem[sp - 1]` |
 | `popw`   | `popw`    | `regA`                 | `sp += 2; regA = mem[sp - 1]:mem[sp - 2]; ` |
+| Math                                                    ||||
+| `add`    | `add_r`   | `regA, regB, regC`     | `regA = regB + regC` |
+|          | `add_i`   | `regA, regB, immA[16]` | `regA = regB + immA` |
+|          |           | `regA, immA[16], regB` |                      |
+| `sub`    | `sub_rr`  | `regA, regB, regC`     | `regA = regB - regC` |
+|          | `sub_ri`  | `regA, regB, immA[16]` | `regA = regB - immA` |
+|          | `sub_ir`  | `regA, immA[16], regB` | `regA = immA - regB` |
+| `mul`    | `mul_r`   | `regA, regB, regC`     | `regA = regB * regC` |
+|          | `mul_i`   | `regA, regB, immA[16]` | `regA = regB * immA` |
+|          |           | `regA, immA[16], regB` |                      |
+| `divs`   | `divs_rr` | `regA, regB, regC`     | `regA = regB (signed)   / regC (signed)` |
+|          | `divs_ri` | `regA, regB, immA[16]` | `regA = regB (signed)   / immA (signed)` |
+|          | `divs_ir` | `regA, immA[16], regB` | `regA = immA (signed)   / regB (signed)` |
+| `divu`   | `divu_rr` | `regA, regB, regC`     | `regA = regB (unsigned) / regC (unsigned)` |
+|          | `divu_ri` | `regA, regB, immA[16]` | `regA = regB (unsigned) / immA (unsigned)` |
+|          | `divu_ir` | `regA, immA[16], regB` | `regA = immA (unsigned) / regB (unsigned)` |
+| `rems`   | `rems_rr` | `regA, regB, regC`     | `regA = regB (signed)   % regC (signed)` |
+|          | `rems_ri` | `regA, regB, immA[16]` | `regA = regB (signed)   % immA (signed)` |
+|          | `rems_ir` | `regA, immA[16], regB` | `regA = immA (signed)   % regB (signed)` |
+| `remu`   | `remu_rr` | `regA, regB, regC`     | `regA = regB (unsigned) % regC (unsigned)` |
+|          | `remu_ri` | `regA, regB, immA[16]` | `regA = regB (unsigned) % immA (unsigned)` |
+|          | `remu_ir` | `regA, immA[16], regB` | `regA = immA (unsigned) % regB (unsigned)` |
