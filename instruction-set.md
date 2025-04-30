@@ -66,7 +66,7 @@
 ## Architectural changes
 
 - Instructions can accept up to 3 operands instead of only 2.
-- A single mnemonic can map to different opcodes such that the last read-only parameter can be either a register or an immediate value.
+- A single mnemonic can map to different opcodes such that the one or more read-only parameter can be either a register or an immediate value.
 - Division by zero will result in the most negative/positive representable value, depending on the context.
   - If performing unsigned division, the result is the maximum unsigned short (`0xFFFF`).
   - If performing signed division and the dividend is positive, the result is the maximum signed short (`0x7FFF`).
@@ -75,3 +75,37 @@
   - This prevents needing to have many extra instructions for both branching on and loading flags.
   - This also prevents needing to have multiple jump instructions in addition to multiple compare instructions.
 - I considered allowing a single mnemonic to map to different opcodes that accept different sizes of immediate values (4, 8, 12, or 16-bit), but decided this didn't offer enough value to be worth the complexity. Instead, instructions will simply accept the size of immediate value that makes sense for their use case. This decision should be easy to reverse later if necessary.
+- For the sake of efficient storage, opcodes will occupy either 8 or 12 bits.
+- The `ac` (accumulator) register is replaced with the `rt` (return) register.
+
+## Instructions
+
+| Mnemonic | Opcode    | Parameters             | Definition |
+|----------|-----------|------------------------|------------|
+| Control Flow                                            ||||
+| `nop`    | `nop`     | N/A                    | No effect |
+| `jmp`    | `jmp_r`   | `regA`                 | `rt = ip; ip = regA` |
+|          | `jmp_i`   | `immA[16]`             | `rt = ip; ip = immA` |
+| `jmz`    | `jmz_r`   | `regA, regB`           | `if regA == 0, then ip = regB, else no effect` |
+|          | `jmz_i`   | `regA, immA[16]`       | `if regA == 0, then ip = immA, else no effect` |
+| `slp`    | `slp_r`   | `regA`                 | `sleep for regA cycles` |
+|          | `slp_i`   | `immA[16]`             | `sleep for immA cycles` |
+| Memory                                                  ||||
+| `set`    | `set_r`   | `regA, regB`           | `regA = regB` |
+|          | `set_i`   | `regA, immA[16]`       | `regA = immA` |
+| `ldb`    | `ldb_r`   | `regA, regB`           | `regA = 0:mem[regB]` |
+|          | `ldb_i`   | `regA, immA[16]`       | `regA = 0:mem[immA]` |
+| `ldw`    | `ldw_r`   | `regA, regB`           | `regA = mem[regB + 1]:mem[regB]` |
+|          | `ldw_i`   | `regA, immA[16]`       | `regA = mem[immA + 1]:mem[immA]` |
+| `stb`    | `stb_rr`  | `regA, regB`           | `mem[regB] = regA[low]` |
+|          | `stb_ri`  | `regA, immA[16]`       | `mem[immA] = regA[low]` |
+|          | `stb_ir`  | `immA[8], regA`        | `mem[regA] = immA` |
+|          | `stb_ii`  | `immA[8], immB[16]`    | `mem[immB] = immA` |
+| `stw`    | `stw_rr`  | `regA, regB`           | `mem[regB + 1]:mem[regB] = regA` |
+|          | `stw_ri`  | `regA, immA[16]`       | `mem[immA + 1]:mem[immA] = regA` |
+|          | `stw_ir`  | `immA[16], regA`       | `mem[regA + 1]:mem[regA] = immA` |
+|          | `stw_ii`  | `immA[16], immB[16]`   | `mem[immB + 1]:mem[immB] = immA` |
+| `pshb`   | `pshb`    | `regA`                 | `mem[sp - 1] = regA[low]; sp -= 1` |
+| `pshw`   | `pshw`    | `regA`                 | `mem[sp - 1]:mem[sp - 2] = regA; sp -= 2` |
+| `popb`   | `popb`    | `regA`                 | `sp += 1; regA = 0:mem[sp - 1]` |
+| `popw`   | `popw`    | `regA`                 | `sp += 2; regA = mem[sp - 1]:mem[sp - 2]; ` |
