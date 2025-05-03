@@ -150,3 +150,36 @@
 | `rshu`   | `rshu_rr` | `regA, regB, regC`     | `regA = regB (unsigned) >> regC (signed)` |
 |          | `rshu_ri` | `regA, regB, immA[4]`  | `regA = regB (unsigned) >> immA (unsigned)` |
 |          | `rshu_ir` | `regA, immA[16], regB` | `regA = immA (unsigned) >> regB (signed)` |
+| Comparison                                              ||||
+| `ceq`    | `ceq_r`   | `regA, regB, regC`     | `regA = (regB == regC) ? 1 : 0` |
+|          | `ceq_i`   | `regA, regB, immA[16]` | `regA = (regB == immA) ? 1 : 0` |
+|          |           | `regA, immA[16], regB` |                                 |
+| `cne`    | `cne_r`   | `regA, regB, regC`     | `regA = (regB != regC) ? 1 : 0` |
+|          | `cne_i`   | `regA, regB, immA[16]` | `regA = (regB != immA) ? 1 : 0` |
+|          |           | `regA, immA[16], regB` |                                 |
+| `clts`   | `clts_rr` | `regA, regB, regC`     | `regA = (regB (signed)   <  regC (signed))   ? 1 : 0` |
+|          | `clts_ri` | `regA, regB, immA[16]` | `regA = (regB (signed)   <  immA (signed))   ? 1 : 0` |
+|          | `clts_ir` | `regA, immA[16], regB` | `regA = (immA (signed)   <  regB (signed))   ? 1 : 0` |
+| `cltu`   | `cltu_rr` | `regA, regB, regC`     | `regA = (regB (unsigned) <  regC (unsigned)) ? 1 : 0` |
+|          | `cltu_ri` | `regA, regB, immA[16]` | `regA = (regB (unsigned) <  immA (unsigned)) ? 1 : 0` |
+|          | `cltu_ir` | `regA, immA[16], regB` | `regA = (immA (unsigned) <  regB (unsigned)) ? 1 : 0` |
+| `cges`   | `cges_rr` | `regA, regB, regC`     | `regA = (regB (signed)   >= regC (signed))   ? 1 : 0` |
+|          | `cges_ri` | `regA, regB, immA[16]` | `regA = (regB (signed)   >= immA (signed))   ? 1 : 0` |
+|          | `cges_ir` | `regA, immA[16], regB` | `regA = (immA (signed)   >= regB (signed))   ? 1 : 0` |
+| `cgeu`   | `cgeu_rr` | `regA, regB, regC`     | `regA = (regB (unsigned) >= regC (unsigned)) ? 1 : 0` |
+|          | `cgeu_ri` | `regA, regB, immA[16]` | `regA = (regB (unsigned) >= immA (unsigned)) ? 1 : 0` |
+|          | `cgeu_ir` | `regA, immA[16], regB` | `regA = (immA (unsigned) >= regB (unsigned)) ? 1 : 0` |
+| `cgts`*  | `clts_rr` | `regA, regC, regB`     | See definition above. |
+|          | `clts_ir` | `regA, regB, immA[16]` |                       |
+|          | `clts_ri` | `regA, immA[16], regB` |                       |
+| `cgtu`*  | `cltu_rr` | `regA, regC, regB`     | See definition above. |
+|          | `cltu_ir` | `regA, regB, immA[16]` |                       |
+|          | `cltu_ri` | `regA, immA[16], regB` |                       |
+| `cles`*  | `cges_rr` | `regA, regC, regB`     | See definition above. |
+|          | `cges_ir` | `regA, regB, immA[16]` |                       |
+|          | `cges_ri` | `regA, immA[16], regB` |                       |
+| `cleu`*  | `cgeu_rr` | `regA, regC, regB`     | See definition above. |
+|          | `cgeu_ir` | `regA, regB, immA[16]` |                       |
+|          | `cgeu_ri` | `regA, immA[16], regB` |                       |
+
+*The intructions `cgts`, `cgtu`, `cles`, and `cleu` reuse the opcodes for their complementary instructions (`clts`, `cltu`, `cges`, and `cgeu` respectively).
