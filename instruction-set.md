@@ -131,3 +131,22 @@
 | `remu`   | `remu_rr` | `regA, regB, regC`     | `regA = regB (unsigned) % regC (unsigned)` |
 |          | `remu_ri` | `regA, regB, immA[16]` | `regA = regB (unsigned) % immA (unsigned)` |
 |          | `remu_ir` | `regA, immA[16], regB` | `regA = immA (unsigned) % regB (unsigned)` |
+| Bitwise logic                                           ||||
+| `and`    | `and_r`   | `regA, regB, regC`     | `regA = regB & regC` |
+|          | `and_i`   | `regA, regB, immA[16]` | `regA = regB & immA` |
+|          |           | `regA, immA[16], regB` |                      |
+| `ior`    | `ior_r`   | `regA, regB, regC`     | `regA = regB \| regC` |
+|          | `ior_i`   | `regA, regB, immA[16]` | `regA = regB \| immA` |
+|          |           | `regA, immA[16], regB` |                       |
+| `xor`    | `xor_r`   | `regA, regB, regC`     | `regA = regB ^ regC` |
+|          | `xor_i`   | `regA, regB, immA[16]` | `regA = regB ^ immA` |
+|          |           | `regA, immA[16], regB` |                      |
+| `lsh`    | `lsh_rr`  | `regA, regB, regC`     | `regA = regB << regC (signed)` |
+|          | `lsh_ri`  | `regA, regB, immA[4]`  | `regA = regB << immA (unsigned)` |
+|          | `lsh_ir`  | `regA, immA[16], regB` | `regA = immA << regB (signed)` |
+| `rshs`   | `rshs_rr` | `regA, regB, regC`     | `regA = regB (signed)   >> regC (signed)` |
+|          | `rshs_ri` | `regA, regB, immA[4]`  | `regA = regB (signed)   >> immA (unsigned)` |
+|          | `rshs_ir` | `regA, immA[16], regB` | `regA = immA (signed)   >> regB (signed)` |
+| `rshu`   | `rshu_rr` | `regA, regB, regC`     | `regA = regB (unsigned) >> regC (signed)` |
+|          | `rshu_ri` | `regA, regB, immA[4]`  | `regA = regB (unsigned) >> immA (unsigned)` |
+|          | `rshu_ir` | `regA, immA[16], regB` | `regA = immA (unsigned) >> regB (signed)` |
