@@ -20,7 +20,7 @@ const char* REGISTER_NAMES[REGISTER_COUNT] = {
   "x11",
 };
 
-Register nibbleToRegister(unsigned char nibble) {
+Register nibbleToRegister(uint8_t nibble) {
   if (nibble < REGISTER_COUNT) {
     return nibble;
   } else {
@@ -28,7 +28,7 @@ Register nibbleToRegister(unsigned char nibble) {
   }
 }
 
-unsigned short* getRegisterPtr(RegistersState* state, Register reg) {
+uint16_t* getRegisterPtr(RegistersState* state, Register reg) {
   switch (reg) {
     case REGISTER_NL:
       return NULL;
