@@ -1,53 +1,118 @@
 #pragma once
 #include <stdbool.h>
 
-// A code indicating which action should be performed in a given instruction.
-enum Opcode {
-  // Control flow
-  NOP,  // no params   | no effect
-  JMP,  // imm[16]     | ac = ip; ip = imm
-  JMZ,  // imm[16]     | if ac == 0, then ip = imm, else no effect
-  SLP,  // reg, imm[4] | sleep for reg + (unsigned) imm cycles
-  // Memory
-  MOV,  // reg, reg    | regA = regB
-  LDIB, // imm[8]      | ac = 0:imm
-  LDIW, // imm[16]     | ac = imm
-  LDMB, // reg, imm[4] | ac = 0:mem[addr]             where addr = regA + imm (signed)
-  LDMW, // reg, imm[4] | ac = mem[addr + 1]:mem[addr] where addr = regA + imm (signed)
-  STMB, // reg, imm[4] | mem[addr] = ac (low)         where addr = regA + imm (signed)
-  STMW, // reg, imm[4] | mem[addr + 1]:mem[addr] = ac where addr = regA + imm (signed)
-  PSHB, // reg         | mem[sp - 1] = regA (low); sp -= 1
-  PSHW, // reg         | mem[sp - 1]:mem[sp - 2] = regA; sp -= 2
-  POPB, // reg         | sp += 1; regA = 0:mem[sp - 1]
-  POPW, // reg         | sp += 2; regA = mem[sp - 1]:mem[sp - 2]; 
-  // Math and logic
-  INC,  // reg, imm[4] | regA += imm (unsigned)
-  DEC,  // reg, imm[4] | regA -= imm (unsigned)
-  ADD,  // reg, reg    | ac = regA + regB
-  SUB,  // reg, reg    | ac = regA - regB
-  MUL,  // reg, reg    | ac = regA * regB
-  DIVS, // reg, reg    | ac = regA (signed)   / regB (signed)
-  DIVU, // reg, reg    | ac = regA (unsigned) / regB (unsigned)
-  REMS, // reg, reg    | ac = regA (signed)   % regB (signed)
-  REMU, // reg, reg    | ac = regA (unsigned) % regB (unsigned)
-  LSH,  // reg, reg    | ac = regA << regB (unsigned)
-  RSHS, // reg, reg    | ac = regA (signed)   >> regB (unsigned)
-  RSHU, // reg, reg    | ac = regA (unsigned) >> regB (unsigned)
-  LSI,  // reg, imm[4] | ac = regA << imm (unsigned)
-  RSIS, // reg, imm[4] | ac = regA (signed)   >> imm (unsigned)
-  RSIU, // reg, imm[4] | ac = regA (unsigned) >> imm (unsigned)
-  AND,  // reg, reg    | ac = regA & regB
-  IOR,  // reg, reg    | ac = regA | regB
-  XOR,  // reg, reg    | ac = regA ^ regB
-  CEQ,  // reg, reg    | ac = (regA == regB) ? 1 : 0
-  CNE,  // reg, reg    | ac = (regA != regB) ? 1 : 0
-  CLTS, // reg, reg    | ac = (regA (signed) < regB (signed)) ? 1 : 0
-  CLTU, // reg, reg    | ac = (regA (unsigned) < regB (unsigned)) ? 1 : 0
-  CGES, // reg, reg    | ac = (regA (signed) >= regB (signed)) ? 1 : 0
-  CGEU, // reg, reg    | ac = (regA (unsigned) >= regB (unsigned)) ? 1 : 0
+// A code indicating which action the processor should perform for a given instruction.
+// Representable by one byte.
+typedef enum ProcessorOpcode {
+  PROCESSOR_OPCODE_NOP,
+
+  PROCESSOR_OPCODE_JMP_R,
+  PROCESSOR_OPCODE_JMP_I,
   
-  OPCODE_COUNT, // The number of opcode values. Not a valid opcode itself.
-};
+  PROCESSOR_OPCODE_JMZ_R,
+  PROCESSOR_OPCODE_JMZ_I,
+  
+  PROCESSOR_OPCODE_SLP_R,
+  PROCESSOR_OPCODE_SLP_I,
+  
+  PROCESSOR_OPCODE_SET_R,
+  PROCESSOR_OPCODE_SET_I,
+  
+  PROCESSOR_OPCODE_LDB_R,
+  PROCESSOR_OPCODE_LDB_I,
+  
+  PROCESSOR_OPCODE_LDW_R,
+  PROCESSOR_OPCODE_LDW_I,
+  
+  PROCESSOR_OPCODE_STB_RR,
+  PROCESSOR_OPCODE_STB_RI,
+  PROCESSOR_OPCODE_STB_IR,
+  PROCESSOR_OPCODE_STB_II,
+  
+  PROCESSOR_OPCODE_STW_RR,
+  PROCESSOR_OPCODE_STW_RI,
+  PROCESSOR_OPCODE_STW_IR,
+  PROCESSOR_OPCODE_STW_II,
+  
+  PROCESSOR_OPCODE_PSHB,
+  
+  PROCESSOR_OPCODE_PSHW,
+  
+  PROCESSOR_OPCODE_POPB,
+  
+  PROCESSOR_OPCODE_POPW,
+  
+  PROCESSOR_OPCODE_ADD_R,
+  PROCESSOR_OPCODE_ADD_I,
+  
+  PROCESSOR_OPCODE_SUB_RR,
+  PROCESSOR_OPCODE_SUB_RI,
+  PROCESSOR_OPCODE_SUB_IR,
+  
+  PROCESSOR_OPCODE_MUL_R,
+  PROCESSOR_OPCODE_MUL_I,
+  
+  PROCESSOR_OPCODE_DIVS_RR,
+  PROCESSOR_OPCODE_DIVS_RI,
+  PROCESSOR_OPCODE_DIVS_IR,
+  
+  PROCESSOR_OPCODE_DIVU_RR,
+  PROCESSOR_OPCODE_DIVU_RI,
+  PROCESSOR_OPCODE_DIVU_IR,
+  
+  PROCESSOR_OPCODE_REMS_RR,
+  PROCESSOR_OPCODE_REMS_RI,
+  PROCESSOR_OPCODE_REMS_IR,
+  
+  PROCESSOR_OPCODE_REMU_RR,
+  PROCESSOR_OPCODE_REMU_RI,
+  PROCESSOR_OPCODE_REMU_IR,
+  
+  PROCESSOR_OPCODE_AND_R,
+  PROCESSOR_OPCODE_AND_I,
+  
+  PROCESSOR_OPCODE_IOR_R,
+  PROCESSOR_OPCODE_IOR_I,
+  
+  PROCESSOR_OPCODE_XOR_R,
+  PROCESSOR_OPCODE_XOR_I,
+  
+  PROCESSOR_OPCODE_LSH_RR,
+  PROCESSOR_OPCODE_LSH_RI,
+  PROCESSOR_OPCODE_LSH_IR,
+  
+  PROCESSOR_OPCODE_RSHS_RR,
+  PROCESSOR_OPCODE_RSHS_RI,
+  PROCESSOR_OPCODE_RSHS_IR,
+  
+  PROCESSOR_OPCODE_RSHU_RR,
+  PROCESSOR_OPCODE_RSHU_RI,
+  PROCESSOR_OPCODE_RSHU_IR,
+  
+  PROCESSOR_OPCODE_CEQ_R,
+  PROCESSOR_OPCODE_CEQ_I,
+  
+  PROCESSOR_OPCODE_CNE_R,
+  PROCESSOR_OPCODE_CNE_I,
+  
+  PROCESSOR_OPCODE_CLTS_RR,
+  PROCESSOR_OPCODE_CLTS_RI,
+  PROCESSOR_OPCODE_CLTS_IR,
+  
+  PROCESSOR_OPCODE_CLTU_RR,
+  PROCESSOR_OPCODE_CLTU_RI,
+  PROCESSOR_OPCODE_CLTU_IR,
+  
+  PROCESSOR_OPCODE_CGES_RR,
+  PROCESSOR_OPCODE_CGES_RI,
+  PROCESSOR_OPCODE_CGES_IR,
+  
+  PROCESSOR_OPCODE_CGEU_RR,
+  PROCESSOR_OPCODE_CGEU_RI,
+  PROCESSOR_OPCODE_CGEU_IR,
+
+  PROCESSOR_OPCODE_COUNT
+} ProcessorOpcode;
 
 // Describes how the parameters are laid out for a given opcode.
 struct ParameterLayout {
