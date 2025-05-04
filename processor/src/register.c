@@ -20,6 +20,14 @@ const char* REGISTER_NAMES[REGISTER_COUNT] = {
   "x11",
 };
 
+const char* getRegisterName(Register reg) {
+  if (reg < 0 || reg >= REGISTER_COUNT) {
+    return "?";
+  } else {
+    return REGISTER_NAMES[reg];
+  }
+}
+
 Register nibbleToRegister(uint8_t nibble) {
   if (nibble < REGISTER_COUNT) {
     return nibble;

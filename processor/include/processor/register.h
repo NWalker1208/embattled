@@ -46,15 +46,16 @@ typedef struct RegistersState {
   uint16_t x11;
 } RegistersState;
 
-// The name of each register.
-extern const char* REGISTER_NAMES[];
+// Gets the name for a given register.
+// Returns "?" if the register is not recognized.
+const char* getRegisterName(Register reg);
 
 // Converts the lower 4-bits of a byte to a register.
 // Returns NL if any of the upper 4-bits are set.
 // Note: A valid register can safely be cast to an unsigned char to obtain its nibble value.
 Register nibbleToRegister(uint8_t nibble);
 
-// Gets the pointer to a register's value within a ReigstersState struct.
+// Gets the pointer to a register's value within a RegstersState struct.
 // Returns NULL if the register is NL or if the register is not recognized.
 uint16_t* getRegisterPtr(RegistersState* state, Register reg);
 
