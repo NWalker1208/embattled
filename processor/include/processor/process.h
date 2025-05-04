@@ -1,11 +1,12 @@
 #pragma once
+#include <stdint.h>
 #include "processor/register.h"
 
 #define MEMORY_SIZE 65536
 
-struct ProcessState {
-  struct RegistersState registers;
-  unsigned char memory[MEMORY_SIZE];
-};
+typedef struct ProcessState {
+  RegistersState registers;
+  uint8_t memory[MEMORY_SIZE];
+} ProcessState;
 
-void stepProcess(struct ProcessState* state);
+void stepProcess(ProcessState* state);

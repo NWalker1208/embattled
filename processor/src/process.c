@@ -2,7 +2,7 @@
 #include "processor/process.h"
 #include "processor/instruction.h"
 
-void stepProcess(struct ProcessState* state) {
+void stepProcess(ProcessState* state) {
   struct Instruction instr = { 0 };
   state->registers.ip += fetchInstruction(state->memory, state->registers.ip, &instr);
 
