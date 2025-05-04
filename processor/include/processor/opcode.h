@@ -114,42 +114,41 @@ typedef enum ProcessorOpcode {
   PROCESSOR_OPCODE_COUNT
 } ProcessorOpcode;
 
-// Describes how the parameters are laid out for a given opcode.
-struct ParameterLayout {
-  unsigned char numBytes : 2; // The number of bytes used to store all parameters.
-  bool hasRegA : 1; // Whether register A is used.
-  bool hasRegB : 1; // Whether register B is used.
-  unsigned char numImmBits : 5; // The number of bits used to store the immediate value.
-  bool immIsSigned : 1; // Whether the immediate value is treated as signed.
-};
+// Describes how the parameters are laid out in memory for a given opcode.
+typedef struct ProcessorParameterLayout {
+  unsigned char numBytes : 3; // The number of bytes used to store all parameters (0-4).
+  bool hasRegA : 1; // Whether register A is present.
+  bool hasRegB : 1; // Whether register B is present.
+  bool hasRegC : 1; // Whether register C is present.
+  unsigned char numImmABits : 5; // The number of bits used to store immediate value A (0, 4, 8, or 16).
+  bool hasImmB : 1; // Whether immediate value B (16-bit) is present.
+} ProcessorParameterLayout;
 
-#define PARAM_LAYOUT(_numBytes, _hasRegA, _hasRegB, _numImmBits, _immIsSigned) \
-  (struct ParameterLayout){ \
+#define _PROCESSOR_PARAMETER_LAYOUT(_numBytes, _hasRegA, _hasRegB, _hasRegC, _numImmABits, _hasImmB) \
+  (struct ProcessorParameterLayout){ \
     .numBytes=(_numBytes), \
     .hasRegA=(_hasRegA), \
     .hasRegB=(_hasRegB), \
-    .numImmBits=(_numImmBits), \
-    .immIsSigned=(_immIsSigned) \
+    .hasRegC=(_hasRegC), \
+    .numImmABits=(_numImmABits), \
+    .hasImmB=(_hasImmB) \
   }
 // 0 bytes
-#define PARAM_LAYOUT_NONE             PARAM_LAYOUT(0, false, false, 0, false)
+#define PROCESSOR_PARAMETER_LAYOUT_NONE             _PROCESSOR_PARAMETER_LAYOUT(0, false, false, false, 0, false)
 // 1 byte
-#define PARAM_LAYOUT_IMMU8            PARAM_LAYOUT(1, false, false, 8, false)
-#define PARAM_LAYOUT_IMMS8            PARAM_LAYOUT(1, false, false, 8, true)
-#define PARAM_LAYOUT_REGA_IMMU4       PARAM_LAYOUT(1, true, false, 4, false)
-#define PARAM_LAYOUT_REGA_IMMS4       PARAM_LAYOUT(1, true, false, 4, true)
-#define PARAM_LAYOUT_REGA             PARAM_LAYOUT(1, true, false, 0, false)
-#define PARAM_LAYOUT_REGA_REGB        PARAM_LAYOUT(1, true, true, 0, false)
+#define PROCESSOR_PARAMETER_LAYOUT_REGA             _PROCESSOR_PARAMETER_LAYOUT(1, true, false, false, 0, false)
+#define PROCESSOR_PARAMETER_LAYOUT_REGA_REGB        _PROCESSOR_PARAMETER_LAYOUT(1, true, true, false, 0, false)
 // 2 bytes
-#define PARAM_LAYOUT_IMMU16           PARAM_LAYOUT(2, false, false, 16, false)
-#define PARAM_LAYOUT_IMMS16           PARAM_LAYOUT(2, false, false, 16, true)
-#define PARAM_LAYOUT_REGA_IMMU12      PARAM_LAYOUT(2, true, false, 12, false)
-#define PARAM_LAYOUT_REGA_IMMS12      PARAM_LAYOUT(2, true, false, 12, true)
-#define PARAM_LAYOUT_REGA_REGB_IMMU8  PARAM_LAYOUT(2, true, true, 8, false)
-#define PARAM_LAYOUT_REGA_REGB_IMMS8  PARAM_LAYOUT(2, true, true, 8, true)
+#define PROCESSOR_PARAMETER_LAYOUT_IMMA16           _PROCESSOR_PARAMETER_LAYOUT(2, false, false, false, 16, false)
+#define PROCESSOR_PARAMETER_LAYOUT_REGA_IMMA8       _PROCESSOR_PARAMETER_LAYOUT(2, true, false, false, 8, false)
+#define PROCESSOR_PARAMETER_LAYOUT_REGA_REGB_IMMA4  _PROCESSOR_PARAMETER_LAYOUT(2, true, true, false, 4, false)
+#define PROCESSOR_PARAMETER_LAYOUT_REGA_REGB_REGC   _PROCESSOR_PARAMETER_LAYOUT(2, true, true, true, 0, false)
 // 3 bytes
-#define PARAM_LAYOUT_REGA_REGB_IMMU16 PARAM_LAYOUT(3, true, true, 16, false)
-#define PARAM_LAYOUT_REGA_REGB_IMMS16 PARAM_LAYOUT(3, true, true, 16, true)
+#define PROCESSOR_PARAMETER_LAYOUT_IMMA8_IMMB16     _PROCESSOR_PARAMETER_LAYOUT(3, false, false, false, 8, true)
+#define PROCESSOR_PARAMETER_LAYOUT_REGA_IMMA16      _PROCESSOR_PARAMETER_LAYOUT(3, true, false, false, 16, false)
+#define PROCESSOR_PARAMETER_LAYOUT_REGA_REGB_IMMA16 _PROCESSOR_PARAMETER_LAYOUT(3, true, true, false, 16, false)
+// 4 bytes
+#define PROCESSOR_PARAMETER_LAYOUT_IMMA16_IMMB16    _PROCESSOR_PARAMETER_LAYOUT(4, false, false, false, 16, true)
 
 // Describes the details of a particular opcode.
 struct OpcodeInfo {
