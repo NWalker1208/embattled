@@ -112,11 +112,43 @@ void execute_cgeu_ir(ProcessState* state, InstructionOperands operands);
 #pragma endregion
 
 const OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
-  {
-    .identifier = "nop",
-    .operandLayout = OPERAND_LAYOUT_NONE,
-  }
-  // TODO: Define info for other opcodes
+  { .identifier = "nop", .operandLayout = OPERAND_LAYOUT_NONE, .execute = execute_nop, },
+
+  { .identifier = "jmp_r", .operandLayout = OPERAND_LAYOUT_REGA, .execute = execute_jmp_r, },
+  { .identifier = "jmp_i", .operandLayout = OPERAND_LAYOUT_IMMA16, .execute = execute_jmp_i, },
+  
+  { .identifier = "jmz_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB, .execute = execute_jmz_r, },
+  { .identifier = "jmz_i", .operandLayout = OPERAND_LAYOUT_REGA_IMMA16, .execute = execute_jmz_i, },
+  
+  { .identifier = "slp_r", .operandLayout = OPERAND_LAYOUT_REGA, .execute = execute_slp_r, },
+  { .identifier = "slp_i", .operandLayout = OPERAND_LAYOUT_IMMA16, .execute = execute_slp_i, },
+  
+  { .identifier = "set_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB, .execute = execute_set_r, },
+  { .identifier = "set_i", .operandLayout = OPERAND_LAYOUT_REGA_IMMA16, .execute = execute_set_i, },
+  
+  { .identifier = "ldb_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB, .execute = execute_ldb_r, },
+  { .identifier = "ldb_i", .operandLayout = OPERAND_LAYOUT_REGA_IMMA16, .execute = execute_ldb_i, },
+  
+  { .identifier = "ldw_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB, .execute = execute_ldw_r, },
+  { .identifier = "ldw_i", .operandLayout = OPERAND_LAYOUT_REGA_IMMA16, .execute = execute_ldw_i, },
+  
+  { .identifier = "stb_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB, .execute = execute_stb_rr, },
+  { .identifier = "stb_ri", .operandLayout = OPERAND_LAYOUT_REGA_IMMA16, .execute = execute_stb_ri, },
+  { .identifier = "stb_ir", .operandLayout = OPERAND_LAYOUT_REGA_IMMA8, .execute = execute_stb_ir, },
+  { .identifier = "stb_ii", .operandLayout = OPERAND_LAYOUT_IMMA8_IMMB16, .execute = execute_stb_ii, },
+  
+  { .identifier = "stw_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB, .execute = execute_stw_rr, },
+  { .identifier = "stw_ri", .operandLayout = OPERAND_LAYOUT_REGA_IMMA16, .execute = execute_stw_ri, },
+  { .identifier = "stw_ir", .operandLayout = OPERAND_LAYOUT_REGA_IMMA16, .execute = execute_stw_ir, },
+  { .identifier = "stw_ii", .operandLayout = OPERAND_LAYOUT_IMMA16_IMMB16, .execute = execute_stw_ii, },
+  
+  { .identifier = "pshb", .operandLayout = OPERAND_LAYOUT_REGA, .execute = execute_pshb, },
+  
+  { .identifier = "pshw", .operandLayout = OPERAND_LAYOUT_REGA, .execute = execute_pshw, },
+  
+  { .identifier = "popb", .operandLayout = OPERAND_LAYOUT_REGA, .execute = execute_popb, },
+  
+  { .identifier = "popw", .operandLayout = OPERAND_LAYOUT_REGA, .execute = execute_popw, },
 };
 
 const OpcodeInfo* getOpcodeInfo(Opcode opcode) {
