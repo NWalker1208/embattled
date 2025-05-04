@@ -3,35 +3,35 @@
 // TODO: Add prefix to enum value names
 
 // A value representing a particular register to be used in an instruction.
-enum Register {
+typedef enum Register {
   // Special registers
-  NL, // Null register. Always 0.
-  IP, // Instruction pointer. Address of the next instruction to execute.
-  SP, // Stack pointer. Address of the top of the stack.
-  AC, // Accumulator. Holds the result of most instructions.
+  REGISTER_NL, // Null register. Always 0.
+  REGISTER_IP, // Instruction pointer. Address of the next instruction to execute.
+  REGISTER_SP, // Stack pointer. Address of the top of the stack.
+  REGISTER_RT, // Return pointer. Address of the next instruction prior to performing a jump.
   // General registers
-  X0,
-  X1,
-  X2,
-  X3,
-  X4,
-  X5,
-  X6,
-  X7,
-  X8,
-  X9,
-  X10,
-  X11,
+  REGISTER_X0,
+  REGISTER_X1,
+  REGISTER_X2,
+  REGISTER_X3,
+  REGISTER_X4,
+  REGISTER_X5,
+  REGISTER_X6,
+  REGISTER_X7,
+  REGISTER_X8,
+  REGISTER_X9,
+  REGISTER_X10,
+  REGISTER_X11,
 
-  REGISTER_COUNT, // The number of registers. Not a valid register itself.
-};
+  REGISTER_COUNT, // The number of registers.
+} Register;
 
 // Holds the state of all registers.
-struct RegistersState {
+typedef struct RegistersState {
   // Special registers
   unsigned short ip;
   unsigned short sp;
-  unsigned short ac;
+  unsigned short rt;
   // General registers
   unsigned short x0;
   unsigned short x1;
@@ -45,7 +45,7 @@ struct RegistersState {
   unsigned short x9;
   unsigned short x10;
   unsigned short x11;
-};
+} RegistersState;
 
 // The name of each register.
 extern const char* REGISTER_NAMES[];
@@ -53,11 +53,11 @@ extern const char* REGISTER_NAMES[];
 // Converts the lower 4-bits of a byte to a register.
 // Returns NL if any of the upper 4-bits are set.
 // Note: A valid register can safely be cast to an unsigned char to obtain its nibble value.
-enum Register nibbleToRegister(unsigned char nibble);
+Register nibbleToRegister(unsigned char nibble);
 
 // Gets the pointer to a register's value within a ReigstersState struct.
 // Returns NULL if the register is NL or if the register is not recognized.
-unsigned short* getRegisterPtr(struct RegistersState* state, enum Register reg);
+unsigned short* getRegisterPtr(RegistersState* state, Register reg);
 
 // Prints the state of the registers to stdout in a human-readable format.
-void printRegistersState(const struct RegistersState* state);
+void printRegistersState(const RegistersState* state);
