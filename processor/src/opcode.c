@@ -149,6 +149,75 @@ const OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
   { .identifier = "popb", .operandLayout = OPERAND_LAYOUT_REGA, .execute = execute_popb, },
   
   { .identifier = "popw", .operandLayout = OPERAND_LAYOUT_REGA, .execute = execute_popw, },
+  
+  { .identifier = "add_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_add_r, },
+  { .identifier = "add_i", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_add_i, },
+  
+  { .identifier = "sub_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_sub_rr, },
+  { .identifier = "sub_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_sub_ri, },
+  { .identifier = "sub_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_sub_ir, },
+  
+  { .identifier = "mul_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_mul_r, },
+  { .identifier = "mul_i", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_mul_i, },
+  
+  { .identifier = "divs_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_divs_rr, },
+  { .identifier = "divs_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_divs_ri, },
+  { .identifier = "divs_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_divs_ir, },
+  
+  { .identifier = "divu_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_divu_rr, },
+  { .identifier = "divu_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_divu_ri, },
+  { .identifier = "divu_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_divu_ir, },
+  
+  { .identifier = "rems_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_rems_rr, },
+  { .identifier = "rems_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_rems_ri, },
+  { .identifier = "rems_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_rems_ir, },
+  
+  { .identifier = "remu_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_remu_rr, },
+  { .identifier = "remu_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_remu_ri, },
+  { .identifier = "remu_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_remu_ir, },
+  
+  { .identifier = "and_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_and_r, },
+  { .identifier = "and_i", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_and_i, },
+  
+  { .identifier = "ior_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_ior_r, },
+  { .identifier = "ior_i", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_ior_i, },
+  
+  { .identifier = "xor_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_xor_r, },
+  { .identifier = "xor_i", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_xor_i, },
+  
+  { .identifier = "lsh_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_lsh_rr, },
+  { .identifier = "lsh_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA4, .execute = execute_lsh_ri, },
+  { .identifier = "lsh_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_lsh_ir, },
+  
+  { .identifier = "rshs_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_rshs_rr, },
+  { .identifier = "rshs_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA4, .execute = execute_rshs_ri, },
+  { .identifier = "rshs_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_rshs_ir, },
+  
+  { .identifier = "rshu_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_rshu_rr, },
+  { .identifier = "rshu_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA4, .execute = execute_rshu_ri, },
+  { .identifier = "rshu_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_rshu_ir, },
+  
+  { .identifier = "ceq_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_ceq_r, },
+  { .identifier = "ceq_i", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_ceq_i, },
+  
+  { .identifier = "cne_r", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_cne_r, },
+  { .identifier = "cne_i", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cne_i, },
+  
+  { .identifier = "clts_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_clts_rr, },
+  { .identifier = "clts_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_clts_ri, },
+  { .identifier = "clts_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_clts_ir, },
+  
+  { .identifier = "cltu_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_cltu_rr, },
+  { .identifier = "cltu_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cltu_ri, },
+  { .identifier = "cltu_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cltu_ir, },
+  
+  { .identifier = "cges_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_cges_rr, },
+  { .identifier = "cges_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cges_ri, },
+  { .identifier = "cges_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cges_ir, },
+  
+  { .identifier = "cgeu_rr", .operandLayout = OPERAND_LAYOUT_REGA_REGB_REGC, .execute = execute_cgeu_rr, },
+  { .identifier = "cgeu_ri", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cgeu_ri, },
+  { .identifier = "cgeu_ir", .operandLayout = OPERAND_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cgeu_ir, },
 };
 
 const OpcodeInfo* getOpcodeInfo(Opcode opcode) {
