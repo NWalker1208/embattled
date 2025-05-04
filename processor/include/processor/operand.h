@@ -1,5 +1,7 @@
 #pragma once
 #include <stdbool.h>
+#include <stdint.h>
+#include "processor/register.h"
 
 // Describes how the operands are laid out in memory for a given opcode.
 typedef struct OperandLayout {
@@ -36,3 +38,12 @@ typedef struct OperandLayout {
 #define OPERAND_LAYOUT_REGA_REGB_IMMA16 _OPERAND_LAYOUT(3, true, true, false, 16, false)
 // 4 bytes
 #define OPERAND_LAYOUT_IMMA16_IMMB16    _OPERAND_LAYOUT(4, false, false, false, 16, true)
+
+// The operands for an instruction to execute.
+typedef struct InstructionOperands {
+  Register regA;
+  Register regB;
+  Register regC;
+  uint16_t immA;
+  uint16_t immB;
+} InstructionOperands;
