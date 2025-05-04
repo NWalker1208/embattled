@@ -20,7 +20,7 @@ const char* REGISTER_NAMES[REGISTER_COUNT] = {
   "x11",
 };
 
-const char* getRegisterName(Register reg) {
+const char* getRegisterIdentifier(Register reg) {
   if (reg < 0 || reg >= REGISTER_COUNT) {
     return "?";
   } else {

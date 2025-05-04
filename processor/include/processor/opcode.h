@@ -1,5 +1,7 @@
 #pragma once
+#include <stdint.h>
 #include "processor/operand.h"
+#include "processor/process.h"
 
 // A code indicating which action the processor should perform for a given instruction.
 // Representable by one byte.
@@ -115,16 +117,17 @@ typedef enum Opcode {
 } Opcode;
 
 // Describes the details of a particular opcode.
-struct OpcodeInfo {
-  const char* name;
-  struct ParameterLayout parameterLayout;
-  // TODO: Consider adding function pointer for implementation.
-};
+typedef struct OpcodeInfo {
+  const char* identifier; // The identifier of the opcode as a string.
+  OperandLayout operandLayout; // The layout of the opcode's operands.
+  void (*execute)(ProcessState* state, InstructionOperands operands); // A function which executes the opcode against the provided process state and with the provided operands.
+} OpcodeInfo;
 
-// The details of each opcode. Can be indexed directly by a valid Opcode value.
-extern const struct OpcodeInfo OPCODE_INFO[];
+// Gets the info for the specified opcode.
+// If the opcode is invalid, returns NULL.
+const OpcodeInfo* getOpcodeInfo(Opcode opcode);
 
 // Converts a byte to an opcode.
 // Returns NOP if the byte is not a valid opcode.
-// Note: A valid opcode can safely be cast to an unsigned char to obtain its byte value.
-enum Opcode byteToOpcode(unsigned char byte);
+// Note: A valid opcode can safely be cast to a uint8_t to obtain its byte value.
+Opcode byteToOpcode(uint8_t byte);

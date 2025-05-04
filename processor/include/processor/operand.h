@@ -14,7 +14,7 @@ typedef struct OperandLayout {
 } OperandLayout;
 
 #define _OPERAND_LAYOUT(_numBytes, _hasRegA, _hasRegB, _hasRegC, _numImmABits, _hasImmB) \
-  (struct ProcessorOperandLayout){ \
+  (OperandLayout){ \
     .numBytes=(_numBytes), \
     .hasRegA=(_hasRegA), \
     .hasRegB=(_hasRegB), \
