@@ -1,70 +1,85 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <assert.h>
 #include "processor/instruction.h"
 
 uint16_t fetchInstruction(const uint8_t* memory, uint16_t addr, Instruction* instructionOut) {
-  instruction->opcode = byteToOpcode(memory[addr]);
-  addr++;
+  // Read the opcode from memory.
+  instructionOut->opcode = byteToOpcode(memory[addr]);
 
-  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction->opcode];
-
-  // Read the parameter bytes from memory.
-  unsigned char numBytes = opcodeInfo->parameterLayout.numBytes;
-  if (numBytes == 0) {
+  const OpcodeInfo* opcodeInfo = getOpcodeInfo(instructionOut->opcode);
+  uint8_t numBytes = opcodeInfo->layout.numBytes;
+  
+  if (numBytes == 1) {
+    instructionOut->operands = (InstructionOperands){0};
     return 1;
   }
 
-  unsigned char parameterBytes[3];
-  for (int i = 0; i < numBytes; i++) {
-    parameterBytes[i] = memory[addr];
+  // Read the operand bytes from memory.
+  addr++;
+  uint8_t numOperandBytes = numBytes - 1;
+  unsigned char operandBytes[4] = { 0 };
+  for (int i = 0; i < numOperandBytes; i++) {
+    operandBytes[i] = memory[addr];
     addr++;
   }
 
-  // Extract the register values from the parameter bytes.
-  bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
-  bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
+  // Decode the register operands.
+  bool hasRegA = opcodeInfo->layout.hasRegA;
+  bool hasRegB = opcodeInfo->layout.hasRegB;
+  bool hasRegC = opcodeInfo->layout.hasRegC;
 
   if (hasRegA) {
-    instruction->parameters.registerA = nibbleToRegister(parameterBytes[numBytes - 1] >> 4);
+    instructionOut->operands.registerA = nibbleToRegister(operandBytes[numOperandBytes - 1] >> 4);
+  } else {
+    instructionOut->operands.registerA = REGISTER_NL;
   }
 
   if (hasRegB) {
-    instruction->parameters.registerB = nibbleToRegister(parameterBytes[numBytes - 1] & 0xF);
+    instructionOut->operands.registerB = nibbleToRegister(operandBytes[numOperandBytes - 1] & 0xF);
+  } else {
+    instructionOut->operands.registerB = REGISTER_NL;
   }
 
-  // Extract the immediate value from the parameter bytes.
-  unsigned short value;
-  switch (numBytes) {
-    case 1:
-      if (!hasRegB) {
-        value = parameterBytes[0];
-        if (!hasRegA) {
-          instruction->parameters.immediate.u8 = value;
-        } else {
-          instruction->parameters.immediate.u4 = value;
-        }
-      }
-      break;
-    case 2:
-      value = ((unsigned short)parameterBytes[1] << 8) | (unsigned short)parameterBytes[0];
-      if (!hasRegB) {
-        if (!hasRegA) {
-          instruction->parameters.immediate.u16 = value;
-        } else {
-          instruction->parameters.immediate.u12 = value;
-        }
-      } else {
-        instruction->parameters.immediate.u8 = value;
-      }
-      break;
-    case 3:
-      value = ((unsigned short)parameterBytes[1] << 8) | (unsigned short)parameterBytes[0];
-      instruction->parameters.immediate.u16 = value;
-      break;
+  if (hasRegC) {
+    instructionOut->operands.registerC = nibbleToRegister(operandBytes[numOperandBytes - 2] >> 4);
+  } else {
+    instructionOut->operands.registerC = REGISTER_NL;
   }
 
-  return 1 + numBytes;
+  // Decode the immediate values.
+  uint8_t numImmABits = opcodeInfo->layout.numImmABits;
+  bool hasImmB = opcodeInfo->layout.hasImmB;
+
+  assert(numImmABits == 0 || numImmABits == 4 || numImmABits == 8 || numImmABits == 16);
+  uint8_t immBOffset;
+  switch (numImmABits) {
+    case 0: {
+      instructionOut->operands.immediateA.u16 = 0;
+      immBOffset = 0;
+    } break;
+    case 4: {
+      instructionOut->operands.immediateA.u16 = (uint16_t)(operandBytes[0] & 0xF);
+      immBOffset = 1;
+    } break;
+    case 8: {
+      instructionOut->operands.immediateA.u16 = (uint16_t)operandBytes[0];
+      immBOffset = 1;
+    } break;
+    case 16: {
+      instructionOut->operands.immediateA.u16 = (uint16_t)operandBytes[0] | ((uint16_t)operandBytes[1] << 8);
+      immBOffset = 2;
+    } break;
+  }
+
+  if (hasImmB) {
+    instructionOut->operands.immediateB.u16 = (uint16_t)operandBytes[immBOffset] | ((uint16_t)operandBytes[immBOffset + 1] << 8)
+  } else {
+    instructionOut->operands.immediateB.u16 = 0;
+  }
+
+  return numBytes;
 }
 
 uint16_t writeInstruction(uint8_t* memory, uint16_t addr, Instruction instruction) {
