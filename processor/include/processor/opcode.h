@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "processor/layout.h"
 #include "processor/operand.h"
 #include "processor/process.h"
 
@@ -119,7 +120,7 @@ typedef enum Opcode {
 // Describes the details of a particular opcode.
 typedef struct OpcodeInfo {
   const char* identifier; // The identifier of the opcode as a string.
-  OperandLayout operandLayout; // The layout of the opcode's operands.
+  InstructionLayout layout; // The memory layout of instructions using this opcode.
   void (*execute)(ProcessState* state, InstructionOperands operands); // A function which executes the opcode against the provided process state and with the provided operands.
 } OpcodeInfo;
 
