@@ -11,14 +11,15 @@ typedef struct Instruction {
 } Instruction;
 
 // Fetches an instruction from memory at the specified address.
-// Outputs the fetched instruction through instruction.
-// Returns the number of bytes read (between 1 and 4, inclusive).
-unsigned short fetchInstruction(const unsigned char* memory, unsigned short addr, struct Instruction* instruction);
+// If there is a valid instruction at the address, outputs the fetched instruction and
+// returns the number of bytes read (between 1 and 4, inclusive).
+// Otherwise, outputs a NOP instruction and returns 1.
+uint16_t fetchInstruction(const uint8_t* memory, uint16_t addr, Instruction* instructionOut);
 
-// Stores the given instruction to memory at the specified address.
-// Returns the number of bytes written (between 0 and 4, inclusive).
-// Returns 0 if the instruction is invalid.
-unsigned short storeInstruction(unsigned char* memory, unsigned short addr, struct Instruction instruction);
+// Writes the given instruction to memory at the specified address.
+// If the instruction is valid, returns the number of bytes written (between 1 and 4, inclusive).
+// Otherwise, returns 0.
+uint16_t writeInstruction(uint8_t* memory, uint16_t addr, Instruction instruction);
 
 // Prints the instruction to stdout in a human-readable format.
-void printInstruction(struct Instruction instruction);
+void printInstruction(Instruction instruction);

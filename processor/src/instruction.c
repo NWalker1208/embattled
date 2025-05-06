@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "processor/instruction.h"
 
-unsigned short fetchInstruction(const unsigned char* memory, unsigned short addr, struct Instruction* instruction) {
+uint16_t fetchInstruction(const uint8_t* memory, uint16_t addr, Instruction* instructionOut) {
   instruction->opcode = byteToOpcode(memory[addr]);
   addr++;
 
@@ -67,7 +67,7 @@ unsigned short fetchInstruction(const unsigned char* memory, unsigned short addr
   return 1 + numBytes;
 }
 
-unsigned short storeInstruction(unsigned char* memory, unsigned short addr, struct Instruction instruction) {
+uint16_t writeInstruction(uint8_t* memory, uint16_t addr, Instruction instruction) {
   // Write the opcode byte to memory, if it is valid
   enum Opcode opcode = instruction.opcode;
   if (opcode < 0 || opcode >= OPCODE_COUNT) {
@@ -110,7 +110,7 @@ unsigned short storeInstruction(unsigned char* memory, unsigned short addr, stru
   return 1 + numBytes;
 }
 
-void printInstruction(struct Instruction instruction) {
+void printInstruction(Instruction instruction) {
   if (instruction.opcode < 0 || instruction.opcode >= OPCODE_COUNT) {
     printf("opcode=INVALID\n");
     return;
