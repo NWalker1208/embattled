@@ -1,32 +1,14 @@
 #pragma once
+#include <stdint.h>
 #include "processor/opcode.h"
+#include "processor/operand.h"
 #include "processor/register.h"
 
-// The value of the immediate parameter encoded in an instruction.
-union ImmediateValue {
-  unsigned short u16 : 16;
-  unsigned short u12 : 12;
-  unsigned short u8 : 8;
-  unsigned short u4 : 4;
-
-  signed short s16 : 16;
-  signed short s12 : 12;
-  signed short s8 : 8;
-  signed short s4 : 4;
-};
-
-// Represents the parameters of an instruction as fetched from memory.
-struct InstructionParameters {
-  enum Register registerA;
-  enum Register registerB;
-  union ImmediateValue immediate;
-};
-
-// An instruction that has been fetched from memory.
-struct Instruction {
-  enum Opcode opcode;
-  struct InstructionParameters parameters;
-};
+// An instruction consisting of an opcode and zero or more operands.
+typedef struct Instruction {
+  Opcode opcode;
+  InstructionOperands operands;
+} Instruction;
 
 // Fetches an instruction from memory at the specified address.
 // Outputs the fetched instruction through instruction.
