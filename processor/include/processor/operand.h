@@ -5,11 +5,11 @@
 
 // Describes how the operands are laid out in memory for a given opcode.
 typedef struct OperandLayout {
-  unsigned char numBytes : 3; // The number of bytes used to store all parameters (0-4).
+  uint8_t numBytes : 3; // The number of bytes used to store all parameters (0-4).
   bool hasRegA : 1; // Whether register A is present.
   bool hasRegB : 1; // Whether register B is present.
   bool hasRegC : 1; // Whether register C is present.
-  unsigned char numImmABits : 5; // The number of bits used to store immediate value A (0, 4, 8, or 16).
+  uint8_t numImmABits : 5; // The number of bits used to store immediate value A (0, 4, 8, or 16).
   bool hasImmB : 1; // Whether immediate value B (16-bit) is present.
 } OperandLayout;
 
