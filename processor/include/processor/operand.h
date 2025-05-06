@@ -22,22 +22,23 @@ typedef struct OperandLayout {
     .numImmABits=(_numImmABits), \
     .hasImmB=(_hasImmB) \
   }
+
 // 0 bytes
-#define OPERAND_LAYOUT_NONE             _OPERAND_LAYOUT(0, false, false, false, 0, false)
+#define OPERAND_LAYOUT_NONE             _OPERAND_LAYOUT(0, false, false, false, 0, false)  // [ opcode (8 bits) ]
 // 1 byte
-#define OPERAND_LAYOUT_REGA             _OPERAND_LAYOUT(1, true, false, false, 0, false)
-#define OPERAND_LAYOUT_REGA_REGB        _OPERAND_LAYOUT(1, true, true, false, 0, false)
+#define OPERAND_LAYOUT_REGA             _OPERAND_LAYOUT(1, true, false, false, 0, false)   // [ opcode (8 bits) ][ reg A (4 bits)  | unused (4 bits)    ]
+#define OPERAND_LAYOUT_REGA_REGB        _OPERAND_LAYOUT(1, true, true, false, 0, false)    // [ opcode (8 bits) ][ reg A (4 bits)  | reg B (4 bits)     ]
 // 2 bytes
-#define OPERAND_LAYOUT_IMMA16           _OPERAND_LAYOUT(2, false, false, false, 16, false)
-#define OPERAND_LAYOUT_REGA_IMMA8       _OPERAND_LAYOUT(2, true, false, false, 8, false)
-#define OPERAND_LAYOUT_REGA_REGB_IMMA4  _OPERAND_LAYOUT(2, true, true, false, 4, false)
-#define OPERAND_LAYOUT_REGA_REGB_REGC   _OPERAND_LAYOUT(2, true, true, true, 0, false)
+#define OPERAND_LAYOUT_IMMA16           _OPERAND_LAYOUT(2, false, false, false, 16, false) // [ opcode (8 bits) ][ immA[0:7] (8 bits)                   ][ immA[8:15] (8 bits)              ]
+#define OPERAND_LAYOUT_REGA_IMMA8       _OPERAND_LAYOUT(2, true, false, false, 8, false)   // [ opcode (8 bits) ][ immA[0:7] (8 bits)                   ][ reg A (4 bits) | unused (4 bits) ]
+#define OPERAND_LAYOUT_REGA_REGB_IMMA4  _OPERAND_LAYOUT(2, true, true, false, 4, false)    // [ opcode (8 bits) ][ unused (4 bits) | immA[0:3] (4 bits) ][ reg A (4 bits) | reg B (4 bits)  ]
+#define OPERAND_LAYOUT_REGA_REGB_REGC   _OPERAND_LAYOUT(2, true, true, true, 0, false)     // [ opcode (8 bits) ][ reg C (4 bits)  | unused (4 bits)    ][ reg A (4 bits) | reg B (4 bits)  ]
 // 3 bytes
-#define OPERAND_LAYOUT_IMMA8_IMMB16     _OPERAND_LAYOUT(3, false, false, false, 8, true)
-#define OPERAND_LAYOUT_REGA_IMMA16      _OPERAND_LAYOUT(3, true, false, false, 16, false)
-#define OPERAND_LAYOUT_REGA_REGB_IMMA16 _OPERAND_LAYOUT(3, true, true, false, 16, false)
+#define OPERAND_LAYOUT_IMMA8_IMMB16     _OPERAND_LAYOUT(3, false, false, false, 8, true)   // [ opcode (8 bits) ][ immA[0:7] (8 bits)                   ][ immB[0:7] (8 bits)               ][ immB[8:15] (8 bits)              ]
+#define OPERAND_LAYOUT_REGA_IMMA16      _OPERAND_LAYOUT(3, true, false, false, 16, false)  // [ opcode (8 bits) ][ immA[0:7] (8 bits)                   ][ immA[8:15] (8 bits)              ][ reg A (4 bits) | unused (4 bits) ]
+#define OPERAND_LAYOUT_REGA_REGB_IMMA16 _OPERAND_LAYOUT(3, true, true, false, 16, false)   // [ opcode (8 bits) ][ immA[0:7] (8 bits)                   ][ immA[8:15] (8 bits)              ][ reg A (4 bits) | reg B (4 bits)  ]
 // 4 bytes
-#define OPERAND_LAYOUT_IMMA16_IMMB16    _OPERAND_LAYOUT(4, false, false, false, 16, true)
+#define OPERAND_LAYOUT_IMMA16_IMMB16    _OPERAND_LAYOUT(4, false, false, false, 16, true)  // [ opcode (8 bits) ][ immA[0:7] (8 bits)                   ][ immA[8:15] (8 bits)              ][ immB[0:7] (8 bits)               ][ immB[8:15] (8 bits) ]
 
 // The operands for an instruction to execute.
 typedef struct InstructionOperands {

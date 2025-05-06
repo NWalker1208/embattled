@@ -2,16 +2,6 @@
 #include "processor/opcode.h"
 #include "processor/register.h"
 
-// Example layouts:
-// [ opcode (8 bits) ]
-// [ opcode (8 bits) | imm[0:7] (8 bits)                       ]
-// [ opcode (8 bits) | reg A (4 bits)     | imm[0:3] (4 bits)  ]
-// [ opcode (8 bits) | reg A (4 bits)     | reg B (4 bits)     ]
-// [ opcode (8 bits) | imm[0:15] (16 bits)                                                               ]
-// [ opcode (8 bits) | imm[0:7] (8 bits)                       | reg A (4 bits)     | imm[8:11] (4 bits) ]
-// [ opcode (8 bits) | imm[0:7] (8 bits)                       | reg A (4 bits)     | reg B (4 bits)     ]
-// [ opcode (8 bits) | imm[0:15] (16 bits)                                                               | reg A (4 bits)     | reg B (4 bits)     ]
-
 // The value of the immediate parameter encoded in an instruction.
 union ImmediateValue {
   unsigned short u16 : 16;
