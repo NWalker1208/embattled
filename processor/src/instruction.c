@@ -48,7 +48,7 @@ uint16_t fetchInstruction(const uint8_t* memory, uint16_t addr, Instruction* ins
     instructionOut->operands.registerC = REGISTER_NL;
   }
 
-  // Decode the immediate values.
+  // Decode the immediate value operands.
   uint8_t numImmABits = opcodeInfo->layout.numImmABits;
   bool hasImmB = opcodeInfo->layout.hasImmB;
 
@@ -83,46 +83,70 @@ uint16_t fetchInstruction(const uint8_t* memory, uint16_t addr, Instruction* ins
 }
 
 uint16_t writeInstruction(uint8_t* memory, uint16_t addr, Instruction instruction) {
-  // Write the opcode byte to memory, if it is valid
-  enum Opcode opcode = instruction.opcode;
-  if (opcode < 0 || opcode >= OPCODE_COUNT) {
+  // Check if the opcode is valid and get the associated info.
+  const OpcodeInfo* opcodeInfo = getOpcodeInfo(instruction.opcode);
+  if (opcodeInfo == NULL) {
     return 0;
   }
 
-  memory[addr] = (unsigned char)opcode;
+  // Write the opcode byte to memory.
+  memory[addr] = (uint8_t)instruction.opcode;
   addr++;
   
-  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
-  unsigned char numBytes = opcodeInfo->parameterLayout.numBytes;
-  if (numBytes == 0) {
+  uint8_t numBytes = opcodeInfo->layout.numBytes;
+  if (numBytes == 1) {
     return 1;
   }
 
-  // Write the immediate value to memory
-  switch (numBytes) {
-    case 1:
-      memory[addr] = (unsigned char)instruction.parameters.immediate.u8;
-      break;
-    case 2: 
-    case 3:
-      memory[addr] = (unsigned char)(instruction.parameters.immediate.u16 & 0xFF);
-      memory[addr + 1] = (unsigned char)(instruction.parameters.immediate.u16 >> 8);
+  // Encode the immediate value operands.
+  uint8_t numImmABits = opcodeInfo->layout.numImmABits;
+  bool hasImmB = opcodeInfo->layout.hasImmB;
+
+  if (numImmABits > 0) {
+    if (numImmABits == 4) {
+      memory[addr] = (uint8_t)(instruction.operands.immediateA.u16 & 0x0F);
+    } else {
+      memory[addr] = (uint8_t)(instruction.operands.immediateA.u16 & 0xFF);
+    }
+    addr++;
+    if (numImmABits == 16) {
+      memory[addr] = (uint8_t)(instruction.operands.immediateA.u16 >> 8);
+      addr++;
+    }
   }
-  addr += numBytes - 1;
+  if (hasImmB) {
+    memory[addr] = (uint8_t)(instruction.operands.immediateB.u16 & 0xFF);
+    addr++;
+    memory[addr] = (uint8_t)(instruction.operands.immediateB.u16 >> 8);
+    addr++;
+  }
+  
+  // Encode the register operands.
+  bool hasRegA = opcodeInfo->layout.hasRegA;
+  bool hasRegB = opcodeInfo->layout.hasRegB;
+  bool hasRegC = opcodeInfo->layout.hasRegC;
 
-  // Write the registers to memory
-  bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
-  bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
+  // Note: None of the layouts used place a 4-bit immediate value alongside a register.
+  //       If such a layout is ever used, this code will need to be modified to combine the immediate value with the register in a single byte.
 
-  if (hasRegA) {
-    memory[addr] = (((unsigned char)instruction.parameters.registerA << 4) & 0xF0) | (memory[addr] & 0x0F);
+  if (hasRegC) {
+    memory[addr] = (uint8_t)((instruction.operands.registerC & 0x0F) << 4);
+    addr++;
   }
 
-  if (hasRegB) {
-    memory[addr] = (memory[addr] & 0xF0) | ((unsigned char)instruction.parameters.registerB & 0x0F);
+  if (hasRegA || hasRegB) {
+    uint8_t value = 0;
+    if (hasRegA) {
+      value = (uint8_t)((instruction.operands.registerA & 0x0F) << 4);
+    }
+    if (hasRegB) {
+      value = (value & 0xF0) | (uint8_t)(instruction.operands.registerB & 0x0F);
+    }
+    memory[addr] = value;
+    addr++;
   }
 
-  return 1 + numBytes;
+  return numBytes;
 }
 
 void printInstruction(Instruction instruction) {
