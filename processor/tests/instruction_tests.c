@@ -105,8 +105,8 @@ void test_fetchInstruction_shouldLoadRegisterAAndRegisterBAnd4BitImmediateValueA
   // Arrange
   uint16_t ip = 0;
   memory[ip] = (uint8_t)OPCODE_LSH_RI;
-  memory[ip + 1] = ((uint8_t)REGISTER_X10 << 4) | ((uint8_t)REGISTER_X0 & 0xF);
-  memory[ip + 2] = 0xAB;
+  memory[ip + 1] = 0xAB;
+  memory[ip + 2] = ((uint8_t)REGISTER_X10 << 4) | ((uint8_t)REGISTER_X0 & 0xF);
 
   Instruction expectedInstruction = { .opcode = OPCODE_LSH_RI, .operands =
     { .registerA = REGISTER_X10, .registerB = REGISTER_X0, .immediateA.u16 = 0x000B } };
@@ -300,11 +300,11 @@ void test_writeInstruction_shouldSaveRegisterAAnd8BitImmediateValueA_whenOpcodeH
 void test_writeInstruction_shouldSaveRegisterAAndRegisterBAnd4BitImmediateValueA_whenOpcodeHasLayoutRegARegBImmA4(void) {
   // Arrange
   Instruction instruction = { .opcode = OPCODE_LSH_RI, .operands =
-    { .registerA = REGISTER_X10, .registerB = REGISTER_X0, .immediateA.u16 = 0x000B } };
+    { .registerA = REGISTER_X10, .registerB = REGISTER_X0, .immediateA.u16 = 0x89AB } };
 
   expectedMemory[0] = (uint8_t)OPCODE_LSH_RI;
-  expectedMemory[1] = ((uint8_t)REGISTER_X10 << 4) | ((uint8_t)REGISTER_X0 & 0xF);
-  expectedMemory[2] = 0xAB;
+  expectedMemory[1] = 0x0B;
+  expectedMemory[2] = ((uint8_t)REGISTER_X10 << 4) | ((uint8_t)REGISTER_X0 & 0xF);
 
   // Act
   uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
