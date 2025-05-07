@@ -219,100 +219,194 @@ void test_fetchInstruction_shouldLoad16BitImmediateValueAAnd16BitImmediateValueB
 
 #pragma endregion
 
-#pragma region storeInstruction
+#pragma region writeInstruction
 
-void test_storeInstruction_shouldSaveOpcode_whenOpcodeHasLayoutNone(void) {
+void test_writeInstruction_shouldSaveOpcode_whenOpcodeHasLayoutNone(void) {
   // Arrange
-  struct Instruction instruction = { .opcode = NOP };
+  Instruction instruction = { .opcode = OPCODE_NOP };
 
-  expectedMemory[4] = (unsigned char)NOP;
+  expectedMemory[4] = (uint8_t)OPCODE_NOP;
 
   // Act
-  unsigned short bytesWritten = storeInstruction(memory, 4, instruction);
+  uint16_t bytesWritten = writeInstruction(memory, 4, instruction);
   
   // Assert
   TEST_ASSERT_EQUAL_INT(1, bytesWritten);
   TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
 }
 
-void test_storeInstruction_shouldSave8BitImmediateValue_whenOpcodeHasLayoutImm8(void) {
-    // Arrange
-    struct Instruction instruction = { .opcode = LDIB, .parameters.immediate.u8 = 0xFF };
-
-    expectedMemory[0] = (unsigned char)LDIB;
-    expectedMemory[1] = 0xFF;
-  
-    // Act
-    unsigned short bytesWritten = storeInstruction(memory, 0, instruction);
-    
-    // Assert
-    TEST_ASSERT_EQUAL_INT(2, bytesWritten);
-    TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
-}
-
-void test_storeInstruction_shouldSaveRegisterAAnd4BitImmediateValue_whenOpcodeHasLayoutRegAImm4(void) {
+void test_writeInstruction_shouldSaveRegisterA_whenOpcodeHasLayoutRegA(void) {
   // Arrange
-  struct Instruction instruction = { .opcode = LDMB, .parameters.registerA = X10, .parameters.immediate.u4 = 0xF };
+  Instruction instruction = { .opcode = OPCODE_JMP_R, .operands.registerA = REGISTER_X10 };
 
-  expectedMemory[0] = (unsigned char)LDMB;
-  expectedMemory[1] = ((unsigned char)X10 << 4) | 0xF;
+  expectedMemory[0] = (uint8_t)OPCODE_JMP_R;
+  expectedMemory[1] = ((uint8_t)REGISTER_X10 << 4);
 
   // Act
-  unsigned short bytesWritten = storeInstruction(memory, 0, instruction);
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
   
   // Assert
   TEST_ASSERT_EQUAL_INT(2, bytesWritten);
   TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
 }
 
-void test_storeInstruction_shouldSaveRegisterAAndRegisterB_whenOpcodeHasLayoutRegARegB(void) {
+void test_writeInstruction_shouldSaveRegisterAAndRegisterB_whenOpcodeHasLayoutRegARegB(void) {
   // Arrange
-  struct Instruction instruction = { .opcode = ADD, .parameters.registerA = X10, .parameters.registerB = X0 };
+  Instruction instruction = { .opcode = OPCODE_SET_R, .operands = { .registerA = REGISTER_X10, .registerB = REGISTER_X0 } };
 
-  expectedMemory[0] = (unsigned char)ADD;
-  expectedMemory[1] = ((unsigned char)X10 << 4) | ((unsigned char)X0 & 0xF);
+  expectedMemory[0] = (uint8_t)OPCODE_SET_R;
+  expectedMemory[1] = ((uint8_t)REGISTER_X10 << 4) | ((uint8_t)REGISTER_X0 & 0xF);
 
   // Act
-  unsigned short bytesWritten = storeInstruction(memory, 0, instruction);
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
   
   // Assert
   TEST_ASSERT_EQUAL_INT(2, bytesWritten);
   TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
 }
 
-void test_storeInstruction_shouldSave16BitImmediateValue_whenOpcodeHasLayoutImm16(void) {
+void test_writeInstruction_shouldSave16BitImmediateValueA_whenOpcodeHasLayoutImmA16(void) {
   // Arrange
-  struct Instruction instruction = { .opcode = LDIW, .parameters.immediate.u16 = 0xEEFF };
+  Instruction instruction = { .opcode = OPCODE_JMP_I, .operands.immediateA.u16 = 0xABCD };
 
-  expectedMemory[0] = (unsigned char)LDIW;
-  expectedMemory[1] = 0xFF;
-  expectedMemory[2] = 0xEE;
+  expectedMemory[0] = (uint8_t)OPCODE_JMP_I;
+  expectedMemory[1] = 0xCD;
+  expectedMemory[2] = 0xAB;
 
   // Act
-  unsigned short bytesWritten = storeInstruction(memory, 0, instruction);
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
   
   // Assert
   TEST_ASSERT_EQUAL_INT(3, bytesWritten);
   TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
 }
 
-// Currently unused layouts
-
-// void test_storeInstruction_shouldSaveRegisterAAnd12BitImmediateValue_whenOpcodeHasLayoutRegAImm12(void) {
-// }
-
-// void test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd8BitImmediateValue_whenOpcodeHasLayoutRegARegBImm8(void) {
-// }
-
-// void test_storeInstruction_shouldSaveRegisterAAndRegisterBAnd16BitImmediateValue_whenOpcodeHasLayoutRegARegBImm16(void) {
-// }
-
-void test_storeInstruction_shouldReturnZero_whenOpcodeIsInvalid(void) {
+void test_writeInstruction_shouldSaveRegisterAAnd8BitImmediateValueA_whenOpcodeHasLayoutRegAImmA8(void) {
   // Arrange
-  struct Instruction instruction = { .opcode = OPCODE_COUNT };
+  Instruction instruction = { .opcode = OPCODE_STB_IR, .operands = { .registerA = REGISTER_X10, .immediateA.u16 = 0x00AB } };
+
+  expectedMemory[0] = (uint8_t)OPCODE_STB_IR;
+  expectedMemory[1] = 0xAB;
+  expectedMemory[2] = ((uint8_t)REGISTER_X10 << 4);
 
   // Act
-  unsigned short bytesWritten = storeInstruction(memory, 0, instruction);
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(3, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
+}
+
+void test_writeInstruction_shouldSaveRegisterAAndRegisterBAnd4BitImmediateValueA_whenOpcodeHasLayoutRegARegBImmA4(void) {
+  // Arrange
+  Instruction instruction = { .opcode = OPCODE_LSH_RI, .operands =
+    { .registerA = REGISTER_X10, .registerB = REGISTER_X0, .immediateA.u16 = 0x000B } };
+
+  expectedMemory[0] = (uint8_t)OPCODE_LSH_RI;
+  expectedMemory[1] = ((uint8_t)REGISTER_X10 << 4) | ((uint8_t)REGISTER_X0 & 0xF);
+  expectedMemory[2] = 0xAB;
+
+  // Act
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(3, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
+}
+
+void test_writeInstruction_shouldSaveRegisterAAndRegisterBAndRegisterC_whenOpcodeHasLayoutRegARegBRegC(void) {
+  // Arrange
+  Instruction instruction = { .opcode = OPCODE_ADD_R, .operands =
+    { .registerA = REGISTER_X10, .registerB = REGISTER_X0, .registerC = REGISTER_X8 } };
+
+  expectedMemory[0] = (uint8_t)OPCODE_ADD_R;
+  expectedMemory[1] = ((uint8_t)REGISTER_X8 << 4);
+  expectedMemory[2] = ((uint8_t)REGISTER_X10 << 4) | ((uint8_t)REGISTER_X0 & 0xF);
+
+  // Act
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(3, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
+}
+
+void test_writeInstruction_shouldSave8BitImmediateValueAAnd16BitImmediateValueB_whenOpcodeHasLayoutImmA8ImmB16(void) {
+  // Arrange
+  Instruction instruction = { .opcode = OPCODE_STB_II, .operands = { .immediateA.u16 = 0x00AB, .immediateB.u16 = 0xCDEF } };
+
+  expectedMemory[0] = (uint8_t)OPCODE_STB_II;
+  expectedMemory[1] = 0xAB;
+  expectedMemory[2] = 0xEF;
+  expectedMemory[3] = 0xCD;
+
+  // Act
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(4, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
+}
+
+void test_writeInstruction_shouldSaveRegisterAAnd16BitImmediateValueA_whenOpcodeHasLayoutRegAImmA16(void) {
+  // Arrange
+  Instruction instruction = { .opcode = OPCODE_STW_RI, .operands = { .registerA = REGISTER_X6, .immediateA.u16 = 0xABCD } };
+
+  expectedMemory[0] = (uint8_t)OPCODE_STW_RI;
+  expectedMemory[1] = 0xCD;
+  expectedMemory[2] = 0xAB;
+  expectedMemory[3] = ((uint8_t)REGISTER_X6 << 4);
+
+  // Act
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(4, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
+}
+
+void test_writeInstruction_shouldSaveRegisterAAndRegisterBAnd16BitImmediateValueA_whenOpcodeHasLayoutRegARegBImmA16(void) {
+  // Arrange
+  Instruction instruction = { .opcode = OPCODE_MUL_I, .operands =
+    { .registerA = REGISTER_X10, .registerB = REGISTER_X0, .immediateA.u16 = 0x1234 } };
+
+  expectedMemory[0] = (uint8_t)OPCODE_MUL_I;
+  expectedMemory[1] = 0x34;
+  expectedMemory[2] = 0x12;
+  expectedMemory[3] = ((uint8_t)REGISTER_X10 << 4) | ((uint8_t)REGISTER_X0 & 0xF);
+
+  // Act
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(4, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
+}
+
+void test_writeInstruction_shouldSave16BitImmediateValueAAnd16BitImmediateValueB_whenOpcodeHasLayoutImmA16ImmB16(void) {
+  // Arrange
+  Instruction instruction = { .opcode = OPCODE_STW_II, .operands = { .immediateA.u16 = 0x1234, .immediateB.u16 = 0x5678 } };
+
+  expectedMemory[0] = (uint8_t)OPCODE_STW_II;
+  expectedMemory[1] = 0x34;
+  expectedMemory[2] = 0x12;
+  expectedMemory[3] = 0x78;
+  expectedMemory[4] = 0x56;
+
+  // Act
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_INT(5, bytesWritten);
+  TEST_ASSERT_EQUAL_MEMORY(expectedMemory, memory, sizeof(memory));
+}
+
+void test_writeInstruction_shouldReturnZero_whenOpcodeIsInvalid(void) {
+  // Arrange
+  Instruction instruction = { .opcode = OPCODE_COUNT };
+
+  // Act
+  uint16_t bytesWritten = writeInstruction(memory, 0, instruction);
   
   // Assert
   TEST_ASSERT_EQUAL_INT(0, bytesWritten);
