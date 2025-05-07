@@ -1,17 +1,19 @@
 #include "custom_assertions.h"
 
-void CustomAssertEqualInstruction(struct Instruction* expected, struct Instruction* actual, const UNITY_LINE_TYPE lineNumber) {
+void CustomAssertEqualInstruction(Instruction* expected, Instruction* actual, const UNITY_LINE_TYPE lineNumber) {
   UNITY_TEST_ASSERT_EQUAL_HEX8(expected->opcode, actual->opcode, lineNumber, "opcode of actual instruction differs from expected instruction");
-  UNITY_TEST_ASSERT_EQUAL_INT(expected->parameters.registerA, actual->parameters.registerA, lineNumber, "register A of actual instruction differs from expected instruction");
-  UNITY_TEST_ASSERT_EQUAL_INT(expected->parameters.registerB, actual->parameters.registerB, lineNumber, "register B of actual instruction differs from expected instruction");
-  UNITY_TEST_ASSERT_EQUAL_HEX16(expected->parameters.immediate.u16, actual->parameters.immediate.u16, lineNumber, "immediate value of actual instruction differs from expected instruction");
+  UNITY_TEST_ASSERT_EQUAL_INT(expected->operands.registerA, actual->operands.registerA, lineNumber, "register A of actual instruction differs from expected instruction");
+  UNITY_TEST_ASSERT_EQUAL_INT(expected->operands.registerB, actual->operands.registerB, lineNumber, "register B of actual instruction differs from expected instruction");
+  UNITY_TEST_ASSERT_EQUAL_INT(expected->operands.registerC, actual->operands.registerC, lineNumber, "register C of actual instruction differs from expected instruction");
+  UNITY_TEST_ASSERT_EQUAL_HEX16(expected->operands.immediateA.u16, actual->operands.immediateA.u16, lineNumber, "immediate value A of actual instruction differs from expected instruction");
+  UNITY_TEST_ASSERT_EQUAL_HEX16(expected->operands.immediateB.u16, actual->operands.immediateB.u16, lineNumber, "immediate value B of actual instruction differs from expected instruction");
 }
 
-void CustomAssertEqualProcessState(struct ProcessState* expected, struct ProcessState* actual, const UNITY_LINE_TYPE lineNumber) {
+void CustomAssertEqualProcessState(ProcessState* expected, ProcessState* actual, const UNITY_LINE_TYPE lineNumber) {
   // Assert registers individually
   UNITY_TEST_ASSERT_EQUAL_HEX16(expected->registers.ip, actual->registers.ip, lineNumber, "IP register of actual state differs from expected state.");
-  UNITY_TEST_ASSERT_EQUAL_HEX16(expected->registers.ac, actual->registers.ac, lineNumber, "AC register of actual state differs from expected state.");
   UNITY_TEST_ASSERT_EQUAL_HEX16(expected->registers.sp, actual->registers.sp, lineNumber, "SP register of actual state differs from expected state.");
+  UNITY_TEST_ASSERT_EQUAL_HEX16(expected->registers.rt, actual->registers.rt, lineNumber, "RT register of actual state differs from expected state.");
   UNITY_TEST_ASSERT_EQUAL_HEX16(expected->registers.x0, actual->registers.x0, lineNumber, "X0 register of actual state differs from expected state.");
   UNITY_TEST_ASSERT_EQUAL_HEX16(expected->registers.x1, actual->registers.x1, lineNumber, "X1 register of actual state differs from expected state.");
   UNITY_TEST_ASSERT_EQUAL_HEX16(expected->registers.x2, actual->registers.x2, lineNumber, "X2 register of actual state differs from expected state.");
