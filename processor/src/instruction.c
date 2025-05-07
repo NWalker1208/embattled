@@ -74,7 +74,7 @@ uint16_t fetchInstruction(const uint8_t* memory, uint16_t addr, Instruction* ins
   }
 
   if (hasImmB) {
-    instructionOut->operands.immediateB.u16 = (uint16_t)operandBytes[immBOffset] | ((uint16_t)operandBytes[immBOffset + 1] << 8)
+    instructionOut->operands.immediateB.u16 = (uint16_t)operandBytes[immBOffset] | ((uint16_t)operandBytes[immBOffset + 1] << 8);
   } else {
     instructionOut->operands.immediateB.u16 = 0;
   }
@@ -150,50 +150,37 @@ uint16_t writeInstruction(uint8_t* memory, uint16_t addr, Instruction instructio
 }
 
 void printInstruction(Instruction instruction) {
-  if (instruction.opcode < 0 || instruction.opcode >= OPCODE_COUNT) {
-    printf("opcode=INVALID\n");
+  const OpcodeInfo* opcodeInfo = getOpcodeInfo(instruction.opcode);
+  if (opcodeInfo == NULL) {
+    printf("opcode=invalid\n");
     return;
   }
 
-  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
-  printf("opcode=%-4s", opcodeInfo->name);
-  if (opcodeInfo->parameterLayout.hasRegA) {
-    printf("  regA=%-3s", REGISTER_NAMES[instruction.parameters.registerA]);
+  printf("opcode=%-7s", opcodeInfo->identifier);
+  if (opcodeInfo->layout.hasRegA) {
+    printf("  regA=%-3s", getRegisterIdentifier(instruction.operands.registerA));
   }
-  if (opcodeInfo->parameterLayout.hasRegB) {
-    printf("  regB=%-3s", REGISTER_NAMES[instruction.parameters.registerB]);
+  if (opcodeInfo->layout.hasRegB) {
+    printf("  regB=%-3s", getRegisterIdentifier(instruction.operands.registerA));
+  }
+  if (opcodeInfo->layout.hasRegC) {
+    printf("  regC=%-3s", getRegisterIdentifier(instruction.operands.registerC));
   }
 
-  unsigned char numImmBits = opcodeInfo->parameterLayout.numImmBits;
-  if (numImmBits > 0) {
-    printf("  imm(raw)=%04x", instruction.parameters.immediate.u16);
-
-    bool immIsSigned = opcodeInfo->parameterLayout.immIsSigned;
-    if (!immIsSigned) {
-      unsigned short value;
-      if (numImmBits == 4) {
-        value = instruction.parameters.immediate.u4;
-      } else if (numImmBits == 8) {
-        value = instruction.parameters.immediate.u8;
-      } else if (numImmBits == 12) {
-        value = instruction.parameters.immediate.u12;
-      } else {
-        value = instruction.parameters.immediate.u16;
-      }
-      printf("  imm=%hu", value);
-    } else {
-      signed short value;
-      if (numImmBits == 4) {
-        value = instruction.parameters.immediate.s4;
-      } else if (numImmBits == 8) {
-        value = instruction.parameters.immediate.s8;
-      } else if (numImmBits == 12) {
-        value = instruction.parameters.immediate.s12;
-      } else {
-        value = instruction.parameters.immediate.s16;
-      }
-      printf("  imm=%hd", value);
+  uint8_t numImmABits = opcodeInfo->layout.numImmABits;
+  if (numImmABits > 0) {
+    if (numImmABits == 4) {
+      printf("  immA=%01x", instruction.operands.immediateA.u16);
+    } else if (numImmABits == 8) {
+      printf("  immA=%02x", instruction.operands.immediateA.u16);
+    } else if (numImmABits == 16) {
+      printf("  immA=%04x", instruction.operands.immediateA.u16);
     }
+    printf("(%hu)", instruction.operands.immediateA.u16);
+  }
+
+  if (opcodeInfo->layout.hasImmB) {
+    printf("  immB=%04x(%hu)", instruction.operands.immediateB.u16, instruction.operands.immediateB.u16);
   }
 
   printf("\n");
