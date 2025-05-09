@@ -160,18 +160,20 @@ void test_jmz_i_should_doNothing_when_registerAIsNonZero(void) {
 
 #pragma endregion
 
-#pragma region Memory instructions
+#pragma region Memory
 
-TEST_MATRIX([SP, AC, X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11], [SP, AC, X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11])
-void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(enum Register regA, enum Register regB) {
+TEST_MATRIX(
+  [REGISTER_SP, REGISTER_RT, REGISTER_X0, REGISTER_X1, REGISTER_X2, REGISTER_X3, REGISTER_X4, REGISTER_X5, REGISTER_X6, REGISTER_X7, REGISTER_X8, REGISTER_X9, REGISTER_X10, REGISTER_X11],
+  [REGISTER_SP, REGISTER_RT, REGISTER_X0, REGISTER_X1, REGISTER_X2, REGISTER_X3, REGISTER_X4, REGISTER_X5, REGISTER_X6, REGISTER_X7, REGISTER_X8, REGISTER_X9, REGISTER_X10, REGISTER_X11])
+void test_set_r_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNullOrIp(Register regA, Register regB) {
   // Arrange
   setUp();
   *getRegisterPtr(&processState.registers, regA) = 0x1234;
   *getRegisterPtr(&processState.registers, regB) = 0x5678;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = MOV,
-    .parameters.registerA = regA,
-    .parameters.registerB = regB,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_SET_R,
+    .operands.registerA = regA,
+    .operands.registerB = regB,
   });
 
   initializeExpectedEndState();
@@ -185,13 +187,13 @@ void test_mov_should_copyValueFromRegisterBToRegisterA_when_neitherRegisterIsNul
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_mov_should_copyValueFromRegisterBToIp_when_registerAIsIp(void) {
+void test_set_r_should_copyValueFromRegisterBToIp_when_registerAIsIp(void) {
   // Arrange
   processState.registers.x3 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = MOV,
-    .parameters.registerA = IP,
-    .parameters.registerB = X3,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_SET_R,
+    .operands.registerA = REGISTER_IP,
+    .operands.registerB = REGISTER_X3,
   });
 
   initializeExpectedEndState();
@@ -204,12 +206,12 @@ void test_mov_should_copyValueFromRegisterBToIp_when_registerAIsIp(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_mov_should_copyValueFromIpToRegisterA_when_registerBIsIp(void) {
+void test_set_r_should_copyValueFromIpToRegisterA_when_registerBIsIp(void) {
   // Arrange
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = MOV,
-    .parameters.registerA = X3,
-    .parameters.registerB = IP,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_SET_R,
+    .operands.registerA = REGISTER_X3,
+    .operands.registerB = REGISTER_IP,
   });
 
   initializeExpectedEndState();
@@ -223,13 +225,13 @@ void test_mov_should_copyValueFromIpToRegisterA_when_registerBIsIp(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_mov_should_setRegisterAToZero_when_registerBIsNull(void) {
+void test_set_r_should_setRegisterAToZero_when_registerBIsNull(void) {
   // Arrange
   processState.registers.x7 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = MOV,
-    .parameters.registerA = X7,
-    .parameters.registerB = NL,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_SET_R,
+    .operands.registerA = REGISTER_X7,
+    .operands.registerB = REGISTER_NL,
   });
   
   initializeExpectedEndState();
@@ -243,13 +245,13 @@ void test_mov_should_setRegisterAToZero_when_registerBIsNull(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_mov_should_doNothing_when_registerAIsNull(void) {
+void test_set_r_should_doNothing_when_registerAIsNull(void) {
   // Arrange
   processState.registers.x7 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = MOV,
-    .parameters.registerA = NL,
-    .parameters.registerB = X7,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_SET_R,
+    .operands.registerA = REGISTER_NL,
+    .operands.registerB = REGISTER_X7,
   });
   
   initializeExpectedEndState();
@@ -262,12 +264,12 @@ void test_mov_should_doNothing_when_registerAIsNull(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_mov_should_doNothing_when_bothRegistersAreNull(void) {
+void test_set_r_should_doNothing_when_bothRegistersAreNull(void) {
   // Arrange
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = MOV,
-    .parameters.registerA = NL,
-    .parameters.registerB = NL,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_SET_R,
+    .operands.registerA = REGISTER_NL,
+    .operands.registerB = REGISTER_NL,
   });
   
   initializeExpectedEndState();
@@ -280,34 +282,18 @@ void test_mov_should_doNothing_when_bothRegistersAreNull(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_ldib_should_loadImmediateByteIntoAc(void) {
+TEST_MATRIX([REGISTER_IP, REGISTER_SP, REGISTER_RT, REGISTER_X0, REGISTER_X1, REGISTER_X2, REGISTER_X3, REGISTER_X4, REGISTER_X5, REGISTER_X6, REGISTER_X7, REGISTER_X8, REGISTER_X9, REGISTER_X10, REGISTER_X11])
+void test_set_i_should_copyImmediateValueToRegisterA_when_registerAIsNotNull(Register regA) {
   // Arrange
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LDIB,
-    .parameters.immediate.u8 = 0x12,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0012;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_ldiw_should_loadImmediateWordIntoAc(void) {
-  // Arrange
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LDIW,
-    .parameters.immediate.u16 = 0x1234,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_SET_I,
+    .operands.registerA = regA,
+    .operands.immediateA.u16 = 0x1234,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0003;
-  expectedEndState.registers.ac = 0x1234;
+  *getRegisterPtr(&expectedEndState.registers, regA) = 0x1234;
 
   // Act
   stepProcess(&processState);
