@@ -25,12 +25,12 @@ void initializeExpectedEndState() {
 
 void tearDown() { }
 
-#pragma region Control flow instructions
+#pragma region Control flow
 
 void test_nop_should_doNothing(void) {
   // Arrange
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = NOP,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_NOP,
   });
 
   initializeExpectedEndState();
@@ -43,16 +43,17 @@ void test_nop_should_doNothing(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_jmp_should_jumpToAddressAndSaveReturnAddress(void) {
+void test_jmp_r_should_jumpToAddressAndSaveReturnAddress(void) {
   // Arrange
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = JMP,
-    .parameters.immediate.u16 = 0x1234,
+  processState.registers.x0 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_JMP_R,
+    .operands.registerA = REGISTER_X0,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x1234;
-  expectedEndState.registers.ac = 0x0003;
+  expectedEndState.registers.rt = 0x0002;
 
   // Act
   stepProcess(&processState);
@@ -61,12 +62,32 @@ void test_jmp_should_jumpToAddressAndSaveReturnAddress(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_jmz_should_jumpToAddress_when_acIsZero(void) {
+void test_jmp_i_should_jumpToAddressAndSaveReturnAddress(void) {
   // Arrange
-  processState.registers.ac = 0x0000;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = JMZ,
-    .parameters.immediate.u16 = 0x1234,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_JMP_I,
+    .operands.immediateA.u16 = 0x1234,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x1234;
+  expectedEndState.registers.rt = 0x0003;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_jmz_r_should_jumpToAddress_when_registerAIsZero(void) {
+  // Arrange
+  processState.registers.x0 = 0;
+  processState.registers.x1 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_JMZ_R,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
   });
 
   initializeExpectedEndState();
@@ -79,16 +100,56 @@ void test_jmz_should_jumpToAddress_when_acIsZero(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_jmz_should_doNothing_when_acIsNonZero(void) {
+void test_jmz_r_should_doNothing_when_registerAIsNonZero(void) {
   // Arrange
-  processState.registers.ac = 0x0001;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = JMZ,
-    .parameters.immediate.u16 = 0x1234,
+  processState.registers.x0 = 0x0001;
+  processState.registers.x1 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_JMZ_R,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.ip = 0x0002;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_jmz_i_should_jumpToAddress_when_registerAIsZero(void) {
+  // Arrange
+  processState.registers.x0 = 0x0000;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_JMZ_I,
+    .operands.registerA = REGISTER_X0,
+    .operands.immediateA.u16 = 0x1234,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x1234;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_jmz_i_should_doNothing_when_registerAIsNonZero(void) {
+  // Arrange
+  processState.registers.x0 = 0x0001;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_JMZ_I,
+    .operands.registerA = REGISTER_X0,
+    .operands.immediateA.u16 = 0x1234,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0004;
 
   // Act
   stepProcess(&processState);
