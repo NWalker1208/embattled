@@ -302,22 +302,19 @@ void test_set_i_should_copyImmediateValueToRegisterA_when_registerAIsNotNull(Reg
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-TEST_CASE(0x1234, 0x0, 0x1234)
-TEST_CASE(0x1234, 0x7, 0x123B)
-TEST_CASE(0x1234, 0x8, 0x122C)
-void test_ldmb_should_loadMemoryByteAtAddressWithSignedOffsetIntoAc(unsigned short baseAddress, unsigned char offset, unsigned short addressWithOffset) {
+void test_ldb_r_should_loadMemoryByteAtAddressInRegisterBIntoRegisterA(void) {
   // Arrange
-  processState.registers.x0 = baseAddress;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LDMB,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = offset,
+  processState.registers.x1 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_LDB_R,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
   });
-  processState.memory[addressWithOffset] = 0x56;
+  processState.memory[0x1234] = 0x56;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0056;
+  expectedEndState.registers.x0 = 0x0056;
 
   // Act
   stepProcess(&processState);
@@ -326,25 +323,63 @@ void test_ldmb_should_loadMemoryByteAtAddressWithSignedOffsetIntoAc(unsigned sho
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-TEST_CASE(0x1234, 0x0, 0x1234, 0x1235)
-TEST_CASE(0x1234, 0x7, 0x123B, 0x123C)
-TEST_CASE(0x1234, 0x8, 0x122C, 0x122D)
-TEST_CASE(0xFFFF, 0x0, 0xFFFF, 0x0000)
-void test_ldmw_should_loadMemoryWordAtAddressWithSignedOffsetIntoAc(unsigned short baseAddress, unsigned char offset, unsigned short lowerAddressWithOffset, unsigned short upperAddressWithOffset) {
+void test_ldb_i_should_loadMemoryByteAtAddressInImmediateAIntoRegisterA(void) {
+  // Arrange
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_LDB_R,
+    .operands.registerA = REGISTER_X0,
+    .operands.immediateA.u16 = 0x1234,
+  });
+  processState.memory[0x1234] = 0x56;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x0 = 0x0056;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_ldw_r_should_loadMemoryWordAtAddressInRegisterBIntoRegisterA(void) {
   // Arrange
   processState.registers.ip = 0x0001;
-  processState.registers.x0 = baseAddress;
-  storeInstruction(processState.memory, 1, (struct Instruction){
-    .opcode = LDMW,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = offset,
+  processState.registers.x1 = 0xFFFF;
+  writeInstruction(processState.memory, 1, (Instruction){
+    .opcode = OPCODE_LDW_R,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
   });
-  processState.memory[lowerAddressWithOffset] = 0x78;
-  processState.memory[upperAddressWithOffset] = 0x56;
+  processState.memory[0xFFFF] = 0x78;
+  processState.memory[0x0000] = 0x56;
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0003;
-  expectedEndState.registers.ac = 0x5678;
+  expectedEndState.registers.x0 = 0x5678;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_ldw_i_should_loadMemoryWordAtAddressInImmediateAIntoRegisterA(void) {
+  // Arrange
+  processState.registers.ip = 0x0001;
+  writeInstruction(processState.memory, 1, (Instruction){
+    .opcode = OPCODE_LDW_R,
+    .operands.registerA = REGISTER_X0,
+    .operands.immediateA.u16 = 0xFFFF,
+  });
+  processState.memory[0xFFFF] = 0x78;
+  processState.memory[0x0000] = 0x56;
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.x0 = 0x5678;
 
   // Act
   stepProcess(&processState);
