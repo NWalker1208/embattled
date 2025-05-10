@@ -240,41 +240,55 @@ Opcode byteToOpcode(uint8_t byte) {
 // TODO: Implement these stubs
 void execute_nop(OpcodeArguments args) { (void)args; }
 
-void execute_jmp_r(OpcodeArguments args) { (void)args; }
-void execute_jmp_i(OpcodeArguments args) { (void)args; }
+void execute_jmp_r(OpcodeArguments args) { args.process->registers.rt = args.process->registers.ip; args.process->registers.ip = *args.registerAPtr; }
+void execute_jmp_i(OpcodeArguments args) { args.process->registers.rt = args.process->registers.ip; args.process->registers.ip = args.immediateA.u16; }
 
-void execute_jmz_r(OpcodeArguments args) { (void)args; }
-void execute_jmz_i(OpcodeArguments args) { (void)args; }
+void execute_jmz_r(OpcodeArguments args) { if (*args.registerAPtr == 0) { args.process->registers.ip = *args.registerBPtr; } }
+void execute_jmz_i(OpcodeArguments args) { if (*args.registerAPtr == 0) { args.process->registers.ip = args.immediateA.u16; } }
 
-void execute_slp_r(OpcodeArguments args) { (void)args; }
-void execute_slp_i(OpcodeArguments args) { (void)args; }
+void execute_slp_r(OpcodeArguments args) { (void)args; } // TODO
+void execute_slp_i(OpcodeArguments args) { (void)args; } // TODO
 
-void execute_set_r(OpcodeArguments args) { (void)args; }
-void execute_set_i(OpcodeArguments args) { (void)args; }
+void execute_set_r(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr; }
+void execute_set_i(OpcodeArguments args) { *args.registerAPtr = args.immediateA.u16; }
 
-void execute_ldb_r(OpcodeArguments args) { (void)args; }
-void execute_ldb_i(OpcodeArguments args) { (void)args; }
+void execute_ldb_r(OpcodeArguments args) { *args.registerAPtr = (uint16_t)(args.process->memory[*args.registerBPtr]); }
+void execute_ldb_i(OpcodeArguments args) { *args.registerAPtr = (uint16_t)(args.process->memory[args.immediateA.u16]); }
 
-void execute_ldw_r(OpcodeArguments args) { (void)args; }
-void execute_ldw_i(OpcodeArguments args) { (void)args; }
+void execute_ldw_r(OpcodeArguments args) { *args.registerAPtr = ((uint16_t)(args.process->memory[*args.registerBPtr + 1]) << 8) | (uint16_t)(args.process->memory[*args.registerBPtr]); }
+void execute_ldw_i(OpcodeArguments args) { *args.registerAPtr = ((uint16_t)(args.process->memory[args.immediateA.u16 + 1]) << 8) | (uint16_t)(args.process->memory[args.immediateA.u16]); }
 
-void execute_stb_rr(OpcodeArguments args) { (void)args; }
-void execute_stb_ri(OpcodeArguments args) { (void)args; }
-void execute_stb_ir(OpcodeArguments args) { (void)args; }
-void execute_stb_ii(OpcodeArguments args) { (void)args; }
+void execute_stb_rr(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)(*args.registerAPtr & 0xFF); }
+void execute_stb_ri(OpcodeArguments args) { args.process->memory[args.immediateA.u16] = (uint8_t)(*args.registerAPtr & 0xFF); }
+void execute_stb_ir(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)args.immediateA.u8; }
+void execute_stb_ii(OpcodeArguments args) { args.process->memory[args.immediateB.u16] = (uint8_t)args.immediateA.u8; }
 
-void execute_stw_rr(OpcodeArguments args) { (void)args; }
-void execute_stw_ri(OpcodeArguments args) { (void)args; }
-void execute_stw_ir(OpcodeArguments args) { (void)args; }
-void execute_stw_ii(OpcodeArguments args) { (void)args; }
+void execute_stw_rr(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)(*args.registerAPtr & 0xFF); args.process->memory[*args.registerBPtr + 1] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF); }
+void execute_stw_ri(OpcodeArguments args) { args.process->memory[args.immediateA.u16] = (uint8_t)(*args.registerAPtr & 0xFF); args.process->memory[args.immediateA.u16 + 1] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF); }
+void execute_stw_ir(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)(args.immediateA.u16 & 0xFF); args.process->memory[*args.registerBPtr + 1] = (uint8_t)((args.immediateA.u16 >> 8) & 0xFF); }
+void execute_stw_ii(OpcodeArguments args) { args.process->memory[args.immediateA.u16] = (uint8_t)(args.immediateA.u16 & 0xFF); args.process->memory[args.immediateA.u16 + 1] = (uint8_t)((args.immediateA.u16 >> 8) & 0xFF); }
 
-void execute_pshb(OpcodeArguments args) { (void)args; }
+void execute_pshb(OpcodeArguments args) {
+  args.process->memory[args.process->registers.sp - 1] = (uint8_t)(*args.registerAPtr & 0xFF);
+  args.process->registers.sp -= 1;
+}
 
-void execute_pshw(OpcodeArguments args) { (void)args; }
+void execute_pshw(OpcodeArguments args) {
+  args.process->memory[args.process->registers.sp - 1] = (uint8_t)(*args.registerAPtr & 0xFF);
+  args.process->memory[args.process->registers.sp - 2] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF);
+  args.process->registers.sp -= 2;
+}
 
-void execute_popb(OpcodeArguments args) { (void)args; }
+void execute_popb(OpcodeArguments args) {
+  args.process->registers.sp += 1;
+  *args.registerAPtr = (uint16_t)(args.process->memory[args.process->registers.sp - 1]);
+}
 
-void execute_popw(OpcodeArguments args) { (void)args; }
+void execute_popw(OpcodeArguments args) {
+  args.process->registers.sp += 2;
+  *args.registerAPtr = ((uint16_t)(args.process->memory[args.process->registers.sp - 1]) << 8)
+                     | (uint16_t)(args.process->memory[args.process->registers.sp - 2]);
+}
 
 void execute_add_r(OpcodeArguments args) { (void)args; }
 void execute_add_i(OpcodeArguments args) { (void)args; }
