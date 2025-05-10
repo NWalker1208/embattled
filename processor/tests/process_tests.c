@@ -734,7 +734,7 @@ void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerAIsSp(void) 
 
 #pragma endregion
 
-#pragma region Math and logic instructions
+#pragma region Math
 
 void test_add_r_should_setRegisterAToRegisterBPlusRegisterC(void) {
   // Arrange
@@ -1190,6 +1190,10 @@ void test_remu_ir_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUns
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
+#pragma endregion
+
+#pragma region Bitwise logic
+
 TEST_CASE(0x5678, 0x0005, 0xCF00)
 TEST_CASE(0x5678, 0xFFFB, 0x0000)
 void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
@@ -1395,6 +1399,10 @@ void test_xor_should_setAcToRegisterABitwiseExclusiveOrRegisterB(void) {
   // Assert
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
+
+#pragma endregion
+
+#pragma region Comparison
 
 void test_ceq_should_setAcToOne_when_registerAEqualsRegisterB(void) {
   // Arrange
