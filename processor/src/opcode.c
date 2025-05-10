@@ -290,31 +290,31 @@ void execute_popw(OpcodeArguments args) {
                      | (uint16_t)(args.process->memory[args.process->registers.sp - 2]);
 }
 
-void execute_add_r(OpcodeArguments args) { (void)args; }
-void execute_add_i(OpcodeArguments args) { (void)args; }
+void execute_add_r(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr + *args.registerCPtr; }
+void execute_add_i(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr + args.immediateA.u16; }
 
-void execute_sub_rr(OpcodeArguments args) { (void)args; }
-void execute_sub_ri(OpcodeArguments args) { (void)args; }
-void execute_sub_ir(OpcodeArguments args) { (void)args; }
+void execute_sub_rr(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr - *args.registerCPtr; }
+void execute_sub_ri(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr - args.immediateA.u16; }
+void execute_sub_ir(OpcodeArguments args) { *args.registerAPtr = args.immediateA.u16 - *args.registerBPtr; }
 
-void execute_mul_r(OpcodeArguments args) { (void)args; }
-void execute_mul_i(OpcodeArguments args) { (void)args; }
+void execute_mul_r(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr * *args.registerCPtr; }
+void execute_mul_i(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr * args.immediateA.u16; }
 
-void execute_divs_rr(OpcodeArguments args) { (void)args; }
-void execute_divs_ri(OpcodeArguments args) { (void)args; }
-void execute_divs_ir(OpcodeArguments args) { (void)args; }
+void execute_divs_rr(OpcodeArguments args) { *args.registerAPtr = (uint16_t)((int16_t)(*args.registerBPtr) / (int16_t)(*args.registerCPtr)); }
+void execute_divs_ri(OpcodeArguments args) { *args.registerAPtr = (uint16_t)((int16_t)(*args.registerBPtr) / args.immediateA.s16); }
+void execute_divs_ir(OpcodeArguments args) { *args.registerAPtr = (uint16_t)(args.immediateA.s16 / (int16_t)(*args.registerBPtr)); }
 
-void execute_divu_rr(OpcodeArguments args) { (void)args; }
-void execute_divu_ri(OpcodeArguments args) { (void)args; }
-void execute_divu_ir(OpcodeArguments args) { (void)args; }
+void execute_divu_rr(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr / *args.registerCPtr; }
+void execute_divu_ri(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr / args.immediateA.u16; }
+void execute_divu_ir(OpcodeArguments args) { *args.registerAPtr = args.immediateA.u16 / *args.registerBPtr; }
 
-void execute_rems_rr(OpcodeArguments args) { (void)args; }
-void execute_rems_ri(OpcodeArguments args) { (void)args; }
-void execute_rems_ir(OpcodeArguments args) { (void)args; }
+void execute_rems_rr(OpcodeArguments args) { *args.registerAPtr = (uint16_t)((int16_t)(*args.registerBPtr) % (int16_t)(*args.registerCPtr)); }
+void execute_rems_ri(OpcodeArguments args) { *args.registerAPtr = (uint16_t)((int16_t)(*args.registerBPtr) % args.immediateA.s16); }
+void execute_rems_ir(OpcodeArguments args) { *args.registerAPtr = (uint16_t)(args.immediateA.s16 % (int16_t)(*args.registerBPtr)); }
 
-void execute_remu_rr(OpcodeArguments args) { (void)args; }
-void execute_remu_ri(OpcodeArguments args) { (void)args; }
-void execute_remu_ir(OpcodeArguments args) { (void)args; }
+void execute_remu_rr(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr % *args.registerCPtr; }
+void execute_remu_ri(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr % args.immediateA.u16; }
+void execute_remu_ir(OpcodeArguments args) { *args.registerAPtr = args.immediateA.u16 % *args.registerBPtr; }
 
 void execute_and_r(OpcodeArguments args) { (void)args; }
 void execute_and_i(OpcodeArguments args) { (void)args; }
