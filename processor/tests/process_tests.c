@@ -1549,19 +1549,20 @@ void test_rshu_ir_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsi
 
 #pragma region Comparison
 
-void test_ceq_should_setAcToOne_when_registerAEqualsRegisterB(void) {
+void test_ceq_r_should_setRegisterAToOne_when_registerBEqualsRegisterC(void) {
   // Arrange
   processState.registers.x1 = 0x1234;
   processState.registers.x2 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = CEQ,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CEQ_R,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
+    .operands.registerC = REGISTER_X2,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 1;
+  expectedEndState.registers.x0 = 1;
   
   // Act
   stepProcess(&processState);
@@ -1570,19 +1571,87 @@ void test_ceq_should_setAcToOne_when_registerAEqualsRegisterB(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_ceq_should_setAcToZero_when_registerADoesNotEqualRegisterB(void) {
+void test_ceq_r_should_setRegisterAToZero_when_registerBDoesNotEqualRegisterC(void) {
+  // Arrange
+  processState.registers.x0 = 0xFFFF;
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x8765;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CEQ_R,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
+    .operands.registerC = REGISTER_X2,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x0 = 0;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_ceq_i_should_setRegisterAToOne_when_registerBEqualsImmediateA(void) {
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CEQ_I,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
+    .operands.immediateA.u16 = 0x1234,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x0 = 1;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_ceq_i_should_setRegisterAToZero_when_registerBDoesNotEqualImmediateA(void) {
+  // Arrange
+  processState.registers.x0 = 0xFFFF;
+  processState.registers.x1 = 0x1234;
+  processState.registers.x2 = 0x8765;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CEQ_I,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
+    .operands.immediateA.u16 = 0x8765,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x0 = 0;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_cne_r_should_setRegisterAToOne_when_registerBDoesNotEqualRegisterC(void) {
   // Arrange
   processState.registers.x1 = 0x1234;
   processState.registers.x2 = 0x8765;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = CEQ,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CNE_R,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
+    .operands.registerC = REGISTER_X2,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0;
+  expectedEndState.registers.x0 = 1;
   
   // Act
   stepProcess(&processState);
@@ -1591,40 +1660,64 @@ void test_ceq_should_setAcToZero_when_registerADoesNotEqualRegisterB(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_cne_should_setAcToOne_when_registerADoesNotEqualRegisterB(void) {
+void test_cne_r_should_setRegisterAToZero_when_registerBEqualsRegisterC(void) {
   // Arrange
-  processState.registers.x1 = 0x1234;
-  processState.registers.x2 = 0x8765;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = CNE,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-  
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 1;
-  
-  // Act
-  stepProcess(&processState);
-  
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-void test_cne_should_setAcToZero_when_registerAEqualsRegisterB(void) {
-  // Arrange
+  processState.registers.x0 = 0xFFFF;
   processState.registers.x1 = 0x1234;
   processState.registers.x2 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = CNE,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CNE_R,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
+    .operands.registerC = REGISTER_X2,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0;
+  expectedEndState.registers.x0 = 0;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_cne_i_should_setRegisterAToOne_when_registerBDoesNotEqualImmediateA(void) {
+  // Arrange
+  processState.registers.x1 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CNE_I,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
+    .operands.immediateA.u16 = 0x8765,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x0 = 1;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_cne_i_should_setRegisterAToZero_when_registerBEqualsImmediateA(void) {
+  // Arrange
+  processState.registers.x0 = 0xFFFF;
+  processState.registers.x1 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CNE_I,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
+    .operands.immediateA.u16 = 0x1234,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x0 = 0;
   
   // Act
   stepProcess(&processState);
