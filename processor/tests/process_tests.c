@@ -468,25 +468,86 @@ void test_stb_ii_should_storeImmediateAIntoMemoryByteAtAddressInImmediateB(void)
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-TEST_CASE(0x1234, 0x0, 0x1234, 0x1235)
-TEST_CASE(0x1234, 0x7, 0x123B, 0x123C)
-TEST_CASE(0x1234, 0x8, 0x122C, 0x122D)
-TEST_CASE(0xFFFF, 0x0, 0xFFFF, 0x0000)
-void test_stmw_should_storeFullAcIntoMemoryWordAtAddressWithSignedOffset(unsigned short baseAddress, unsigned char offset, unsigned short lowerAddressWithOffset, unsigned short upperAddressWithOffset) {
+void test_stw_rr_should_storeRegisterAIntoMemoryWordAtAddressInRegisterB(void) {
   // Arrange
   processState.registers.ip = 0x0001;
-  processState.registers.ac = 0x5678;
-  processState.registers.x0 = baseAddress;
-  storeInstruction(processState.memory, 1, (struct Instruction){
-    .opcode = STMW,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = offset,
+  processState.registers.x2 = 0x1234;
+  processState.registers.x3 = 0xFFFF;
+  writeInstruction(processState.memory, 1, (Instruction){
+    .opcode = OPCODE_STW_RR,
+    .operands.registerA = REGISTER_X2,
+    .operands.registerB = REGISTER_X3,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0003;
-  expectedEndState.memory[lowerAddressWithOffset] = 0x78;
-  expectedEndState.memory[upperAddressWithOffset] = 0x56;
+  expectedEndState.memory[0xFFFF] = 0x34;
+  expectedEndState.memory[0x0000] = 0x12;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_stw_ri_should_storeRegisterAIntoMemoryWordAtAddressInImmediateA(void) {
+  // Arrange
+  processState.registers.ip = 0x0001;
+  processState.registers.x2 = 0x1234;
+  writeInstruction(processState.memory, 1, (Instruction){
+    .opcode = OPCODE_STW_RR,
+    .operands.registerA = REGISTER_X2,
+    .operands.immediateA.u16 = 0xFFFF,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.memory[0xFFFF] = 0x34;
+  expectedEndState.memory[0x0000] = 0x12;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_stw_ir_should_storeImmediateAIntoMemoryWordAtAddressInRegisterA(void) {
+  // Arrange
+  processState.registers.ip = 0x0001;
+  processState.registers.x3 = 0xFFFF;
+  writeInstruction(processState.memory, 1, (Instruction){
+    .opcode = OPCODE_STW_RR,
+    .operands.immediateA.u16 = 0x1234,
+    .operands.registerA = REGISTER_X3,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.memory[0xFFFF] = 0x34;
+  expectedEndState.memory[0x0000] = 0x12;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_stw_ii_should_storeImmediateAIntoMemoryWordAtAddressInImmediateB(void) {
+  // Arrange
+  processState.registers.ip = 0x0001;
+  writeInstruction(processState.memory, 1, (Instruction){
+    .opcode = OPCODE_STW_RR,
+    .operands.immediateA.u16 = 0x1234,
+    .operands.immediateB.u16 = 0xFFFF,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.memory[0xFFFF] = 0x34;
+  expectedEndState.memory[0x0000] = 0x12;
 
   // Act
   stepProcess(&processState);
