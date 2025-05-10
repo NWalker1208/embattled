@@ -388,22 +388,78 @@ void test_ldw_i_should_loadMemoryWordAtAddressInImmediateAIntoRegisterA(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-TEST_CASE(0x1234, 0x0, 0x1234)
-TEST_CASE(0x1234, 0x7, 0x123B)
-TEST_CASE(0x1234, 0x8, 0x122C)
-void test_stmb_should_storeLowerAcIntoMemoryByteAtAddressWithSignedOffset(unsigned short baseAddress, unsigned char offset, unsigned short addressWithOffset) {
+void test_stb_rr_should_storeLowerRegisterAIntoMemoryByteAtAddressInRegisterB(void) {
   // Arrange
-  processState.registers.ac = 0x5678;
-  processState.registers.x0 = baseAddress;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = STMB,
-    .parameters.registerA = X0,
-    .parameters.immediate.u4 = offset,
+  processState.registers.x0 = 0xABCD;
+  processState.registers.x1 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_STB_RR,
+    .operands.registerA = REGISTER_X0,
+    .operands.registerB = REGISTER_X1,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.memory[addressWithOffset] = 0x78;
+  expectedEndState.memory[0x1234] = 0xCD;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_stb_ri_should_storeLowerRegisterAIntoMemoryByteAtAddressInImmediateA(void) {
+  // Arrange
+  processState.registers.x0 = 0xABCD;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_STB_RI,
+    .operands.registerA = REGISTER_X0,
+    .operands.immediateA.u16 = 0x1234,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.memory[0x1234] = 0xCD;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_stb_ir_should_storeImmediateAIntoMemoryByteAtAddressInRegisterA(void) {
+  // Arrange
+  processState.registers.x0 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_STB_IR,
+    .operands.immediateA.u16 = 0xABCD,
+    .operands.registerA = REGISTER_X0,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.memory[0x1234] = 0xCD;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_stb_ii_should_storeImmediateAIntoMemoryByteAtAddressInImmediateB(void) {
+  // Arrange
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_STB_II,
+    .operands.immediateA.u16 = 0xABCD,
+    .operands.immediateB.u16 = 0x1234,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.memory[0x1234] = 0xCD;
 
   // Act
   stepProcess(&processState);
