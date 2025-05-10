@@ -337,26 +337,26 @@ void execute_rshu_rr(OpcodeArguments args) { *args.registerAPtr = *args.register
 void execute_rshu_ri(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr >> args.immediateA.u4; }
 void execute_rshu_ir(OpcodeArguments args) { *args.registerAPtr = args.immediateA.u16 >> *args.registerCPtr; }
 
-void execute_ceq_r(OpcodeArguments args) { (void)args; }
-void execute_ceq_i(OpcodeArguments args) { (void)args; }
+void execute_ceq_r(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr == *args.registerCPtr) ? 1 : 0; }
+void execute_ceq_i(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr == args.immediateA.u16) ? 1 : 0; }
 
-void execute_cne_r(OpcodeArguments args) { (void)args; }
-void execute_cne_i(OpcodeArguments args) { (void)args; }
+void execute_cne_r(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr != *args.registerCPtr) ? 1 : 0; }
+void execute_cne_i(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr != args.immediateA.u16) ? 1 : 0; }
 
-void execute_clts_rr(OpcodeArguments args) { (void)args; }
-void execute_clts_ri(OpcodeArguments args) { (void)args; }
-void execute_clts_ir(OpcodeArguments args) { (void)args; }
+void execute_clts_rr(OpcodeArguments args) { *args.registerAPtr = ((int16_t)(*args.registerBPtr) < (int16_t)(*args.registerCPtr)) ? 1 : 0; }
+void execute_clts_ri(OpcodeArguments args) { *args.registerAPtr = ((int16_t)(*args.registerBPtr) < args.immediateA.s16) ? 1 : 0; }
+void execute_clts_ir(OpcodeArguments args) { *args.registerAPtr = (args.immediateA.s16 < (int16_t)(*args.registerBPtr)) ? 1 : 0; }
 
-void execute_cltu_rr(OpcodeArguments args) { (void)args; }
-void execute_cltu_ri(OpcodeArguments args) { (void)args; }
-void execute_cltu_ir(OpcodeArguments args) { (void)args; }
+void execute_cltu_rr(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr < *args.registerCPtr) ? 1 : 0; }
+void execute_cltu_ri(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr < args.immediateA.u16) ? 1 : 0; }
+void execute_cltu_ir(OpcodeArguments args) { *args.registerAPtr = (args.immediateA.u16 < *args.registerBPtr) ? 1 : 0; }
 
-void execute_cges_rr(OpcodeArguments args) { (void)args; }
-void execute_cges_ri(OpcodeArguments args) { (void)args; }
-void execute_cges_ir(OpcodeArguments args) { (void)args; }
+void execute_cges_rr(OpcodeArguments args) { *args.registerAPtr = ((int16_t)(*args.registerBPtr) >= (int16_t)(*args.registerCPtr)) ? 1 : 0; }
+void execute_cges_ri(OpcodeArguments args) { *args.registerAPtr = ((int16_t)(*args.registerBPtr) >= args.immediateA.s16) ? 1 : 0; }
+void execute_cges_ir(OpcodeArguments args) { *args.registerAPtr = (args.immediateA.s16 >= (int16_t)(*args.registerBPtr)) ? 1 : 0; }
 
-void execute_cgeu_rr(OpcodeArguments args) { (void)args; }
-void execute_cgeu_ri(OpcodeArguments args) { (void)args; }
-void execute_cgeu_ir(OpcodeArguments args) { (void)args; }
+void execute_cgeu_rr(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr >= *args.registerCPtr) ? 1 : 0; }
+void execute_cgeu_ri(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr >= args.immediateA.u16) ? 1 : 0; }
+void execute_cgeu_ir(OpcodeArguments args) { *args.registerAPtr = (args.immediateA.u16 >= *args.registerBPtr) ? 1 : 0; }
 
 #pragma endregion
