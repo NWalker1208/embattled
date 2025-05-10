@@ -1323,6 +1323,228 @@ void test_xor_i_should_setRegisterAToRegisterBBitwiseExclusiveOrImmediateA(void)
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
+TEST_CASE(0x5678, 0x0005, 0xCF00)
+TEST_CASE(0x5678, 0xFFFB, 0x0000)
+void test_lsh_rr_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x8 = valueA;
+  processState.registers.x9 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_LSH_RR,
+    .operands.registerA = REGISTER_X7,
+    .operands.registerB = REGISTER_X8,
+    .operands.registerC = REGISTER_X9,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x7 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x5678, 0x0005, 0xCF00)
+TEST_CASE(0x5678, 0xFFFB, 0x0000)
+void test_lsh_ri_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x8 = valueA;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_LSH_RI,
+    .operands.registerA = REGISTER_X7,
+    .operands.registerB = REGISTER_X8,
+    .operands.immediateA.u16 = valueB,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x7 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x5678, 0x0005, 0xCF00)
+TEST_CASE(0x5678, 0xFFFB, 0x0000)
+void test_lsh_ir_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x8 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_LSH_IR,
+    .operands.registerA = REGISTER_X7,
+    .operands.immediateA.u16 = valueA,
+    .operands.registerB = REGISTER_X8,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x7 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x4321, 0x0005, 0x0219)
+TEST_CASE(0x8765, 0x0005, 0xFC3B)
+TEST_CASE(0x4321, 0xFFFB, 0x0000)
+TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
+void test_rshs_rr_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x8 = valueA;
+  processState.registers.x9 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_RSHS_RR,
+    .operands.registerA = REGISTER_X7,
+    .operands.registerB = REGISTER_X8,
+    .operands.registerC = REGISTER_X9,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x7 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x4321, 0x0005, 0x0219)
+TEST_CASE(0x8765, 0x0005, 0xFC3B)
+TEST_CASE(0x4321, 0xFFFB, 0x0000)
+TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
+void test_rshs_ri_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x8 = valueA;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_RSHS_RI,
+    .operands.registerA = REGISTER_X7,
+    .operands.registerB = REGISTER_X8,
+    .operands.immediateA.u16 = valueB,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x7 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x4321, 0x0005, 0x0219)
+TEST_CASE(0x8765, 0x0005, 0xFC3B)
+TEST_CASE(0x4321, 0xFFFB, 0x0000)
+TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
+void test_rshs_ir_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x8 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_RSHS_IR,
+    .operands.registerA = REGISTER_X7,
+    .operands.immediateA.u16 = valueA,
+    .operands.registerB = REGISTER_X8,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x7 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x4321, 0x0005, 0x0219)
+TEST_CASE(0x8765, 0x0005, 0x043B)
+TEST_CASE(0x4321, 0xFFFB, 0x0000)
+TEST_CASE(0x8765, 0xFFFB, 0x0000)
+void test_rshu_rr_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x8 = valueA;
+  processState.registers.x9 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_RSHU_RR,
+    .operands.registerA = REGISTER_X7,
+    .operands.registerB = REGISTER_X8,
+    .operands.registerC = REGISTER_X9,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x7 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x4321, 0x0005, 0x0219)
+TEST_CASE(0x8765, 0x0005, 0x043B)
+TEST_CASE(0x4321, 0xFFFB, 0x0000)
+TEST_CASE(0x8765, 0xFFFB, 0x0000)
+void test_rshu_ri_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x8 = valueA;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_RSHU_RI,
+    .operands.registerA = REGISTER_X7,
+    .operands.registerB = REGISTER_X8,
+    .operands.immediateA.u16 = valueB,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x7 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x4321, 0x0005, 0x0219)
+TEST_CASE(0x8765, 0x0005, 0x043B)
+TEST_CASE(0x4321, 0xFFFB, 0x0000)
+TEST_CASE(0x8765, 0xFFFB, 0x0000)
+void test_rshu_ir_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x8 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_RSHU_IR,
+    .operands.registerA = REGISTER_X7,
+    .operands.immediateA.u16 = valueA,
+    .operands.registerB = REGISTER_X8,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x7 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
 #pragma endregion
 
 #pragma region Comparison
