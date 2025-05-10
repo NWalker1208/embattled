@@ -316,26 +316,26 @@ void execute_remu_rr(OpcodeArguments args) { *args.registerAPtr = *args.register
 void execute_remu_ri(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr % args.immediateA.u16; }
 void execute_remu_ir(OpcodeArguments args) { *args.registerAPtr = args.immediateA.u16 % *args.registerBPtr; }
 
-void execute_and_r(OpcodeArguments args) { (void)args; }
-void execute_and_i(OpcodeArguments args) { (void)args; }
+void execute_and_r(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr & *args.registerCPtr; }
+void execute_and_i(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr & args.immediateA.u16; }
 
-void execute_ior_r(OpcodeArguments args) { (void)args; }
-void execute_ior_i(OpcodeArguments args) { (void)args; }
+void execute_ior_r(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr | *args.registerCPtr; }
+void execute_ior_i(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr | args.immediateA.u16; }
 
-void execute_xor_r(OpcodeArguments args) { (void)args; }
-void execute_xor_i(OpcodeArguments args) { (void)args; }
+void execute_xor_r(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr ^ *args.registerCPtr; }
+void execute_xor_i(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr ^ args.immediateA.u16; }
 
-void execute_lsh_rr(OpcodeArguments args) { (void)args; }
-void execute_lsh_ri(OpcodeArguments args) { (void)args; }
-void execute_lsh_ir(OpcodeArguments args) { (void)args; }
+void execute_lsh_rr(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr << *args.registerCPtr; }
+void execute_lsh_ri(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr << args.immediateA.u4; }
+void execute_lsh_ir(OpcodeArguments args) { *args.registerAPtr = args.immediateA.u16 << *args.registerBPtr; }
 
-void execute_rshs_rr(OpcodeArguments args) { (void)args; }
-void execute_rshs_ri(OpcodeArguments args) { (void)args; }
-void execute_rshs_ir(OpcodeArguments args) { (void)args; }
+void execute_rshs_rr(OpcodeArguments args) { *args.registerAPtr = (uint16_t)((int16_t)(*args.registerBPtr) >> *args.registerCPtr); }
+void execute_rshs_ri(OpcodeArguments args) { *args.registerAPtr = (uint16_t)((int16_t)(*args.registerBPtr) >> args.immediateA.u4); }
+void execute_rshs_ir(OpcodeArguments args) { *args.registerAPtr = (uint16_t)(args.immediateA.s16 >> *args.registerCPtr); }
 
-void execute_rshu_rr(OpcodeArguments args) { (void)args; }
-void execute_rshu_ri(OpcodeArguments args) { (void)args; }
-void execute_rshu_ir(OpcodeArguments args) { (void)args; }
+void execute_rshu_rr(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr >> *args.registerCPtr; }
+void execute_rshu_ri(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr >> args.immediateA.u4; }
+void execute_rshu_ir(OpcodeArguments args) { *args.registerAPtr = args.immediateA.u16 >> *args.registerCPtr; }
 
 void execute_ceq_r(OpcodeArguments args) { (void)args; }
 void execute_ceq_i(OpcodeArguments args) { (void)args; }
