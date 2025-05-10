@@ -843,19 +843,41 @@ void test_sub_ir_should_setRegisterAToImmediateAMinusRegisterB(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_mul_should_setAcToRegisterATimesRegisterB(void) {
+void test_mul_r_should_setRegisterAToRegisterBTimesRegisterC(void) {
   // Arrange
-  processState.registers.x1 = 0x1234;
-  processState.registers.x2 = 0x5678;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = MUL,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x2 = 0x1234;
+  processState.registers.x3 = 0x5678;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_MUL_R,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.registerC = REGISTER_X3,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0060;
+  expectedEndState.registers.x1 = 0x0060;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_mul_r_should_setRegisterAToRegisterBTimesImmediateA(void) {
+  // Arrange
+  processState.registers.x2 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_MUL_R,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.immediateA.u16 = 0x5678,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = 0x0060;
 
   // Act
   stepProcess(&processState);
@@ -868,19 +890,70 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0xFFFA)
 TEST_CASE(0x5678, 0xFEDC, 0xFFB5)
 TEST_CASE(0xBA98, 0xFEDC, 0x003C)
-void test_divs_should_setAcToRegisterADividedByRegisterBSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_divs_rr_should_setRegisterAToRegisterBSignedDividedByRegisterCSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = DIVS,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x2 = valueA;
+  processState.registers.x3 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_DIVS_RR,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.registerC = REGISTER_X3,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = expectedOutput;
+  expectedEndState.registers.x1 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x5678, 0x1234, 0x0004)
+TEST_CASE(0x8765, 0x1234, 0xFFFA)
+TEST_CASE(0x5678, 0xFEDC, 0xFFB5)
+TEST_CASE(0xBA98, 0xFEDC, 0x003C)
+void test_divs_ri_should_setRegisterAToRegisterBSignedDividedByImmediateASigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x2 = valueA;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_DIVS_RI,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.immediateA.u16 = valueB,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x5678, 0x1234, 0x0004)
+TEST_CASE(0x8765, 0x1234, 0xFFFA)
+TEST_CASE(0x5678, 0xFEDC, 0xFFB5)
+TEST_CASE(0xBA98, 0xFEDC, 0x003C)
+void test_divs_ir_should_setRegisterAToImmediateASignedDividedByRegisterBSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x2 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_DIVS_IR,
+    .operands.registerA = REGISTER_X1,
+    .operands.immediateA.u16 = valueA,
+    .operands.registerB = REGISTER_X2,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = expectedOutput;
 
   // Act
   stepProcess(&processState);
@@ -893,19 +966,70 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0x0007)
 TEST_CASE(0x5678, 0xFEDC, 0x0000)
 TEST_CASE(0xBA98, 0xFEDC, 0x0000)
-void test_divu_should_setAcToRegisterADividedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_divu_rr_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = DIVU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x2 = valueA;
+  processState.registers.x3 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_DIVU_RR,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.registerC = REGISTER_X3,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = expectedOutput;
+  expectedEndState.registers.x1 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x5678, 0x1234, 0x0004)
+TEST_CASE(0x8765, 0x1234, 0x0007)
+TEST_CASE(0x5678, 0xFEDC, 0x0000)
+TEST_CASE(0xBA98, 0xFEDC, 0x0000)
+void test_divu_ri_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x2 = valueA;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_DIVU_RI,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.immediateA.u16 = valueB,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x5678, 0x1234, 0x0004)
+TEST_CASE(0x8765, 0x1234, 0x0007)
+TEST_CASE(0x5678, 0xFEDC, 0x0000)
+TEST_CASE(0xBA98, 0xFEDC, 0x0000)
+void test_divu_ir_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x2 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_DIVU_RR,
+    .operands.registerA = REGISTER_X1,
+    .operands.immediateA.u16 = valueA,
+    .operands.registerB = REGISTER_X2,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = expectedOutput;
 
   // Act
   stepProcess(&processState);
