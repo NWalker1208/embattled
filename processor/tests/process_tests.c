@@ -736,19 +736,20 @@ void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerAIsSp(void) 
 
 #pragma region Math and logic instructions
 
-void test_add_should_setAcToRegisterAPlusRegisterB(void) {
+void test_add_r_should_setRegisterAToRegisterBPlusRegisterC(void) {
   // Arrange
-  processState.registers.x1 = 0x1234;
-  processState.registers.x2 = 0x5678;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = ADD,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x2 = 0x1234;
+  processState.registers.x3 = 0x5678;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_ADD_R,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.registerC = REGISTER_X3,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x68AC;
+  expectedEndState.registers.x1 = 0x68AC;
 
   // Act
   stepProcess(&processState);
@@ -757,19 +758,83 @@ void test_add_should_setAcToRegisterAPlusRegisterB(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_sub_should_setAcToRegisterAMinusRegisterB(void) {
+void test_add_i_should_setRegisterAToRegisterBPlusImmediateA(void) {
   // Arrange
-  processState.registers.x1 = 0x5678;
   processState.registers.x2 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = SUB,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_ADD_R,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.immediateA.u16 = 0x5678,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x4444;
+  expectedEndState.registers.x1 = 0x68AC;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_sub_rr_should_setRegisterAToRegisterBMinusRegisterC(void) {
+  // Arrange
+  processState.registers.x2 = 0x5678;
+  processState.registers.x3 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_SUB_RR,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.registerC = REGISTER_X3,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = 0x4444;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_sub_ri_should_setRegisterAToRegisterBMinusImmediateA(void) {
+  // Arrange
+  processState.registers.x2 = 0x5678;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_SUB_RR,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.immediateA.u16 = 0x1234,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = 0x4444;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+void test_sub_ir_should_setRegisterAToImmediateAMinusRegisterB(void) {
+  // Arrange
+  processState.registers.x2 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_SUB_RR,
+    .operands.registerA = REGISTER_X1,
+    .operands.immediateA.u16 = 0x5678,
+    .operands.registerB = REGISTER_X2,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = 0x4444;
 
   // Act
   stepProcess(&processState);
