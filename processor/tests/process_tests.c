@@ -1042,19 +1042,70 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0xF49D)
 TEST_CASE(0x5678, 0xFEDC, 0x00EC)
 TEST_CASE(0xBA98, 0xFEDC, 0xFF08)
-void test_rems_should_setAcToRemainderOfRegisterADividedByRegisterBSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_rems_rr_should_setRegisterAToRemainderOfRegisterBSignedDividedByRegisterCSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = REMS,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x2 = valueA;
+  processState.registers.x3 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_REMS_RR,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.registerC = REGISTER_X3,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = expectedOutput;
+  expectedEndState.registers.x1 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x5678, 0x1234, 0x0DA8)
+TEST_CASE(0x8765, 0x1234, 0xF49D)
+TEST_CASE(0x5678, 0xFEDC, 0x00EC)
+TEST_CASE(0xBA98, 0xFEDC, 0xFF08)
+void test_rems_ri_should_setRegisterAToRemainderOfRegisterBSignedDividedByImmediateASigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x2 = valueA;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_REMS_RI,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.immediateA.u16 = valueB,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x5678, 0x1234, 0x0DA8)
+TEST_CASE(0x8765, 0x1234, 0xF49D)
+TEST_CASE(0x5678, 0xFEDC, 0x00EC)
+TEST_CASE(0xBA98, 0xFEDC, 0xFF08)
+void test_rems_ir_should_setRegisterAToRemainderOfImmediateASignedDividedByRegisterBSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x2 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_REMS_IR,
+    .operands.registerA = REGISTER_X1,
+    .operands.immediateA.u16 = valueA,
+    .operands.registerB = REGISTER_X2,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = expectedOutput;
 
   // Act
   stepProcess(&processState);
@@ -1067,19 +1118,70 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0x07F9)
 TEST_CASE(0x5678, 0xFEDC, 0x5678)
 TEST_CASE(0xBA98, 0xFEDC, 0xBA98)
-void test_remu_should_setAcToRemainderOfRegisterADividedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_remu_rr_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = REMU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x2 = valueA;
+  processState.registers.x3 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_REMU_RR,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.registerC = REGISTER_X3,
   });
 
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = expectedOutput;
+  expectedEndState.registers.x1 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x5678, 0x1234, 0x0DA8)
+TEST_CASE(0x8765, 0x1234, 0x07F9)
+TEST_CASE(0x5678, 0xFEDC, 0x5678)
+TEST_CASE(0xBA98, 0xFEDC, 0xBA98)
+void test_remu_ri_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x2 = valueA;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_REMU_RI,
+    .operands.registerA = REGISTER_X1,
+    .operands.registerB = REGISTER_X2,
+    .operands.immediateA.u16 = valueB,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = expectedOutput;
+
+  // Act
+  stepProcess(&processState);
+
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x5678, 0x1234, 0x0DA8)
+TEST_CASE(0x8765, 0x1234, 0x07F9)
+TEST_CASE(0x5678, 0xFEDC, 0x5678)
+TEST_CASE(0xBA98, 0xFEDC, 0xBA98)
+void test_remu_ir_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x2 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_REMU_IR,
+    .operands.registerA = REGISTER_X1,
+    .operands.immediateA.u16 = valueA,
+    .operands.registerB = REGISTER_X2,
+  });
+
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x1 = expectedOutput;
 
   // Act
   stepProcess(&processState);
