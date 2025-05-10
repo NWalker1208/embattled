@@ -1908,25 +1908,29 @@ void test_cltu_ir_should_setRegisterAToOneIfImmediateAUnsignedIsLessThanRegister
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-TEST_CASE(0x0001, 0x0000)
-TEST_CASE(0x0000, 0xFFFF)
-TEST_CASE(0xFFFF, 0xFFFE)
-TEST_CASE(0x0000, 0x0000)
-TEST_CASE(0x0001, 0x0001)
-TEST_CASE(0xFFFF, 0xFFFF)
-void test_cges_should_setAcToOne_when_registerASignedIsGreaterThanOrEqualToRegisterBSigned(unsigned short valueA, unsigned short valueB) {
+TEST_CASE(0x0001, 0x0000, 1)
+TEST_CASE(0x0000, 0xFFFF, 1)
+TEST_CASE(0xFFFF, 0xFFFE, 1)
+TEST_CASE(0x0000, 0x0000, 1)
+TEST_CASE(0x0001, 0x0001, 1)
+TEST_CASE(0xFFFF, 0xFFFF, 1)
+TEST_CASE(0x0000, 0x0001, 0)
+TEST_CASE(0xFFFF, 0x0000, 0)
+TEST_CASE(0xFFFE, 0xFFFF, 0)
+void test_cges_rr_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualToRegisterCSignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = CGES,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x4 = valueA;
+  processState.registers.x5 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CGES_RR,
+    .operands.registerA = REGISTER_X3,
+    .operands.registerB = REGISTER_X4,
+    .operands.registerC = REGISTER_X5,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 1;
+  expectedEndState.registers.x3 = expectedOutput;
   
   // Act
   stepProcess(&processState);
@@ -1935,22 +1939,28 @@ void test_cges_should_setAcToOne_when_registerASignedIsGreaterThanOrEqualToRegis
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-TEST_CASE(0x0000, 0x0001)
-TEST_CASE(0xFFFF, 0x0000)
-TEST_CASE(0xFFFE, 0xFFFF)
-void test_cges_should_setAcToZero_when_registerASignedIsLessThanRegisterBSigned(unsigned short valueA, unsigned short valueB) {
+TEST_CASE(0x0001, 0x0000, 1)
+TEST_CASE(0x0000, 0xFFFF, 1)
+TEST_CASE(0xFFFF, 0xFFFE, 1)
+TEST_CASE(0x0000, 0x0000, 1)
+TEST_CASE(0x0001, 0x0001, 1)
+TEST_CASE(0xFFFF, 0xFFFF, 1)
+TEST_CASE(0x0000, 0x0001, 0)
+TEST_CASE(0xFFFF, 0x0000, 0)
+TEST_CASE(0xFFFE, 0xFFFF, 0)
+void test_cges_ri_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualToRegisterCSignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = CGES,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x4 = valueA;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CGES_RI,
+    .operands.registerA = REGISTER_X3,
+    .operands.registerB = REGISTER_X4,
+    .operands.immediateA.u16 = valueB,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0;
+  expectedEndState.registers.x3 = expectedOutput;
   
   // Act
   stepProcess(&processState);
@@ -1959,25 +1969,28 @@ void test_cges_should_setAcToZero_when_registerASignedIsLessThanRegisterBSigned(
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-TEST_CASE(0x0001, 0x0000)
-TEST_CASE(0xFFFF, 0x0000)
-TEST_CASE(0xFFFF, 0xFFFE)
-TEST_CASE(0x0000, 0x0000)
-TEST_CASE(0x0001, 0x0001)
-TEST_CASE(0xFFFF, 0xFFFF)
-void test_cgeu_should_setAcToOne_when_registerAUnsignedIsGreaterThanOrEqualToRegisterBUnsigned(unsigned short valueA, unsigned short valueB) {
+TEST_CASE(0x0001, 0x0000, 1)
+TEST_CASE(0x0000, 0xFFFF, 1)
+TEST_CASE(0xFFFF, 0xFFFE, 1)
+TEST_CASE(0x0000, 0x0000, 1)
+TEST_CASE(0x0001, 0x0001, 1)
+TEST_CASE(0xFFFF, 0xFFFF, 1)
+TEST_CASE(0x0000, 0x0001, 0)
+TEST_CASE(0xFFFF, 0x0000, 0)
+TEST_CASE(0xFFFE, 0xFFFF, 0)
+void test_cges_ir_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualToRegisterCSignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = CGEU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x4 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CGES_IR,
+    .operands.registerA = REGISTER_X3,
+    .operands.immediateA.u16 = valueA,
+    .operands.registerB = REGISTER_X4,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 1;
+  expectedEndState.registers.x3 = expectedOutput;
   
   // Act
   stepProcess(&processState);
@@ -1986,48 +1999,95 @@ void test_cgeu_should_setAcToOne_when_registerAUnsignedIsGreaterThanOrEqualToReg
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-TEST_CASE(0x0000, 0x0001)
-TEST_CASE(0x0000, 0xFFFF)
-TEST_CASE(0xFFFE, 0xFFFF)
-void test_cgeu_should_setAcToZero_when_registerAUnsignedIsLessThanRegisterBUnsigned(unsigned short valueA, unsigned short valueB) {
+TEST_CASE(0x0001, 0x0000, 1)
+TEST_CASE(0xFFFF, 0x0000, 1)
+TEST_CASE(0xFFFF, 0xFFFE, 1)
+TEST_CASE(0x0000, 0x0000, 1)
+TEST_CASE(0x0001, 0x0001, 1)
+TEST_CASE(0xFFFF, 0xFFFF, 1)
+TEST_CASE(0x0000, 0x0001, 0)
+TEST_CASE(0x0000, 0xFFFF, 0)
+TEST_CASE(0xFFFE, 0xFFFF, 0)
+void test_cgeu_rr_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
   // Arrange
   processState.registers.x1 = valueA;
   processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = CGEU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CGEU_RR,
+    .operands.registerA = REGISTER_X3,
+    .operands.registerB = REGISTER_X4,
+    .operands.registerC = REGISTER_X5,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0;
+  expectedEndState.registers.x3 = expectedOutput;
   
   // Act
   stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
 
+TEST_CASE(0x0001, 0x0000, 1)
+TEST_CASE(0xFFFF, 0x0000, 1)
+TEST_CASE(0xFFFF, 0xFFFE, 1)
+TEST_CASE(0x0000, 0x0000, 1)
+TEST_CASE(0x0001, 0x0001, 1)
+TEST_CASE(0xFFFF, 0xFFFF, 1)
+TEST_CASE(0x0000, 0x0001, 0)
+TEST_CASE(0x0000, 0xFFFF, 0)
+TEST_CASE(0xFFFE, 0xFFFF, 0)
+void test_cgeu_ri_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x1 = valueA;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CGEU_RI,
+    .operands.registerA = REGISTER_X3,
+    .operands.registerB = REGISTER_X4,
+    .operands.immediateA.u16 = valueB,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x3 = expectedOutput;
+  
+  // Act
+  stepProcess(&processState);
+  
+  // Assert
+  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
+}
+
+TEST_CASE(0x0001, 0x0000, 1)
+TEST_CASE(0xFFFF, 0x0000, 1)
+TEST_CASE(0xFFFF, 0xFFFE, 1)
+TEST_CASE(0x0000, 0x0000, 1)
+TEST_CASE(0x0001, 0x0001, 1)
+TEST_CASE(0xFFFF, 0xFFFF, 1)
+TEST_CASE(0x0000, 0x0001, 0)
+TEST_CASE(0x0000, 0xFFFF, 0)
+TEST_CASE(0xFFFE, 0xFFFF, 0)
+void test_cgeu_ir_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+  // Arrange
+  processState.registers.x1 = valueB;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_CGEU_IR,
+    .operands.registerA = REGISTER_X3,
+    .operands.immediateA.u16 = valueA,
+    .operands.registerB = REGISTER_X4,
+  });
+  
+  initializeExpectedEndState();
+  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.x3 = expectedOutput;
+  
+  // Act
+  stepProcess(&processState);
+  
   // Assert
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
 #pragma endregion
-
-/*
-Example program:
-  memory[0] = LDIW;
-  memory[1] = 0x01;
-  memory[2] = 0x00;
-  
-  memory[3] = MOV;
-  memory[4] = (unsigned char)X0 << 4 | (unsigned char)AC;
-  
-  memory[5] = ADD;
-  memory[6] = (unsigned char)AC << 4 | (unsigned char)X0;
-
-  memory[7] = PSHW;
-  memory[8] = (unsigned char)AC << 4;
-
-  memory[9] = JMP;
-  memory[10] = 0x05;
-  memory[11] = 0x00;
-*/
