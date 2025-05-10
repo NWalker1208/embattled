@@ -1202,7 +1202,7 @@ void test_and_r_should_setRegisterAToRegisterBBitwiseAndRegisterC(void) {
     .opcode = OPCODE_AND_R,
     .operands.registerA = REGISTER_X4,
     .operands.registerB = REGISTER_X5,
-    .operands.registerB = REGISTER_X6,
+    .operands.registerC = REGISTER_X6,
   });
   
   initializeExpectedEndState();
