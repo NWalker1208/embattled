@@ -68,9 +68,11 @@
 - Instructions can accept up to 3 operands instead of only 2.
 - A single mnemonic can map to different opcodes such that the one or more read-only parameter can be either a register or an immediate value.
 - Division by zero will result in the most negative/positive representable value, depending on the context.
-  - If performing unsigned division, the result is the maximum unsigned short (`0xFFFF`).
+  - If the dividend is zero, the result is zero (`0x0000`).
+  - If performing unsigned division and the dividend is not zero, the result is the maximum unsigned short (`0xFFFF`).
   - If performing signed division and the dividend is positive, the result is the maximum signed short (`0x7FFF`).
   - If performing signed division and the dividend is negative, the result is the minimum signed short (`0x8000`).
+  - The remainder when dividing by zero is always equal to the dividend to maintain the invariant that `y * (x / y) + (x % y) = x`.
 - I considered switching to a flags-based approach for comparing values and handling errors. However, I decided to stick with the design of having multiple compare instructions, rather than having flags or multiple jump/branch instructions.
   - This prevents needing to have many extra instructions for both branching on and loading flags.
   - This also prevents needing to have multiple jump instructions in addition to multiple compare instructions.

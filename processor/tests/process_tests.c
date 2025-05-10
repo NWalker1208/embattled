@@ -890,6 +890,9 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0xFFFA)
 TEST_CASE(0x5678, 0xFEDC, 0xFFB5)
 TEST_CASE(0xBA98, 0xFEDC, 0x003C)
+TEST_CASE(0x0001, 0x0000, 0x7FFF)
+TEST_CASE(0xFFFF, 0x0000, 0x8000)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_divs_rr_should_setRegisterAToRegisterBSignedDividedByRegisterCSigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
@@ -916,6 +919,9 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0xFFFA)
 TEST_CASE(0x5678, 0xFEDC, 0xFFB5)
 TEST_CASE(0xBA98, 0xFEDC, 0x003C)
+TEST_CASE(0x0001, 0x0000, 0x7FFF)
+TEST_CASE(0xFFFF, 0x0000, 0x8000)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_divs_ri_should_setRegisterAToRegisterBSignedDividedByImmediateASigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
@@ -941,6 +947,9 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0xFFFA)
 TEST_CASE(0x5678, 0xFEDC, 0xFFB5)
 TEST_CASE(0xBA98, 0xFEDC, 0x003C)
+TEST_CASE(0x0001, 0x0000, 0x7FFF)
+TEST_CASE(0xFFFF, 0x0000, 0x8000)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_divs_ir_should_setRegisterAToImmediateASignedDividedByRegisterBSigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueB;
@@ -966,6 +975,9 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0x0007)
 TEST_CASE(0x5678, 0xFEDC, 0x0000)
 TEST_CASE(0xBA98, 0xFEDC, 0x0000)
+TEST_CASE(0x0001, 0x0000, 0xFFFF)
+TEST_CASE(0xFFFF, 0x0000, 0xFFFF)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_divu_rr_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
@@ -992,6 +1004,9 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0x0007)
 TEST_CASE(0x5678, 0xFEDC, 0x0000)
 TEST_CASE(0xBA98, 0xFEDC, 0x0000)
+TEST_CASE(0x0001, 0x0000, 0xFFFF)
+TEST_CASE(0xFFFF, 0x0000, 0xFFFF)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_divu_ri_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
@@ -1017,6 +1032,9 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0x0007)
 TEST_CASE(0x5678, 0xFEDC, 0x0000)
 TEST_CASE(0xBA98, 0xFEDC, 0x0000)
+TEST_CASE(0x0001, 0x0000, 0xFFFF)
+TEST_CASE(0xFFFF, 0x0000, 0xFFFF)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_divu_ir_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueB;
@@ -1042,6 +1060,9 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0xF49D)
 TEST_CASE(0x5678, 0xFEDC, 0x00EC)
 TEST_CASE(0xBA98, 0xFEDC, 0xFF08)
+TEST_CASE(0x0001, 0x0000, 0x0001)
+TEST_CASE(0xFFFF, 0x0000, 0xFFFF)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_rems_rr_should_setRegisterAToRemainderOfRegisterBSignedDividedByRegisterCSigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
@@ -1068,6 +1089,9 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0xF49D)
 TEST_CASE(0x5678, 0xFEDC, 0x00EC)
 TEST_CASE(0xBA98, 0xFEDC, 0xFF08)
+TEST_CASE(0x0001, 0x0000, 0x0001)
+TEST_CASE(0xFFFF, 0x0000, 0xFFFF)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_rems_ri_should_setRegisterAToRemainderOfRegisterBSignedDividedByImmediateASigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
@@ -1093,6 +1117,9 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0xF49D)
 TEST_CASE(0x5678, 0xFEDC, 0x00EC)
 TEST_CASE(0xBA98, 0xFEDC, 0xFF08)
+TEST_CASE(0x0001, 0x0000, 0x0001)
+TEST_CASE(0xFFFF, 0x0000, 0xFFFF)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_rems_ir_should_setRegisterAToRemainderOfImmediateASignedDividedByRegisterBSigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueB;
@@ -1118,6 +1145,9 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0x07F9)
 TEST_CASE(0x5678, 0xFEDC, 0x5678)
 TEST_CASE(0xBA98, 0xFEDC, 0xBA98)
+TEST_CASE(0x0001, 0x0000, 0x0001)
+TEST_CASE(0xFFFF, 0x0000, 0xFFFF)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_remu_rr_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
@@ -1144,6 +1174,9 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0x07F9)
 TEST_CASE(0x5678, 0xFEDC, 0x5678)
 TEST_CASE(0xBA98, 0xFEDC, 0xBA98)
+TEST_CASE(0x0001, 0x0000, 0x0001)
+TEST_CASE(0xFFFF, 0x0000, 0xFFFF)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_remu_ri_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
@@ -1169,6 +1202,9 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0x07F9)
 TEST_CASE(0x5678, 0xFEDC, 0x5678)
 TEST_CASE(0xBA98, 0xFEDC, 0xBA98)
+TEST_CASE(0x0001, 0x0000, 0x0001)
+TEST_CASE(0xFFFF, 0x0000, 0xFFFF)
+TEST_CASE(0x0000, 0x0000, 0x0000)
 void test_remu_ir_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueB;
