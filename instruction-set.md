@@ -77,6 +77,7 @@
 - I considered allowing a single mnemonic to map to different opcodes that accept different sizes of immediate values (4, 8, 12, or 16-bit), but decided this didn't offer enough value to be worth the complexity. Instead, instructions will simply accept the size of immediate value that makes sense for their use case. This decision should be easy to reverse later if necessary.
 - For the sake of efficient storage, opcodes will occupy either 8 or 12 bits.
 - The `ac` (accumulator) register is replaced with the `rt` (return) register.
+- I considered having the left-shift and right-shift opcodes treat register B (the number of bits to shift) as signed, but this would require having signed and unsigned variants of the left-shift opcodes, which would be meaningless when the second operand is an immediate value.
 
 ## Instructions
 
@@ -141,15 +142,15 @@
 | `xor`    | `xor_r`   | `regA, regB, regC`     | `regA = regB ^ regC` |
 |          | `xor_i`   | `regA, regB, immA[16]` | `regA = regB ^ immA` |
 |          |           | `regA, immA[16], regB` |                      |
-| `lsh`    | `lsh_rr`  | `regA, regB, regC`     | `regA = regB << regC (signed)` |
+| `lsh`    | `lsh_rr`  | `regA, regB, regC`     | `regA = regB << regC (unsigned)` |
 |          | `lsh_ri`  | `regA, regB, immA[4]`  | `regA = regB << immA (unsigned)` |
-|          | `lsh_ir`  | `regA, immA[16], regB` | `regA = immA << regB (signed)` |
-| `rshs`   | `rshs_rr` | `regA, regB, regC`     | `regA = regB (signed)   >> regC (signed)` |
+|          | `lsh_ir`  | `regA, immA[16], regB` | `regA = immA << regB (unsigned)` |
+| `rshs`   | `rshs_rr` | `regA, regB, regC`     | `regA = regB (signed)   >> regC (unsigned)` |
 |          | `rshs_ri` | `regA, regB, immA[4]`  | `regA = regB (signed)   >> immA (unsigned)` |
-|          | `rshs_ir` | `regA, immA[16], regB` | `regA = immA (signed)   >> regB (signed)` |
-| `rshu`   | `rshu_rr` | `regA, regB, regC`     | `regA = regB (unsigned) >> regC (signed)` |
+|          | `rshs_ir` | `regA, immA[16], regB` | `regA = immA (signed)   >> regB (unsigned)` |
+| `rshu`   | `rshu_rr` | `regA, regB, regC`     | `regA = regB (unsigned) >> regC (unsigned)` |
 |          | `rshu_ri` | `regA, regB, immA[4]`  | `regA = regB (unsigned) >> immA (unsigned)` |
-|          | `rshu_ir` | `regA, immA[16], regB` | `regA = immA (unsigned) >> regB (signed)` |
+|          | `rshu_ir` | `regA, immA[16], regB` | `regA = immA (unsigned) >> regB (unsigned)` |
 | Comparison                                              ||||
 | `ceq`    | `ceq_r`   | `regA, regB, regC`     | `regA = (regB == regC) ? 1 : 0` |
 |          | `ceq_i`   | `regA, regB, immA[16]` | `regA = (regB == immA) ? 1 : 0` |
