@@ -266,7 +266,7 @@ void execute_stb_ii(OpcodeArguments args) { args.process->memory[args.immediateB
 void execute_stw_rr(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)(*args.registerAPtr & 0xFF); args.process->memory[*args.registerBPtr + 1] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF); }
 void execute_stw_ri(OpcodeArguments args) { args.process->memory[args.immediateA.u16] = (uint8_t)(*args.registerAPtr & 0xFF); args.process->memory[args.immediateA.u16 + 1] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF); }
 void execute_stw_ir(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)(args.immediateA.u16 & 0xFF); args.process->memory[*args.registerBPtr + 1] = (uint8_t)((args.immediateA.u16 >> 8) & 0xFF); }
-void execute_stw_ii(OpcodeArguments args) { args.process->memory[args.immediateA.u16] = (uint8_t)(args.immediateA.u16 & 0xFF); args.process->memory[args.immediateA.u16 + 1] = (uint8_t)((args.immediateA.u16 >> 8) & 0xFF); }
+void execute_stw_ii(OpcodeArguments args) { args.process->memory[args.immediateB.u16] = (uint8_t)(args.immediateA.u16 & 0xFF); args.process->memory[args.immediateB.u16 + 1] = (uint8_t)((args.immediateA.u16 >> 8) & 0xFF); }
 
 void execute_pshb(OpcodeArguments args) {
   args.process->memory[args.process->registers.sp - 1] = (uint8_t)(*args.registerAPtr & 0xFF);
