@@ -1194,93 +1194,20 @@ void test_remu_ir_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUns
 
 #pragma region Bitwise logic
 
-TEST_CASE(0x5678, 0x0005, 0xCF00)
-TEST_CASE(0x5678, 0xFFFB, 0x0000)
-void test_lsh_should_setAcToRegisterALeftShiftedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_and_r_should_setRegisterAToRegisterBBitwiseAndRegisterC(void) {
   // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LSH,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = expectedOutput;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-TEST_CASE(0x4321, 0x0005, 0x0219)
-TEST_CASE(0x8765, 0x0005, 0xFC3B)
-TEST_CASE(0x4321, 0xFFFB, 0x0000)
-TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
-void test_rshs_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
-  // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = RSHS,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = expectedOutput;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-TEST_CASE(0x4321, 0x0005, 0x0219)
-TEST_CASE(0x8765, 0x0005, 0x043B)
-TEST_CASE(0x4321, 0xFFFB, 0x0000)
-TEST_CASE(0x8765, 0xFFFB, 0x0000)
-void test_rshu_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
-  // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = RSHU,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
-  });
-
-  initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = expectedOutput;
-
-  // Act
-  stepProcess(&processState);
-
-  // Assert
-  TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
-}
-
-TEST_CASE(0x6789, 0x7, 0xC480)
-TEST_CASE(0x6789, 0xF, 0x8000)
-void test_lsi_should_setAcToRegisterALeftShiftedByImmediateValueUnsigned(unsigned short registerValue, unsigned char immediateValue, unsigned short expectedOutput) {
-  // Arrange
-  processState.registers.x1 = registerValue;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = LSI,
-    .parameters.registerA = X1,
-    .parameters.immediate.u4 = immediateValue,
+  processState.registers.x5 = 0x1234;
+  processState.registers.x6 = 0x8765;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_AND_R,
+    .operands.registerA = REGISTER_X4,
+    .operands.registerB = REGISTER_X5,
+    .operands.registerB = REGISTER_X6,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = expectedOutput;
+  expectedEndState.registers.x4 = 0x0224;
   
   // Act
   stepProcess(&processState);
@@ -1289,22 +1216,19 @@ void test_lsi_should_setAcToRegisterALeftShiftedByImmediateValueUnsigned(unsigne
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-TEST_CASE(0x1234, 0x7, 0x0024)
-TEST_CASE(0x8765, 0x7, 0xFF0E)
-TEST_CASE(0x1234, 0xF, 0x0000)
-TEST_CASE(0x8765, 0xF, 0xFFFF)
-void test_rsis_should_setAcToRegisterARightShiftedMsbExtendedByImmediateValueUnsigned(unsigned short registerValue, unsigned char immediateValue, unsigned short expectedOutput) {
+void test_and_i_should_setRegisterAToRegisterBBitwiseAndImmediateA(void) {
   // Arrange
-  processState.registers.x1 = registerValue;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = RSIS,
-    .parameters.registerA = X1,
-    .parameters.immediate.u4 = immediateValue,
+  processState.registers.x5 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_AND_I,
+    .operands.registerA = REGISTER_X4,
+    .operands.registerB = REGISTER_X5,
+    .operands.immediateA.u16 = 0x8765,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = expectedOutput;
+  expectedEndState.registers.x4 = 0x0224;
   
   // Act
   stepProcess(&processState);
@@ -1313,22 +1237,20 @@ void test_rsis_should_setAcToRegisterARightShiftedMsbExtendedByImmediateValueUns
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-TEST_CASE(0x1234, 0x7, 0x0024)
-TEST_CASE(0x8765, 0x7, 0x010E)
-TEST_CASE(0x1234, 0xF, 0x0000)
-TEST_CASE(0x8765, 0xF, 0x0001)
-void test_rsis_should_setAcToRegisterARightShiftedZeroExtendedByImmediateValueUnsigned(unsigned short registerValue, unsigned char immediateValue, unsigned short expectedOutput) {
+void test_ior_r_should_setRegisterAToRegisterBBitwiseInclusiveOrRegisterC(void) {
   // Arrange
-  processState.registers.x1 = registerValue;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = RSIU,
-    .parameters.registerA = X1,
-    .parameters.immediate.u4 = immediateValue,
+  processState.registers.x5 = 0x1234;
+  processState.registers.x6 = 0x8765;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_IOR_R,
+    .operands.registerA = REGISTER_X4,
+    .operands.registerB = REGISTER_X5,
+    .operands.registerC = REGISTER_X6,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = expectedOutput;
+  expectedEndState.registers.x4 = 0x9775;
   
   // Act
   stepProcess(&processState);
@@ -1337,19 +1259,19 @@ void test_rsis_should_setAcToRegisterARightShiftedZeroExtendedByImmediateValueUn
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_and_should_setAcToRegisterABitwiseAndRegisterB(void) {
+void test_ior_i_should_setRegisterAToRegisterBBitwiseInclusiveOrRegisterC(void) {
   // Arrange
-  processState.registers.x1 = 0x1234;
-  processState.registers.x2 = 0x8765;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = AND,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x5 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_IOR_I,
+    .operands.registerA = REGISTER_X4,
+    .operands.registerB = REGISTER_X5,
+    .operands.immediateA.u16 = 0x8765,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x0224;
+  expectedEndState.registers.x4 = 0x9775;
   
   // Act
   stepProcess(&processState);
@@ -1358,19 +1280,20 @@ void test_and_should_setAcToRegisterABitwiseAndRegisterB(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_ior_should_setAcToRegisterABitwiseInclusiveOrRegisterB(void) {
+void test_xor_r_should_setRegisterAToRegisterBBitwiseExclusiveOrRegisterC(void) {
   // Arrange
-  processState.registers.x1 = 0x1234;
-  processState.registers.x2 = 0x8765;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = IOR,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x5 = 0x1234;
+  processState.registers.x6 = 0x8765;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_XOR_R,
+    .operands.registerA = REGISTER_X4,
+    .operands.registerB = REGISTER_X5,
+    .operands.registerC = REGISTER_X6,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x9775;
+  expectedEndState.registers.x4 = 0x9551;
   
   // Act
   stepProcess(&processState);
@@ -1379,19 +1302,19 @@ void test_ior_should_setAcToRegisterABitwiseInclusiveOrRegisterB(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_xor_should_setAcToRegisterABitwiseExclusiveOrRegisterB(void) {
+void test_xor_i_should_setRegisterAToRegisterBBitwiseExclusiveOrImmediateA(void) {
   // Arrange
-  processState.registers.x1 = 0x1234;
-  processState.registers.x2 = 0x8765;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = XOR,
-    .parameters.registerA = X1,
-    .parameters.registerB = X2,
+  processState.registers.x5 = 0x1234;
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_XOR_R,
+    .operands.registerA = REGISTER_X4,
+    .operands.registerB = REGISTER_X5,
+    .operands.immediateA.u16 = 0x8765,
   });
   
   initializeExpectedEndState();
   expectedEndState.registers.ip = 0x0002;
-  expectedEndState.registers.ac = 0x9551;
+  expectedEndState.registers.x4 = 0x9551;
   
   // Act
   stepProcess(&processState);
