@@ -599,7 +599,7 @@ void test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerAIsSp(voi
 
 TEST_CASE(0x0000, 0xFFFE, 0xFFFF)
 TEST_CASE(0x0001, 0xFFFF, 0x0000)
-void test_pshw_should_pushRegisterAOntoStack_when_registerAIsNotSp(unsigned short initialSp, unsigned short lowerAddressWritten, unsigned short upperAddressWritten) {
+void test_pshw_should_pushRegisterAOntoStack_when_registerAIsNotSp(uint16_t initialSp, uint16_t lowerAddressWritten, uint16_t upperAddressWritten) {
   // Arrange
   processState.registers.ip = 0x0001;
   processState.registers.sp = initialSp;
@@ -688,7 +688,7 @@ void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerAIsSp(void) 
 
 TEST_CASE(0xFFFE, 0xFFFF, 0x0000)
 TEST_CASE(0xFFFF, 0x0000, 0x0001)
-void test_popw_should_popStackWordIntoRegisterA_when_registerAIsNotSp(unsigned short lowerAddressRead, unsigned short upperAddressRead, unsigned short expectedSp) {
+void test_popw_should_popStackWordIntoRegisterA_when_registerAIsNotSp(uint16_t lowerAddressRead, uint16_t upperAddressRead, uint16_t expectedSp) {
   // Arrange
   processState.registers.ip = 0x0001;
   processState.registers.sp = lowerAddressRead;
@@ -890,7 +890,7 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0xFFFA)
 TEST_CASE(0x5678, 0xFEDC, 0xFFB5)
 TEST_CASE(0xBA98, 0xFEDC, 0x003C)
-void test_divs_rr_should_setRegisterAToRegisterBSignedDividedByRegisterCSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_divs_rr_should_setRegisterAToRegisterBSignedDividedByRegisterCSigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
   processState.registers.x3 = valueB;
@@ -916,7 +916,7 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0xFFFA)
 TEST_CASE(0x5678, 0xFEDC, 0xFFB5)
 TEST_CASE(0xBA98, 0xFEDC, 0x003C)
-void test_divs_ri_should_setRegisterAToRegisterBSignedDividedByImmediateASigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_divs_ri_should_setRegisterAToRegisterBSignedDividedByImmediateASigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -941,7 +941,7 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0xFFFA)
 TEST_CASE(0x5678, 0xFEDC, 0xFFB5)
 TEST_CASE(0xBA98, 0xFEDC, 0x003C)
-void test_divs_ir_should_setRegisterAToImmediateASignedDividedByRegisterBSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_divs_ir_should_setRegisterAToImmediateASignedDividedByRegisterBSigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -966,7 +966,7 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0x0007)
 TEST_CASE(0x5678, 0xFEDC, 0x0000)
 TEST_CASE(0xBA98, 0xFEDC, 0x0000)
-void test_divu_rr_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_divu_rr_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
   processState.registers.x3 = valueB;
@@ -992,7 +992,7 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0x0007)
 TEST_CASE(0x5678, 0xFEDC, 0x0000)
 TEST_CASE(0xBA98, 0xFEDC, 0x0000)
-void test_divu_ri_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_divu_ri_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1017,7 +1017,7 @@ TEST_CASE(0x5678, 0x1234, 0x0004)
 TEST_CASE(0x8765, 0x1234, 0x0007)
 TEST_CASE(0x5678, 0xFEDC, 0x0000)
 TEST_CASE(0xBA98, 0xFEDC, 0x0000)
-void test_divu_ir_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_divu_ir_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1042,7 +1042,7 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0xF49D)
 TEST_CASE(0x5678, 0xFEDC, 0x00EC)
 TEST_CASE(0xBA98, 0xFEDC, 0xFF08)
-void test_rems_rr_should_setRegisterAToRemainderOfRegisterBSignedDividedByRegisterCSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_rems_rr_should_setRegisterAToRemainderOfRegisterBSignedDividedByRegisterCSigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
   processState.registers.x3 = valueB;
@@ -1068,7 +1068,7 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0xF49D)
 TEST_CASE(0x5678, 0xFEDC, 0x00EC)
 TEST_CASE(0xBA98, 0xFEDC, 0xFF08)
-void test_rems_ri_should_setRegisterAToRemainderOfRegisterBSignedDividedByImmediateASigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_rems_ri_should_setRegisterAToRemainderOfRegisterBSignedDividedByImmediateASigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1093,7 +1093,7 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0xF49D)
 TEST_CASE(0x5678, 0xFEDC, 0x00EC)
 TEST_CASE(0xBA98, 0xFEDC, 0xFF08)
-void test_rems_ir_should_setRegisterAToRemainderOfImmediateASignedDividedByRegisterBSigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_rems_ir_should_setRegisterAToRemainderOfImmediateASignedDividedByRegisterBSigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1118,7 +1118,7 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0x07F9)
 TEST_CASE(0x5678, 0xFEDC, 0x5678)
 TEST_CASE(0xBA98, 0xFEDC, 0xBA98)
-void test_remu_rr_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_remu_rr_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
   processState.registers.x3 = valueB;
@@ -1144,7 +1144,7 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0x07F9)
 TEST_CASE(0x5678, 0xFEDC, 0x5678)
 TEST_CASE(0xBA98, 0xFEDC, 0xBA98)
-void test_remu_ri_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_remu_ri_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1169,7 +1169,7 @@ TEST_CASE(0x5678, 0x1234, 0x0DA8)
 TEST_CASE(0x8765, 0x1234, 0x07F9)
 TEST_CASE(0x5678, 0xFEDC, 0x5678)
 TEST_CASE(0xBA98, 0xFEDC, 0xBA98)
-void test_remu_ir_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_remu_ir_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x2 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1325,7 +1325,7 @@ void test_xor_i_should_setRegisterAToRegisterBBitwiseExclusiveOrImmediateA(void)
 
 TEST_CASE(0x5678, 0x0005, 0xCF00)
 TEST_CASE(0x5678, 0xFFFB, 0x0000)
-void test_lsh_rr_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_lsh_rr_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
   processState.registers.x9 = valueB;
@@ -1349,7 +1349,7 @@ void test_lsh_rr_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(un
 
 TEST_CASE(0x5678, 0x0005, 0xCF00)
 TEST_CASE(0x5678, 0xFFFB, 0x0000)
-void test_lsh_ri_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_lsh_ri_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1372,7 +1372,7 @@ void test_lsh_ri_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(un
 
 TEST_CASE(0x5678, 0x0005, 0xCF00)
 TEST_CASE(0x5678, 0xFFFB, 0x0000)
-void test_lsh_ir_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_lsh_ir_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1397,7 +1397,7 @@ TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0xFC3B)
 TEST_CASE(0x4321, 0xFFFB, 0x0000)
 TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
-void test_rshs_rr_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_rshs_rr_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
   processState.registers.x9 = valueB;
@@ -1423,7 +1423,7 @@ TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0xFC3B)
 TEST_CASE(0x4321, 0xFFFB, 0x0000)
 TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
-void test_rshs_ri_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_rshs_ri_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1448,7 +1448,7 @@ TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0xFC3B)
 TEST_CASE(0x4321, 0xFFFB, 0x0000)
 TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
-void test_rshs_ir_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_rshs_ir_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1473,7 +1473,7 @@ TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0x043B)
 TEST_CASE(0x4321, 0xFFFB, 0x0000)
 TEST_CASE(0x8765, 0xFFFB, 0x0000)
-void test_rshu_rr_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_rshu_rr_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
   processState.registers.x9 = valueB;
@@ -1499,7 +1499,7 @@ TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0x043B)
 TEST_CASE(0x4321, 0xFFFB, 0x0000)
 TEST_CASE(0x8765, 0xFFFB, 0x0000)
-void test_rshu_ri_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_rshu_ri_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1524,7 +1524,7 @@ TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0x043B)
 TEST_CASE(0x4321, 0xFFFB, 0x0000)
 TEST_CASE(0x8765, 0xFFFB, 0x0000)
-void test_rshu_ir_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_rshu_ir_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1735,7 +1735,7 @@ TEST_CASE(0xFFFF, 0xFFFE, 0)
 TEST_CASE(0x0000, 0x0000, 0)
 TEST_CASE(0x0001, 0x0001, 0)
 TEST_CASE(0xFFFF, 0xFFFF, 0)
-void test_clts_rr_should_setRegisterAToOneIfRegisterBSignedIsLessThanRegisterCSignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_clts_rr_should_setRegisterAToOneIfRegisterBSignedIsLessThanRegisterCSignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x4 = valueA;
   processState.registers.x5 = valueB;
@@ -1766,7 +1766,7 @@ TEST_CASE(0xFFFF, 0xFFFE, 0)
 TEST_CASE(0x0000, 0x0000, 0)
 TEST_CASE(0x0001, 0x0001, 0)
 TEST_CASE(0xFFFF, 0xFFFF, 0)
-void test_clts_ri_should_setRegisterAToOneIfRegisterBSignedIsLessThanImmediateASignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_clts_ri_should_setRegisterAToOneIfRegisterBSignedIsLessThanImmediateASignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x4 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1796,7 +1796,7 @@ TEST_CASE(0xFFFF, 0xFFFE, 0)
 TEST_CASE(0x0000, 0x0000, 0)
 TEST_CASE(0x0001, 0x0001, 0)
 TEST_CASE(0xFFFF, 0xFFFF, 0)
-void test_clts_ir_should_setRegisterAToOneIfImmediateASignedIsLessThanRegisterBSignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_clts_ir_should_setRegisterAToOneIfImmediateASignedIsLessThanRegisterBSignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x4 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1826,7 +1826,7 @@ TEST_CASE(0xFFFF, 0xFFFE, 0)
 TEST_CASE(0x0000, 0x0000, 0)
 TEST_CASE(0x0001, 0x0001, 0)
 TEST_CASE(0xFFFF, 0xFFFF, 0)
-void test_cltu_rr_should_setRegisterAToOneIfRegisterBUnsignedIsLessThanRegisterCUnsignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_cltu_rr_should_setRegisterAToOneIfRegisterBUnsignedIsLessThanRegisterCUnsignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x4 = valueA;
   processState.registers.x5 = valueB;
@@ -1857,7 +1857,7 @@ TEST_CASE(0xFFFF, 0xFFFE, 0)
 TEST_CASE(0x0000, 0x0000, 0)
 TEST_CASE(0x0001, 0x0001, 0)
 TEST_CASE(0xFFFF, 0xFFFF, 0)
-void test_cltu_ri_should_setRegisterAToOneIfRegisterBUnsignedIsLessThanImmediateAUnsignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_cltu_ri_should_setRegisterAToOneIfRegisterBUnsignedIsLessThanImmediateAUnsignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x4 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1887,7 +1887,7 @@ TEST_CASE(0xFFFF, 0xFFFE, 0)
 TEST_CASE(0x0000, 0x0000, 0)
 TEST_CASE(0x0001, 0x0001, 0)
 TEST_CASE(0xFFFF, 0xFFFF, 0)
-void test_cltu_ir_should_setRegisterAToOneIfImmediateAUnsignedIsLessThanRegisterBUnsignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_cltu_ir_should_setRegisterAToOneIfImmediateAUnsignedIsLessThanRegisterBUnsignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x4 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1917,7 +1917,7 @@ TEST_CASE(0xFFFF, 0xFFFF, 1)
 TEST_CASE(0x0000, 0x0001, 0)
 TEST_CASE(0xFFFF, 0x0000, 0)
 TEST_CASE(0xFFFE, 0xFFFF, 0)
-void test_cges_rr_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualToRegisterCSignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_cges_rr_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualToRegisterCSignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x4 = valueA;
   processState.registers.x5 = valueB;
@@ -1948,7 +1948,7 @@ TEST_CASE(0xFFFF, 0xFFFF, 1)
 TEST_CASE(0x0000, 0x0001, 0)
 TEST_CASE(0xFFFF, 0x0000, 0)
 TEST_CASE(0xFFFE, 0xFFFF, 0)
-void test_cges_ri_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualToRegisterCSignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_cges_ri_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualToRegisterCSignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x4 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1978,7 +1978,7 @@ TEST_CASE(0xFFFF, 0xFFFF, 1)
 TEST_CASE(0x0000, 0x0001, 0)
 TEST_CASE(0xFFFF, 0x0000, 0)
 TEST_CASE(0xFFFE, 0xFFFF, 0)
-void test_cges_ir_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualToRegisterCSignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_cges_ir_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualToRegisterCSignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x4 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -2008,7 +2008,7 @@ TEST_CASE(0xFFFF, 0xFFFF, 1)
 TEST_CASE(0x0000, 0x0001, 0)
 TEST_CASE(0x0000, 0xFFFF, 0)
 TEST_CASE(0xFFFE, 0xFFFF, 0)
-void test_cgeu_rr_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_cgeu_rr_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x1 = valueA;
   processState.registers.x2 = valueB;
@@ -2039,7 +2039,7 @@ TEST_CASE(0xFFFF, 0xFFFF, 1)
 TEST_CASE(0x0000, 0x0001, 0)
 TEST_CASE(0x0000, 0xFFFF, 0)
 TEST_CASE(0xFFFE, 0xFFFF, 0)
-void test_cgeu_ri_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_cgeu_ri_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x1 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -2069,7 +2069,7 @@ TEST_CASE(0xFFFF, 0xFFFF, 1)
 TEST_CASE(0x0000, 0x0001, 0)
 TEST_CASE(0x0000, 0xFFFF, 0)
 TEST_CASE(0xFFFE, 0xFFFF, 0)
-void test_cgeu_ir_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(unsigned short valueA, unsigned short valueB, unsigned short expectedOutput) {
+void test_cgeu_ir_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x1 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
