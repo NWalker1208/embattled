@@ -556,13 +556,13 @@ void test_stw_ii_should_storeImmediateAIntoMemoryWordAtAddressInImmediateB(void)
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) {
+void test_pshb_should_pushLowerRegisterAByteOntoStack_when_registerAIsNotSp(void) {
   // Arrange
   processState.registers.sp = 0x0000;
   processState.registers.x4 = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = PSHB,
-    .parameters.registerA = X4,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_PSHB,
+    .operands.registerA = REGISTER_X4,
   });
 
   initializeExpectedEndState();
@@ -577,12 +577,12 @@ void test_pshb_should_pushLowerRegisterByteOntoStack_when_registerIsNotSp(void) 
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp(void) {
+void test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerAIsSp(void) {
   // Arrange
   processState.registers.sp = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = PSHB,
-    .parameters.registerA = SP,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_PSHB,
+    .operands.registerA = REGISTER_SP,
   });
 
   initializeExpectedEndState();
@@ -599,14 +599,14 @@ void test_pshb_should_pushLowerSpOntoStackBeforeDecrement_when_registerIsSp(void
 
 TEST_CASE(0x0000, 0xFFFE, 0xFFFF)
 TEST_CASE(0x0001, 0xFFFF, 0x0000)
-void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(unsigned short initialSp, unsigned short lowerAddressWritten, unsigned short upperAddressWritten) {
+void test_pshw_should_pushRegisterAOntoStack_when_registerAIsNotSp(unsigned short initialSp, unsigned short lowerAddressWritten, unsigned short upperAddressWritten) {
   // Arrange
   processState.registers.ip = 0x0001;
   processState.registers.sp = initialSp;
   processState.registers.x4 = 0x1234;
-  storeInstruction(processState.memory, 1, (struct Instruction){
-    .opcode = PSHW,
-    .parameters.registerA = X4,
+  writeInstruction(processState.memory, 1, (Instruction){
+    .opcode = OPCODE_PSHW,
+    .operands.registerA = REGISTER_X4,
   });
 
   initializeExpectedEndState();
@@ -622,12 +622,12 @@ void test_pshw_should_pushFullRegisterWordOntoStack_when_registerIsNotSp(unsigne
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp(void) {
+void test_pshw_should_pushSpOntoStackBeforeDecrement_when_registerAIsSp(void) {
   // Arrange
   processState.registers.sp = 0x1234;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = PSHW,
-    .parameters.registerA = SP,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_PSHW,
+    .operands.registerA = REGISTER_SP,
   });
 
   initializeExpectedEndState();
@@ -643,12 +643,12 @@ void test_pshw_should_pushFullSpOntoStackBeforeDecrement_when_registerIsSp(void)
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
+void test_popb_should_popStackByteIntoRegisterA_when_registerAIsNotSp(void) {
   // Arrange
   processState.registers.sp = 0xFFFE;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = POPB,
-    .parameters.registerA = X6,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_POPB,
+    .operands.registerA = REGISTER_X6,
   });
   processState.memory[0xFFFE] = 0x34;
   processState.memory[0xFFFF] = 0x12;
@@ -665,12 +665,12 @@ void test_popb_should_popStackByteIntoRegister_when_registerIsNotSp(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp(void) {
+void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerAIsSp(void) {
   // Arrange
   processState.registers.sp = 0xFFFE;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = POPB,
-    .parameters.registerA = SP,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_POPB,
+    .operands.registerA = REGISTER_SP,
   });
   processState.memory[0xFFFE] = 0x34;
   processState.memory[0xFFFF] = 0x12;
@@ -688,13 +688,13 @@ void test_popb_should_popStackByteIntoSpAfterIncrement_when_registerIsSp(void) {
 
 TEST_CASE(0xFFFE, 0xFFFF, 0x0000)
 TEST_CASE(0xFFFF, 0x0000, 0x0001)
-void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(unsigned short lowerAddressRead, unsigned short upperAddressRead, unsigned short expectedSp) {
+void test_popw_should_popStackWordIntoRegisterA_when_registerAIsNotSp(unsigned short lowerAddressRead, unsigned short upperAddressRead, unsigned short expectedSp) {
   // Arrange
   processState.registers.ip = 0x0001;
   processState.registers.sp = lowerAddressRead;
-  storeInstruction(processState.memory, 1, (struct Instruction){
-    .opcode = POPW,
-    .parameters.registerA = X6,
+  writeInstruction(processState.memory, 1, (Instruction){
+    .opcode = OPCODE_POPW,
+    .operands.registerA = REGISTER_X6,
   });
   processState.memory[lowerAddressRead] = 0x34;
   processState.memory[upperAddressRead] = 0x12;
@@ -711,12 +711,12 @@ void test_popw_should_popStackWordIntoRegister_when_registerIsNotSp(unsigned sho
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerIsSp(void) {
+void test_popw_should_popStackWordIntoSpAfterIncrement_when_registerAIsSp(void) {
   // Arrange
   processState.registers.sp = 0xFFFE;
-  storeInstruction(processState.memory, 0, (struct Instruction){
-    .opcode = POPW,
-    .parameters.registerA = SP,
+  writeInstruction(processState.memory, 0, (Instruction){
+    .opcode = OPCODE_POPW,
+    .operands.registerA = REGISTER_SP,
   });
   processState.memory[0xFFFE] = 0x34;
   processState.memory[0xFFFF] = 0x12;
