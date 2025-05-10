@@ -292,7 +292,7 @@ void test_set_i_should_copyImmediateValueToRegisterA_when_registerAIsNotNull(Reg
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.ip = 0x0004;
   *getRegisterPtr(&expectedEndState.registers, regA) = 0x1234;
 
   // Act
@@ -326,14 +326,14 @@ void test_ldb_r_should_loadMemoryByteAtAddressInRegisterBIntoRegisterA(void) {
 void test_ldb_i_should_loadMemoryByteAtAddressInImmediateAIntoRegisterA(void) {
   // Arrange
   writeInstruction(processState.memory, 0, (Instruction){
-    .opcode = OPCODE_LDB_R,
+    .opcode = OPCODE_LDB_I,
     .operands.registerA = REGISTER_X0,
     .operands.immediateA.u16 = 0x1234,
   });
   processState.memory[0x1234] = 0x56;
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x0 = 0x0056;
 
   // Act
@@ -370,7 +370,7 @@ void test_ldw_i_should_loadMemoryWordAtAddressInImmediateAIntoRegisterA(void) {
   // Arrange
   processState.registers.ip = 0x0001;
   writeInstruction(processState.memory, 1, (Instruction){
-    .opcode = OPCODE_LDW_R,
+    .opcode = OPCODE_LDW_I,
     .operands.registerA = REGISTER_X0,
     .operands.immediateA.u16 = 0xFFFF,
   });
@@ -378,7 +378,7 @@ void test_ldw_i_should_loadMemoryWordAtAddressInImmediateAIntoRegisterA(void) {
   processState.memory[0x0000] = 0x56;
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.ip = 0x0005;
   expectedEndState.registers.x0 = 0x5678;
 
   // Act
@@ -419,7 +419,7 @@ void test_stb_ri_should_storeLowerRegisterAIntoMemoryByteAtAddressInImmediateA(v
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.memory[0x1234] = 0xCD;
 
   // Act
@@ -439,7 +439,7 @@ void test_stb_ir_should_storeImmediateAIntoMemoryByteAtAddressInRegisterA(void) 
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.memory[0x1234] = 0xCD;
 
   // Act
@@ -458,7 +458,7 @@ void test_stb_ii_should_storeImmediateAIntoMemoryByteAtAddressInImmediateB(void)
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.memory[0x1234] = 0xCD;
 
   // Act
@@ -496,13 +496,13 @@ void test_stw_ri_should_storeRegisterAIntoMemoryWordAtAddressInImmediateA(void) 
   processState.registers.ip = 0x0001;
   processState.registers.x2 = 0x1234;
   writeInstruction(processState.memory, 1, (Instruction){
-    .opcode = OPCODE_STW_RR,
+    .opcode = OPCODE_STW_RI,
     .operands.registerA = REGISTER_X2,
     .operands.immediateA.u16 = 0xFFFF,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.ip = 0x0005;
   expectedEndState.memory[0xFFFF] = 0x34;
   expectedEndState.memory[0x0000] = 0x12;
 
@@ -518,13 +518,13 @@ void test_stw_ir_should_storeImmediateAIntoMemoryWordAtAddressInRegisterA(void) 
   processState.registers.ip = 0x0001;
   processState.registers.x3 = 0xFFFF;
   writeInstruction(processState.memory, 1, (Instruction){
-    .opcode = OPCODE_STW_RR,
+    .opcode = OPCODE_STW_IR,
     .operands.immediateA.u16 = 0x1234,
     .operands.registerA = REGISTER_X3,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.ip = 0x0005;
   expectedEndState.memory[0xFFFF] = 0x34;
   expectedEndState.memory[0x0000] = 0x12;
 
@@ -539,13 +539,13 @@ void test_stw_ii_should_storeImmediateAIntoMemoryWordAtAddressInImmediateB(void)
   // Arrange
   processState.registers.ip = 0x0001;
   writeInstruction(processState.memory, 1, (Instruction){
-    .opcode = OPCODE_STW_RR,
+    .opcode = OPCODE_STW_II,
     .operands.immediateA.u16 = 0x1234,
     .operands.immediateB.u16 = 0xFFFF,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0003;
+  expectedEndState.registers.ip = 0x0006;
   expectedEndState.memory[0xFFFF] = 0x34;
   expectedEndState.memory[0x0000] = 0x12;
 
@@ -748,7 +748,7 @@ void test_add_r_should_setRegisterAToRegisterBPlusRegisterC(void) {
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x1 = 0x68AC;
 
   // Act
@@ -762,14 +762,14 @@ void test_add_i_should_setRegisterAToRegisterBPlusImmediateA(void) {
   // Arrange
   processState.registers.x2 = 0x1234;
   writeInstruction(processState.memory, 0, (Instruction){
-    .opcode = OPCODE_ADD_R,
+    .opcode = OPCODE_ADD_I,
     .operands.registerA = REGISTER_X1,
     .operands.registerB = REGISTER_X2,
     .operands.immediateA.u16 = 0x5678,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = 0x68AC;
 
   // Act
@@ -791,7 +791,7 @@ void test_sub_rr_should_setRegisterAToRegisterBMinusRegisterC(void) {
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x1 = 0x4444;
 
   // Act
@@ -805,14 +805,14 @@ void test_sub_ri_should_setRegisterAToRegisterBMinusImmediateA(void) {
   // Arrange
   processState.registers.x2 = 0x5678;
   writeInstruction(processState.memory, 0, (Instruction){
-    .opcode = OPCODE_SUB_RR,
+    .opcode = OPCODE_SUB_RI,
     .operands.registerA = REGISTER_X1,
     .operands.registerB = REGISTER_X2,
     .operands.immediateA.u16 = 0x1234,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = 0x4444;
 
   // Act
@@ -826,14 +826,14 @@ void test_sub_ir_should_setRegisterAToImmediateAMinusRegisterB(void) {
   // Arrange
   processState.registers.x2 = 0x1234;
   writeInstruction(processState.memory, 0, (Instruction){
-    .opcode = OPCODE_SUB_RR,
+    .opcode = OPCODE_SUB_IR,
     .operands.registerA = REGISTER_X1,
     .operands.immediateA.u16 = 0x5678,
     .operands.registerB = REGISTER_X2,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = 0x4444;
 
   // Act
@@ -855,7 +855,7 @@ void test_mul_r_should_setRegisterAToRegisterBTimesRegisterC(void) {
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x1 = 0x0060;
 
   // Act
@@ -865,18 +865,18 @@ void test_mul_r_should_setRegisterAToRegisterBTimesRegisterC(void) {
   TEST_ASSERT_EQUAL_PROCESS_STATE(&expectedEndState, &processState);
 }
 
-void test_mul_r_should_setRegisterAToRegisterBTimesImmediateA(void) {
+void test_mul_i_should_setRegisterAToRegisterBTimesImmediateA(void) {
   // Arrange
   processState.registers.x2 = 0x1234;
   writeInstruction(processState.memory, 0, (Instruction){
-    .opcode = OPCODE_MUL_R,
+    .opcode = OPCODE_MUL_I,
     .operands.registerA = REGISTER_X1,
     .operands.registerB = REGISTER_X2,
     .operands.immediateA.u16 = 0x5678,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = 0x0060;
 
   // Act
@@ -905,7 +905,7 @@ void test_divs_rr_should_setRegisterAToRegisterBSignedDividedByRegisterCSigned(u
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -933,7 +933,7 @@ void test_divs_ri_should_setRegisterAToRegisterBSignedDividedByImmediateASigned(
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -961,7 +961,7 @@ void test_divs_ir_should_setRegisterAToImmediateASignedDividedByRegisterBSigned(
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -990,7 +990,7 @@ void test_divu_rr_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsign
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -1018,7 +1018,7 @@ void test_divu_ri_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsign
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -1039,14 +1039,14 @@ void test_divu_ir_should_setRegisterAToRegisterBUnsignedDividedByRegisterCUnsign
   // Arrange
   processState.registers.x2 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
-    .opcode = OPCODE_DIVU_RR,
+    .opcode = OPCODE_DIVU_IR,
     .operands.registerA = REGISTER_X1,
     .operands.immediateA.u16 = valueA,
     .operands.registerB = REGISTER_X2,
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -1075,7 +1075,7 @@ void test_rems_rr_should_setRegisterAToRemainderOfRegisterBSignedDividedByRegist
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -1103,7 +1103,7 @@ void test_rems_ri_should_setRegisterAToRemainderOfRegisterBSignedDividedByImmedi
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -1131,7 +1131,7 @@ void test_rems_ir_should_setRegisterAToRemainderOfImmediateASignedDividedByRegis
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -1160,7 +1160,7 @@ void test_remu_rr_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUns
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -1188,7 +1188,7 @@ void test_remu_ri_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUns
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -1216,7 +1216,7 @@ void test_remu_ir_should_setRegisterAToRemainderOfRegisterBDividedByRegisterCUns
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x1 = expectedOutput;
 
   // Act
@@ -1242,7 +1242,7 @@ void test_and_r_should_setRegisterAToRegisterBBitwiseAndRegisterC(void) {
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x4 = 0x0224;
   
   // Act
@@ -1263,7 +1263,7 @@ void test_and_i_should_setRegisterAToRegisterBBitwiseAndImmediateA(void) {
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x4 = 0x0224;
   
   // Act
@@ -1285,7 +1285,7 @@ void test_ior_r_should_setRegisterAToRegisterBBitwiseInclusiveOrRegisterC(void) 
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x4 = 0x9775;
   
   // Act
@@ -1306,7 +1306,7 @@ void test_ior_i_should_setRegisterAToRegisterBBitwiseInclusiveOrRegisterC(void) 
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x4 = 0x9775;
   
   // Act
@@ -1328,7 +1328,7 @@ void test_xor_r_should_setRegisterAToRegisterBBitwiseExclusiveOrRegisterC(void) 
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x4 = 0x9551;
   
   // Act
@@ -1342,14 +1342,14 @@ void test_xor_i_should_setRegisterAToRegisterBBitwiseExclusiveOrImmediateA(void)
   // Arrange
   processState.registers.x5 = 0x1234;
   writeInstruction(processState.memory, 0, (Instruction){
-    .opcode = OPCODE_XOR_R,
+    .opcode = OPCODE_XOR_I,
     .operands.registerA = REGISTER_X4,
     .operands.registerB = REGISTER_X5,
     .operands.immediateA.u16 = 0x8765,
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x4 = 0x9551;
   
   // Act
@@ -1373,7 +1373,7 @@ void test_lsh_rr_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(ui
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x7 = expectedOutput;
 
   // Act
@@ -1384,7 +1384,9 @@ void test_lsh_rr_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(ui
 }
 
 TEST_CASE(0x5678, 0x0005, 0xCF00)
-TEST_CASE(0x5678, 0xFFFB, 0x0000)
+TEST_CASE(0x5678, 0xFFFB, 0xC000)
+TEST_CASE(0x5678, 0xFFFF, 0x0000)
+TEST_CASE(0x5679, 0xFFFF, 0x8000)
 void test_lsh_ri_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
@@ -1396,7 +1398,7 @@ void test_lsh_ri_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(ui
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x7 = expectedOutput;
 
   // Act
@@ -1419,7 +1421,7 @@ void test_lsh_ir_should_setRegisterAToRegisterBLeftShiftedByRegisterCUnsigned(ui
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x7 = expectedOutput;
 
   // Act
@@ -1433,7 +1435,7 @@ TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0xFC3B)
 TEST_CASE(0x4321, 0xFFFB, 0x0000)
 TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
-void test_rshs_rr_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
+void test_rshs_rr_should_setRegisterAToRegisterBRightShiftedMsbExtendedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
   processState.registers.x9 = valueB;
@@ -1445,7 +1447,7 @@ void test_rshs_rr_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsig
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x7 = expectedOutput;
 
   // Act
@@ -1457,9 +1459,11 @@ void test_rshs_rr_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsig
 
 TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0xFC3B)
-TEST_CASE(0x4321, 0xFFFB, 0x0000)
-TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
-void test_rshs_ri_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
+TEST_CASE(0x4321, 0xFFFB, 0x0008)
+TEST_CASE(0x8765, 0xFFFB, 0xFFF0)
+TEST_CASE(0x4321, 0xFFFF, 0x0000)
+TEST_CASE(0x8765, 0xFFFF, 0xFFFF)
+void test_rshs_ri_should_setRegisterAToRegisterBRightShiftedMsbExtendedByImmediateAUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1470,7 +1474,7 @@ void test_rshs_ri_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsig
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x7 = expectedOutput;
 
   // Act
@@ -1484,7 +1488,7 @@ TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0xFC3B)
 TEST_CASE(0x4321, 0xFFFB, 0x0000)
 TEST_CASE(0x8765, 0xFFFB, 0xFFFF)
-void test_rshs_ir_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
+void test_rshs_ir_should_setRegisterAToImmediateARightShiftedMsbExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1495,7 +1499,7 @@ void test_rshs_ir_should_setActoRegisterARightShiftedMsbExtendedByRegisterBUnsig
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x7 = expectedOutput;
 
   // Act
@@ -1509,7 +1513,7 @@ TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0x043B)
 TEST_CASE(0x4321, 0xFFFB, 0x0000)
 TEST_CASE(0x8765, 0xFFFB, 0x0000)
-void test_rshu_rr_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
+void test_rshu_rr_should_setRegisterAtoRegisterBRightShiftedZeroExtendedByRegisterCUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
   processState.registers.x9 = valueB;
@@ -1521,7 +1525,7 @@ void test_rshu_rr_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsi
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x7 = expectedOutput;
 
   // Act
@@ -1533,9 +1537,11 @@ void test_rshu_rr_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsi
 
 TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0x043B)
-TEST_CASE(0x4321, 0xFFFB, 0x0000)
-TEST_CASE(0x8765, 0xFFFB, 0x0000)
-void test_rshu_ri_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
+TEST_CASE(0x4321, 0xFFFB, 0x0008)
+TEST_CASE(0x8765, 0xFFFB, 0x0010)
+TEST_CASE(0x4321, 0xFFFF, 0x0000)
+TEST_CASE(0x8765, 0xFFFF, 0x0001)
+void test_rshu_ri_should_setRegisterAtoRegisterBRightShiftedZeroExtendedByImmediateAUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1546,7 +1552,7 @@ void test_rshu_ri_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsi
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x7 = expectedOutput;
 
   // Act
@@ -1560,7 +1566,7 @@ TEST_CASE(0x4321, 0x0005, 0x0219)
 TEST_CASE(0x8765, 0x0005, 0x043B)
 TEST_CASE(0x4321, 0xFFFB, 0x0000)
 TEST_CASE(0x8765, 0xFFFB, 0x0000)
-void test_rshu_ir_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
+void test_rshu_ir_should_setRegisterAToImmediateARightShiftedZeroExtendedByRegisterBUnsigned(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
   processState.registers.x8 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
@@ -1571,7 +1577,7 @@ void test_rshu_ir_should_setActoRegisterARightShiftedZeroExtendedByRegisterBUnsi
   });
 
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x7 = expectedOutput;
 
   // Act
@@ -1597,7 +1603,7 @@ void test_ceq_r_should_setRegisterAToOne_when_registerBEqualsRegisterC(void) {
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x0 = 1;
   
   // Act
@@ -1620,7 +1626,7 @@ void test_ceq_r_should_setRegisterAToZero_when_registerBDoesNotEqualRegisterC(vo
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x0 = 0;
   
   // Act
@@ -1641,7 +1647,7 @@ void test_ceq_i_should_setRegisterAToOne_when_registerBEqualsImmediateA(void) {
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x0 = 1;
   
   // Act
@@ -1664,7 +1670,7 @@ void test_ceq_i_should_setRegisterAToZero_when_registerBDoesNotEqualImmediateA(v
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x0 = 0;
   
   // Act
@@ -1686,7 +1692,7 @@ void test_cne_r_should_setRegisterAToOne_when_registerBDoesNotEqualRegisterC(voi
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x0 = 1;
   
   // Act
@@ -1709,7 +1715,7 @@ void test_cne_r_should_setRegisterAToZero_when_registerBEqualsRegisterC(void) {
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x0 = 0;
   
   // Act
@@ -1730,7 +1736,7 @@ void test_cne_i_should_setRegisterAToOne_when_registerBDoesNotEqualImmediateA(vo
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x0 = 1;
   
   // Act
@@ -1752,7 +1758,7 @@ void test_cne_i_should_setRegisterAToZero_when_registerBEqualsImmediateA(void) {
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x0 = 0;
   
   // Act
@@ -1783,7 +1789,7 @@ void test_clts_rr_should_setRegisterAToOneIfRegisterBSignedIsLessThanRegisterCSi
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -1813,7 +1819,7 @@ void test_clts_ri_should_setRegisterAToOneIfRegisterBSignedIsLessThanImmediateAS
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -1843,7 +1849,7 @@ void test_clts_ir_should_setRegisterAToOneIfImmediateASignedIsLessThanRegisterBS
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -1874,7 +1880,7 @@ void test_cltu_rr_should_setRegisterAToOneIfRegisterBUnsignedIsLessThanRegisterC
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -1904,7 +1910,7 @@ void test_cltu_ri_should_setRegisterAToOneIfRegisterBUnsignedIsLessThanImmediate
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -1934,7 +1940,7 @@ void test_cltu_ir_should_setRegisterAToOneIfImmediateAUnsignedIsLessThanRegister
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -1965,7 +1971,7 @@ void test_cges_rr_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualT
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -1995,7 +2001,7 @@ void test_cges_ri_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualT
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -2025,7 +2031,7 @@ void test_cges_ir_should_setRegisterAToOneIfRegisterBSignedIsGreaterThanOrEqualT
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -2056,7 +2062,7 @@ void test_cgeu_rr_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOr
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0003;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -2086,7 +2092,7 @@ void test_cgeu_ri_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOr
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
@@ -2116,7 +2122,7 @@ void test_cgeu_ir_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOr
   });
   
   initializeExpectedEndState();
-  expectedEndState.registers.ip = 0x0002;
+  expectedEndState.registers.ip = 0x0004;
   expectedEndState.registers.x3 = expectedOutput;
   
   // Act
