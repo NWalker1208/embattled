@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "processor/layout.h"
-#include "processor/operand.h"
+#include "processor/immediate.h"
 #include "processor/process.h"
 
 // A code indicating which action the processor should perform for a given instruction.
@@ -117,11 +117,21 @@ typedef enum Opcode {
   OPCODE_COUNT
 } Opcode;
 
+// The arguments passed to an opcode when it is executed.
+typedef struct OpcodeArguments {
+  ProcessState* process;
+  uint16_t* registerAPtr;
+  uint16_t* registerBPtr;
+  uint16_t* registerCPtr;
+  ImmediateValue immediateA;
+  ImmediateValue immediateB;
+} OpcodeArguments;
+
 // Describes the details of a particular opcode.
 typedef struct OpcodeInfo {
   const char* identifier; // The identifier of the opcode as a string.
   InstructionLayout layout; // The memory layout of instructions using this opcode.
-  void (*execute)(ProcessState* state, InstructionOperands operands); // A function which executes the opcode against the provided process state and with the provided operands.
+  void (*execute)(OpcodeArguments args); // A function which executes the opcode against the provided arguments.
 } OpcodeInfo;
 
 // Gets the info for the specified opcode.

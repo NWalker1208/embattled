@@ -1,8 +1,17 @@
 #pragma once
 #include <stdint.h>
 #include "processor/opcode.h"
-#include "processor/operand.h"
+#include "processor/immediate.h"
 #include "processor/register.h"
+
+// The operands of an instruction.
+typedef struct InstructionOperands {
+  Register registerA;
+  Register registerB;
+  Register registerC;
+  ImmediateValue immediateA;
+  ImmediateValue immediateB;
+} InstructionOperands;
 
 // An instruction consisting of an opcode and zero or more operands.
 typedef struct Instruction {

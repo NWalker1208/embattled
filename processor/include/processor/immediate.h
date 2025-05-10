@@ -1,6 +1,5 @@
 #pragma once
 #include <stdint.h>
-#include "processor/register.h"
 
 // An immediate value. May be 4, 8, or 16-bit and may be signed or unsigned.
 typedef union ImmediateValue {
@@ -12,12 +11,3 @@ typedef union ImmediateValue {
   int16_t s8 : 8; // Signed 8-bit value.
   int16_t s4 : 4; // Signed 4-bit value.
 } ImmediateValue;
-
-// The operands of an instruction.
-typedef struct InstructionOperands {
-  Register registerA;
-  Register registerB;
-  Register registerC;
-  ImmediateValue immediateA;
-  ImmediateValue immediateB;
-} InstructionOperands;
