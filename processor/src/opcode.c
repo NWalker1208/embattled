@@ -300,13 +300,15 @@ void execute_sub_ir(OpcodeArguments args) { *args.registerAPtr = args.immediateA
 void execute_mul_r(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr * *args.registerCPtr; }
 void execute_mul_i(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr * args.immediateA.u16; }
 
-void execute_divs_rr(OpcodeArguments args) { *args.registerAPtr = (*args.registerCPtr != 0) ? (uint16_t)((int16_t)(*args.registerBPtr) / (int16_t)(*args.registerCPtr)) : (0); }
-void execute_divs_ri(OpcodeArguments args) { *args.registerAPtr = (args.immediateA.u16 != 0) ? (uint16_t)((int16_t)(*args.registerBPtr) / args.immediateA.s16) : (0); }
-void execute_divs_ir(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr != 0) ? (uint16_t)(args.immediateA.s16 / (int16_t)(*args.registerBPtr)) : (0); }
+#define MAX_SAME_SIGN(x) (((x) != 0) ? (((x) > 0) ? 0x7FFF : 0x8000) : 0x0000)
+void execute_divs_rr(OpcodeArguments args) { *args.registerAPtr = (*args.registerCPtr != 0) ? (uint16_t)((int16_t)(*args.registerBPtr) / (int16_t)(*args.registerCPtr)) : MAX_SAME_SIGN((int16_t)(*args.registerBPtr)); }
+void execute_divs_ri(OpcodeArguments args) { *args.registerAPtr = (args.immediateA.u16 != 0) ? (uint16_t)((int16_t)(*args.registerBPtr) / args.immediateA.s16) : MAX_SAME_SIGN((int16_t)(*args.registerBPtr)); }
+void execute_divs_ir(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr != 0) ? (uint16_t)(args.immediateA.s16 / (int16_t)(*args.registerBPtr)) : MAX_SAME_SIGN(args.immediateA.s16); }
 
-void execute_divu_rr(OpcodeArguments args) { *args.registerAPtr = (*args.registerCPtr != 0) ? (*args.registerBPtr / *args.registerCPtr) : (0); }
-void execute_divu_ri(OpcodeArguments args) { *args.registerAPtr = (args.immediateA.u16 != 0) ? (*args.registerBPtr / args.immediateA.u16) : (0); }
-void execute_divu_ir(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr != 0) ? (args.immediateA.u16 / *args.registerBPtr) : (0); }
+#define MAX_IF_POSITIVE(x) (((x) != 0) ? 0xFFFF : 0x0000)
+void execute_divu_rr(OpcodeArguments args) { *args.registerAPtr = (*args.registerCPtr != 0) ? (*args.registerBPtr / *args.registerCPtr) : MAX_IF_POSITIVE(*args.registerBPtr); }
+void execute_divu_ri(OpcodeArguments args) { *args.registerAPtr = (args.immediateA.u16 != 0) ? (*args.registerBPtr / args.immediateA.u16) : MAX_IF_POSITIVE(*args.registerBPtr); }
+void execute_divu_ir(OpcodeArguments args) { *args.registerAPtr = (*args.registerBPtr != 0) ? (args.immediateA.u16 / *args.registerBPtr) : MAX_IF_POSITIVE(args.immediateA.u16); }
 
 void execute_rems_rr(OpcodeArguments args) { *args.registerAPtr = (*args.registerCPtr != 0) ? (uint16_t)((int16_t)(*args.registerBPtr) % (int16_t)(*args.registerCPtr)) : *args.registerBPtr; }
 void execute_rems_ri(OpcodeArguments args) { *args.registerAPtr = (args.immediateA.u16 != 0) ? (uint16_t)((int16_t)(*args.registerBPtr) % args.immediateA.s16) : *args.registerBPtr; }
