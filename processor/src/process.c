@@ -16,7 +16,7 @@ void stepProcess(ProcessState* state) {
   }
 
   uint16_t nl = 0;
-  opcodeInfo->execute((OpcodeArguments){
+  opcodeInfo->execute((OpcodeExecuteArguments){
     .process = state,
     .registerAPtr = ptrOrDefault(getRegisterPtr(&state->registers, instruction.operands.registerA), &nl),
     .registerBPtr = ptrOrDefault(getRegisterPtr(&state->registers, instruction.operands.registerB), &nl),

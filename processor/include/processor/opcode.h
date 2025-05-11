@@ -118,20 +118,20 @@ typedef enum Opcode {
 } Opcode;
 
 // The arguments passed to an opcode when it is executed.
-typedef struct OpcodeArguments {
+typedef struct OpcodeExecuteArguments {
   ProcessState* process;
   uint16_t* registerAPtr;
   uint16_t* registerBPtr;
   uint16_t* registerCPtr;
   ImmediateValue immediateA;
   ImmediateValue immediateB;
-} OpcodeArguments;
+} OpcodeExecuteArguments;
 
 // Describes the details of a particular opcode.
 typedef struct OpcodeInfo {
   const char* identifier; // The identifier of the opcode as a string.
   InstructionLayout layout; // The memory layout of instructions using this opcode.
-  void (*execute)(OpcodeArguments args); // A function which executes the opcode against the provided arguments.
+  void (*execute)(OpcodeExecuteArguments args); // A function which executes the opcode against the provided arguments.
 } OpcodeInfo;
 
 // Gets the info for the specified opcode.
