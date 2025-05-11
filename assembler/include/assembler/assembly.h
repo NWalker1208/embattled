@@ -1,17 +1,15 @@
 #pragma once
 #include <stdint.h>
 #include "assembler/mnemonic.h"
+#include "assembler/operand.h"
 #include "utilities/text.h"
-#include "processor/opcode.h"
 #include "processor/register.h"
-
-#define MAX_ASSEMBLY_OPERANDS 3
 
 // TODO: Add support for storing references in data sections
 // TODO: Add support for relative references?
 
 // A label represented by a line of assembly code.
-typedef struct {
+typedef struct AssemblyLabel {
   // The span of the name portion of the label. Empty if name is not present.
   TextSpan nameSpan;
   // The span of the address portion of the label. Empty if address is not present.
@@ -19,26 +17,6 @@ typedef struct {
   // The value of the address portion of the label, if present.
   uint16_t address;
 } AssemblyLabel;
-
-// The kind of an assembly operand.
-typedef enum AssemblyOperandKind {
-  ASSEMBLY_OPERAND_REGISTER,
-  ASSEMBLY_OPERAND_IMMEDIATE,
-  ASSEMBLY_OPERAND_LABEL,
-} AssemblyOperandKind;
-
-// An operand of an assembly instruction.
-typedef struct AssemblyOperand {
-  // The location of the parameter in the source TextContents.
-  TextSpan sourceSpan;
-  // The kind of parameter that this is.
-  AssemblyOperandKind kind;
-  union {
-    Register registerName;  // kind == ASSEMBLY_OPERAND_REGISTER
-    int32_t immediateValue; // kind == ASSEMBLY_OPERAND_IMMEDIATE
-    TextSpan labelSpan;     // kind == ASSEMBLY_OPERAND_LABEL
-  };
-} AssemblyOperand;
 
 // An instruction represented by a line of assembly code.
 typedef struct AssemblyInstruction {
