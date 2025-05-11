@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
+#include "processor/opcode.h"
 #include "assembler/operand.h"
 
 #define MAX_MNEMONIC_OVERLOADS 4
@@ -49,10 +50,10 @@ typedef enum AssemblyMnemonic {
 
 // A particular overload of an assembly mnemonic. Matches a specific sequence of operand kinds and assembles to a specific opcode.
 typedef struct AssemblyMnemonicOverload {
+  Opcode opcode; // The opcode that this overload assembles into.
   size_t operandCount; // The number of operands this overload accepts.
   AssemblyOperandKind operandKinds[MAX_ASSEMBLY_OPERANDS]; // The kind of each operand accepted by this overload.
   bool swapRegisterBAndRegisterC; // Whether register C appears before register B (used by some pseudo-instructions).
-  Opcode opcode; // The opcode that this overload assembles into.
 } AssemblyMnemonicOverload;
 
 // Describes the details of a particular assembly mnemonic.

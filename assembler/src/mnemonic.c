@@ -1,7 +1,14 @@
 #include "assembler/mnemonic.h"
 
 const AssemblyMnemonicInfo MNEMONIC_INFO[ASSEMBLY_MNEMONIC_COUNT] = {
-  0
+  { .identifier = "nop", .overloadCount = 1, .overloads = {
+    { .operandCount = 0, .opcode = OPCODE_NOP }
+  } },
+
+  { .identifier = "jmp", .overloadCount = 2, .overloads = {
+    { .operandCount = 1, .operandKinds = { ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_JMP_R },
+    { .operandCount = 1, .operandKinds = { ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_JMP_I },
+  } },
 };
 
 const AssemblyMnemonicInfo* getAssemblyMnemonicInfo(AssemblyMnemonic mnemonic) {
