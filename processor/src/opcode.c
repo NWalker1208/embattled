@@ -255,27 +255,30 @@ void execute_set_i(OpcodeArguments args) { *args.registerAPtr = args.immediateA.
 void execute_ldb_r(OpcodeArguments args) { *args.registerAPtr = (uint16_t)(args.process->memory[*args.registerBPtr]); }
 void execute_ldb_i(OpcodeArguments args) { *args.registerAPtr = (uint16_t)(args.process->memory[args.immediateA.u16]); }
 
-void execute_ldw_r(OpcodeArguments args) { *args.registerAPtr = ((uint16_t)(args.process->memory[*args.registerBPtr + 1]) << 8) | (uint16_t)(args.process->memory[*args.registerBPtr]); }
-void execute_ldw_i(OpcodeArguments args) { *args.registerAPtr = ((uint16_t)(args.process->memory[args.immediateA.u16 + 1]) << 8) | (uint16_t)(args.process->memory[args.immediateA.u16]); }
+#define ADDR_OFFSET(addr, offset) ((uint16_t)((addr) + (offset)))
+#define NEXT_ADDR(addr)           ADDR_OFFSET(addr, 1)
+
+void execute_ldw_r(OpcodeArguments args) { *args.registerAPtr = ((uint16_t)(args.process->memory[NEXT_ADDR(*args.registerBPtr)]) << 8) | (uint16_t)(args.process->memory[*args.registerBPtr]); }
+void execute_ldw_i(OpcodeArguments args) { *args.registerAPtr = ((uint16_t)(args.process->memory[NEXT_ADDR(args.immediateA.u16)]) << 8) | (uint16_t)(args.process->memory[args.immediateA.u16]); }
 
 void execute_stb_rr(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)(*args.registerAPtr & 0xFF); }
 void execute_stb_ri(OpcodeArguments args) { args.process->memory[args.immediateA.u16] = (uint8_t)(*args.registerAPtr & 0xFF); }
-void execute_stb_ir(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)args.immediateA.u8; }
+void execute_stb_ir(OpcodeArguments args) { args.process->memory[*args.registerAPtr] = (uint8_t)args.immediateA.u8; }
 void execute_stb_ii(OpcodeArguments args) { args.process->memory[args.immediateB.u16] = (uint8_t)args.immediateA.u8; }
 
-void execute_stw_rr(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)(*args.registerAPtr & 0xFF); args.process->memory[*args.registerBPtr + 1] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF); }
-void execute_stw_ri(OpcodeArguments args) { args.process->memory[args.immediateA.u16] = (uint8_t)(*args.registerAPtr & 0xFF); args.process->memory[args.immediateA.u16 + 1] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF); }
-void execute_stw_ir(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)(args.immediateA.u16 & 0xFF); args.process->memory[*args.registerBPtr + 1] = (uint8_t)((args.immediateA.u16 >> 8) & 0xFF); }
-void execute_stw_ii(OpcodeArguments args) { args.process->memory[args.immediateB.u16] = (uint8_t)(args.immediateA.u16 & 0xFF); args.process->memory[args.immediateB.u16 + 1] = (uint8_t)((args.immediateA.u16 >> 8) & 0xFF); }
+void execute_stw_rr(OpcodeArguments args) { args.process->memory[*args.registerBPtr] = (uint8_t)(*args.registerAPtr & 0xFF); args.process->memory[NEXT_ADDR(*args.registerBPtr)] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF); }
+void execute_stw_ri(OpcodeArguments args) { args.process->memory[args.immediateA.u16] = (uint8_t)(*args.registerAPtr & 0xFF); args.process->memory[NEXT_ADDR(args.immediateA.u16)] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF); }
+void execute_stw_ir(OpcodeArguments args) { args.process->memory[*args.registerAPtr] = (uint8_t)(args.immediateA.u16 & 0xFF); args.process->memory[NEXT_ADDR(*args.registerAPtr)] = (uint8_t)((args.immediateA.u16 >> 8) & 0xFF); }
+void execute_stw_ii(OpcodeArguments args) { args.process->memory[args.immediateB.u16] = (uint8_t)(args.immediateA.u16 & 0xFF); args.process->memory[NEXT_ADDR(args.immediateB.u16)] = (uint8_t)((args.immediateA.u16 >> 8) & 0xFF); }
 
 void execute_pshb(OpcodeArguments args) {
-  args.process->memory[args.process->registers.sp - 1] = (uint8_t)(*args.registerAPtr & 0xFF);
+  args.process->memory[ADDR_OFFSET(args.process->registers.sp, -1)] = (uint8_t)(*args.registerAPtr & 0xFF);
   args.process->registers.sp -= 1;
 }
 
 void execute_pshw(OpcodeArguments args) {
-  args.process->memory[args.process->registers.sp - 1] = (uint8_t)(*args.registerAPtr & 0xFF);
-  args.process->memory[args.process->registers.sp - 2] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF);
+  args.process->memory[ADDR_OFFSET(args.process->registers.sp, -2)] = (uint8_t)(*args.registerAPtr & 0xFF);
+  args.process->memory[ADDR_OFFSET(args.process->registers.sp, -1)] = (uint8_t)((*args.registerAPtr >> 8) & 0xFF);
   args.process->registers.sp -= 2;
 }
 
@@ -286,8 +289,8 @@ void execute_popb(OpcodeArguments args) {
 
 void execute_popw(OpcodeArguments args) {
   args.process->registers.sp += 2;
-  *args.registerAPtr = ((uint16_t)(args.process->memory[args.process->registers.sp - 1]) << 8)
-                     | (uint16_t)(args.process->memory[args.process->registers.sp - 2]);
+  *args.registerAPtr = ((uint16_t)(args.process->memory[ADDR_OFFSET(args.process->registers.sp, -1)]) << 8)
+                     | (uint16_t)(args.process->memory[ADDR_OFFSET(args.process->registers.sp, -2)]);
 }
 
 void execute_add_r(OpcodeArguments args) { *args.registerAPtr = *args.registerBPtr + *args.registerCPtr; }
