@@ -2052,8 +2052,8 @@ TEST_CASE(0x0000, 0xFFFF, 0)
 TEST_CASE(0xFFFE, 0xFFFF, 0)
 void test_cgeu_rr_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
-  processState.registers.x1 = valueA;
-  processState.registers.x2 = valueB;
+  processState.registers.x4 = valueA;
+  processState.registers.x5 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
     .opcode = OPCODE_CGEU_RR,
     .operands.registerA = REGISTER_X3,
@@ -2083,7 +2083,7 @@ TEST_CASE(0x0000, 0xFFFF, 0)
 TEST_CASE(0xFFFE, 0xFFFF, 0)
 void test_cgeu_ri_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
-  processState.registers.x1 = valueA;
+  processState.registers.x4 = valueA;
   writeInstruction(processState.memory, 0, (Instruction){
     .opcode = OPCODE_CGEU_RI,
     .operands.registerA = REGISTER_X3,
@@ -2113,7 +2113,7 @@ TEST_CASE(0x0000, 0xFFFF, 0)
 TEST_CASE(0xFFFE, 0xFFFF, 0)
 void test_cgeu_ir_should_setRegisterAToOne_when_registerBUnsignedIsGreaterThanOrEqualToRegisterCUnsignedAndZeroOtherwise(uint16_t valueA, uint16_t valueB, uint16_t expectedOutput) {
   // Arrange
-  processState.registers.x1 = valueB;
+  processState.registers.x4 = valueB;
   writeInstruction(processState.memory, 0, (Instruction){
     .opcode = OPCODE_CGEU_IR,
     .operands.registerA = REGISTER_X3,
