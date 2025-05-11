@@ -151,6 +151,67 @@ const AssemblyMnemonicInfo MNEMONIC_INFO[ASSEMBLY_MNEMONIC_COUNT] = {
     { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_RSHU_IR },
   } },
 
+  // Comparison
+
+  { .identifier = "ceq", .overloadCount = 3, .overloads = {
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CEQ_R },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_CEQ_I },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CEQ_I },
+  } },
+
+  { .identifier = "cne", .overloadCount = 3, .overloads = {
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CNE_R },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_CNE_I },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CNE_I },
+  } },
+
+  { .identifier = "clts", .overloadCount = 3, .overloads = {
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CLTS_RR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_CLTS_RI },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CLTS_IR },
+  } },
+
+  { .identifier = "cltu", .overloadCount = 3, .overloads = {
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CLTU_RR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_CLTU_RI },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CLTU_IR },
+  } },
+
+  { .identifier = "cges", .overloadCount = 3, .overloads = {
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CGES_RR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_CGES_RI },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CGES_IR },
+  } },
+
+  { .identifier = "cgeu", .overloadCount = 3, .overloads = {
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CGEU_RR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_CGEU_RI },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CGEU_IR },
+  } },
+
+  { .identifier = "cgts", .overloadCount = 3, .overloads = {
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER }, .swapRegisterBAndRegisterC = true, .opcode = OPCODE_CLTS_RR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_CLTS_IR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CLTS_RI },
+  } },
+
+  { .identifier = "cgtu", .overloadCount = 3, .overloads = {
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER }, .swapRegisterBAndRegisterC = true, .opcode = OPCODE_CLTU_RR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_CLTU_IR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CLTU_RI },
+  } },
+
+  { .identifier = "cles", .overloadCount = 3, .overloads = {
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER }, .swapRegisterBAndRegisterC = true, .opcode = OPCODE_CGES_RR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_CGES_IR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CGES_RI },
+  } },
+
+  { .identifier = "cleu", .overloadCount = 3, .overloads = {
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER }, .swapRegisterBAndRegisterC = true, .opcode = OPCODE_CGEU_RR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE }, .opcode = OPCODE_CGEU_IR },
+    { .operandCount = 3, .operandKinds = { ASSEMBLY_OPERAND_REGISTER, ASSEMBLY_OPERAND_IMMEDIATE, ASSEMBLY_OPERAND_REGISTER }, .opcode = OPCODE_CGEU_RI },
+  } },
 };
 
 const AssemblyMnemonicInfo* getAssemblyMnemonicInfo(AssemblyMnemonic mnemonic) {
