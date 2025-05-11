@@ -6,7 +6,7 @@
 
 #define ASSEMBLING_ERROR(_message, _sourceSpan) (AssemblingError){.message = (_message), .sourceSpan = (_sourceSpan)}
 
-bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, unsigned char* memory, AssemblingError* error) {
+bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, uint8_t* memory, AssemblingError* error) {
   unsigned short currentMemoryAddr = 0;
   memset(memory, 0x00, sizeof(unsigned char) * MEMORY_SIZE); // Clear memory
   // TODO: Check if program goes beyond max address.

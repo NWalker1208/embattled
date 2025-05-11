@@ -8,17 +8,19 @@ static const char MULTIPLE_LABELS[] = "Multiple labels applied to the same instr
 static const char DUPLICATE_LABEL_NAME[] = "Label name is defined more than once";
 static const char LABEL_ADDRESS_TOO_LOW[] = "Label address is lower than the current address being written";
 static const char INVALID_LABEL[] = "Invalid label";
-static const char TOO_FEW_PARAMS[] = "Too few parameters";
-static const char TOO_MANY_PARAMS[] = "Too many parameters";
-static const char EXPECTED_REGISTER[] = "Expected register as parameter";
-static const char EXPECTED_IMMEDIATE_VALUE[] = "Expected immediate value as parameter";
-static const char EXPECTED_IMMEDIATE_VALUE_OR_LABEL_REF[] = "Expected immediate value or label reference as parameter";
-static const char IMMEDIATE_VALUE_OUT_OF_RANGE[] = "Immediate value is outside the allowed range";
+static const char TOO_FEW_OPERANDS[] = "Too few operands";
+static const char TOO_MANY_OPERANDS[] = "Too many operands";
+static const char EXPECTED_REGISTER[] = "Expected register as operand";
+static const char EXPECTED_IMMEDIATE_VALUE[] = "Expected immediate value as operand";
+static const char EXPECTED_IMMEDIATE_VALUE_OR_LABEL_REF[] = "Expected immediate value or label reference as operand";
+static const char IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT[] = "Immediate value is outside the allowed range (must fit within 4 bits)";
+static const char IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT[] = "Immediate value is outside the allowed range (must fit within 8 bits)";
+static const char IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT[] = "Immediate value is outside the allowed range (must fit within 16 bits)";
 static const char INVALID_INSTRUCTION[] = "Invalid instruction";
 static const char EXPECTED_INSTRUCTION_OR_DATA[] = "Expected instruction or data after label";
 static const char UNDEFINED_LABEL_NAME[] = "Undefined label name";
 
-typedef struct {
+typedef struct AssemblingError {
   // The message describing the error. Should be a string with a static lifetime.
   const char* message;
   // The span of the source TextContents at which the error occurred.
@@ -28,4 +30,4 @@ typedef struct {
 // Attempts to assemble the given assembly program into bytes in the memory space provided.
 // If successful, writes the assembled bytes to memory and returns true.
 // Otherwise, outputs the cause through error and returns false.
-bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, unsigned char* memory, AssemblingError* error);
+bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, uint8_t* memory, AssemblingError* error);
