@@ -7,6 +7,7 @@ add_library(
   src/assembly.c
   src/assemble.c
   src/binary.c
+  src/mnemonic.c
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
