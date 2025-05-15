@@ -66,3 +66,11 @@ typedef struct AssemblyMnemonicInfo {
 // Gets the info for the specified assembly mnemonic.
 // If the mnemonic is invalid, returns NULL.
 const AssemblyMnemonicInfo* getAssemblyMnemonicInfo(AssemblyMnemonic mnemonic);
+
+// Find the mnemonic whose identifier matches the given string.
+// If no mnemonic matches, returns -1.
+AssemblyMnemonic identifierToAssemblyMnemonic(const char* identifier);
+
+// Finds the overload of the assembly mnemonic that matches the given sequence of operands.
+// If no overload matches, returns NULL.
+const AssemblyMnemonicOverload* findAssemblyMnemonicOverload(AssemblyMnemonic mnemonic, AssemblyOperandKind* operandKinds, size_t operandCount);
