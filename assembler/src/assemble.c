@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "assembler/assemble.h"
 #include "processor/instruction.h"
 #include "processor/process.h"
@@ -7,8 +8,8 @@
 #define ASSEMBLING_ERROR(_message, _sourceSpan) (AssemblingError){.message = (_message), .sourceSpan = (_sourceSpan)}
 
 bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, uint8_t* memory, AssemblingError* error) {
-  unsigned short currentMemoryAddr = 0;
-  memset(memory, 0x00, sizeof(unsigned char) * MEMORY_SIZE); // Clear memory
+  uint16_t currentMemoryAddr = 0;
+  memset(memory, 0x00, sizeof(uint8_t) * MEMORY_SIZE); // Clear memory
   // TODO: Check if program goes beyond max address.
 
   // Setup label and reference tables for filling in addresses
@@ -16,10 +17,10 @@ bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* a
   TextSpan currentLabelLineSpan;
 
   TextSpan* labelTableLabelSpans = malloc(sizeof(TextSpan) * assemblyProgram->lineCount);
-  unsigned short* labelTableAddresses = malloc(sizeof(unsigned short) * assemblyProgram->lineCount);
+  uint16_t* labelTableAddresses = malloc(sizeof(uint16_t) * assemblyProgram->lineCount);
   size_t labelCount = 0;
 
-  unsigned short* referenceTableAddresses = malloc(sizeof(unsigned short) * assemblyProgram->lineCount);
+  uint16_t* referenceTableAddresses = malloc(sizeof(uint16_t) * assemblyProgram->lineCount);
   TextSpan* referenceTableLabelSpans = malloc(sizeof(TextSpan) * assemblyProgram->lineCount);
   TextSpan* referenceTableParamSpans = malloc(sizeof(TextSpan) * assemblyProgram->lineCount);
   size_t referenceCount = 0;
@@ -72,15 +73,23 @@ bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* a
       }
 
       if (line->kind == ASSEMBLY_LINE_INSTRUCTION) {
-        struct Instruction instruction;
-        instruction.opcode = line->instruction.opcode;
-
-        if (instruction.opcode < 0 || instruction.opcode >= OPCODE_COUNT) {
-          *error = ASSEMBLING_ERROR(INVALID_INSTRUCTION, line->sourceSpan);
+        if (line->instruction.operandCount > MAX_ASSEMBLY_OPERANDS) {
+          *error = ASSEMBLING_ERROR(NO_MATCHING_OVERLOAD, line->sourceSpan);
           goto failed;
         }
-        
-        const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[instruction.opcode];
+
+        AssemblyOperandKind operandKinds[MAX_ASSEMBLY_OPERANDS] = {0};
+        for (size_t i = 0; i < line->instruction.operandCount; i++) { operandKinds[i] = line->instruction.operands[i].kind; }
+        const AssemblyMnemonicOverload* mnemonicOverload = findAssemblyMnemonicOverload(line->instruction.mnemonic, operandKinds, line->instruction.operandCount);
+        if (mnemonicOverload == NULL) {
+          *error = ASSEMBLING_ERROR(NO_MATCHING_OVERLOAD, line->sourceSpan);
+          goto failed;
+        }
+        const OpcodeInfo* opcodeInfo = getOpcodeInfo(mnemonicOverload->opcode);
+        assert(opcodeInfo != NULL);
+
+        Instruction instruction = { .opcode = mnemonicOverload->opcode };
+
         bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
         bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
         bool hasImmediate = opcodeInfo->parameterLayout.numImmBits != 0;
