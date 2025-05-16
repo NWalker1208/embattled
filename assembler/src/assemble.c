@@ -7,6 +7,45 @@
 
 #define ASSEMBLING_ERROR(_message, _sourceSpan) (AssemblingError){.message = (_message), .sourceSpan = (_sourceSpan)}
 
+
+typedef struct LabelTableEntry {
+  TextSpan nameSpan;
+  uint16_t address;
+} LabelTableEntry;
+
+typedef struct LabelTable {
+  LabelTableEntry* entries;
+  size_t count;
+} LabelTable;
+
+typedef struct ReferenceTableEntry {
+  TextSpan nameSpan;
+  TextSpan paramSpan;
+  uint16_t address;
+} ReferenceTableEntry;
+
+typedef struct ReferenceTable {
+  ReferenceTableEntry* entries;
+  size_t count;
+} ReferenceTable;
+
+
+// Handles the given assembly label.
+// If successful, appends to the label table and updates the current memory address as necessary, then returns true.
+// Otherwise, outputs an error and returns false.
+bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyLabel label, LabelTable* labelTablePtr, uint16_t* currentMemoryAddrPtr, AssemblingError* errorOut);
+
+// Tries to convert the given assembly instruction into an actual instruction that can be written to memory.
+// If successful, appends to the reference table as necessary, outputs the instruction, and returns true.
+// Otherwise, outputs an error and returns false.
+bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction assembly, ReferenceTable* referenceTablePtr, Instruction* instructionOut, AssemblingError* errorOut);
+
+// Tries to resolve all label references by writing the addresses of the referenced labels to the given memory buffer.
+// If successful, returns true.
+// Otherwise, returns false.
+bool tryResolveLabelReferences(LabelTable labelTable, ReferenceTable referenceTable, uint8_t* memory, AssemblingError* errorOut);
+
+
 bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, uint8_t* memory, AssemblingError* error) {
   uint16_t currentMemoryAddr = 0;
   memset(memory, 0x00, sizeof(uint8_t) * MEMORY_SIZE); // Clear memory
@@ -230,5 +269,18 @@ failed:
   free(referenceTableAddresses);
   free(referenceTableParamSpans);
   
+  return false;
+}
+
+
+bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyLabel label, LabelTable* labelTablePtr, uint16_t* currentMemoryAddrPtr, AssemblingError* errorOut) {
+  return false;
+}
+
+bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction assembly, ReferenceTable* referenceTablePtr, Instruction* instructionOut, AssemblingError* errorOut) {
+  return false;
+}
+
+bool tryResolveLabelReferences(LabelTable labelTable, ReferenceTable referenceTable, uint8_t* memory, AssemblingError* errorOut) {
   return false;
 }
