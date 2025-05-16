@@ -43,7 +43,7 @@ bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstr
 // Tries to resolve all label references by writing the addresses of the referenced labels to the given memory buffer.
 // If successful, returns true.
 // Otherwise, returns false.
-bool tryResolveLabelReferences(LabelTable labelTable, ReferenceTable referenceTable, uint8_t* memory, AssemblingError* errorOut);
+bool tryResolveLabelReferences(const TextContents* sourceText, LabelTable labelTable, ReferenceTable referenceTable, uint8_t* memory, AssemblingError* errorOut);
 
 
 bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, uint8_t* memory, AssemblingError* error) {
@@ -307,6 +307,28 @@ bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstr
   return false;
 }
 
-bool tryResolveLabelReferences(LabelTable labelTable, ReferenceTable referenceTable, uint8_t* memory, AssemblingError* errorOut) {
-  return false;
+bool tryResolveLabelReferences(const TextContents* sourceText, LabelTable labelTable, ReferenceTable referenceTable, uint8_t* memory, AssemblingError* errorOut) {
+  for (size_t i = 0; i < referenceTable.count; i++) {
+    uint16_t referenceAddress = referenceTable.entries[i].address;
+    TextSpan nameSpan = referenceTable.entries[i].nameSpan;
+
+    uint16_t labelAddress;
+    bool foundLabel = false;
+    for (size_t j = 0; j < labelTable.count; j++) {
+      if (CompareTextSpans(sourceText, labelTable.entries[j].nameSpan, sourceText, nameSpan) == 0) {
+        labelAddress = labelTable.entries[j].address;
+        foundLabel = true;
+        break;
+      }
+    }
+    if (!foundLabel) {
+      *errorOut = ASSEMBLING_ERROR(UNDEFINED_LABEL_NAME, referenceTable.entries[i].paramSpan);
+      return false;
+    }
+
+    memory[referenceAddress] = labelAddress & 0xFF;
+    memory[referenceAddress + 1] = labelAddress >> 8;
+  }
+
+  return true;
 }
