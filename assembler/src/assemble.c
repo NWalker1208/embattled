@@ -31,9 +31,9 @@ typedef struct ReferenceTable {
 
 
 // Handles the given assembly label.
-// If successful, appends to the label table and updates the current memory address as necessary, then returns true.
+// If successful, updates the current memory address as necessary and returns true.
 // Otherwise, outputs an error and returns false.
-bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyLabel label, LabelTable* labelTablePtr, uint16_t* currentMemoryAddrPtr, AssemblingError* errorOut);
+bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyLabel label, LabelTable labelTable, uint16_t* currentMemoryAddrPtr, AssemblingError* errorOut);
 
 // Tries to convert the given assembly instruction into an actual instruction that can be written to memory.
 // If successful, appends to the reference table as necessary, outputs the instruction, and returns true.
@@ -273,8 +273,34 @@ failed:
 }
 
 
-bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyLabel label, LabelTable* labelTablePtr, uint16_t* currentMemoryAddrPtr, AssemblingError* errorOut) {
-  return false;
+bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyLabel label, LabelTable labelTable, uint16_t* currentMemoryAddrPtr, AssemblingError* errorOut) {
+  bool hasName = !IsEmptyTextSpan(sourceText, label.nameSpan);
+  bool hasAddress = !IsEmptyTextSpan(sourceText, label.addressSpan);
+  
+  if (!hasName && !hasAddress) {
+    *errorOut = ASSEMBLING_ERROR(INVALID_LABEL, lineSpan);
+    return false;
+  }
+
+  if (hasName) {
+    for (size_t i = 0; i < labelTable.count; i++) {
+      if (CompareTextSpans(sourceText, label.nameSpan, sourceText, labelTable.entries[i].nameSpan) == 0) {
+        *errorOut = ASSEMBLING_ERROR(DUPLICATE_LABEL_NAME, label.nameSpan);
+        return false;
+      }
+    }
+  }
+
+  if (hasAddress) {
+    if (label.address < *currentMemoryAddrPtr) {
+      *errorOut = ASSEMBLING_ERROR(LABEL_ADDRESS_TOO_LOW, lineSpan);
+      return false;
+    }
+
+    *currentMemoryAddrPtr = label.address;
+  }
+
+  return true;
 }
 
 bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction assembly, ReferenceTable* referenceTablePtr, Instruction* instructionOut, AssemblingError* errorOut) {
