@@ -18,6 +18,7 @@ extern void test_TryAssembleProgram_should_outputInstructionWithReference_when_i
 extern void test_TryAssembleProgram_should_outputInstructionWithReference_when_instructionReferencesData(void);
 extern void test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasIncorrectNumberOfParams(void);
 extern void test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasImmediateValueInsteadOfRegister(void);
+extern void test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(const char* source, const char* expectedErrorMessage, size_t errorSpanStartCol, size_t errorSpanEndCol);
 extern void test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasUndefinedMnemonic(void);
 extern void test_TryAssembleProgram_should_outputErrorUndefinedLabel_when_instructionReferencesUndefinedLabel(void);
 
@@ -78,6 +79,46 @@ static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE l
 }
 
 /*=======Parameterized Test Wrappers=====*/
+static void runner_args1_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(void)
+{
+    test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange("add $x0, $x1, -32769",  IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT, 14, 20);
+}
+static void runner_args2_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(void)
+{
+    test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange("add $x0, $x1, 0x10000", IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT, 14, 21);
+}
+static void runner_args3_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(void)
+{
+    test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange("jmp -1",                IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_UNSIGNED, 4, 6);
+}
+static void runner_args4_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(void)
+{
+    test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange("jmp 0x10000",           IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_UNSIGNED, 4, 11);
+}
+static void runner_args5_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(void)
+{
+    test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange("divs $x0, $x1, -32769", IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_SIGNED, 15, 21);
+}
+static void runner_args6_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(void)
+{
+    test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange("divs $x0, $x1, 0x8000", IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_SIGNED, 15, 21);
+}
+static void runner_args7_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(void)
+{
+    test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange("stb -129, $x0",         IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT, 4, 8);
+}
+static void runner_args8_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(void)
+{
+    test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange("stb 257, $x0",          IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT, 4, 7);
+}
+static void runner_args9_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(void)
+{
+    test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange("rshs $x0, $x1, -1",     IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT_UNSIGNED, 15, 17);
+}
+static void runner_args10_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(void)
+{
+    test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange("rshs $x0, $x1, 16",     IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT_UNSIGNED, 15, 17);
+}
 
 /*=======MAIN=====*/
 int main(void)
@@ -89,8 +130,18 @@ int main(void)
   run_test(test_TryAssembleProgram_should_outputInstructionWithReference_when_instructionReferencesData, "test_TryAssembleProgram_should_outputInstructionWithReference_when_instructionReferencesData", 95);
   run_test(test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasIncorrectNumberOfParams, "test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasIncorrectNumberOfParams", 119);
   run_test(test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasImmediateValueInsteadOfRegister, "test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasImmediateValueInsteadOfRegister", 134);
-  run_test(test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasUndefinedMnemonic, "test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasUndefinedMnemonic", 172);
-  run_test(test_TryAssembleProgram_should_outputErrorUndefinedLabel_when_instructionReferencesUndefinedLabel, "test_TryAssembleProgram_should_outputErrorUndefinedLabel_when_instructionReferencesUndefinedLabel", 188);
+  run_test(runner_args1_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange, "test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(\"add $x0, $x1, -32769\",  IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT, 14, 20)", 159);
+  run_test(runner_args2_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange, "test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(\"add $x0, $x1, 0x10000\", IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT, 14, 21)", 159);
+  run_test(runner_args3_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange, "test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(\"jmp -1\",                IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_UNSIGNED, 4, 6)", 159);
+  run_test(runner_args4_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange, "test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(\"jmp 0x10000\",           IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_UNSIGNED, 4, 11)", 159);
+  run_test(runner_args5_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange, "test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(\"divs $x0, $x1, -32769\", IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_SIGNED, 15, 21)", 159);
+  run_test(runner_args6_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange, "test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(\"divs $x0, $x1, 0x8000\", IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_SIGNED, 15, 21)", 159);
+  run_test(runner_args7_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange, "test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(\"stb -129, $x0\",         IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT, 4, 8)", 159);
+  run_test(runner_args8_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange, "test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(\"stb 257, $x0\",          IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT, 4, 7)", 159);
+  run_test(runner_args9_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange, "test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(\"rshs $x0, $x1, -1\",     IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT_UNSIGNED, 15, 17)", 159);
+  run_test(runner_args10_test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange, "test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(\"rshs $x0, $x1, 16\",     IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT_UNSIGNED, 15, 17)", 159);
+  run_test(test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasUndefinedMnemonic, "test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasUndefinedMnemonic", 174);
+  run_test(test_TryAssembleProgram_should_outputErrorUndefinedLabel_when_instructionReferencesUndefinedLabel, "test_TryAssembleProgram_should_outputErrorUndefinedLabel_when_instructionReferencesUndefinedLabel", 190);
 
   return UNITY_END();
 }

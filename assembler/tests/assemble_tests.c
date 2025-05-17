@@ -146,28 +146,30 @@ void test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructi
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
 }
 
-// TEST_CASE("jmp -1", 4, 6)
-// TEST_CASE("jmp 0x10000", 4, 11)
-// TEST_CASE("ldib -1", 5, 7)
-// TEST_CASE("ldib 0x100", 5, 10)
-// TEST_CASE("inc $x0, -1", 9, 11)
-// TEST_CASE("inc $x0, 0x10", 9, 13)
-// TEST_CASE("ldmb $x0, -9", 10, 12)
-// TEST_CASE("ldmb $x0, 8", 10, 11)
-// void test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(const char* source, size_t errorSpanStartCol, size_t errorSpanEndCol) {
-//   // Arrange
-//   initializeProgram(source);
+TEST_CASE("add $x0, $x1, -32769",  IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT, 14, 20)
+TEST_CASE("add $x0, $x1, 0x10000", IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT, 14, 21)
+TEST_CASE("jmp -1",                IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_UNSIGNED, 4, 6)
+TEST_CASE("jmp 0x10000",           IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_UNSIGNED, 4, 11)
+TEST_CASE("divs $x0, $x1, -32769", IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_SIGNED, 15, 21)
+TEST_CASE("divs $x0, $x1, 0x8000", IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_SIGNED, 15, 21)
+TEST_CASE("stb -129, $x0",         IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT, 4, 8)
+TEST_CASE("stb 257, $x0",          IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT, 4, 7)
+TEST_CASE("rshs $x0, $x1, -1",     IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT_UNSIGNED, 15, 17)
+TEST_CASE("rshs $x0, $x1, 16",     IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT_UNSIGNED, 15, 17)
+void test_TryAssembleProgram_should_outputErrorImmediateValueOutOfRange_when_instructionHasImmediateValueOutOfRange(const char* source, const char* expectedErrorMessage, size_t errorSpanStartCol, size_t errorSpanEndCol) {
+  // Arrange
+  initializeProgram(source);
 
-//   TextSpan expectedErrorSpan = {{0, errorSpanStartCol}, {0, errorSpanEndCol}};
+  TextSpan expectedErrorSpan = {{0, errorSpanStartCol}, {0, errorSpanEndCol}};
 
-//   // Act
-//   bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
+  // Act
+  bool success = TryAssembleProgram(&sourceText, &program, memory, &error);
 
-//   // Assert
-//   TEST_ASSERT_FALSE(success);
-//   TEST_ASSERT_EQUAL_STRING(IMMEDIATE_VALUE_OUT_OF_RANGE, error.message);
-//   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
-// }
+  // Assert
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUAL_STRING(expectedErrorMessage, error.message);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, sourceText);
+}
 
 void test_TryAssembleProgram_should_outputErrorNoMatchingOverload_when_instructionHasUndefinedMnemonic(void) {
   // Arrange
