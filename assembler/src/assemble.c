@@ -14,9 +14,15 @@ const char LABEL_ADDRESS_TOO_LOW[] = "Label address is lower than the current ad
 const char INVALID_LABEL[] = "Invalid label";
 const char NO_MATCHING_OVERLOAD[] = "No matching opcode for instruction mnemonic and operands";
 const char EXPECTED_IMMEDIATE_VALUE_NOT_LABEL[] = "Expected immediate value rather than label as operand";
-const char IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT[] = "Immediate value is outside the allowed range (must fit within 4 bits)";
-const char IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT[] = "Immediate value is outside the allowed range (must fit within 8 bits)";
-const char IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT[] = "Immediate value is outside the allowed range (must fit within 16 bits)";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT[] = "Immediate value must fit within 16 bits.";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_UNSIGNED[] = "Immediate value must be a 16-bit unsigned integer.";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_SIGNED[] = "Immediate value must be a 16-bit signed integer.";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT[] = "Immediate value must fit within 8 bits.";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT_UNSIGNED[] = "Immediate value must be an 8-bit unsigned integer.";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT_SIGNED[] = "Immediate value must be an 8-bit signed integer.";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT[] = "Immediate value must fit within 4 bits.";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT_UNSIGNED[] = "Immediate value must be a 4-bit unsigned integer.";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT_SIGNED[] = "Immediate value must be a 4-bit signed integer.";
 const char INVALID_INSTRUCTION[] = "Invalid instruction";
 const char EXPECTED_INSTRUCTION_OR_DATA[] = "Expected instruction or data after label";
 const char UNDEFINED_LABEL_NAME[] = "Undefined label name";
@@ -237,13 +243,35 @@ bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstr
         int32_t immediateValue = operand.immediateValue;
         
         uint8_t numBits = nextImmediateOperand == 0 ? numImmABits : 16;
-        int32_t minValue = -(1 << (numBits - 1));
-        int32_t maxValue = (1 << numBits) - 1;
+        Signedness signedness = nextImmediateOperand == 0 ? opcodeInfo->immASignedness : SIGNEDNESS_UNSIGNED;
+        int32_t minValue = signedness == SIGNEDNESS_UNSIGNED ? 0 : -(1 << (numBits - 1));
+        int32_t maxValue = signedness == SIGNEDNESS_SIGNED ? (1 << (numBits - 1)) - 1 : (1 << numBits) - 1;
         if (immediateValue < minValue || immediateValue > maxValue) {
-          switch (numBits) {
-            case 16: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT, operand.sourceSpan); break;
-            case 8: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT, operand.sourceSpan); break;
-            case 4: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT, operand.sourceSpan); break;
+          switch (signedness) {
+            case SIGNEDNESS_NOT_APPLICABLE: {
+              switch (numBits) {
+                case 16: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT, operand.sourceSpan); break;
+                case 8: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT, operand.sourceSpan); break;
+                case 4: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT, operand.sourceSpan); break;
+                default: assert(false); break;
+              }
+            } break;
+            case SIGNEDNESS_UNSIGNED: {
+              switch (numBits) {
+                case 16: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_UNSIGNED, operand.sourceSpan); break;
+                case 8: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT_UNSIGNED, operand.sourceSpan); break;
+                case 4: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT_UNSIGNED, operand.sourceSpan); break;
+                default: assert(false); break;
+              }
+            } break;
+            case SIGNEDNESS_SIGNED: {
+              switch (numBits) {
+                case 16: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT_SIGNED, operand.sourceSpan); break;
+                case 8: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT_SIGNED, operand.sourceSpan); break;
+                case 4: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT_SIGNED, operand.sourceSpan); break;
+                default: assert(false); break;
+              }
+            } break;
             default: assert(false); break;
           }
           return false;
