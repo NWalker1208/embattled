@@ -28,7 +28,7 @@
 
 extern const char* INVALID_LABEL_NAME;
 extern const char* INVALID_LABEL_ADDR;
-extern const char* INVALID_OPCODE;
+extern const char* UNRECOGNIZED_MNEMONIC;
 extern const char* INVALID_PARAMETER;
 extern const char* INVALID_REGISTER;
 extern const char* INVALID_HEX_VALUE;

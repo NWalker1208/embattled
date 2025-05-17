@@ -10,7 +10,7 @@
 
 const char* INVALID_LABEL_NAME = "Invalid label name";
 const char* INVALID_LABEL_ADDR = "Invalid address";
-const char* INVALID_OPCODE = "Invalid opcode";
+const char* UNRECOGNIZED_MNEMONIC = "Unrecognized mnemonic";
 const char* INVALID_PARAMETER = "Invalid parameter";
 const char* INVALID_REGISTER = "Invalid register";
 const char* INVALID_HEX_VALUE = "Invalid or out-of-range hexadecimal value";
@@ -291,10 +291,11 @@ bool tryParseInstruction(const TextContents* text, TextOffset* position, Assembl
 
 bool tryParseMnemonic(const TextContents* text, TextOffset* position, AssemblyMnemonic* mnemonic) {
   // Loop through the array of opcode definitions and output the first match
-  for (int i = 0; i < OPCODE_COUNT; i++) {
-    if (startsWithWordCaseInsensitive(text, *position, OPCODE_INFO[i].name)) {
-      *opcode = (enum Opcode)i;
-      position->column += strlen(OPCODE_INFO[i].name);
+  for (AssemblyMnemonic m = 0; m < ASSEMBLY_MNEMONIC_COUNT; m++) {
+    const char* identifier = getAssemblyMnemonicInfo(m)->identifier;
+    if (startsWithWordCaseInsensitive(text, *position, identifier)) {
+      *mnemonic = m;
+      position->column += strlen(identifier);
       NormalizeTextOffset(text, position);
       return true;
     }
@@ -366,10 +367,11 @@ bool tryParseOperand(const TextContents* text, TextOffset* position, AssemblyOpe
 
 bool tryParseRegister(const TextContents* text, TextOffset* position, Register* reg) {
   // Loop through the array of register names and output the first match
-  for (int i = 0; i < REGISTER_COUNT; i++) {
-    if (startsWithWordCaseInsensitive(text, *position, REGISTER_NAMES[i])) {
-      *reg = (enum Register)i;
-      position->column += strlen(REGISTER_NAMES[i]);
+  for (Register r = 0; r < REGISTER_COUNT; r++) {
+    const char* identifier = getRegisterIdentifier(r);
+    if (startsWithWordCaseInsensitive(text, *position, identifier)) {
+      *reg = r;
+      position->column += strlen(identifier);
       NormalizeTextOffset(text, position);
       return true;
     }
