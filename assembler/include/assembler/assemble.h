@@ -16,6 +16,7 @@ static const char IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT[] = "Immediate value is ou
 static const char INVALID_INSTRUCTION[] = "Invalid instruction";
 static const char EXPECTED_INSTRUCTION_OR_DATA[] = "Expected instruction or data after label";
 static const char UNDEFINED_LABEL_NAME[] = "Undefined label name";
+static const char OUT_OF_MEMORY[] = "Out of memory for assembled program";
 
 typedef struct AssemblingError {
   // The message describing the error. Should be a string with a static lifetime.

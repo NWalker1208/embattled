@@ -242,7 +242,7 @@ const AssemblyMnemonicOverload* findAssemblyMnemonicOverload(AssemblyMnemonic mn
     if (overloadInfo->operandCount == operandCount) {
       bool matches = true;
       for (size_t operand = 0; operand < operandCount; operand++) {
-        if (operandKinds[operand] != overloadInfo->operandKinds[operand]) {
+        if ((operandKinds[operand] == ASSEMBLY_OPERAND_REGISTER) != (overloadInfo->operandKinds[operand] == ASSEMBLY_OPERAND_REGISTER)) { // Immediate and label reference are compatible
           matches = false;
           break;
         }
