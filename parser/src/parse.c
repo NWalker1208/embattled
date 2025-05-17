@@ -312,8 +312,8 @@ bool tryParseOperand(const TextContents* text, TextOffset* position, AssemblyOpe
     case '$':  {
       // Parse as a register
       IncrementTextOffset(text, position);
-      parameter->kind = ASSEMBLY_PARAM_REGISTER;
-      if (!tryParseRegister(text, position, &parameter->registerName)) {
+      operand->kind = ASSEMBLY_OPERAND_REGISTER;
+      if (!tryParseRegister(text, position, &operand->registerName)) {
         skipToNextSatisfies(text, position, isPastParameter);
         *error = PARSING_ERROR(INVALID_REGISTER, start, *position);
         return false; // Failed to parse register
@@ -323,8 +323,8 @@ bool tryParseOperand(const TextContents* text, TextOffset* position, AssemblyOpe
     case '@': {
       // Parse as a label reference
       IncrementTextOffset(text, position);
-      parameter->kind = ASSEMBLY_PARAM_LABEL;
-      if (!tryParseName(text, position, &parameter->labelSpan)) {
+      operand->kind = ASSEMBLY_OPERAND_LABEL;
+      if (!tryParseName(text, position, &operand->labelSpan)) {
         skipToNextSatisfies(text, position, isPastParameter);
         *error = PARSING_ERROR(INVALID_REGISTER, start, *position);
         return false; // Failed to parse label
@@ -333,22 +333,22 @@ bool tryParseOperand(const TextContents* text, TextOffset* position, AssemblyOpe
     }
     default: {
       // Parse as an immediate value
-      parameter->kind = ASSEMBLY_PARAM_IMMEDIATE;
+      operand->kind = ASSEMBLY_OPERAND_IMMEDIATE;
       
       if (c == '0' && GetCharAtTextOffset(text, (TextOffset){position->line, position->column + 1}) == 'x') {
         // Parse as a hexadecimal immediate value
         position->column += 2;
         NormalizeTextOffset(text, position);
-        unsigned int hexValue;
+        uint32_t hexValue;
         if (!tryParseHexadecimalValue(text, position, &hexValue)) {
           skipToNextSatisfies(text, position, isPastParameter);
           *error = PARSING_ERROR(INVALID_HEX_VALUE, start, *position);
           return false; // Failed to parse hexadecimal immediate value
         }
-        parameter->immediateValue = (signed int)hexValue;
+        operand->immediateValue = (int32_t)hexValue;
       } else if (isdigit(c) || c == '-' || c == '+') {
         // Parse as a decimal immediate value
-        if (!tryParseDecimalValue(text, position, &parameter->immediateValue)) {
+        if (!tryParseDecimalValue(text, position, &operand->immediateValue)) {
           skipToNextSatisfies(text, position, isPastParameter);
           *error = PARSING_ERROR(INVALID_INT_VALUE, start, *position);
           return false; // Failed to parse decimal immediate value
@@ -361,7 +361,7 @@ bool tryParseOperand(const TextContents* text, TextOffset* position, AssemblyOpe
       break;
     }
   }
-  parameter->sourceSpan = (TextSpan){start, *position};
+  operand->sourceSpan = (TextSpan){start, *position};
   return true;
 }
 
