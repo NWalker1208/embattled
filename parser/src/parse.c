@@ -48,41 +48,41 @@ bool tryParseInstruction(const TextContents* text, TextOffset* position, Assembl
 // If text contains valid hexadecimal bytes from the current position to the end of the current line,
 // advances position to the end of the line, outputs the data through data, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseAssemblyData(const TextContents* text, TextOffset* position, AssemblyData* data, ParsingError* error);
+bool tryParseAssemblyData(const TextContents* text, TextOffset* position, AssemblyData* data, uint8_t** dataBuffer, size_t* dataBufferSize, ParsingError* error);
 
-// Parses an opcode name.
-// Expects text to be at the start of the opcode name.
-// If parsing succeeds, advances position past the end of the opcode name,
-// outputs the opcode through opcode, and returns true.
+// Parses an assembly mnemonic.
+// Expects text to be at the start of the mnemonic.
+// If parsing succeeds, advances position past the end of the mnemonic,
+// outputs the mnemonic through mnemonic, and returns true.
 // If parsing fails, returns false.
-bool tryParseOpcode(const TextContents* text, TextOffset* position, enum Opcode* opcode);
+bool tryParseMnemonic(const TextContents* text, TextOffset* position, AssemblyMnemonic* mnemonic);
 
-// Parses an assembly instruction parameter.
-// If parsing succeeds, advances position past the end of the parameter,
-// outputs the parameter through parameter, and returns true.
+// Parses an assembly instruction operand.
+// If parsing succeeds, advances position past the end of the operand,
+// outputs the operand through operand, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyParameter* parameter, ParsingError* error);
+bool tryParseOperand(const TextContents* text, TextOffset* position, AssemblyOperand* operand, ParsingError* error);
 
 // Parses a register name.
 // Expects text to be at the start of the register name (past the "$" character).
 // If parsing succeeds, advances position past the end of the register name,
 // outputs the register through reg and returns true.
 // If parsing fails, returns false.
-bool tryParseRegister(const TextContents* text, TextOffset* position, enum Register* reg);
+bool tryParseRegister(const TextContents* text, TextOffset* position, Register* reg);
 
 // Parses a hexadecimal immediate value.
 // Expects text to be at the first hexadecimal digit (past the "0x" sequence).
 // If parsing succeeds, advances position past the end of the hexadecimal digits,
 // outputs the immediate value through result and returns true.
 // If parsing fails, returns false.
-bool tryParseHexadecimalValue(const TextContents* text, TextOffset* position, unsigned int* value);
+bool tryParseHexadecimalValue(const TextContents* text, TextOffset* position, uint32_t* value);
 
 // Parses a decimal immediate value.
 // Expects text to be at the first digit, or at the sign character if one is present.
 // If parsing succeeds, advances position past the end of the digits,
 // outputs the immediate value through result and returns true.
 // If parsing fails, returns false.
-bool tryParseDecimalValue(const TextContents* text, TextOffset* position, signed int* value);
+bool tryParseDecimalValue(const TextContents* text, TextOffset* position, int32_t* value);
 
 // Parses a name.
 // If parsing succeeds, advances position past the end of the name,
@@ -128,7 +128,7 @@ bool TryParseAssemblyProgram(const TextContents* text, AssemblyProgram* program,
   return !anyErrors;
 }
 
-bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, AssemblyLine* line, ParsingError* error) {
+bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, uint8_t** dataBuffer, size_t* dataBufferSize, AssemblyLine* line, ParsingError* error) {
   skipAllWhitespace(text, position);
   TextOffset start = *position;
 
@@ -291,7 +291,7 @@ bool tryParseInstruction(const TextContents* text, TextOffset* position, Assembl
   return true;
 }
 
-bool tryParseOpcode(const TextContents* text, TextOffset* position, enum Opcode* opcode) {
+bool tryParseMnemonic(const TextContents* text, TextOffset* position, AssemblyMnemonic* mnemonic) {
   // Loop through the array of opcode definitions and output the first match
   for (int i = 0; i < OPCODE_COUNT; i++) {
     if (startsWithWordCaseInsensitive(text, *position, OPCODE_INFO[i].name)) {
@@ -306,7 +306,7 @@ bool tryParseOpcode(const TextContents* text, TextOffset* position, enum Opcode*
 
 bool isPastParameter(char c) { return isAnyWhitespace(c) || c == ',' || c == ';'; }
 
-bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyParameter* parameter, ParsingError* error) {
+bool tryParseOperand(const TextContents* text, TextOffset* position, AssemblyOperand* operand, ParsingError* error) {
   TextOffset start = *position;
   char c = GetCharAtTextOffset(text, *position);
   switch (c) {
@@ -366,7 +366,7 @@ bool tryParseParameter(const TextContents* text, TextOffset* position, AssemblyP
   return true;
 }
 
-bool tryParseRegister(const TextContents* text, TextOffset* position, enum Register* reg) {
+bool tryParseRegister(const TextContents* text, TextOffset* position, Register* reg) {
   // Loop through the array of register names and output the first match
   for (int i = 0; i < REGISTER_COUNT; i++) {
     if (startsWithWordCaseInsensitive(text, *position, REGISTER_NAMES[i])) {
@@ -379,7 +379,7 @@ bool tryParseRegister(const TextContents* text, TextOffset* position, enum Regis
   return false;
 }
 
-bool tryParseHexadecimalValue(const TextContents* text, TextOffset* position, unsigned int* value) {
+bool tryParseHexadecimalValue(const TextContents* text, TextOffset* position, uint32_t* value) {
   // Check that first character is valid hex
   unsigned char nibble;
   if (!tryHexToNibble(GetCharAtTextOffset(text, *position), &nibble)) {
@@ -401,7 +401,7 @@ bool tryParseHexadecimalValue(const TextContents* text, TextOffset* position, un
   return true;
 }
 
-bool tryParseDecimalValue(const TextContents* text, TextOffset* position, signed int* value) {
+bool tryParseDecimalValue(const TextContents* text, TextOffset* position, int32_t* value) {
   // Check for sign character (- or +)
   char c = GetCharAtTextOffset(text, *position);
   bool isNegative = c == '-';
@@ -444,7 +444,7 @@ bool tryParseDecimalValue(const TextContents* text, TextOffset* position, signed
   // assertions about the range of legal values for any given instruction.
 }
 
-bool tryParseAssemblyData(const TextContents* text, TextOffset* position, AssemblyData* data, ParsingError* error) {
+bool tryParseAssemblyData(const TextContents* text, TextOffset* position, AssemblyData* data, uint8_t** dataBuffer, size_t* dataBufferSize, ParsingError* error) {
   data->length = 0;
   data->bytes = NULL;
   TextOffset endOfLine = GetTextContentsEndOfLine(text, *position);
