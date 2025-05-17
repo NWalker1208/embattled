@@ -179,6 +179,20 @@ bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyL
 }
 
 bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction asmInstruction, ReferenceTable* referenceTablePtr, Instruction* instructionOut, AssemblingError* errorOut) {
+  if (asmInstruction.operandCount > MAX_ASSEMBLY_OPERANDS) {
+    *errorOut = ASSEMBLING_ERROR(NO_MATCHING_OVERLOAD, lineSpan);
+    return false;
+  }
+  
+  AssemblyOperandKind operandKinds[MAX_ASSEMBLY_OPERANDS] = {0};
+  for (size_t i = 0; i < asmInstruction.operandCount; i++) { operandKinds[i] = asmInstruction.operands[i].kind; }
+  const AssemblyMnemonicOverload* mnemonicOverload = findAssemblyMnemonicOverload(asmInstruction.mnemonic, operandKinds, asmInstruction.operandCount);
+  if (mnemonicOverload == NULL) {
+    *errorOut = ASSEMBLING_ERROR(NO_MATCHING_OVERLOAD, lineSpan);
+    return false;
+  }
+
+  // TODO
   return false;
 }
 
