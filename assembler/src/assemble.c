@@ -19,8 +19,8 @@ typedef struct LabelTable {
 } LabelTable;
 
 typedef struct ReferenceTableEntry {
-  TextSpan nameSpan;
-  TextSpan paramSpan;
+  TextSpan labelNameSpan;
+  TextSpan operandSourceSpan;
   uint16_t address;
 } ReferenceTableEntry;
 
@@ -38,7 +38,7 @@ bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyL
 // Tries to convert the given assembly instruction into an actual instruction that can be written to memory.
 // If successful, appends to the reference table as necessary, outputs the instruction, and returns true.
 // Otherwise, outputs an error and returns false.
-bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction asmInstruction, ReferenceTable* referenceTablePtr, Instruction* instructionOut, AssemblingError* errorOut);
+bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction asmInstruction, ReferenceTable* referenceTablePtr, uint16_t currentMemoryAddr, Instruction* instructionOut, AssemblingError* errorOut);
 
 // Tries to resolve all label references by writing the addresses of the referenced labels to the given memory buffer.
 // If successful, returns true.
@@ -90,7 +90,7 @@ bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* a
 
       if (line->kind == ASSEMBLY_LINE_INSTRUCTION) {
         Instruction instruction = { 0 };
-        if (!tryConvertAssemblyInstructionToInstruction(line->sourceSpan, line->instruction, &referenceTable, &instruction, error)) {
+        if (!tryConvertAssemblyInstructionToInstruction(line->sourceSpan, line->instruction, &referenceTable, currentMemoryAddr, &instruction, error)) {
           goto failed;
         }
 
@@ -178,7 +178,7 @@ bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyL
   return true;
 }
 
-bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction asmInstruction, ReferenceTable* referenceTablePtr, Instruction* instructionOut, AssemblingError* errorOut) {
+bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction asmInstruction, ReferenceTable* referenceTablePtr, uint16_t currentMemoryAddr, Instruction* instructionOut, AssemblingError* errorOut) {
   if (asmInstruction.operandCount > MAX_ASSEMBLY_OPERANDS) {
     *errorOut = ASSEMBLING_ERROR(NO_MATCHING_OVERLOAD, lineSpan);
     return false;
@@ -192,14 +192,82 @@ bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstr
     return false;
   }
 
-  // TODO
+  instructionOut->opcode = mnemonicOverload->opcode;
+  const OpcodeInfo* opcodeInfo = getOpcodeInfo(mnemonicOverload->opcode);
+  assert(opcodeInfo != NULL);
+  
+  // Set operands
+  int nextRegisterOperand = 0;
+  int nextImmediateOperand = 0;
+  bool swapRegAB = mnemonicOverload->swapRegisterBAndRegisterC;
+  uint8_t numImmABits = opcodeInfo->layout.numImmABits;
+
+  for (size_t i = 0; i < asmInstruction.operandCount; i++) {
+    AssemblyOperand operand = asmInstruction.operands[i];
+
+    switch (operand.kind) {
+      case ASSEMBLY_OPERAND_REGISTER: {
+        Register reg = operand.registerName;
+        switch (nextRegisterOperand) {
+          case 0: instructionOut->operands.registerA = reg; nextRegisterOperand = swapRegAB ? 2 : 1; break;
+          case 1: instructionOut->operands.registerB = reg; nextRegisterOperand = swapRegAB ? 3 : 2; break;
+          case 2: instructionOut->operands.registerC = reg; nextRegisterOperand = swapRegAB ? 2 : 3; break;
+          default: assert(false); break;
+        }
+      } break;
+
+      case ASSEMBLY_OPERAND_IMMEDIATE: {
+        int32_t immediateValue = operand.immediateValue;
+        
+        uint8_t numBits = nextImmediateOperand == 0 ? numImmABits : 16;
+        if (immediateValue < (~0U << (numBits - 1)) || immediateValue > ((1 << numBits) - 1)) {
+          switch (numBits) {
+            case 16: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT, operand.sourceSpan); break;
+            case 8: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT, operand.sourceSpan); break;
+            case 4: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT, operand.sourceSpan); break;
+            default: assert(false); break;
+          }
+          return false;
+        }
+
+        switch (nextImmediateOperand) {
+          case 0: instructionOut->operands.immediateA.u16 = (uint16_t)(0xFFFF & immediateValue); break;
+          case 1: instructionOut->operands.immediateB.u16 = (uint16_t)(0xFFFF & immediateValue); break;
+          default: assert(false); break;
+        }
+        nextImmediateOperand++;
+      } break;
+
+      case ASSEMBLY_OPERAND_LABEL: {
+        assert(nextImmediateOperand <= 1);
+        if (nextImmediateOperand == 0 && numImmABits != 16) {
+          *errorOut = ASSEMBLING_ERROR(EXPECTED_IMMEDIATE_VALUE_NOT_LABEL, operand.sourceSpan);
+          return false;
+        }
+
+        // Actual value will be filled in later. For now, just add to reference table
+        referenceTablePtr->entries[referenceTablePtr->count] = (ReferenceTableEntry) {
+          .address = currentMemoryAddr + (nextImmediateOperand == 0
+            ? 1 // Immediate A always starts on second byte
+            : (opcodeInfo->layout.numImmABits <= 8) ? 2 : 3), // Immediate B starts on third or fourth byte
+          .labelNameSpan = operand.labelSpan,
+          .operandSourceSpan = operand.sourceSpan,
+        };
+        referenceTablePtr->count++;
+        nextImmediateOperand++;
+      } break;
+
+      default: assert(false); break;
+    }
+  }
+
   return false;
 }
 
 bool tryResolveLabelReferences(const TextContents* sourceText, LabelTable labelTable, ReferenceTable referenceTable, uint8_t* memory, AssemblingError* errorOut) {
   for (size_t i = 0; i < referenceTable.count; i++) {
     uint16_t referenceAddress = referenceTable.entries[i].address;
-    TextSpan nameSpan = referenceTable.entries[i].nameSpan;
+    TextSpan nameSpan = referenceTable.entries[i].labelNameSpan;
 
     uint16_t labelAddress;
     bool foundLabel = false;
@@ -211,7 +279,7 @@ bool tryResolveLabelReferences(const TextContents* sourceText, LabelTable labelT
       }
     }
     if (!foundLabel) {
-      *errorOut = ASSEMBLING_ERROR(UNDEFINED_LABEL_NAME, referenceTable.entries[i].paramSpan);
+      *errorOut = ASSEMBLING_ERROR(UNDEFINED_LABEL_NAME, referenceTable.entries[i].operandSourceSpan);
       return false;
     }
 
