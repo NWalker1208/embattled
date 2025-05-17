@@ -508,10 +508,12 @@ void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
   struct Instruction nextInstruction;
   fetchInstruction(processState->memory, processState->registers.ip, &nextInstruction);
   
-  const struct OpcodeInfo* opcodeInfo = &OPCODE_INFO[nextInstruction.opcode];
-  unsigned char numImmBits = opcodeInfo->parameterLayout.numImmBits;
-  bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
-  bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
+  const struct OpcodeInfo* opcodeInfo = getOpcodeInfo(nextInstruction.opcode);
+  bool hasRegA = opcodeInfo->layout.hasRegA;
+  bool hasRegB = opcodeInfo->layout.hasRegB;
+  bool hasRegC = opcodeInfo->layout.hasRegC;
+  unsigned char numImmABits = opcodeInfo->layout.numImmABits;
+  bool hasImmB = opcodeInfo->layout.hasImmB;
 
   // Draw title
   snprintf(buffer, sizeof(buffer), "Robot %zu", index + 1);
@@ -534,12 +536,12 @@ void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
   topLeft.y += 20;
 
   snprintf(buffer, sizeof(buffer),
-    "ip: %04x  sp: %04x  ac: %04x\n"
+    "ip: %04x  sp: %04x  rt: %04x\n"
     "x0: %04x  x1: %04x  x2: %04x\n"
     "x3: %04x  x4: %04x  x5: %04x\n"
     "x6: %04x  x7: %04x  x8: %04x\n"
     "x9: %04x  x10:%04x  x11:%04x",
-    processState->registers.ip, processState->registers.sp, processState->registers.ac,
+    processState->registers.ip, processState->registers.sp, processState->registers.rt,
     processState->registers.x0, processState->registers.x1, processState->registers.x2,
     processState->registers.x3, processState->registers.x4, processState->registers.x5,
     processState->registers.x6, processState->registers.x7, processState->registers.x8,
@@ -552,26 +554,32 @@ void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
   DrawTextEx(primaryFont, "Next instruction:", (Vector2){ topLeft.x, topLeft.y }, 18, 1.0, BLACK);
   topLeft.y += 20;
 
-  char immValue[5] = "N/A";
-  if (numImmBits > 12) {
-    snprintf(immValue, sizeof(immValue), "%04x", nextInstruction.parameters.immediate.u16);
-  } else if (numImmBits > 8) {
-    snprintf(immValue, sizeof(immValue), "%03x", nextInstruction.parameters.immediate.u12);
-  } else if (numImmBits > 4) {
-    snprintf(immValue, sizeof(immValue), "%02x", nextInstruction.parameters.immediate.u8);
-  } else if (numImmBits > 0) {
-    snprintf(immValue, sizeof(immValue), "%01x", nextInstruction.parameters.immediate.u4);
+  char immValueA[5] = "N/A";
+  if (numImmABits > 8) {
+    snprintf(immValueA, sizeof(immValueA), "%04x", nextInstruction.operands.immediateA.u16);
+  } else if (numImmABits > 4) {
+    snprintf(immValueA, sizeof(immValueA), "%02x", nextInstruction.operands.immediateA.u8);
+  } else if (numImmABits > 0) {
+    snprintf(immValueA, sizeof(immValueA), "%01x", nextInstruction.operands.immediateA.u4);
+  }
+
+  char immValueB[5] = "N/A";
+  if (hasImmB) {
+    snprintf(immValueB, sizeof(immValueB), "%04x", nextInstruction.operands.immediateB.u16);
   }
 
   snprintf(buffer, sizeof(buffer),
-    "Opcode:     %s\n"
-    "Reg. A:     %s\n"
-    "Reg. B:     %s\n"
-    "Imm. Value: %s",
-    opcodeInfo->name,
-    hasRegA ? REGISTER_NAMES[nextInstruction.parameters.registerA] : "N/A",
-    hasRegB ? REGISTER_NAMES[nextInstruction.parameters.registerB] : "N/A",
-    immValue
+    "Opcode:       %s\n"
+    "Reg. A:       %s\n"
+    "Reg. B:       %s\n"
+    "Reg. C:       %s\n"
+    "Imm. Value A: %s\n"
+    "Imm. Value B: %s",
+    opcodeInfo->identifier,
+    hasRegA ? getRegisterIdentifier(nextInstruction.operands.registerA) : "N/A",
+    hasRegB ? getRegisterIdentifier(nextInstruction.operands.registerB) : "N/A",
+    hasRegC ? getRegisterIdentifier(nextInstruction.operands.registerC) : "N/A",
+    immValueA, immValueB
   );
   DrawTextEx(primaryFont, buffer, (Vector2){ topLeft.x + 10, topLeft.y }, 15, 1.0, BLACK);
   //topLeft.y += 4*15 + 3*2 + STATE_PANEL_MARGIN;
