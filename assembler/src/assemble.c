@@ -220,7 +220,9 @@ bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstr
         int32_t immediateValue = operand.immediateValue;
         
         uint8_t numBits = nextImmediateOperand == 0 ? numImmABits : 16;
-        if (immediateValue < (~0U << (numBits - 1)) || immediateValue > ((1 << numBits) - 1)) {
+        int32_t minValue = -(1 << (numBits - 1));
+        int32_t maxValue = (1 << numBits) - 1;
+        if (immediateValue < minValue || immediateValue > maxValue) {
           switch (numBits) {
             case 16: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT, operand.sourceSpan); break;
             case 8: *errorOut = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT, operand.sourceSpan); break;
