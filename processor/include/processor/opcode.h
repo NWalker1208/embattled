@@ -117,6 +117,13 @@ typedef enum Opcode {
   OPCODE_COUNT
 } Opcode;
 
+// Whether a value is treated as signed or unsigned, or if signedness does not apply.
+typedef enum Signedness {
+  SIGNEDNESS_NOT_APPLICABLE = 0, // Signedness does not apply.
+  SIGNEDNESS_UNSIGNED = 1,       // The value is treated as unsigned.
+  SIGNEDNESS_SIGNED = -1,        // The value is treated as signed.
+} Signedness;
+
 // The arguments passed to an opcode when it is executed.
 typedef struct OpcodeExecuteArguments {
   ProcessState* process;
@@ -131,6 +138,7 @@ typedef struct OpcodeExecuteArguments {
 typedef struct OpcodeInfo {
   const char* identifier; // The identifier of the opcode as a string.
   InstructionLayout layout; // The memory layout of instructions using this opcode.
+  Signedness immASignedness; // The signedness of immediate value A, if applicable.
   void (*execute)(OpcodeExecuteArguments args); // A function which executes the opcode against the provided arguments.
 } OpcodeInfo;
 

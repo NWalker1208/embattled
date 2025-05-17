@@ -115,30 +115,30 @@ const OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
   { .identifier = "nop", .layout = INSTRUCTION_LAYOUT_NONE, .execute = execute_nop, },
 
   { .identifier = "jmp_r", .layout = INSTRUCTION_LAYOUT_REGA, .execute = execute_jmp_r, },
-  { .identifier = "jmp_i", .layout = INSTRUCTION_LAYOUT_IMMA16, .execute = execute_jmp_i, },
+  { .identifier = "jmp_i", .layout = INSTRUCTION_LAYOUT_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_jmp_i, },
   
   { .identifier = "jmz_r", .layout = INSTRUCTION_LAYOUT_REGA_REGB, .execute = execute_jmz_r, },
-  { .identifier = "jmz_i", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .execute = execute_jmz_i, },
+  { .identifier = "jmz_i", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_jmz_i, },
   
   { .identifier = "slp_r", .layout = INSTRUCTION_LAYOUT_REGA, .execute = execute_slp_r, },
-  { .identifier = "slp_i", .layout = INSTRUCTION_LAYOUT_IMMA16, .execute = execute_slp_i, },
+  { .identifier = "slp_i", .layout = INSTRUCTION_LAYOUT_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_slp_i, },
   
   { .identifier = "set_r", .layout = INSTRUCTION_LAYOUT_REGA_REGB, .execute = execute_set_r, },
   { .identifier = "set_i", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .execute = execute_set_i, },
   
   { .identifier = "ldb_r", .layout = INSTRUCTION_LAYOUT_REGA_REGB, .execute = execute_ldb_r, },
-  { .identifier = "ldb_i", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .execute = execute_ldb_i, },
+  { .identifier = "ldb_i", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_ldb_i, },
   
   { .identifier = "ldw_r", .layout = INSTRUCTION_LAYOUT_REGA_REGB, .execute = execute_ldw_r, },
-  { .identifier = "ldw_i", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .execute = execute_ldw_i, },
+  { .identifier = "ldw_i", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_ldw_i, },
   
   { .identifier = "stb_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB, .execute = execute_stb_rr, },
-  { .identifier = "stb_ri", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .execute = execute_stb_ri, },
+  { .identifier = "stb_ri", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_stb_ri, },
   { .identifier = "stb_ir", .layout = INSTRUCTION_LAYOUT_REGA_IMMA8, .execute = execute_stb_ir, },
   { .identifier = "stb_ii", .layout = INSTRUCTION_LAYOUT_IMMA8_IMMB16, .execute = execute_stb_ii, },
   
   { .identifier = "stw_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB, .execute = execute_stw_rr, },
-  { .identifier = "stw_ri", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .execute = execute_stw_ri, },
+  { .identifier = "stw_ri", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_stw_ri, },
   { .identifier = "stw_ir", .layout = INSTRUCTION_LAYOUT_REGA_IMMA16, .execute = execute_stw_ir, },
   { .identifier = "stw_ii", .layout = INSTRUCTION_LAYOUT_IMMA16_IMMB16, .execute = execute_stw_ii, },
   
@@ -161,20 +161,20 @@ const OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
   { .identifier = "mul_i", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_mul_i, },
   
   { .identifier = "divs_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_divs_rr, },
-  { .identifier = "divs_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_divs_ri, },
-  { .identifier = "divs_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_divs_ir, },
+  { .identifier = "divs_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_SIGNED, .execute = execute_divs_ri, },
+  { .identifier = "divs_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_SIGNED, .execute = execute_divs_ir, },
   
   { .identifier = "divu_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_divu_rr, },
-  { .identifier = "divu_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_divu_ri, },
-  { .identifier = "divu_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_divu_ir, },
+  { .identifier = "divu_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_divu_ri, },
+  { .identifier = "divu_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_divu_ir, },
   
   { .identifier = "rems_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_rems_rr, },
-  { .identifier = "rems_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_rems_ri, },
-  { .identifier = "rems_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_rems_ir, },
+  { .identifier = "rems_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_SIGNED, .execute = execute_rems_ri, },
+  { .identifier = "rems_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_SIGNED, .execute = execute_rems_ir, },
   
   { .identifier = "remu_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_remu_rr, },
-  { .identifier = "remu_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_remu_ri, },
-  { .identifier = "remu_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_remu_ir, },
+  { .identifier = "remu_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_remu_ri, },
+  { .identifier = "remu_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_remu_ir, },
   
   { .identifier = "and_r", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_and_r, },
   { .identifier = "and_i", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_and_i, },
@@ -186,16 +186,16 @@ const OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
   { .identifier = "xor_i", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_xor_i, },
   
   { .identifier = "lsh_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_lsh_rr, },
-  { .identifier = "lsh_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA4, .execute = execute_lsh_ri, },
+  { .identifier = "lsh_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA4, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_lsh_ri, },
   { .identifier = "lsh_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_lsh_ir, },
   
   { .identifier = "rshs_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_rshs_rr, },
-  { .identifier = "rshs_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA4, .execute = execute_rshs_ri, },
-  { .identifier = "rshs_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_rshs_ir, },
+  { .identifier = "rshs_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA4, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_rshs_ri, },
+  { .identifier = "rshs_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_SIGNED, .execute = execute_rshs_ir, },
   
   { .identifier = "rshu_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_rshu_rr, },
-  { .identifier = "rshu_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA4, .execute = execute_rshu_ri, },
-  { .identifier = "rshu_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_rshu_ir, },
+  { .identifier = "rshu_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA4, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_rshu_ri, },
+  { .identifier = "rshu_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_rshu_ir, },
   
   { .identifier = "ceq_r", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_ceq_r, },
   { .identifier = "ceq_i", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_ceq_i, },
@@ -204,20 +204,20 @@ const OpcodeInfo OPCODE_INFO[OPCODE_COUNT] = {
   { .identifier = "cne_i", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cne_i, },
   
   { .identifier = "clts_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_clts_rr, },
-  { .identifier = "clts_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_clts_ri, },
-  { .identifier = "clts_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_clts_ir, },
+  { .identifier = "clts_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_SIGNED, .execute = execute_clts_ri, },
+  { .identifier = "clts_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_SIGNED, .execute = execute_clts_ir, },
   
   { .identifier = "cltu_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_cltu_rr, },
-  { .identifier = "cltu_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cltu_ri, },
-  { .identifier = "cltu_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cltu_ir, },
+  { .identifier = "cltu_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_cltu_ri, },
+  { .identifier = "cltu_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_cltu_ir, },
   
   { .identifier = "cges_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_cges_rr, },
-  { .identifier = "cges_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cges_ri, },
-  { .identifier = "cges_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cges_ir, },
+  { .identifier = "cges_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_SIGNED, .execute = execute_cges_ri, },
+  { .identifier = "cges_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_SIGNED, .execute = execute_cges_ir, },
   
   { .identifier = "cgeu_rr", .layout = INSTRUCTION_LAYOUT_REGA_REGB_REGC, .execute = execute_cgeu_rr, },
-  { .identifier = "cgeu_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cgeu_ri, },
-  { .identifier = "cgeu_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .execute = execute_cgeu_ir, },
+  { .identifier = "cgeu_ri", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_cgeu_ri, },
+  { .identifier = "cgeu_ir", .layout = INSTRUCTION_LAYOUT_REGA_REGB_IMMA16, .immASignedness = SIGNEDNESS_UNSIGNED, .execute = execute_cgeu_ir, },
 };
 
 const OpcodeInfo* getOpcodeInfo(Opcode opcode) {
