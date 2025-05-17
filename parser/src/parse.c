@@ -8,17 +8,17 @@
 
 #pragma region Error messages
 
-const char* INVALID_LABEL_NAME = "Invalid label name";
-const char* INVALID_LABEL_ADDR = "Invalid address";
-const char* UNRECOGNIZED_MNEMONIC = "Unrecognized mnemonic";
-const char* INVALID_OPERAND = "Invalid operand";
-const char* TOO_MANY_OPERANDS = "Too many operands";
-const char* INVALID_REGISTER = "Invalid register";
-const char* INVALID_HEX_VALUE = "Invalid or out-of-range hexadecimal value";
-const char* INVALID_INT_VALUE = "Invalid or out-of-range integer value";
-const char* INVALID_HEX_BYTE = "Invalid hexadecimal byte";
-const char* UNEXPECTED_CHARACTER = "Unexpected character";
-const char* UNEXPECTED_END_OF_FILE = "Unexpected end of file";
+const char INVALID_LABEL_NAME[] = "Invalid label name";
+const char INVALID_LABEL_ADDR[] = "Invalid address";
+const char UNRECOGNIZED_MNEMONIC[] = "Unrecognized mnemonic";
+const char INVALID_OPERAND[] = "Invalid operand";
+const char TOO_MANY_OPERANDS[] = "Too many operands";
+const char INVALID_REGISTER[] = "Invalid register";
+const char INVALID_HEX_VALUE[] = "Invalid or out-of-range hexadecimal value";
+const char INVALID_INT_VALUE[] = "Invalid or out-of-range integer value";
+const char INVALID_HEX_BYTE[] = "Invalid hexadecimal byte";
+const char UNEXPECTED_CHARACTER[] = "Unexpected character";
+const char UNEXPECTED_END_OF_FILE[] = "Unexpected end of file";
 
 #define PARSING_ERROR(_message, _start, _end) (ParsingError){.message = (_message), .sourceSpan = (TextSpan){.start = (_start), .end = (_end)}}
 

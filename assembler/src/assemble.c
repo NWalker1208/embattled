@@ -5,8 +5,26 @@
 #include "processor/instruction.h"
 #include "processor/process.h"
 
+#pragma region Error messages
+
+const char INVALID_LINE[] = "Invalid line";
+const char MULTIPLE_LABELS[] = "Multiple labels applied to the same instruction or data";
+const char DUPLICATE_LABEL_NAME[] = "Label name is defined more than once";
+const char LABEL_ADDRESS_TOO_LOW[] = "Label address is lower than the current address being written";
+const char INVALID_LABEL[] = "Invalid label";
+const char NO_MATCHING_OVERLOAD[] = "No matching opcode for instruction mnemonic and operands";
+const char EXPECTED_IMMEDIATE_VALUE_NOT_LABEL[] = "Expected immediate value rather than label as operand";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT[] = "Immediate value is outside the allowed range (must fit within 4 bits)";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT[] = "Immediate value is outside the allowed range (must fit within 8 bits)";
+const char IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT[] = "Immediate value is outside the allowed range (must fit within 16 bits)";
+const char INVALID_INSTRUCTION[] = "Invalid instruction";
+const char EXPECTED_INSTRUCTION_OR_DATA[] = "Expected instruction or data after label";
+const char UNDEFINED_LABEL_NAME[] = "Undefined label name";
+const char OUT_OF_MEMORY[] = "Out of memory for assembled program";
+
 #define ASSEMBLING_ERROR(_message, _sourceSpan) (AssemblingError){.message = (_message), .sourceSpan = (_sourceSpan)}
 
+#pragma endregion
 
 typedef struct LabelTableEntry {
   TextSpan nameSpan;

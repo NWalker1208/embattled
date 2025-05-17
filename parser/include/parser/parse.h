@@ -26,17 +26,17 @@
 
 #define MAX_ERRORS 99
 
-extern const char* INVALID_LABEL_NAME;
-extern const char* INVALID_LABEL_ADDR;
-extern const char* UNRECOGNIZED_MNEMONIC;
-extern const char* INVALID_OPERAND;
-extern const char* TOO_MANY_OPERANDS;
-extern const char* INVALID_REGISTER;
-extern const char* INVALID_HEX_VALUE;
-extern const char* INVALID_INT_VALUE;
-extern const char* INVALID_HEX_BYTE;
-extern const char* UNEXPECTED_CHARACTER;
-extern const char* UNEXPECTED_END_OF_FILE;
+extern const char INVALID_LABEL_NAME[];
+extern const char INVALID_LABEL_ADDR[];
+extern const char UNRECOGNIZED_MNEMONIC[];
+extern const char INVALID_OPERAND[];
+extern const char TOO_MANY_OPERANDS[];
+extern const char INVALID_REGISTER[];
+extern const char INVALID_HEX_VALUE[];
+extern const char INVALID_INT_VALUE[];
+extern const char INVALID_HEX_BYTE[];
+extern const char UNEXPECTED_CHARACTER[];
+extern const char UNEXPECTED_END_OF_FILE[];
 
 typedef struct {
   // The message describing the error. Should be a string with a static lifetime.

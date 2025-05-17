@@ -3,20 +3,20 @@
 #include "utilities/text.h"
 #include "assembler/assembly.h"
 
-static const char INVALID_LINE[] = "Invalid line";
-static const char MULTIPLE_LABELS[] = "Multiple labels applied to the same instruction or data";
-static const char DUPLICATE_LABEL_NAME[] = "Label name is defined more than once";
-static const char LABEL_ADDRESS_TOO_LOW[] = "Label address is lower than the current address being written";
-static const char INVALID_LABEL[] = "Invalid label";
-static const char NO_MATCHING_OVERLOAD[] = "No matching opcode for instruction mnemonic and operands";
-static const char EXPECTED_IMMEDIATE_VALUE_NOT_LABEL[] = "Expected immediate value rather than label as operand";
-static const char IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT[] = "Immediate value is outside the allowed range (must fit within 4 bits)";
-static const char IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT[] = "Immediate value is outside the allowed range (must fit within 8 bits)";
-static const char IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT[] = "Immediate value is outside the allowed range (must fit within 16 bits)";
-static const char INVALID_INSTRUCTION[] = "Invalid instruction";
-static const char EXPECTED_INSTRUCTION_OR_DATA[] = "Expected instruction or data after label";
-static const char UNDEFINED_LABEL_NAME[] = "Undefined label name";
-static const char OUT_OF_MEMORY[] = "Out of memory for assembled program";
+extern const char INVALID_LINE[];
+extern const char MULTIPLE_LABELS[];
+extern const char DUPLICATE_LABEL_NAME[];
+extern const char LABEL_ADDRESS_TOO_LOW[];
+extern const char INVALID_LABEL[];
+extern const char NO_MATCHING_OVERLOAD[];
+extern const char EXPECTED_IMMEDIATE_VALUE_NOT_LABEL[];
+extern const char IMMEDIATE_VALUE_OUT_OF_RANGE_4_BIT[];
+extern const char IMMEDIATE_VALUE_OUT_OF_RANGE_8_BIT[];
+extern const char IMMEDIATE_VALUE_OUT_OF_RANGE_16_BIT[];
+extern const char INVALID_INSTRUCTION[];
+extern const char EXPECTED_INSTRUCTION_OR_DATA[];
+extern const char UNDEFINED_LABEL_NAME[];
+extern const char OUT_OF_MEMORY[];
 
 typedef struct AssemblingError {
   // The message describing the error. Should be a string with a static lifetime.
