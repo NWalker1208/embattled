@@ -11,7 +11,8 @@
 const char* INVALID_LABEL_NAME = "Invalid label name";
 const char* INVALID_LABEL_ADDR = "Invalid address";
 const char* UNRECOGNIZED_MNEMONIC = "Unrecognized mnemonic";
-const char* INVALID_PARAMETER = "Invalid parameter";
+const char* INVALID_OPERAND = "Invalid operand";
+const char* TOO_MANY_OPERANDS = "Too many operands";
 const char* INVALID_REGISTER = "Invalid register";
 const char* INVALID_HEX_VALUE = "Invalid or out-of-range hexadecimal value";
 const char* INVALID_INT_VALUE = "Invalid or out-of-range integer value";
@@ -243,27 +244,31 @@ bool tryParseInstruction(const TextContents* text, TextOffset* position, Assembl
 
   // Parse the opcode
   TextOffset start = *position;
-  if (!tryParseOpcode(text, position, &instruction->opcode)) {
+  if (!tryParseMnemonic(text, position, &instruction->mnemonic)) {
     skipToNextWhitespace(text, position);
-    *error = PARSING_ERROR(INVALID_OPCODE, start, *position);
+    *error = PARSING_ERROR(UNRECOGNIZED_MNEMONIC, start, *position);
     return false; // Failed to parse opcode
   }
   skipInlineWhitespace(text, position);
 
   // Parse the parameters, if present
   if (CompareTextOffsets(text, *position, endOfLine) < 0) {
-    instruction->parameterCount = 0;
-    instruction->parameters = NULL;
+    instruction->operandCount = 0;
     while (true) {
-      instruction->parameterCount++;
-      instruction->parameters = realloc(instruction->parameters, instruction->parameterCount * sizeof(AssemblyParameter));
-      AssemblyParameter* nextParam = &instruction->parameters[instruction->parameterCount - 1];
-      *nextParam = (AssemblyParameter){ 0 }; // Initialize all fields to 0
-
-      if (!tryParseParameter(text, position, nextParam, error)) {
-        // Error already set by tryParseParameter
-        return false; // Failed to parse parameter
+      AssemblyOperand operand = { 0 };
+      if (!tryParseOperand(text, position, &operand, error)) {
+        // Error already set by tryParseOperand
+        return false; // Failed to parse operand
       }
+      
+      if (instruction->operandCount >= MAX_ASSEMBLY_OPERANDS) {
+        *error = PARSING_ERROR(TOO_MANY_OPERANDS, operand.sourceSpan.start, operand.sourceSpan.end);
+        return false;
+      }
+      
+      instruction->operands[instruction->operandCount] = operand;
+      instruction->operandCount++;
+      
       skipInlineWhitespace(text, position);
 
       if (GetCharAtTextOffset(text, *position) == ',') {
@@ -355,7 +360,7 @@ bool tryParseOperand(const TextContents* text, TextOffset* position, AssemblyOpe
         }
       } else {
         skipToNextSatisfies(text, position, isPastParameter);
-        *error = PARSING_ERROR(INVALID_PARAMETER, start, *position);
+        *error = PARSING_ERROR(INVALID_OPERAND, start, *position);
         return false; // Failed to parse as any kind of parameter
       }
       break;
