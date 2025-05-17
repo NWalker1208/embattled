@@ -1,5 +1,4 @@
 #include "assembler/mnemonic.h"
-#include <strings.h>
 
 const AssemblyMnemonicInfo MNEMONIC_INFO[ASSEMBLY_MNEMONIC_COUNT] = {
   // Control flow
@@ -221,15 +220,6 @@ const AssemblyMnemonicInfo* getAssemblyMnemonicInfo(AssemblyMnemonic mnemonic) {
   } else {
     return NULL;
   }
-}
-
-AssemblyMnemonic identifierToAssemblyMnemonic(const char* identifier) {
-  for (AssemblyMnemonic mnemonic = 0; mnemonic < ASSEMBLY_MNEMONIC_COUNT; mnemonic++) {
-    if (strcasecmp(identifier, MNEMONIC_INFO[mnemonic].identifier) == 0) {
-      return mnemonic;
-    }
-  }
-  return -1;
 }
 
 const AssemblyMnemonicOverload* findAssemblyMnemonicOverload(AssemblyMnemonic mnemonic, AssemblyOperandKind* operandKinds, size_t operandCount) {
