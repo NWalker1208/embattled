@@ -99,6 +99,8 @@ bool TryParseAssemblyProgram(const TextContents* text, AssemblyProgram* program,
   bool anyErrors = false;
   program->lines = NULL;
   program->lineCount = 0;
+  program->dataBuffer = NULL;
+  size_t dataBufferSize = 0;
 
   TextOffset previous = end;
   while (CompareTextOffsets(text, position, end) < 0) {
@@ -110,7 +112,7 @@ bool TryParseAssemblyProgram(const TextContents* text, AssemblyProgram* program,
 
     AssemblyLine currentLine = { 0 };
     ParsingError currentError = { 0 };
-    if (TryParseAssemblyLine(text, &position, &currentLine, &currentError)) {
+    if (TryParseAssemblyLine(text, &position, &program->dataBuffer, &dataBufferSize, &currentLine, &currentError)) {
       program->lines = realloc(program->lines, sizeof(AssemblyLine) * (program->lineCount + 1));
       program->lines[program->lineCount] = currentLine;
       program->lineCount++;
