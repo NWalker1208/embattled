@@ -137,7 +137,6 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, uint8_
   // Check for end-of-file
   if (CompareTextOffsets(text, *position, GetTextContentsEnd(text)) >= 0) {
     *error = PARSING_ERROR(UNEXPECTED_END_OF_FILE, *position, *position);
-    DestroyAssemblyLine(line);
     return false;
   }
 
@@ -146,7 +145,6 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, uint8_
     line->kind = ASSEMBLY_LINE_LABEL;
     if (!tryParseLabel(text, position, &line->label, error)) {
       // Error already set by tryParseLabel
-      DestroyAssemblyLine(line);
       skipToEndOfLine(text, position);
       return false; // Failed to parse assembly instruction
     }
@@ -158,9 +156,8 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, uint8_
     skipInlineWhitespace(text, position);
 
     line->kind = ASSEMBLY_LINE_DATA;
-    if (!tryParseAssemblyData(text, position, &line->data, error)) {
+    if (!tryParseAssemblyData(text, position, dataBuffer, dataBufferSize, &line->data, error)) {
       // Error already set by tryParseAssemblyData
-      DestroyAssemblyLine(line);
       skipToEndOfLine(text, position);
       return false; // Failed to parse assembly data
     }
@@ -170,7 +167,6 @@ bool TryParseAssemblyLine(const TextContents* text, TextOffset* position, uint8_
     line->kind = ASSEMBLY_LINE_INSTRUCTION;
     if (!tryParseInstruction(text, position, &line->instruction, error)) {
       // Error already set by tryParseInstruction
-      DestroyAssemblyLine(line);
       skipToEndOfLine(text, position);
       return false; // Failed to parse assembly instruction
     }
