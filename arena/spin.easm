@@ -1,10 +1,7 @@
-  ldiw @controls
-  mov  $x0, $ac
-  ldib 0x7F
-  stmb $x0, 0
-  stmb $x0, 1
+  stb 0x7F @move
+  stb 0x7F @rotate
 loop:
   jmp @loop
 
-controls@F000:
-  .data 00 00
+move@F000: .data 00
+rotate@F001: .data 00

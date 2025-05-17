@@ -1,25 +1,10 @@
-setup:
-  ldiw @rotate
-  mov  $x0, $ac
-
-  ldiw @sensor_kind
-  mov  $x3, $ac
-
-  ldib 01
-  mov  $x4, $ac
-
-  ldiw @weapon
-  mov  $x5, $ac
-
 loop:
-  ldmb $x3, 0
-  ceq  $ac, $x4
-  jmz  @loop
+  ldb  $x0, @sensor_kind
+  ceq  $x0, $x0, 1
+  jmz  $x0, @loop
 
-  ldib 0xFF
-  stmb $x5, 0
-  ldib 0x00
-  stmb $x5, 0
+  stb 0xFF, @weapon
+  stb 0x00, @weapon
   jmp @loop
 
 
