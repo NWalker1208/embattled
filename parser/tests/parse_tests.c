@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <unity.h>
 #include "test_utilities/text_assertions.h"
@@ -6,19 +7,24 @@
 
 TextContents text;
 TextOffset position;
+uint8_t* dataBuffer;
+size_t dataBufferSize;
 AssemblyLine line;
 ParsingError error;
 
 void setUp() {
   text = (TextContents){0};
   position = (TextOffset){0};
+  dataBuffer = NULL;
+  dataBufferSize = 0;
   line = (AssemblyLine){0};
   error = (ParsingError){0};
 }
 
 void tearDown() {
   DestroyTextContents(&text);
-  DestroyAssemblyLine(&line);
+  free(dataBuffer);
+  dataBuffer = NULL;
 }
 
 #pragma region TryParseAssemblyLine
