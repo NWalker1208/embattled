@@ -38,7 +38,7 @@ bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyL
 // Tries to convert the given assembly instruction into an actual instruction that can be written to memory.
 // If successful, appends to the reference table as necessary, outputs the instruction, and returns true.
 // Otherwise, outputs an error and returns false.
-bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction assembly, ReferenceTable* referenceTablePtr, Instruction* instructionOut, AssemblingError* errorOut);
+bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction asmInstruction, ReferenceTable* referenceTablePtr, Instruction* instructionOut, AssemblingError* errorOut);
 
 // Tries to resolve all label references by writing the addresses of the referenced labels to the given memory buffer.
 // If successful, returns true.
@@ -47,6 +47,7 @@ bool tryResolveLabelReferences(const TextContents* sourceText, LabelTable labelT
 
 
 bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* assemblyProgram, uint8_t* memory, AssemblingError* error) {
+  bool success = true;
   uint16_t currentMemoryAddr = 0;
   memset(memory, 0x00, sizeof(uint8_t) * MEMORY_SIZE); // Clear memory
   // TODO: Check if program goes beyond max address.
@@ -55,14 +56,8 @@ bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* a
   AssemblyLabel* currentLabel = NULL;
   TextSpan currentLabelLineSpan;
 
-  TextSpan* labelTableLabelSpans = malloc(sizeof(TextSpan) * assemblyProgram->lineCount);
-  uint16_t* labelTableAddresses = malloc(sizeof(uint16_t) * assemblyProgram->lineCount);
-  size_t labelCount = 0;
-
-  uint16_t* referenceTableAddresses = malloc(sizeof(uint16_t) * assemblyProgram->lineCount);
-  TextSpan* referenceTableLabelSpans = malloc(sizeof(TextSpan) * assemblyProgram->lineCount);
-  TextSpan* referenceTableParamSpans = malloc(sizeof(TextSpan) * assemblyProgram->lineCount);
-  size_t referenceCount = 0;
+  LabelTable labelTable = { .entries = malloc(sizeof(LabelTableEntry) * assemblyProgram->lineCount), .count = 0 };
+  ReferenceTable referenceTable = { .entries = malloc(sizeof(ReferenceTableEntry) * assemblyProgram->lineCount), .count = 0 };
 
   // Write all lines to memory
   for (size_t i = 0; i < assemblyProgram->lineCount; i++) {
@@ -73,151 +68,56 @@ bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* a
         *error = ASSEMBLING_ERROR(MULTIPLE_LABELS, line->sourceSpan);
         goto failed;
       }
-      
-      bool hasName = !IsEmptyTextSpan(sourceText, line->label.nameSpan);
-      bool hasAddress = !IsEmptyTextSpan(sourceText, line->label.addressSpan);
-      if (!hasName && !hasAddress) {
-        *error = ASSEMBLING_ERROR(INVALID_LABEL, line->sourceSpan);
+
+      if (!tryHandleLabel(sourceText, line->sourceSpan, line->label, labelTable, &currentMemoryAddr, error)) {
         goto failed;
-      }
-
-      if (hasName) {
-        for (size_t j = 0; j < labelCount; j++) {
-          if (CompareTextSpans(sourceText, line->label.nameSpan, sourceText, labelTableLabelSpans[j]) == 0) {
-            *error = ASSEMBLING_ERROR(DUPLICATE_LABEL_NAME, line->label.nameSpan);
-            goto failed;
-          }
-        }
-      }
-
-      if (hasAddress) {
-        if (line->label.address < currentMemoryAddr) {
-          *error = ASSEMBLING_ERROR(LABEL_ADDRESS_TOO_LOW, line->sourceSpan);
-          goto failed;
-        }
-
-        currentMemoryAddr = line->label.address;
       }
 
       currentLabel = &line->label;
       currentLabelLineSpan = line->sourceSpan;
+
     } else if (line->kind == ASSEMBLY_LINE_INSTRUCTION || line->kind == ASSEMBLY_LINE_DATA) {
       if (currentLabel != NULL) {
         if (!IsEmptyTextSpan(sourceText, currentLabel->nameSpan)) {
-          labelTableLabelSpans[labelCount] = currentLabel->nameSpan;
-          labelTableAddresses[labelCount] = currentMemoryAddr;
-          labelCount++;
+          labelTable.entries[labelTable.count] = (LabelTableEntry){
+            .nameSpan = currentLabel->nameSpan,
+            .address = currentMemoryAddr,
+          };
+          labelTable.count++;
         }
         currentLabel = NULL;
       }
 
       if (line->kind == ASSEMBLY_LINE_INSTRUCTION) {
-        if (line->instruction.operandCount > MAX_ASSEMBLY_OPERANDS) {
-          *error = ASSEMBLING_ERROR(NO_MATCHING_OVERLOAD, line->sourceSpan);
+        Instruction instruction = { 0 };
+        if (!tryConvertAssemblyInstructionToInstruction(line->sourceSpan, line->instruction, &referenceTable, &instruction, error)) {
           goto failed;
         }
 
-        AssemblyOperandKind operandKinds[MAX_ASSEMBLY_OPERANDS] = {0};
-        for (size_t i = 0; i < line->instruction.operandCount; i++) { operandKinds[i] = line->instruction.operands[i].kind; }
-        const AssemblyMnemonicOverload* mnemonicOverload = findAssemblyMnemonicOverload(line->instruction.mnemonic, operandKinds, line->instruction.operandCount);
-        if (mnemonicOverload == NULL) {
-          *error = ASSEMBLING_ERROR(NO_MATCHING_OVERLOAD, line->sourceSpan);
-          goto failed;
-        }
-        const OpcodeInfo* opcodeInfo = getOpcodeInfo(mnemonicOverload->opcode);
-        assert(opcodeInfo != NULL);
-
-        Instruction instruction = { .opcode = mnemonicOverload->opcode };
-
-        bool hasRegA = opcodeInfo->parameterLayout.hasRegA;
-        bool hasRegB = opcodeInfo->parameterLayout.hasRegB;
-        bool hasImmediate = opcodeInfo->parameterLayout.numImmBits != 0;
-        
-        unsigned int requiredParameterCount =
-          (hasRegA ? 1 : 0) + (hasRegB ? 1 : 0) + (hasImmediate ? 1 : 0);
-        if (line->instruction.parameterCount < requiredParameterCount) {
-          *error = ASSEMBLING_ERROR(TOO_FEW_PARAMS, line->sourceSpan);
-          goto failed;
-        } else if (line->instruction.parameterCount > requiredParameterCount) {
-          *error = ASSEMBLING_ERROR(TOO_MANY_PARAMS, line->sourceSpan);
-          goto failed;
-        }
-
-        // Extract the parameters
-        unsigned int p = 0;
-
-        if (hasRegA) {
-          AssemblyParameter param = line->instruction.parameters[p];
-          if (param.kind != ASSEMBLY_PARAM_REGISTER) {
-            *error = ASSEMBLING_ERROR(EXPECTED_REGISTER, param.sourceSpan);
-            goto failed;
-          }
-          p++;
-
-          instruction.parameters.registerA = param.registerName;
-        }
-
-        if (hasRegB) {
-          AssemblyParameter param = line->instruction.parameters[p];
-          if (param.kind != ASSEMBLY_PARAM_REGISTER) {
-            *error = ASSEMBLING_ERROR(EXPECTED_REGISTER, param.sourceSpan);
-            goto failed;
-          }
-          p++;
-
-          instruction.parameters.registerB = param.registerName;
-        }
-
-        if (hasImmediate) {
-          bool immIsSigned = opcodeInfo->parameterLayout.immIsSigned;
-          unsigned char numImmBits = opcodeInfo->parameterLayout.numImmBits;
-          AssemblyParameter param = line->instruction.parameters[p];
-          if (numImmBits != 16) {
-            if (param.kind != ASSEMBLY_PARAM_IMMEDIATE) {
-              *error = ASSEMBLING_ERROR(EXPECTED_IMMEDIATE_VALUE, param.sourceSpan);
-              goto failed;
-            }
-          } else {
-            if (param.kind != ASSEMBLY_PARAM_IMMEDIATE && param.kind != ASSEMBLY_PARAM_LABEL) {
-              *error = ASSEMBLING_ERROR(EXPECTED_IMMEDIATE_VALUE_OR_LABEL_REF, param.sourceSpan);
-              goto failed;
-            }
-          }
-
-          if (param.kind == ASSEMBLY_PARAM_IMMEDIATE) {
-            signed int minValue = immIsSigned ? (~0U << (numImmBits - 1)) : 0;
-            signed int maxValue = immIsSigned ? ((1 << (numImmBits - 1)) - 1) : ((1 << numImmBits) - 1);
-
-            signed int immediateValue = param.immediateValue;
-            if (immediateValue < minValue || immediateValue > maxValue) {
-              *error = ASSEMBLING_ERROR(IMMEDIATE_VALUE_OUT_OF_RANGE, param.sourceSpan);
-              goto failed;
-            }
-
-            instruction.parameters.immediate.u16 = (unsigned short)immediateValue;
-          } else { // LABEL_REFERENCE
-            referenceTableAddresses[referenceCount] = currentMemoryAddr + 1; // Immediate value always starts on the second byte of the instruction
-            referenceTableLabelSpans[referenceCount] = param.labelSpan;
-            referenceTableParamSpans[referenceCount] = param.sourceSpan;
-            referenceCount++;
-
-            instruction.parameters.immediate.u16 = 0; // Will be filled in later
-          }
-        }
-
-        unsigned short bytesWritten = storeInstruction(memory, currentMemoryAddr, instruction);
+        uint16_t bytesWritten = writeInstruction(memory, currentMemoryAddr, instruction);
         if (bytesWritten == 0) {
           *error = ASSEMBLING_ERROR(INVALID_INSTRUCTION, line->sourceSpan);
           goto failed;
         }
+        if (currentMemoryAddr + bytesWritten < currentMemoryAddr) {
+          *error = ASSEMBLING_ERROR(OUT_OF_MEMORY, line->sourceSpan);
+          goto failed;
+        }
 
         currentMemoryAddr += bytesWritten;
-      } else { // DATA
+
+      } else {
+        assert(line->kind == ASSEMBLY_LINE_DATA);
         AssemblyData data = line->data;
+
+        if (data.byteCount > 0xFFFF || currentMemoryAddr + (uint16_t)data.byteCount < currentMemoryAddr) {
+          *error = ASSEMBLING_ERROR(OUT_OF_MEMORY, line->sourceSpan);
+          goto failed;
+        }
         
         // Write the data directly to memory
-        memcpy(&memory[currentMemoryAddr], data.bytes, data.length);
-        currentMemoryAddr += data.length;
+        memcpy(&memory[currentMemoryAddr], &assemblyProgram->dataBuffer[data.startIndex], data.byteCount);
+        currentMemoryAddr += data.byteCount;
       }
     } else {
       *error = ASSEMBLING_ERROR(INVALID_LINE, line->sourceSpan);
@@ -231,45 +131,20 @@ bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* a
   }
 
   // Fill in label references
-  for (size_t i = 0; i < referenceCount; i++) {
-    unsigned short referenceAddress = referenceTableAddresses[i];
-    TextSpan labelSpan = referenceTableLabelSpans[i];
-
-    unsigned short labelAddress;
-    bool foundLabel = false;
-    for (unsigned int j = 0; j < labelCount; j++) {
-      if (CompareTextSpans(sourceText, labelTableLabelSpans[j], sourceText, labelSpan) == 0) {
-        labelAddress = labelTableAddresses[j];
-        foundLabel = true;
-        break;
-      }
-    }
-    if (!foundLabel) {
-      *error = ASSEMBLING_ERROR(UNDEFINED_LABEL_NAME, referenceTableParamSpans[i]);
-      goto failed;
-    }
-
-    memory[referenceAddress] = labelAddress & 0xFF;
-    memory[referenceAddress + 1] = labelAddress >> 8;
+  if (!tryResolveLabelReferences(sourceText, labelTable, referenceTable, memory, error)) {
+    goto failed;
   }
 
-  // Free dynamically allocated memory
-  free(labelTableLabelSpans);
-  free(labelTableAddresses);
-  free(referenceTableLabelSpans);
-  free(referenceTableAddresses);
-  free(referenceTableParamSpans);
-
-  return true;
+  goto done;
 
 failed:
-  free(labelTableLabelSpans);
-  free(labelTableAddresses);
-  free(referenceTableLabelSpans);
-  free(referenceTableAddresses);
-  free(referenceTableParamSpans);
-  
-  return false;
+  success = false;
+done:
+  // Free dynamically allocated memory
+  free(labelTable.entries);
+  free(referenceTable.entries);
+
+  return success;
 }
 
 
@@ -303,7 +178,7 @@ bool tryHandleLabel(const TextContents* sourceText, TextSpan lineSpan, AssemblyL
   return true;
 }
 
-bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction assembly, ReferenceTable* referenceTablePtr, Instruction* instructionOut, AssemblingError* errorOut) {
+bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstruction asmInstruction, ReferenceTable* referenceTablePtr, Instruction* instructionOut, AssemblingError* errorOut) {
   return false;
 }
 
