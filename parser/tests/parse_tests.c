@@ -1,3 +1,4 @@
+#define UNITY_SUPPORT_TEST_CASES
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -31,39 +32,51 @@ void tearDown() {
 
 void test_TryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsValidInstruction(void) {
   // Arrange
-  const char source[] = "add $x0, @reference, 0x0FFFFFFFF, -02147483648, +2147483647, 02147483647\n";
+  const char source[] = "add $x0, @reference, 1234\n";
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
-  const TextSpan expectedLineSpan = { {0, 0}, {0, 72} };
+  const TextSpan expectedLineSpan = { {0, 0}, {0, 25} };
   TEST_ASSERT_TRUE_MESSAGE(success, error.message);
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedLineSpan, line.sourceSpan, text);
   TEST_ASSERT_EQUAL(ASSEMBLY_LINE_INSTRUCTION, line.kind);
-  TEST_ASSERT_EQUAL(ADD, line.instruction.opcode);
-  TEST_ASSERT_EQUAL_size_t(6, line.instruction.parameterCount);
+  TEST_ASSERT_EQUAL(ASSEMBLY_MNEMONIC_ADD, line.instruction.mnemonic);
+  TEST_ASSERT_EQUAL_size_t(MAX_ASSEMBLY_OPERANDS, line.instruction.operandCount);
 
-  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_REGISTER, line.instruction.parameters[0].kind);
-  TEST_ASSERT_EQUAL(X0, line.instruction.parameters[0].registerName);
+  TEST_ASSERT_EQUAL(ASSEMBLY_OPERAND_REGISTER, line.instruction.operands[0].kind);
+  TEST_ASSERT_EQUAL(REGISTER_X0, line.instruction.operands[0].registerName);
 
-  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_LABEL, line.instruction.parameters[1].kind);
-  TEST_ASSERT_EQUAL_TEXT_SPAN_CHARS("reference", line.instruction.parameters[1].labelSpan, text);
+  TEST_ASSERT_EQUAL(ASSEMBLY_OPERAND_LABEL, line.instruction.operands[1].kind);
+  TEST_ASSERT_EQUAL_TEXT_SPAN_CHARS("reference", line.instruction.operands[1].labelSpan, text);
 
-  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[2].kind);
-  TEST_ASSERT_EQUAL_HEX32(0xFFFFFFFF, line.instruction.parameters[2].immediateValue);
+  TEST_ASSERT_EQUAL(ASSEMBLY_OPERAND_IMMEDIATE, line.instruction.operands[2].kind);
+  TEST_ASSERT_EQUAL_INT32(1234, line.instruction.operands[2].immediateValue);
+}
 
-  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[3].kind);
-  TEST_ASSERT_EQUAL_INT(-2147483648, line.instruction.parameters[3].immediateValue);
+TEST_CASE("add 0x0FFFFFFFF", 0xFFFFFFFF)
+TEST_CASE("add -02147483648", -2147483648)
+TEST_CASE("add +2147483647", +2147483647)
+TEST_CASE("add 02147483647", 2147483647)
+void test_TryParseAssemblyLine_should_succeedWithExpectedImmediateValue_when_lineIsValidInstructionWithImmediateOperand(const char* source, int32_t expectedValue) {
+  // Arrange
+  text = InitTextContentsAsCopyCStr(source);
 
-  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[4].kind);
-  TEST_ASSERT_EQUAL_INT(+2147483647, line.instruction.parameters[4].immediateValue);
+  // Act
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
-  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[5].kind);
-  TEST_ASSERT_EQUAL_INT(2147483647, line.instruction.parameters[5].immediateValue);
+  // Assert
+  TEST_ASSERT_TRUE_MESSAGE(success, error.message);
+  TEST_ASSERT_EQUAL(ASSEMBLY_LINE_INSTRUCTION, line.kind);
+  TEST_ASSERT_EQUAL(ASSEMBLY_MNEMONIC_ADD, line.instruction.mnemonic);
+  TEST_ASSERT_EQUAL_size_t(1, line.instruction.operandCount);
+
+  TEST_ASSERT_EQUAL(ASSEMBLY_OPERAND_IMMEDIATE, line.instruction.operands[0].kind);
+  TEST_ASSERT_EQUAL_INT32(expectedValue, line.instruction.operands[0].immediateValue);
 }
 
 void test_TryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsValidInstructionWithComment(void) {
@@ -72,7 +85,7 @@ void test_TryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsVali
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, 5 };
@@ -81,11 +94,11 @@ void test_TryParseAssemblyLine_should_succeedWithInstructionLine_when_lineIsVali
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedLineSpan, line.sourceSpan, text);
   TEST_ASSERT_EQUAL(ASSEMBLY_LINE_INSTRUCTION, line.kind);
-  TEST_ASSERT_EQUAL(NOP, line.instruction.opcode);
-  TEST_ASSERT_EQUAL_size_t(1, line.instruction.parameterCount);
+  TEST_ASSERT_EQUAL(ASSEMBLY_MNEMONIC_NOP, line.instruction.mnemonic);
+  TEST_ASSERT_EQUAL_size_t(1, line.instruction.operandCount);
 
-  TEST_ASSERT_EQUAL(ASSEMBLY_PARAM_IMMEDIATE, line.instruction.parameters[0].kind);
-  TEST_ASSERT_EQUAL_HEX32(0, line.instruction.parameters[0].immediateValue);
+  TEST_ASSERT_EQUAL(ASSEMBLY_OPERAND_IMMEDIATE, line.instruction.operands[0].kind);
+  TEST_ASSERT_EQUAL_HEX32(0, line.instruction.operands[0].immediateValue);
 }
 
 void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(void) {
@@ -94,7 +107,7 @@ void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(v
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -104,8 +117,10 @@ void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidData(v
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedLineSpan, line.sourceSpan, text);
   TEST_ASSERT_EQUAL(ASSEMBLY_LINE_DATA, line.kind);
-  TEST_ASSERT_EQUAL(sizeof(expectedBytes), line.data.length);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expectedBytes, line.data.bytes, sizeof(expectedBytes));
+  TEST_ASSERT_EQUAL_size_t(0, line.data.startIndex);
+  TEST_ASSERT_EQUAL_size_t(sizeof(expectedBytes), line.data.byteCount);
+  TEST_ASSERT_EQUAL_size_t(sizeof(expectedBytes), dataBufferSize);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expectedBytes, dataBuffer, sizeof(expectedBytes));
 }
 
 void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidDataWithComment(void) {
@@ -114,7 +129,7 @@ void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidDataWi
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, 8 };
@@ -124,8 +139,10 @@ void test_TryParseAssemblyLine_should_succeedWithDataLine_when_lineIsValidDataWi
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedLineSpan, line.sourceSpan, text);
   TEST_ASSERT_EQUAL(ASSEMBLY_LINE_DATA, line.kind);
-  TEST_ASSERT_EQUAL(sizeof(expectedBytes), line.data.length);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expectedBytes, line.data.bytes, sizeof(expectedBytes));
+  TEST_ASSERT_EQUAL_size_t(0, line.data.startIndex);
+  TEST_ASSERT_EQUAL_size_t(sizeof(expectedBytes), line.data.byteCount);
+  TEST_ASSERT_EQUAL_size_t(sizeof(expectedBytes), dataBufferSize);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expectedBytes, dataBuffer, sizeof(expectedBytes));
 }
 
 void test_TryParseAssemblyLine_should_succeedWithLabelLine_when_lineIsValidLabelWithName(void) {
@@ -134,7 +151,7 @@ void test_TryParseAssemblyLine_should_succeedWithLabelLine_when_lineIsValidLabel
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -155,7 +172,7 @@ void test_TryParseAssemblyLine_should_succeedWithLabelLine_when_lineIsValidLabel
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, 6 };
@@ -176,7 +193,7 @@ void test_TryParseAssemblyLine_should_succeedWithLabelLine_when_lineIsValidLabel
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -198,7 +215,7 @@ void test_TryParseAssemblyLine_should_succeedWithLabelLine_when_lineIsValidLabel
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -220,7 +237,7 @@ void test_TryParseAssemblyLine_should_succeedAndAdvanceToEndOfFile_when_lastLine
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 1 };
@@ -229,9 +246,25 @@ void test_TryParseAssemblyLine_should_succeedAndAdvanceToEndOfFile_when_lastLine
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedLineSpan, line.sourceSpan, text);
   TEST_ASSERT_EQUAL(ASSEMBLY_LINE_INSTRUCTION, line.kind);
-  TEST_ASSERT_EQUAL(NOP, line.instruction.opcode);
-  TEST_ASSERT_EQUAL(0, line.instruction.parameterCount);
-  TEST_ASSERT_EQUAL_PTR(NULL, line.instruction.parameters);
+  TEST_ASSERT_EQUAL(ASSEMBLY_MNEMONIC_NOP, line.instruction.mnemonic);
+  TEST_ASSERT_EQUAL(0, line.instruction.operandCount);
+}
+
+void test_TryParseAssemblyLine_should_failWithTooManyOperands_when_instructionHasMoreThanMaxAssemblyOperands(void) {
+  // Arrange
+  const char source[] = "add $x0, @reference, 1234, 0xFF\n";
+  text = InitTextContentsAsCopyCStr(source);
+
+  // Act
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
+
+  // Assert
+  const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
+  const TextSpan expectedErrorSpan = { {0, 27}, {0, 31} };
+  TEST_ASSERT_FALSE(success);
+  TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
+  TEST_ASSERT_EQUAL_STRING(TOO_MANY_OPERANDS, error.message);
+  TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, text);
 }
 
 void test_TryParseAssemblyLine_should_failWithInvalidLabelName_when_labelNameIsEmpty(void) {
@@ -240,7 +273,7 @@ void test_TryParseAssemblyLine_should_failWithInvalidLabelName_when_labelNameIsE
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -257,7 +290,7 @@ void test_TryParseAssemblyLine_should_failWithInvalidLabelAddress_when_labelAddr
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -274,7 +307,7 @@ void test_TryParseAssemblyLine_should_failWithInvalidLabelAddress_when_labelAddr
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -291,58 +324,58 @@ void test_TryParseAssemblyLine_should_failWithInvalidOpcode_when_firstWordIsNotV
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
   const TextSpan expectedErrorSpan = { {0, 0}, {0, 15} };
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
-  TEST_ASSERT_EQUAL_STRING(INVALID_OPCODE, error.message);
+  TEST_ASSERT_EQUAL_STRING(UNRECOGNIZED_MNEMONIC, error.message);
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, text);
 }
 
 void test_TryParseAssemblyLine_should_failWithInvalidParameter_when_parameterIsNotRegisterOrHexValueOrReferenceOrInteger(void) {
   // Arrange
-  const char source[] = "mov $x0, invalid\n";
+  const char source[] = "set $x0, invalid\n";
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
   const TextSpan expectedErrorSpan = { {0, 9}, {0, 16} };
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
-  TEST_ASSERT_EQUAL_STRING(INVALID_PARAMETER, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_OPERAND, error.message);
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, text);
 }
 
 void test_TryParseAssemblyLine_should_failWithInvalidParameter_when_lineEndsAfterComma(void) {
   // Arrange
-  const char source[] = "mov $x0, \n";
+  const char source[] = "set $x0, \n";
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
   const TextSpan expectedErrorSpan = { {0, 9}, {0, 9} };
   TEST_ASSERT_FALSE(success);
   TEST_ASSERT_EQUIVALENT_TEXT_OFFSET(expectedPosition, position, text);
-  TEST_ASSERT_EQUAL_STRING(INVALID_PARAMETER, error.message);
+  TEST_ASSERT_EQUAL_STRING(INVALID_OPERAND, error.message);
   TEST_ASSERT_EQUIVALENT_TEXT_SPAN(expectedErrorSpan, error.sourceSpan, text);
 }
 
 void test_TryParseAssemblyLine_should_failWithInvalidRegister_when_dollarSignFollowedByInvalidRegisterName(void) {
   // Arrange
-  const char source[] = "mov $invalid, 123\n";
+  const char source[] = "set $invalid, 123\n";
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -355,11 +388,11 @@ void test_TryParseAssemblyLine_should_failWithInvalidRegister_when_dollarSignFol
 
 void test_TryParseAssemblyLine_should_failWithInvalidHexValue_when_zeroExFollowedByInvalidHexDigit(void) {
   // Arrange
-  const char source[] = "mov $x0, 0xg\n";
+  const char source[] = "set $x0, 0xg\n";
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -376,7 +409,7 @@ void test_TryParseAssemblyLine_should_failWithInvalidHexValue_when_hexParameterI
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -393,7 +426,7 @@ void test_TryParseAssemblyLine_should_failWithInvalidIntValue_when_integerParame
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -410,7 +443,7 @@ void test_TryParseAssemblyLine_should_failWithInvalidIntValue_when_integerParame
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -427,7 +460,7 @@ void test_TryParseAssemblyLine_should_failWithInvalidByte_when_dataLineContainsI
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -440,11 +473,11 @@ void test_TryParseAssemblyLine_should_failWithInvalidByte_when_dataLineContainsI
 
 void test_TryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCharacterAfterValidParameter(void) {
   // Arrange
-  const char source[] = "mov $x0, 123~\n";
+  const char source[] = "set $x0, 123~\n";
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -457,11 +490,11 @@ void test_TryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCh
 
 void test_TryParseAssemblyLine_should_failWithUnexpectedCharacter_when_missingCommaBetweenParameters(void) {
   // Arrange
-  const char source[] = "mov $x0 123\n";
+  const char source[] = "set $x0 123\n";
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -478,7 +511,7 @@ void test_TryParseAssemblyLine_should_failWithUnexpectedCharacter_when_invalidCh
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
@@ -495,7 +528,7 @@ void test_TryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_onlyEmpty
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 1 };
@@ -512,7 +545,7 @@ void test_TryParseAssemblyLine_should_failWithUnexpectedEndOfFile_when_atEndOfFi
   text = InitTextContentsAsCopyCStr(source);
 
   // Act
-  bool success = TryParseAssemblyLine(&text, &position, &line, &error);
+  bool success = TryParseAssemblyLine(&text, &position, &dataBuffer, &dataBufferSize, &line, &error);
 
   // Assert
   const TextOffset expectedPosition = { 0, sizeof(source) - 2 };
