@@ -68,7 +68,6 @@ bool TryAssembleProgram(const TextContents* sourceText, const AssemblyProgram* a
   bool success = true;
   uint16_t currentMemoryAddr = 0;
   memset(memory, 0x00, sizeof(uint8_t) * MEMORY_SIZE); // Clear memory
-  // TODO: Check if program goes beyond max address.
 
   // Setup label and reference tables for filling in addresses
   AssemblyLabel* currentLabel = NULL;
@@ -281,7 +280,7 @@ bool tryConvertAssemblyInstructionToInstruction(TextSpan lineSpan, AssemblyInstr
     }
   }
 
-  return false;
+  return true;
 }
 
 bool tryResolveLabelReferences(const TextContents* sourceText, LabelTable labelTable, ReferenceTable referenceTable, uint8_t* memory, AssemblingError* errorOut) {
