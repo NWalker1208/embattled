@@ -48,7 +48,7 @@ bool tryParseInstruction(const TextContents* text, TextOffset* position, Assembl
 // If text contains valid hexadecimal bytes from the current position to the end of the current line,
 // advances position to the end of the line, outputs the data through data, and returns true.
 // If parsing fails, outputs the cause through error and returns false.
-bool tryParseAssemblyData(const TextContents* text, TextOffset* position, AssemblyData* data, uint8_t** dataBuffer, size_t* dataBufferSize, ParsingError* error);
+bool tryParseAssemblyData(const TextContents* text, TextOffset* position, uint8_t** dataBuffer, size_t* dataBufferSize, AssemblyData* data, ParsingError* error);
 
 // Parses an assembly mnemonic.
 // Expects text to be at the start of the mnemonic.
@@ -446,9 +446,10 @@ bool tryParseDecimalValue(const TextContents* text, TextOffset* position, int32_
   // assertions about the range of legal values for any given instruction.
 }
 
-bool tryParseAssemblyData(const TextContents* text, TextOffset* position, AssemblyData* data, uint8_t** dataBuffer, size_t* dataBufferSize, ParsingError* error) {
-  data->length = 0;
-  data->bytes = NULL;
+bool tryParseAssemblyData(const TextContents* text, TextOffset* position, uint8_t** dataBuffer, size_t* dataBufferSize, AssemblyData* data, ParsingError* error) {
+  uint8_t* tempBuffer = NULL;
+  size_t tempBufferSize = 0;
+  
   TextOffset endOfLine = GetTextContentsEndOfLine(text, *position);
   while (CompareTextOffsets(text, *position, endOfLine) < 0 && !isPositionStartOfComment(text, *position)) {
     TextOffset start = *position;
@@ -458,6 +459,7 @@ bool tryParseAssemblyData(const TextContents* text, TextOffset* position, Assemb
     if (!tryHexToNibble(GetCharAtTextOffset(text, *position), &nibble)) {
       skipToNextWhitespace(text, position);
       *error = PARSING_ERROR(INVALID_HEX_BYTE, start, *position);
+      free(tempBuffer);
       return false;
     }
     IncrementTextOffset(text, position);
@@ -466,17 +468,27 @@ bool tryParseAssemblyData(const TextContents* text, TextOffset* position, Assemb
     if (!tryHexToNibble(GetCharAtTextOffset(text, *position), &nibble)) {
       skipToNextWhitespace(text, position);
       *error = PARSING_ERROR(INVALID_HEX_BYTE, start, *position);
+      free(tempBuffer);
       return false;
     }
     IncrementTextOffset(text, position);
     byte |= nibble;
 
-    data->length++;
-    data->bytes = realloc(data->bytes, sizeof(unsigned char) * data->length);
-    data->bytes[data->length - 1] = byte;
+    tempBufferSize++;
+    tempBuffer = realloc(tempBuffer, sizeof(uint8_t) * tempBufferSize);
+    tempBuffer[tempBufferSize - 1] = byte;
 
     skipInlineWhitespace(text, position);
   }
+
+  data->startIndex = *dataBufferSize;
+  data->byteCount = tempBufferSize;
+
+  *dataBufferSize += tempBufferSize;
+  *dataBuffer = realloc(*dataBuffer, sizeof(uint8_t) * *dataBufferSize);
+  memcpy(&(*dataBuffer)[data->startIndex], tempBuffer, sizeof(uint8_t) * tempBufferSize);
+
+  free(tempBuffer);
 
   return true;
 }
