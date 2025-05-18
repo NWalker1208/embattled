@@ -35,7 +35,7 @@
 #define OBSTACLE_HEIGHT (ARENA_HEIGHT / 2)
 
 #define STATE_PANEL_WIDTH 250
-#define STATE_PANEL_HEIGHT 270
+#define STATE_PANEL_HEIGHT 300
 #define STATE_PANEL_MARGIN 10
 
 #define ROBOT_WHEEL_OFFSET 45.0
@@ -582,5 +582,5 @@ void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
     immValueA, immValueB
   );
   DrawTextEx(primaryFont, buffer, (Vector2){ topLeft.x + 10, topLeft.y }, 15, 1.0, BLACK);
-  //topLeft.y += 4*15 + 3*2 + STATE_PANEL_MARGIN;
+  //topLeft.y += 6*15 + 5*2 + STATE_PANEL_MARGIN; // Uncomment to measure height of panel
 }
