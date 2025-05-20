@@ -38,7 +38,6 @@ typedef long ticks_t;
 
 
 void* simulationThread(void* arg);
-clock_t getCurrentClock();
 void stepSimulation(Simulation* simulation, double deltaTimeSeconds);
 void onWeaponDamage(void* context, size_t physicsBodyIndex, int damageAmount);
 
@@ -91,6 +90,12 @@ void StopSimulationThread(Simulation* simulation) {
   simulation->isThreadValid = false;
 }
 
+void OnSimulationStart(Simulation* simulation) {
+  for (unsigned int i = 0; i < simulation->robotCount; i++) {
+    UpdateRobotSensor(&simulation->robots[i], &simulation->physicsWorld);
+  }
+}
+
 
 void* simulationThread(void* arg) {
   Simulation* simulation = arg;
@@ -98,9 +103,7 @@ void* simulationThread(void* arg) {
 
   // Initialize sensors
   pthread_mutex_lock(mutex); {
-    for (unsigned int i = 0; i < simulation->robotCount; i++) {
-      UpdateRobotSensor(&simulation->robots[i], &simulation->physicsWorld);
-    }
+    OnSimulationStart(simulation);
   } pthread_mutex_unlock(mutex);
 
   // Enter simulation loop
@@ -111,7 +114,7 @@ void* simulationThread(void* arg) {
 
   while (!simulation->shouldStop) {
     // Update the difference between simulation and realtime
-    clock_t currentRealtimeClock = getCurrentClock();
+    clock_t currentRealtimeClock = clock();
     clock_t elapsedRealtimeClocks = currentRealtimeClock - lastRealtimeClock;
     lastRealtimeClock = currentRealtimeClock;
     elapsedRealtimeClocks = MAX(0, MIN(elapsedRealtimeClocks, MAX_CLOCKS_BEHIND));
@@ -134,7 +137,7 @@ void* simulationThread(void* arg) {
 
       if (relativeTicks < 0) {
         // Running behind realtime -> step the simulation
-        stepSimulation(simulation, DELTA_TIME_SEC);
+        OnSimulationStep(simulation);
         relativeTicks += TICKS_PER_STEP;
         msToSleep = -1;
       } else {
@@ -154,16 +157,7 @@ void* simulationThread(void* arg) {
   return NULL;
 }
 
-clock_t getCurrentClock() {
-  #if defined(PLATFORM_WEB)
-  long long now = (long long)(emscripten_get_now() * ((double)CLOCKS_PER_SEC / 1000));
-  return (clock_t)now;
-  #else
-  return clock();
-  #endif
-}
-
-void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
+void OnSimulationStep(Simulation* simulation) {
   PhysicsWorld* physicsWorld = &simulation->physicsWorld;
 
   // Step robot processes
@@ -179,7 +173,7 @@ void stepSimulation(Simulation* simulation, double deltaTimeSeconds) {
   }
 
   // Step physics world
-  StepPhysicsWorld(physicsWorld, deltaTimeSeconds);
+  StepPhysicsWorld(physicsWorld, DELTA_TIME_SEC);
 
   // Update robot sensors
   for (unsigned int i = 0; i < simulation->robotCount; i++) {

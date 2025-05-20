@@ -50,3 +50,9 @@ void StartSimulationThread(Simulation* simulation);
 
 // Stops and cleans up the simulation thread if it is running.
 void StopSimulationThread(Simulation* simulation);
+
+// Function that should be called when the simulation starts.
+void OnSimulationStart(Simulation* simulation);
+
+// Function that should be called on each simulation step.
+void OnSimulationStep(Simulation* simulation);
