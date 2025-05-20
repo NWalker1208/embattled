@@ -1,4 +1,5 @@
 #include "processor/opcode.h"
+#include <stddef.h>
 
 #pragma region Opcode execute function declarations
 
