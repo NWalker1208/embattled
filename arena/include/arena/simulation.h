@@ -1,5 +1,4 @@
 #pragma once
-#include <pthread.h>
 #include <stdbool.h>
 #include "arena/physics.h"
 #include "processor/process.h"
@@ -11,13 +10,6 @@
 
 // The state of a simulation.
 typedef struct {
-  // A mutex protecting reads and writes to this struct.
-  pthread_mutex_t mutex;
-  // The thread that is running the simulation.
-  pthread_t thread;
-  // Whether the thread has been started.
-  bool isThreadValid;
-  
   // The physics world being simulated.
   PhysicsWorld physicsWorld;
 
@@ -33,26 +25,18 @@ typedef struct {
   unsigned int timeScale;
   // Whether a simulation step should occur on the next iteration regardless of the current time scale.
   bool forceStep;
-
-  // Whether the simulation loop should stop.
-  bool shouldStop;
 } Simulation;
 
-// Initializes a simulation with the given number of robots.
-// On success, returns true. If an error occurs, returns false.
-bool TryInitSimulation(Simulation* simulation, size_t robotCount, Rectangle boundary);
 
-// Destroys the simulation and cleans up any system resources.
-void DestroySimulation(Simulation* simulation);
+// Adds a robot to the simulation if there are fewer than SIMULATION_MAX_ROBOTS robots and MAX_PHYSICS_BODIES bodies.
+void AddRobotToSimulation(Simulation* simulation, Vector2 position, float rotation);
 
-// Starts the simulation loop on a new thread, if it is not already running.
-void StartSimulationThread(Simulation* simulation);
+// Adds a static obstacle to the simulation if there are fewer than MAX_PHYSICS_BODIES bodies.
+int AddObstacleToSimulation(Simulation* simulation, Vector2 position, PhysicsCollider collider);
 
-// Stops and cleans up the simulation thread if it is running.
-void StopSimulationThread(Simulation* simulation);
+// Initializes the simulation given the current set of robots and obstacles.
+void InitSimulation(Simulation* simulation);
 
-// Function that should be called when the simulation starts.
-void OnSimulationStart(Simulation* simulation);
-
-// Function that should be called on each simulation step.
-void OnSimulationStep(Simulation* simulation);
+// Updates the simulation by advancing the appropriate number of steps.
+// Returns the number of milliseconds that can be waited before calling this function again.
+uint32_t UpdateSimulation(Simulation* simulation);
