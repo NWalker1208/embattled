@@ -1,106 +1,48 @@
-setup:
-  ; Set x8 to sensor kind value for robots
-  ldib 1
-  mov $x8, $ac
-
-  ; Set x9 to sensor kind value for boundaries
-  ldib 2
-  mov $x9, $ac
-
   ; Set movement to 50% forward
-  ldiw @move
-  mov $x0, $ac
-  ldib 64
-  stmb $x0, 0
+  stb 0x40, @move
 
 loop:
-; scan forward
-  ldiw @sensor_dir
-  mov $x0, $ac
-  ldib 0
-  stmb $x0, 0
+  ; Scan forward.
+  stb 0, @sensor_dir
+  ldb $x0, @sensor_kind
+  ldb $x1, @sensor_dist
 
-  ldiw @sensor_kind
-  ldmb $ac, 0
-  ceq $ac, $x9
-  mov $x1, $ac
+  ceq $x2, $x0, 1     ; If sensor is not detecting robot,
+  jmz $x2, @scan_left ; scan to the left.
 
-  ldiw @sensor_dist
-  ldmb $ac, 0
-  mov $x2, $ac
-
-  ldiw @sensor_kind
-  ldmb $ac, 0
-  ceq $ac, $x8
-  jmz @scan_left
-
-; stop rotating
-  ldiw @rotate
-  mov $x0, $ac
-  ldib 0
-  stmb $x0, 0
-
-; fire weapon
-  ldiw @weapon
-  mov $x0, $ac
-  ldib 255
-  stmb $x0, 0
-  ldib 0
-  stmb $x0, 0
+  ; Otherwise, stop rotating and fire weapon.
+  stb 0, @rotate
+  stb 255, @weapon
+  stb 0, @weapon
+  jmp @loop
 
 scan_left:
-  ldiw @sensor_dir
-  mov $x0, $ac
-  ldib 32
-  stmb $x0, 0
+  stb 30, @sensor_dir
+  ldb $x3, @sensor_kind
+  ceq $x4, $x3, 1      ; If sensor is not detecting robot,
+  jmz $x4, @scan_right ; scan to the right.
 
-  ldiw @sensor_kind
-  ldmb $ac, 0
-  ceq $ac, $x8
-  jmz @scan_right
-
-; rotate left
-  ldiw @rotate
-  mov $x0, $ac
-  ldib 127
-  stmb $x0, 0
+  ; Otherwise, rotate left.
+  stb 127, @rotate
+  jmp @loop
 
 scan_right:
-  ldiw @sensor_dir
-  mov $x0, $ac
-  ldib 224
-  stmb $x0, 0
+  stb -30, @sensor_dir
+  ldb $x3, @sensor_kind
+  ceq $x4, $x3, 1      ; If sensor is not detecting robot,
+  jmz $x4, @wall_check ; check for a wall.
 
-  ldiw @sensor_kind
-  ldmb $ac, 0
-  ceq $ac, $x8
-  jmz @wall_check
-
-; rotate right
-  ldiw @rotate
-  mov $x0, $ac
-  ldib 128
-  stmb $x0, 0
+  ; Otherwise, rotate right.
+  stb -128, @rotate
   jmp @loop
 
 wall_check:
-  mov $ac, $x1
-  jmz @end
+  ceq $x2, $x0, 2 ; If forward scan did not detect wall,
+  jmz $x2, @loop  ; go back to start of loop.
 
-  ldib 16
-  cltu $x2, $ac
-  mov $x1, $ac
-  ldib 128
-  mul $ac, $x1
-  mov $x1, $ac
-
-; rotate right or stop rotating
-  ldiw @rotate
-  mov $x0, $ac
-  mov $ac, $x1
-  stmb $x0, 0
-
-end:
+  cltu $x2, $x1, 20 ; Check if distance to wall is less than threshold
+  mul $x2, $x2, 128 ; Close to wall = 128. Otherwise = 0.
+  stb $x2, @rotate  ; Rotate if close to wall.
   jmp @loop
 
 
