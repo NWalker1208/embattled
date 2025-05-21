@@ -11,6 +11,7 @@
 #include "parser/parse.h"
 #include "processor/instruction.h"
 #include "arena/simulation.h"
+#include "arena/worker.h"
 #if defined(PLATFORM_WEB)
 #include "emscripten.h"
 #endif
@@ -97,45 +98,38 @@ int main(int argc, char* argv[]) {
   }
 
   // Setup simulation
-  Simulation simulation;
-  if (!TryInitSimulation(&simulation, 2, (Rectangle){
-    .x = -ARENA_WIDTH / 2, .y = -ARENA_HEIGHT / 2,
-    .width = ARENA_WIDTH, .height = ARENA_HEIGHT
-  })) {
-    fprintf(stderr, "Failed to initialize simulation.\n");
-    exit(1);
-  }
-
-  // Setup robot positions and rotations
-  simulation.physicsWorld.bodies[0].position.x = -ARENA_WIDTH / 2 + ROBOT_RADIUS * 2;
-  simulation.physicsWorld.bodies[1].rotation = 0;
-  simulation.physicsWorld.bodies[1].position.x = ARENA_WIDTH / 2 - ROBOT_RADIUS * 2;
-  simulation.physicsWorld.bodies[1].rotation = M_PI;
-
-  // Setup static obstacles
-  simulation.physicsWorld.bodyCount += 2;
-  simulation.physicsWorld.bodies[2] = (PhysicsBody){
-    .isStatic = true,
-    .position = { -ARENA_WIDTH / 4, 0 },
-    .collider = {
-      .kind = PHYSICS_COLLIDER_RECTANGLE,
-      .widthHeight = { OBSTACLE_WIDTH, OBSTACLE_HEIGHT }
+  Simulation simulation = {
+    .physicsWorld.boundary = (Rectangle){
+      .x = -ARENA_WIDTH / 2, .y = -ARENA_HEIGHT / 2,
+      .width = ARENA_WIDTH, .height = ARENA_HEIGHT
     },
+    .timer = InitTimer(SIMULATION_DEFAULT_TICKS_PER_SECOND, 100),
   };
-  simulation.physicsWorld.bodies[3] = (PhysicsBody){
-    .isStatic = true,
-    .position = { ARENA_WIDTH / 4, 0 },
-    .collider = {
-      .kind = PHYSICS_COLLIDER_RECTANGLE,
-      .widthHeight = { OBSTACLE_WIDTH, OBSTACLE_HEIGHT }
-    },
-  };
+
+  AddRobotToSimulation(&simulation, (Vector2){ -ARENA_WIDTH / 2 + ROBOT_RADIUS * 2, 0 }, 0);
+  AddRobotToSimulation(&simulation, (Vector2){ ARENA_WIDTH / 2 - ROBOT_RADIUS * 2, 0 }, M_PI);
+
+  AddObstacleToSimulation(&simulation, (Vector2){ -ARENA_WIDTH / 4, 0 }, (PhysicsCollider){
+    .kind = PHYSICS_COLLIDER_RECTANGLE,
+    .widthHeight = { OBSTACLE_WIDTH, OBSTACLE_HEIGHT }
+  });
+  AddObstacleToSimulation(&simulation, (Vector2){ ARENA_WIDTH / 4, 0 }, (PhysicsCollider){
+    .kind = PHYSICS_COLLIDER_RECTANGLE,
+    .widthHeight = { OBSTACLE_WIDTH, OBSTACLE_HEIGHT }
+  });
 
   // Load assembly programs into robot memory
   memcpy(simulation.robots[0].processState.memory, initialMemoryA, sizeof(initialMemoryA));
   memcpy(simulation.robots[1].processState.memory, initialMemoryB, sizeof(initialMemoryB));
 
-  StartSimulationThread(&simulation);
+  // Setup worker to run simulation
+  Worker simulationWorker = { 0 };
+  if (!TryInitWorker(&simulationWorker, (void (*)(void*))UpdateSimulation, &simulation)) {
+    fprintf(stderr, "Failed to initialize simulation worker.\n");
+    exit(1);
+  }
+
+  StartWorker(&simulationWorker);
 
   // Setup window
   int windowWidth = 800, windowHeight = 450;
@@ -213,34 +207,34 @@ int main(int argc, char* argv[]) {
     SetShaderValue(vBlurShader, vBlurSizeLocation, &blurSize, SHADER_UNIFORM_FLOAT);
 
     // Handle input
-    pthread_mutex_lock(&simulation.mutex); {
+    pthread_mutex_lock(&simulationWorker.stateMutex); {
       // Temporary code for manipulating time scale
       if (IsKeyPressed(KEY_ZERO)) {
-        simulation.timeScale = 0;
+        simulation.timer.ticksPerSec = 0;
       } else if (IsKeyPressed(KEY_ONE)) {
-        simulation.timeScale = 1;
+        simulation.timer.ticksPerSec = 1;
       } else if (IsKeyPressed(KEY_TWO)) {
-        simulation.timeScale = SIMULATION_NEUTRAL_TIME_SCALE / 4;
+        simulation.timer.ticksPerSec = SIMULATION_DEFAULT_TICKS_PER_SECOND / 4;
       } else if (IsKeyPressed(KEY_THREE)) {
-        simulation.timeScale = SIMULATION_NEUTRAL_TIME_SCALE / 2;
+        simulation.timer.ticksPerSec = SIMULATION_DEFAULT_TICKS_PER_SECOND / 2;
       } else if (IsKeyPressed(KEY_FOUR)) {
-        simulation.timeScale = SIMULATION_NEUTRAL_TIME_SCALE;
+        simulation.timer.ticksPerSec = SIMULATION_DEFAULT_TICKS_PER_SECOND;
       } else if (IsKeyPressed(KEY_FIVE)) {
-        simulation.timeScale = SIMULATION_NEUTRAL_TIME_SCALE * 2;
+        simulation.timer.ticksPerSec = SIMULATION_DEFAULT_TICKS_PER_SECOND * 2;
       } else if (IsKeyPressed(KEY_SIX)) {
-        simulation.timeScale = SIMULATION_NEUTRAL_TIME_SCALE * 4;
+        simulation.timer.ticksPerSec = SIMULATION_DEFAULT_TICKS_PER_SECOND * 4;
       } else if (IsKeyPressed(KEY_SEVEN)) {
-        simulation.timeScale = UINT_MAX;
+        simulation.timer.ticksPerSec = INT64_MAX;
       }
 
       if (IsKeyPressed(KEY_TAB) || IsKeyPressedRepeat(KEY_TAB)) {
         simulation.forceStep = true;
       }
-    } pthread_mutex_unlock(&simulation.mutex);
+    } pthread_mutex_unlock(&simulationWorker.stateMutex);
 
     // Draw frame
     BeginDrawing();
-    pthread_mutex_lock(&simulation.mutex); {
+    pthread_mutex_lock(&simulationWorker.stateMutex); {
       // Draw shadows to first stage shadow texture
       BeginTextureMode(shadowsTarget0); {
         ClearBackground(WHITE);
@@ -297,7 +291,7 @@ int main(int argc, char* argv[]) {
           DrawStatePanel(&simulation.robots[i], i, (Vector2){ 0, STATE_PANEL_HEIGHT * i });
         }
       } EndMode2D();
-    } pthread_mutex_unlock(&simulation.mutex);
+    } pthread_mutex_unlock(&simulationWorker.stateMutex);
     EndDrawing();
   }
 
@@ -309,9 +303,9 @@ int main(int argc, char* argv[]) {
   CloseWindow();
 
   printf("Stopping simulation thread\n");
-  StopSimulationThread(&simulation);
+  StopWorker(&simulationWorker);
   printf("Simulation thread stopped\n");
-  DestroySimulation(&simulation);
+  DestroyWorker(&simulationWorker);
 
   return 0;
 }
