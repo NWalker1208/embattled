@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
       .x = -ARENA_WIDTH / 2, .y = -ARENA_HEIGHT / 2,
       .width = ARENA_WIDTH, .height = ARENA_HEIGHT
     },
-    .timer = InitTimer(SIMULATION_DEFAULT_TICKS_PER_SECOND, 100),
+    .timer = InitTimer(0, 100),
   };
 
   AddRobotToSimulation(&simulation, (Vector2){ -ARENA_WIDTH / 2 + ROBOT_RADIUS * 2, 0 }, 0);
