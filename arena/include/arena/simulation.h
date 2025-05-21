@@ -3,9 +3,10 @@
 #include "arena/physics.h"
 #include "processor/process.h"
 #include "arena/robot.h"
+#include "arena/timer.h"
 
 #define SIMULATION_MAX_ROBOTS 2
-#define SIMULATION_NEUTRAL_TIME_SCALE 1024
+#define SIMULATION_DEFAULT_TICKS_PER_SECOND 1024
 
 
 // The state of a simulation.
@@ -18,12 +19,9 @@ typedef struct {
   // The array of robots being simulated.
   Robot robots[SIMULATION_MAX_ROBOTS];
 
-  // The scaling factor applied to the passage of time in the simulation.
-  //   0 = Paused
-  //   NEUTRAL_TIME_SCALE = Realtime
-  //   UINT_MAX = Unlimited
-  unsigned int timeScale;
-  // Whether a simulation step should occur on the next iteration regardless of the current time scale.
+  // Timer for tracking elapsed simulation time, where each tick represents a simulation step.
+  Timer timer;
+  // Whether a simulation step should occur on the next iteration regardless of how much time has elapsed.
   bool forceStep;
 } Simulation;
 
@@ -34,9 +32,8 @@ void AddRobotToSimulation(Simulation* simulation, Vector2 position, float rotati
 // Adds a static obstacle to the simulation if there are fewer than MAX_PHYSICS_BODIES bodies.
 int AddObstacleToSimulation(Simulation* simulation, Vector2 position, PhysicsCollider collider);
 
-// Initializes the simulation given the current set of robots and obstacles.
-void InitSimulation(Simulation* simulation);
+// Prepares the simulation for the first update given the current set of robots and obstacles.
+void PrepSimulation(Simulation* simulation);
 
 // Updates the simulation by advancing the appropriate number of steps.
-// Returns the number of milliseconds that can be waited before calling this function again.
-uint32_t UpdateSimulation(Simulation* simulation);
+void UpdateSimulation(Simulation* simulation);
