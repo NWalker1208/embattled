@@ -11,9 +11,11 @@
 #include "parser/parse.h"
 #include "processor/instruction.h"
 #include "arena/simulation.h"
-#include "arena/worker.h"
 #if defined(PLATFORM_WEB)
 #include "emscripten.h"
+#else
+#include "arena/worker.h"
+#define USE_SIMULATION_WORKER
 #endif
 
 
@@ -122,6 +124,9 @@ int main(int argc, char* argv[]) {
   memcpy(simulation.robots[0].processState.memory, initialMemoryA, sizeof(initialMemoryA));
   memcpy(simulation.robots[1].processState.memory, initialMemoryB, sizeof(initialMemoryB));
 
+  PrepSimulation(&simulation);
+
+  #ifdef USE_SIMULATION_WORKER
   // Setup worker to run simulation
   Worker simulationWorker = { 0 };
   if (!TryInitWorker(&simulationWorker, (void (*)(void*))UpdateSimulation, &simulation)) {
@@ -130,6 +135,7 @@ int main(int argc, char* argv[]) {
   }
 
   StartWorker(&simulationWorker);
+  #endif
 
   // Setup window
   int windowWidth = 800, windowHeight = 450;
@@ -207,7 +213,9 @@ int main(int argc, char* argv[]) {
     SetShaderValue(vBlurShader, vBlurSizeLocation, &blurSize, SHADER_UNIFORM_FLOAT);
 
     // Handle input
+    #ifdef USE_SIMULATION_WORKER
     pthread_mutex_lock(&simulationWorker.stateMutex); {
+    #endif
       // Temporary code for manipulating time scale
       if (IsKeyPressed(KEY_ZERO)) {
         simulation.timer.ticksPerSec = 0;
@@ -230,11 +238,20 @@ int main(int argc, char* argv[]) {
       if (IsKeyPressed(KEY_TAB) || IsKeyPressedRepeat(KEY_TAB)) {
         simulation.forceStep = true;
       }
+    #ifdef USE_SIMULATION_WORKER
     } pthread_mutex_unlock(&simulationWorker.stateMutex);
+    #endif
+
+    #ifndef USE_SIMULATION_WORKER
+    // Update simulation
+    UpdateSimulation(&simulation);
+    #endif
 
     // Draw frame
     BeginDrawing();
+    #ifdef USE_SIMULATION_WORKER
     pthread_mutex_lock(&simulationWorker.stateMutex); {
+    #endif
       // Draw shadows to first stage shadow texture
       BeginTextureMode(shadowsTarget0); {
         ClearBackground(WHITE);
@@ -291,7 +308,9 @@ int main(int argc, char* argv[]) {
           DrawStatePanel(&simulation.robots[i], i, (Vector2){ 0, STATE_PANEL_HEIGHT * i });
         }
       } EndMode2D();
+    #ifdef USE_SIMULATION_WORKER
     } pthread_mutex_unlock(&simulationWorker.stateMutex);
+    #endif
     EndDrawing();
   }
 
@@ -302,10 +321,12 @@ int main(int argc, char* argv[]) {
   UnloadRenderTexture(shadowsTarget1);
   CloseWindow();
 
+  #ifdef USE_SIMULATION_WORKER
   printf("Stopping simulation thread\n");
   StopWorker(&simulationWorker);
   printf("Simulation thread stopped\n");
   DestroyWorker(&simulationWorker);
+  #endif
 
   return 0;
 }
