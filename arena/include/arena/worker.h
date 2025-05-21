@@ -15,15 +15,14 @@ typedef struct Worker {
   bool shouldStop;
 
   // The function to execute on each step.
-  // The return value indicates the number of milliseconds to wait outside of the mutex before the next step.
-  uint32_t (*onStep)(void* state);
+  void (*onStep)(void* state);
   // The pointer to the state structure expected by the worker function.
   void* state;
 } Worker;
 
 // Attempts to initialize a worker. Does not start the worker thread.
 // If successful, returns true. Otherwise, returns false.
-bool TryInitWorker(Worker* worker, uint32_t (*onStep)(void* state), void* state);
+bool TryInitWorker(Worker* worker, void (*onStep)(void* state), void* state);
 
 // Destroys the worker (including stopping the worker thread) and cleans up any system resources.
 void DestroyWorker(Worker* worker);

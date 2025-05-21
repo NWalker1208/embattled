@@ -1,11 +1,11 @@
 #include "arena/worker.h"
-#include "utilities/sleep.h"
+//#include "utilities/sleep.h"
 
 
 void* workerThread(void* arg);
 
 
-bool TryInitWorker(Worker* worker, uint32_t (*onStep)(void* state), void* state) {
+bool TryInitWorker(Worker* worker, void (*onStep)(void* state), void* state) {
   *worker = (Worker){
     .onStep = onStep,
     .state = state,
@@ -43,11 +43,11 @@ void StopWorker(Worker* worker) {
 void* workerThread(void* arg) {
   Worker* worker = (Worker*)arg;
   while (!worker->shouldStop) {
-    uint32_t waitMs;
+    //uint32_t waitMs;
     pthread_mutex_lock(&worker->stateMutex); {
-      waitMs = worker->onStep(worker->state);
+      /*waitMs =*/ worker->onStep(worker->state);
     } pthread_mutex_unlock(&worker->stateMutex);
-    psleep(waitMs);
+    //psleep(waitMs);
   }
   return NULL;
 }
