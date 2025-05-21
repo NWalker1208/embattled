@@ -17,10 +17,14 @@ int64_t GetTimerTicks(Timer* timer) {
   clock_t currentClock = clock();
   clock_t elapsedClocks = currentClock - timer->_lastClock;
   if (elapsedClocks < 0) { elapsedClocks = 0; }
-  clock_t maxElapsedClocks = (INT64_MAX - timer->_lastRemainder) / ticksPerSec;
-  if (elapsedClocks > maxElapsedClocks) { elapsedClocks = maxElapsedClocks; }
+  
+  int64_t elapsedTicksClocksPerSec;
+  if (ticksPerSec != 0 && (int64_t)elapsedClocks > ((INT64_MAX - timer->_lastRemainder) / ticksPerSec)) {
+    elapsedTicksClocksPerSec = INT64_MAX;
+  } else {
+    elapsedTicksClocksPerSec = (int64_t)elapsedClocks * ticksPerSec + timer->_lastRemainder;
+  }
 
-  int64_t elapsedTicksClocksPerSec = elapsedClocks * ticksPerSec + timer->_lastRemainder;
   int64_t elapsedTicks = elapsedTicksClocksPerSec / CLOCKS_PER_SEC;
   int64_t newRemainder = elapsedTicksClocksPerSec % CLOCKS_PER_SEC;
   
