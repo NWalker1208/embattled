@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <pthread.h>
 #include <math.h>
 #include <limits.h>
 #include <raylib.h>
@@ -11,11 +10,13 @@
 #include "parser/parse.h"
 #include "processor/instruction.h"
 #include "arena/simulation.h"
+
 #if defined(PLATFORM_WEB)
-#include "emscripten.h"
+  #include <emscripten.h>
 #else
-#include "arena/worker.h"
-#define USE_SIMULATION_WORKER
+  #include <pthread.h>
+  #include "arena/worker.h"
+  #define USE_SIMULATION_WORKER
 #endif
 
 
