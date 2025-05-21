@@ -21,6 +21,38 @@ void stepSimulation(Simulation* simulation);
 void onWeaponDamage(void* context, size_t physicsBodyIndex, int damageAmount);
 
 
+void AddRobotToSimulation(Simulation* simulation, Vector2 position, float rotation) {
+  if (simulation->robotCount >= SIMULATION_MAX_ROBOTS || simulation->physicsWorld.bodyCount >= MAX_PHYSICS_BODIES) { return; }
+
+  size_t bodyIndex = simulation->physicsWorld.bodyCount;
+  simulation->physicsWorld.bodyCount++;
+  simulation->physicsWorld.bodies[bodyIndex] = (PhysicsBody){
+    .position = position,
+    .rotation = rotation,
+    .collider = (PhysicsCollider){
+      .kind = PHYSICS_COLLIDER_CIRCLE,
+      .radius = ROBOT_RADIUS,
+    }
+  };
+
+  size_t robotIndex = simulation->robotCount;
+  simulation->robotCount++;
+  simulation->robots[robotIndex] = InitRobot(bodyIndex);
+}
+
+void AddObstacleToSimulation(Simulation* simulation, Vector2 position, float rotation, PhysicsCollider collider) {
+  if (simulation->physicsWorld.bodyCount >= MAX_PHYSICS_BODIES) { return; }
+  
+  size_t bodyIndex = simulation->physicsWorld.bodyCount;
+  simulation->physicsWorld.bodyCount++;
+  simulation->physicsWorld.bodies[bodyIndex] = (PhysicsBody){
+    .isStatic = true,
+    .position = position,
+    .rotation = rotation,
+    .collider = collider,
+  };
+}
+
 void PrepSimulation(Simulation* simulation) {
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     UpdateRobotSensor(&simulation->robots[i], &simulation->physicsWorld);

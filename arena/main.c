@@ -109,11 +109,11 @@ int main(int argc, char* argv[]) {
   AddRobotToSimulation(&simulation, (Vector2){ -ARENA_WIDTH / 2 + ROBOT_RADIUS * 2, 0 }, 0);
   AddRobotToSimulation(&simulation, (Vector2){ ARENA_WIDTH / 2 - ROBOT_RADIUS * 2, 0 }, M_PI);
 
-  AddObstacleToSimulation(&simulation, (Vector2){ -ARENA_WIDTH / 4, 0 }, (PhysicsCollider){
+  AddObstacleToSimulation(&simulation, (Vector2){ -ARENA_WIDTH / 4, 0 }, 0, (PhysicsCollider){
     .kind = PHYSICS_COLLIDER_RECTANGLE,
     .widthHeight = { OBSTACLE_WIDTH, OBSTACLE_HEIGHT }
   });
-  AddObstacleToSimulation(&simulation, (Vector2){ ARENA_WIDTH / 4, 0 }, (PhysicsCollider){
+  AddObstacleToSimulation(&simulation, (Vector2){ ARENA_WIDTH / 4, 0 }, 0, (PhysicsCollider){
     .kind = PHYSICS_COLLIDER_RECTANGLE,
     .widthHeight = { OBSTACLE_WIDTH, OBSTACLE_HEIGHT }
   });

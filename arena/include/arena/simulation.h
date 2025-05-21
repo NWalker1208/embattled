@@ -30,7 +30,7 @@ typedef struct {
 void AddRobotToSimulation(Simulation* simulation, Vector2 position, float rotation);
 
 // Adds a static obstacle to the simulation if there are fewer than MAX_PHYSICS_BODIES bodies.
-int AddObstacleToSimulation(Simulation* simulation, Vector2 position, PhysicsCollider collider);
+void AddObstacleToSimulation(Simulation* simulation, Vector2 position, float rotation, PhysicsCollider collider);
 
 // Prepares the simulation for the first update given the current set of robots and obstacles.
 void PrepSimulation(Simulation* simulation);
