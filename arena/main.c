@@ -60,9 +60,6 @@ const Color ROBOT_COLORS[] = {
   GREEN
 };
 
-float dpi = -1;
-Font primaryFont = { 0 };
-
 
 bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut);
 
@@ -73,10 +70,14 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
 void DrawStaticBody(const PhysicsBody* body, unsigned int layer);
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 
-// TODO:
-// - Fix time scale in web build.
-// - Load/reload assembly files created from UI inputs. https://emscripten.org/docs/api_reference/Filesystem-API.html#FS.writeFile
 
+Simulation simulation;
+float dpi = -1;
+Font primaryFont = { 0 };
+
+
+// TODO:
+// - Load/reload assembly files created from UI inputs. https://emscripten.org/docs/api_reference/Filesystem-API.html#FS.writeFile
 
 int main(int argc, char* argv[]) {
   // Get command line arguments
@@ -101,7 +102,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Setup simulation
-  Simulation simulation = {
+  simulation = (Simulation){
     .physicsWorld.boundary = (Rectangle){
       .x = -ARENA_WIDTH / 2, .y = -ARENA_HEIGHT / 2,
       .width = ARENA_WIDTH, .height = ARENA_HEIGHT
