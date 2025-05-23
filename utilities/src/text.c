@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "utilities/file.h"
 
 TextContents InitTextContents(char** charsPtr, size_t length) {
   char* chars = *charsPtr;
@@ -41,6 +42,18 @@ TextContents InitTextContentsAsCopy(const char* chars, size_t length) {
 
 TextContents InitTextContentsAsCopyCStr(const char* str) {
   return InitTextContentsAsCopy(str, strlen(str));
+}
+
+bool TryInitTextContentsFromFile(const char* filePath, TextContents* textOut) {
+  size_t fileLength = 0;
+  char* chars;
+  if ((chars = ReadAllText(filePath, &fileLength)) == NULL) {
+    *textOut = (TextContents){ 0 };
+    return false;
+  } else {
+    *textOut = InitTextContents(&chars, fileLength);
+    return true;
+  }
 }
 
 void DestroyTextContents(TextContents* text) {

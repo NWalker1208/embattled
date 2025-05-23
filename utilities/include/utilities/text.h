@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 // A line of a text contents struct.
-typedef struct {
+typedef struct TextContentsLine {
   // The index in the chars array at which the line begins.
   size_t startIndex;
   // The number of characters in the line, excluding the null terminator/line ending.
@@ -11,7 +11,7 @@ typedef struct {
 } TextContentsLine;
 
 // A collection of lines of text.
-typedef struct {
+typedef struct TextContents {
   // The text as an array of chars with null characters between each line.
   char* chars;
   // The length of the chars array.
@@ -20,11 +20,11 @@ typedef struct {
   // The array of starting indexes and lengths of each line of text.
   TextContentsLine* lines;
   // The number of lines of text.
-  unsigned int lineCount;
+  size_t lineCount;
 } TextContents;
 
 // The offset of a character within some text.
-typedef struct {
+typedef struct TextOffset {
   // The line number of the offset.
   // If greater than or equal to the number of lines, the offset is equivalent to (lineCount - 1, len(lines[lineCount - 1])).
   size_t line;
@@ -35,7 +35,7 @@ typedef struct {
 } TextOffset;
 
 // A span of characters within some text.
-typedef struct {
+typedef struct TextSpan {
   // The offset of the first character in the span.
   TextOffset start;
   // The offset of the first character after the span.
@@ -53,6 +53,10 @@ TextContents InitTextContentsAsCopy(const char* chars, size_t length);
 
 // Initializes a TextContents struct with a copy of the given null-terminated C string.
 TextContents InitTextContentsAsCopyCStr(const char* str);
+
+// Attempts to initialize a TextContents struct with the contents of the file at the given path.
+// Returns true if successful and false if an error occurs.
+bool TryInitTextContentsFromFile(const char* filePath, TextContents* textOut);
 
 // Frees the memory referenced by a TextContents struct.
 void DestroyTextContents(TextContents* text);
