@@ -61,7 +61,7 @@ const Color ROBOT_COLORS[] = {
 };
 
 
-bool TryParseAndAssembleFile(const TextContents* programText, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut);
+bool TryParseAndAssembleProgram(const TextContents* programText, AssemblyProgram* assemblyProgramOut, uint8_t* memoryOut);
 
 void UpdateDpiAndMinWindowSize();
 
@@ -113,16 +113,16 @@ int main(int argc, char* argv[]) {
 
   // Parse and assemble programs
   memset(initialMemoryA, 0x00, sizeof(initialMemoryA));
-  if (!TryParseAndAssembleFile(&programTextA, &programA, initialMemoryA)) {
+  if (!TryParseAndAssembleProgram(&programTextA, &programA, initialMemoryA)) {
     fprintf(stderr, "Failed to assemble program A:\n");
-    fprintf(stderr, errorMsgBuffer);
+    fprintf(stderr, "%s", errorMsgBuffer);
     return 1;
   }
 
   memset(initialMemoryB, 0x00, sizeof(initialMemoryB));
-  if (!TryParseAndAssembleFile(&programTextB, &programB, initialMemoryB)) {
+  if (!TryParseAndAssembleProgram(&programTextB, &programB, initialMemoryB)) {
     fprintf(stderr, "Failed to assemble program B:\n");
-    fprintf(stderr, errorMsgBuffer);
+    fprintf(stderr, "%s", errorMsgBuffer);
     return 1;
   }
 
