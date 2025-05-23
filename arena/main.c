@@ -71,6 +71,9 @@ void DrawStaticBody(const PhysicsBody* body, unsigned int layer);
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 
 
+TextContents textA, textB;
+AssemblyProgram programA, programB;
+uint8_t initialMemoryA[MEMORY_SIZE], initialMemoryB[MEMORY_SIZE];
 Simulation simulation;
 float dpi = -1;
 Font primaryFont = { 0 };
@@ -89,14 +92,12 @@ int main(int argc, char* argv[]) {
   char* assemblyFilePathB = argc >= 3 ? argv[2] : NULL;
 
   // Load, parse, and assemble assembly files
-  TextContents textA, textB;
-  AssemblyProgram programA, programB;
-  unsigned char initialMemoryA[MEMORY_SIZE], initialMemoryB[MEMORY_SIZE];
-
+  memset(initialMemoryA, 0x00, sizeof(initialMemoryA));
   if (!TryReadParseAndAssembleFile(assemblyFilePathA, &textA, &programA, initialMemoryA)) {
     return 1;
   }
 
+  memset(initialMemoryB, 0x00, sizeof(initialMemoryB));
   if (!TryReadParseAndAssembleFile(assemblyFilePathB, &textB, &programB, initialMemoryB)) {
     return 1;
   }
