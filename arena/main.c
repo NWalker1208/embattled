@@ -74,6 +74,7 @@ void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 TextContents programTextA, programTextB;
 AssemblyProgram programA, programB;
 uint8_t initialMemoryA[MEMORY_SIZE], initialMemoryB[MEMORY_SIZE];
+char errorMsgBuffer[8000];
 Simulation simulation;
 float dpi = -1;
 Font primaryFont = { 0 };
@@ -94,7 +95,7 @@ int main(int argc, char* argv[]) {
   // Load assembly program files
   if (assemblyFilePathA != NULL) {
     if (!TryInitTextContentsFromFile(assemblyFilePathA, &programTextA)) {
-      fprintf(stderr, "Failed to read assembly file A\n");
+      fprintf(stderr, "Failed to read assembly file A.\n");
       return 1;
     }
   } else {
@@ -103,7 +104,7 @@ int main(int argc, char* argv[]) {
 
   if (assemblyFilePathB != NULL) {
     if (!TryInitTextContentsFromFile(assemblyFilePathB, &programTextB)) {
-      fprintf(stderr, "Failed to read assembly file B\n");
+      fprintf(stderr, "Failed to read assembly file B.\n");
       return 1;
     }
   } else {
@@ -113,11 +114,15 @@ int main(int argc, char* argv[]) {
   // Parse and assemble programs
   memset(initialMemoryA, 0x00, sizeof(initialMemoryA));
   if (!TryParseAndAssembleFile(&programTextA, &programA, initialMemoryA)) {
+    fprintf(stderr, "Failed to assemble program A:\n");
+    fprintf(stderr, errorMsgBuffer);
     return 1;
   }
 
   memset(initialMemoryB, 0x00, sizeof(initialMemoryB));
   if (!TryParseAndAssembleFile(&programTextB, &programB, initialMemoryB)) {
+    fprintf(stderr, "Failed to assemble program B:\n");
+    fprintf(stderr, errorMsgBuffer);
     return 1;
   }
 
@@ -357,20 +362,23 @@ int main(int argc, char* argv[]) {
 bool TryParseAndAssembleProgram(const TextContents* programText, AssemblyProgram* assemblyProgramOut, uint8_t* memoryOut) {
   ParsingErrorList parsingErrors = { 0 };
   if (!TryParseAssemblyProgram(programText, assemblyProgramOut, &parsingErrors)) {
-    fprintf(stderr, "Failed to parse assembly file.\n");
-    for (size_t i = 0; i < parsingErrors.errorCount; i++) {
-      fprintf(stderr, "Line %zu, column %zu: %s.\n",
+    size_t written = 0;
+    for (size_t i = 0; i < parsingErrors.errorCount && written < sizeof(errorMsgBuffer); i++) {
+      int n = snprintf(errorMsgBuffer + written, sizeof(errorMsgBuffer) - written,
+        "Line %zu, column %zu: %s.\n",
         parsingErrors.errors[i].sourceSpan.start.line + 1,
         parsingErrors.errors[i].sourceSpan.start.column + 1,
         parsingErrors.errors[i].message);
+      if (n < 0) { break; }
+      written += n;
     }
     return false;
   }
 
   AssemblingError assemblingError = { 0 };
   if (!TryAssembleProgram(programText, assemblyProgramOut, memoryOut, &assemblingError)) {
-    fprintf(stderr, "Failed to assemble program from file.\n");
-    fprintf(stderr, "Line %zu, column %zu: %s.",
+    snprintf(errorMsgBuffer, sizeof(errorMsgBuffer),
+      "Line %zu, column %zu: %s.\n",
       assemblingError.sourceSpan.start.line + 1,
       assemblingError.sourceSpan.start.column + 1,
       assemblingError.message);
