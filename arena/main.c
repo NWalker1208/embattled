@@ -61,7 +61,7 @@ const Color ROBOT_COLORS[] = {
 };
 
 
-bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut);
+bool TryParseAndAssembleFile(const TextContents* programText, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut);
 
 void UpdateDpiAndMinWindowSize();
 
@@ -71,7 +71,7 @@ void DrawStaticBody(const PhysicsBody* body, unsigned int layer);
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 
 
-TextContents textA, textB;
+TextContents programTextA, programTextB;
 AssemblyProgram programA, programB;
 uint8_t initialMemoryA[MEMORY_SIZE], initialMemoryB[MEMORY_SIZE];
 Simulation simulation;
@@ -91,14 +91,33 @@ int main(int argc, char* argv[]) {
   char* assemblyFilePathA = argc >= 2 ? argv[1] : NULL;
   char* assemblyFilePathB = argc >= 3 ? argv[2] : NULL;
 
-  // Load, parse, and assemble assembly files
+  // Load assembly program files
+  if (assemblyFilePathA != NULL) {
+    if (!TryInitTextContentsFromFile(assemblyFilePathA, &programTextA)) {
+      fprintf(stderr, "Failed to read assembly file A\n");
+      return 1;
+    }
+  } else {
+    programTextA = InitTextContentsAsCopyCStr("");
+  }
+
+  if (assemblyFilePathB != NULL) {
+    if (!TryInitTextContentsFromFile(assemblyFilePathB, &programTextB)) {
+      fprintf(stderr, "Failed to read assembly file B\n");
+      return 1;
+    }
+  } else {
+    programTextB = InitTextContentsAsCopyCStr("");
+  }
+
+  // Parse and assemble programs
   memset(initialMemoryA, 0x00, sizeof(initialMemoryA));
-  if (!TryReadParseAndAssembleFile(assemblyFilePathA, &textA, &programA, initialMemoryA)) {
+  if (!TryParseAndAssembleFile(&programTextA, &programA, initialMemoryA)) {
     return 1;
   }
 
   memset(initialMemoryB, 0x00, sizeof(initialMemoryB));
-  if (!TryReadParseAndAssembleFile(assemblyFilePathB, &textB, &programB, initialMemoryB)) {
+  if (!TryParseAndAssembleFile(&programTextB, &programB, initialMemoryB)) {
     return 1;
   }
 
@@ -335,23 +354,9 @@ int main(int argc, char* argv[]) {
 }
 
 
-bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, AssemblyProgram* assemblyProgramOut, unsigned char* memoryOut) {
-  char* chars;
-  size_t fileLength;
-  if (path != NULL) {
-    if ((chars = ReadAllText(path, &fileLength)) == NULL) {
-      fprintf(stderr, "Failed to read assembly file.\n");
-      return false;
-    }
-  } else {
-    chars = (char*)malloc(1);
-    chars[0] = '\0';
-    fileLength = 0;
-  }
-
-  *textOut = InitTextContents(&chars, fileLength);
+bool TryParseAndAssembleProgram(const TextContents* programText, AssemblyProgram* assemblyProgramOut, uint8_t* memoryOut) {
   ParsingErrorList parsingErrors = { 0 };
-  if (!TryParseAssemblyProgram(textOut, assemblyProgramOut, &parsingErrors)) {
+  if (!TryParseAssemblyProgram(programText, assemblyProgramOut, &parsingErrors)) {
     fprintf(stderr, "Failed to parse assembly file.\n");
     for (size_t i = 0; i < parsingErrors.errorCount; i++) {
       fprintf(stderr, "Line %zu, column %zu: %s.\n",
@@ -363,7 +368,7 @@ bool TryReadParseAndAssembleFile(const char* path, TextContents* textOut, Assemb
   }
 
   AssemblingError assemblingError = { 0 };
-  if (!TryAssembleProgram(textOut, assemblyProgramOut, memoryOut, &assemblingError)) {
+  if (!TryAssembleProgram(programText, assemblyProgramOut, memoryOut, &assemblingError)) {
     fprintf(stderr, "Failed to assemble program from file.\n");
     fprintf(stderr, "Line %zu, column %zu: %s.",
       assemblingError.sourceSpan.start.line + 1,
