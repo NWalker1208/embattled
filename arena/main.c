@@ -223,7 +223,7 @@ int main(int argc, char* argv[]) {
     uiCamera.zoom = dpi;
 
     float statePanelScreenWidth = dpi * STATE_PANEL_WIDTH;
-    float arenaScreenWidth = windowWidth - statePanelScreenWidth;
+    float arenaScreenWidth = fmaxf(windowWidth - statePanelScreenWidth, ARENA_MIN_SCREEN_WIDTH);
     arenaCamera.offset = (Vector2){ statePanelScreenWidth + (arenaScreenWidth / 2), windowHeight / 2 };
     arenaCamera.zoom = fmin((arenaScreenWidth - 2 * ARENA_MARGIN) / (ARENA_WIDTH + ARENA_BORDER_THICKNESS * 2),
                             (windowHeight - 2 * ARENA_MARGIN) / (ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2));
@@ -359,6 +359,34 @@ int main(int argc, char* argv[]) {
 }
 
 
+#if defined(PLATFORM_WEB)
+const char* reloadAssemblyProgram(TextContents* programText, AssemblyProgram* assemblyProgram, uint8_t* initialMemory, Robot* robot, char* programStr) {
+  DestroyTextContents(programText);
+  *programText = InitTextContentsAsCopyCStr(programStr);
+  
+  memset(initialMemory, 0x00, MEMORY_SIZE * sizeof(uint8_t));
+  if (!TryParseAndAssembleProgram(programText, assemblyProgram, initialMemory)) {
+    return errorMsgBuffer;
+  }
+
+  int64_t oldTicksPerSec = simulation.timer.ticksPerSec;
+  simulation.timer.ticksPerSec = 0;
+  memcpy(robot->processState.memory, initialMemory, MEMORY_SIZE * sizeof(uint8_t));
+  memset(&robot->processState.registers, 0x00, sizeof(RegistersState));
+  simulation.timer.ticksPerSec = oldTicksPerSec;
+
+  return "";
+}
+
+const char* EMSCRIPTEN_KEEPALIVE ReloadAssemblyProgramA(char* programStr) {
+  return reloadAssemblyProgram(&programTextA, &programA, initialMemoryA, &simulation.robots[0], programStr);
+}
+
+const char* EMSCRIPTEN_KEEPALIVE ReloadAssemblyProgramB(char* programStr) {
+  return reloadAssemblyProgram(&programTextB, &programB, initialMemoryB, &simulation.robots[1], programStr);
+}
+#endif
+
 bool TryParseAndAssembleProgram(const TextContents* programText, AssemblyProgram* assemblyProgramOut, uint8_t* memoryOut) {
   ParsingErrorList parsingErrors = { 0 };
   if (!TryParseAssemblyProgram(programText, assemblyProgramOut, &parsingErrors)) {
@@ -397,7 +425,9 @@ void UpdateDpiAndMinWindowSize() {
   #endif
   if (newDpi != dpi) {
     dpi = newDpi;
+    #if !defined(PLATFORM_WEB)
     SetWindowMinSize(dpi * (ARENA_MARGIN * 2 + STATE_PANEL_WIDTH + ARENA_MIN_SCREEN_WIDTH), dpi * fmax(ARENA_MARGIN * 2, STATE_PANEL_HEIGHT * 2));
+    #endif
   }
 }
 
