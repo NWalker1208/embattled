@@ -81,7 +81,8 @@ Font primaryFont = { 0 };
 
 
 // TODO:
-// - Load/reload assembly files created from UI inputs. https://emscripten.org/docs/api_reference/Filesystem-API.html#FS.writeFile
+// - Add text boxes to web interface for writing programs
+// - Fix canvas scaling/resizing in web interface
 
 int main(int argc, char* argv[]) {
   // Get command line arguments
