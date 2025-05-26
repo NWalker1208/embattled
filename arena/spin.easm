@@ -1,5 +1,5 @@
-  stb 0x7F @move
-  stb 0x7F @rotate
+  stb 0x7F, @move
+  stb 0x7F, @rotate
 loop:
   jmp @loop
 
