@@ -169,10 +169,16 @@ int main(int argc, char* argv[]) {
   #endif
 
   // Setup window
+  #if !defined(PLATFORM_WEB)
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT);
+  #else
+  SetConfigFlags(FLAG_MSAA_4X_HINT); // Resizing is controlled by JavaScript
+  #endif
   InitWindow(INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT, "Hello Raylib");
   UpdateDpiAndMinWindowSize();
+  #if !defined(PLATFORM_WEB)
   SetWindowSize(dpi * (STATE_PANEL_WIDTH + STATE_PANEL_HEIGHT * 2), dpi * (STATE_PANEL_HEIGHT * 2));
+  #endif
   SetTargetFPS(60);
 
   // Setup cameras
@@ -363,6 +369,10 @@ int main(int argc, char* argv[]) {
 
 
 #if defined(PLATFORM_WEB)
+void EMSCRIPTEN_KEEPALIVE OnCanvasResize(int width, int height) {
+  SetWindowSize(width, height);
+}
+
 const char* reloadAssemblyProgram(TextContents* programText, AssemblyProgram* assemblyProgram, uint8_t* initialMemory, Robot* robot, char* programStr) {
   DestroyTextContents(programText);
   *programText = InitTextContentsAsCopyCStr(programStr);

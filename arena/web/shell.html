@@ -185,6 +185,9 @@
           if (text) console.error('[post-exception status] ' + text);
         };
       };
+      window.onresize = () => {
+        onCanvasResize(canvasElement.clientWidth, canvasElement.clientHeight)
+      }
     </script>
     {{{ SCRIPT }}}
   </body>
