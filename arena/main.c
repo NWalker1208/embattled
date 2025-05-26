@@ -66,6 +66,10 @@ const Color ROBOT_COLORS[] = {
 
 bool TryParseAndAssembleProgram(const TextContents* programText, AssemblyProgram* assemblyProgramOut, uint8_t* memoryOut);
 
+#if defined(PLATFORM_WEB)
+EM_JS(int, GetCanvasWidth, (), { return canvasElement.offsetWidth * (window.devicePixelRatio || 1); });
+EM_JS(int, GetCanvasHeight, (), { return canvasElement.offsetHeight * (window.devicePixelRatio || 1); });
+#endif
 void UpdateDpiAndMinWindowSize();
 
 void DrawArenaForeground();
@@ -178,6 +182,8 @@ int main(int argc, char* argv[]) {
   UpdateDpiAndMinWindowSize();
   #if !defined(PLATFORM_WEB)
   SetWindowSize(dpi * (STATE_PANEL_WIDTH + STATE_PANEL_HEIGHT * 2), dpi * (STATE_PANEL_HEIGHT * 2));
+  #else
+  SetWindowSize(GetCanvasWidth(), GetCanvasHeight());
   #endif
   SetTargetFPS(60);
 

@@ -186,7 +186,8 @@
         };
       };
       window.onresize = () => {
-        onCanvasResize(canvasElement.clientWidth, canvasElement.clientHeight)
+        var dpi = window.devicePixelRatio || 1;
+        onCanvasResize(canvasElement.offsetWidth * dpi, canvasElement.offsetHeight * dpi)
       }
     </script>
     {{{ SCRIPT }}}
