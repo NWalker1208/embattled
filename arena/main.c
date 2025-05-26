@@ -419,17 +419,15 @@ bool TryParseAndAssembleProgram(const TextContents* programText, AssemblyProgram
 
 
 void UpdateDpiAndMinWindowSize() {
-  #if defined(PLATFORM_WEB)
-  float newDpi = emscripten_get_device_pixel_ratio();
-  #else
+  #if !defined(PLATFORM_WEB)
   float newDpi = GetWindowScaleDPI().x;
-  #endif
   if (newDpi != dpi) {
     dpi = newDpi;
-    #if !defined(PLATFORM_WEB)
     SetWindowMinSize(dpi * (ARENA_MARGIN * 2 + STATE_PANEL_WIDTH + ARENA_MIN_SCREEN_WIDTH), dpi * fmax(ARENA_MARGIN * 2, STATE_PANEL_HEIGHT * 2));
-    #endif
   }
+  #else
+  dpi = 1.0f; // DPI scaling is handled by JavaScript.
+  #endif
 }
 
 
