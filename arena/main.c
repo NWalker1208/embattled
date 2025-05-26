@@ -26,6 +26,9 @@
 #define GLSL_VERSION "100"
 #endif
 
+#define INITIAL_WINDOW_WIDTH 800
+#define INITIAL_WINDOW_HEIGHT 450
+
 #define BACKGROUND_COLOR WHITE
 #define LAYER_COUNT 6
 
@@ -166,10 +169,8 @@ int main(int argc, char* argv[]) {
   #endif
 
   // Setup window
-  int windowWidth = 800, windowHeight = 450;
-
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT);
-  InitWindow(windowWidth, windowHeight, "Hello Raylib");
+  InitWindow(INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT, "Hello Raylib");
   UpdateDpiAndMinWindowSize();
   SetWindowSize(dpi * (STATE_PANEL_WIDTH + STATE_PANEL_HEIGHT * 2), dpi * (STATE_PANEL_HEIGHT * 2));
   SetTargetFPS(60);
@@ -204,40 +205,41 @@ int main(int argc, char* argv[]) {
   int vBlurSizeLocation = GetShaderLocation(vBlurShader, "blurSize");
 
   // Initialize render texture for shadows
-  RenderTexture2D shadowsTarget0 = LoadRenderTexture(windowWidth, windowHeight);
-  RenderTexture2D shadowsTarget1 = LoadRenderTexture(windowWidth, windowHeight);
+  int screenWidth = GetScreenWidth(), screenHeight = GetScreenHeight();
+  RenderTexture2D shadowsTarget0 = LoadRenderTexture(screenWidth, screenHeight);
+  RenderTexture2D shadowsTarget1 = LoadRenderTexture(screenWidth, screenHeight);
 
   // Enter main loop
   while (!WindowShouldClose()) {
-    windowWidth = GetScreenWidth(); windowHeight = GetScreenHeight();
+    screenWidth = GetScreenWidth(); screenHeight = GetScreenHeight();
     UpdateDpiAndMinWindowSize();
 
     // Update shadow render textures
-    if (windowWidth != shadowsTarget0.texture.width || windowHeight != shadowsTarget0.texture.height) {
+    if (screenWidth != shadowsTarget0.texture.width || screenHeight != shadowsTarget0.texture.height) {
       UnloadRenderTexture(shadowsTarget0);
       UnloadRenderTexture(shadowsTarget1);
-      shadowsTarget0 = LoadRenderTexture(windowWidth, windowHeight);
-      shadowsTarget1 = LoadRenderTexture(windowWidth, windowHeight);
+      shadowsTarget0 = LoadRenderTexture(screenWidth, screenHeight);
+      shadowsTarget1 = LoadRenderTexture(screenWidth, screenHeight);
     }
     
     // Update camera based on current window size
     uiCamera.zoom = dpi;
 
     float statePanelScreenWidth = dpi * STATE_PANEL_WIDTH;
-    float arenaScreenWidth = fmaxf(windowWidth - statePanelScreenWidth, ARENA_MIN_SCREEN_WIDTH);
-    arenaCamera.offset = (Vector2){ statePanelScreenWidth + (arenaScreenWidth / 2), windowHeight / 2 };
+    float arenaScreenWidth = fmaxf(screenWidth - statePanelScreenWidth, ARENA_MIN_SCREEN_WIDTH);
+    arenaCamera.offset = (Vector2){ statePanelScreenWidth + (arenaScreenWidth / 2), screenHeight / 2 };
     arenaCamera.zoom = fmin((arenaScreenWidth - 2 * ARENA_MARGIN) / (ARENA_WIDTH + ARENA_BORDER_THICKNESS * 2),
-                            (windowHeight - 2 * ARENA_MARGIN) / (ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2));
+                            (screenHeight - 2 * ARENA_MARGIN) / (ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2));
 
     // Update blur shader uniforms
     float blurSize = SHADOW_BLUR_SIZE * arenaCamera.zoom;
 
-    SetShaderValue(hBlurShader, hBlurRenderWidthLocation, &windowWidth, SHADER_UNIFORM_INT);
-    SetShaderValue(hBlurShader, hBlurRenderHeightLocation, &windowHeight, SHADER_UNIFORM_INT);
+    SetShaderValue(hBlurShader, hBlurRenderWidthLocation, &screenWidth, SHADER_UNIFORM_INT);
+    SetShaderValue(hBlurShader, hBlurRenderHeightLocation, &screenHeight, SHADER_UNIFORM_INT);
     SetShaderValue(hBlurShader, hBlurSizeLocation, &blurSize, SHADER_UNIFORM_FLOAT);
 
-    SetShaderValue(vBlurShader, vBlurRenderWidthLocation, &windowWidth, SHADER_UNIFORM_INT);
-    SetShaderValue(vBlurShader, vBlurRenderHeightLocation, &windowHeight, SHADER_UNIFORM_INT);
+    SetShaderValue(vBlurShader, vBlurRenderWidthLocation, &screenWidth, SHADER_UNIFORM_INT);
+    SetShaderValue(vBlurShader, vBlurRenderHeightLocation, &screenHeight, SHADER_UNIFORM_INT);
     SetShaderValue(vBlurShader, vBlurSizeLocation, &blurSize, SHADER_UNIFORM_FLOAT);
 
     // Handle input
@@ -331,7 +333,7 @@ int main(int argc, char* argv[]) {
 
       // Draw user interface
       BeginMode2D(uiCamera); {
-        DrawRectangleRec((Rectangle){ 0.0f, 0.0f, STATE_PANEL_WIDTH, windowHeight / dpi }, LIGHTGRAY);
+        DrawRectangleRec((Rectangle){ 0.0f, 0.0f, STATE_PANEL_WIDTH, screenHeight / dpi }, LIGHTGRAY);
         for (unsigned int i = 0; i < simulation.robotCount; i++) {
           DrawStatePanel(&simulation.robots[i], i, (Vector2){ 0, STATE_PANEL_HEIGHT * i });
         }
