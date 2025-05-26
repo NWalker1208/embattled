@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
   #else
   SetConfigFlags(FLAG_MSAA_4X_HINT); // Resizing is controlled by JavaScript
   #endif
-  InitWindow(INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT, "Hello Raylib");
+  InitWindow(INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT, "Embattled");
   UpdateDpiAndMinWindowSize();
   #if !defined(PLATFORM_WEB)
   SetWindowSize(dpi * (STATE_PANEL_WIDTH + STATE_PANEL_HEIGHT * 2), dpi * (STATE_PANEL_HEIGHT * 2));
