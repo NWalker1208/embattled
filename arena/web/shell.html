@@ -7,12 +7,48 @@
     <title>Emscripten-Generated Code</title>
     <script src="coi-serviceworker.js"></script>
     <style>
-      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
-      textarea.emscripten { font-family: monospace; width: 80%; }
-      div.emscripten { text-align: center; }
-      div.emscripten_border { border: 1px solid black; }
+      .centered { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      div.centered { text-align: center; }
+      .stack {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+      .overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      #main_container {
+        display: flex;
+        flex-direction: row;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 200px;
+        left: 0;
+      }
+      #center_panel {
+        flex: 1;
+      }
+      .side_panel {
+        height: 100%;
+        width: 300px;
+      }
+      #bottom_container {
+        position: absolute;
+        height: 200px;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+
+      #canvas_container { border: 1px solid black; width: 100%; height: 100%; }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas.emscripten { border: 0px none; background-color: black; }
+      #canvas { border: 0px none; background-color: black; width: 100%; height: 100%; }
+      #output { font-family: monospace; width: 80%; }
 
       .spinner {
         height: 50px;
@@ -45,31 +81,43 @@
         from {transform: rotate(0deg);}
         to {transform: rotate(360deg);}
       }
-
     </style>
   </head>
   <body>
-    <hr/>
-    <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
-    <div class="emscripten" id="status">Downloading...</div>
-    <div class="emscripten">
-      <progress value="0" max="100" id="progress" hidden=1></progress>  
+    <div id="main_container">
+      <div id="left_panel" class="side_panel">
+
+      </div>
+      <div id="center_panel">
+        <div class="stack">
+          <div id="canvas_container">
+            <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+          </div>
+          <div class="overlay">
+            <figure id="spinner"><div class="spinner"></div></figure>
+            <div class="centered" id="status">Downloading...</div>
+            <div class="centered"><progress value="0" max="100" id="progress" hidden=1></progress></div>
+          </div>
+        </div>
+      </div>
+      <div id="right_panel" class="side_panel">
+
+      </div>
     </div>
-    <div class="emscripten_border">
-      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+
+    <div id="bottom_container">
+      <hr/>
+      <div class="centered">
+        <input type="checkbox" id="resize">Resize canvas
+        <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
+        &nbsp;&nbsp;&nbsp;
+        <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
+                                                                                  document.getElementById('resize').checked)">
+      </div>
+      <hr/>
+      <textarea class="centered" id="output" rows="8"></textarea>
     </div>
-    <hr/>
-    <div class="emscripten">
-      <input type="checkbox" id="resize">Resize canvas
-      <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
-      &nbsp;&nbsp;&nbsp;
-      <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
-                                                                                document.getElementById('resize').checked)">
-    </div>
-    
-    <hr/>
-    <textarea class="emscripten" id="output" rows="8"></textarea>
-    <hr>
+
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
