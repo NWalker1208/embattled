@@ -6,6 +6,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Embattled</title>
     <script src="coi-serviceworker.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" integrity="sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <style>
       .centered { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       div.centered { text-align: center; }
@@ -95,8 +99,8 @@
   <body>
     <div id="main_container">
       <div id="left_panel" class="side_panel">
-        <textarea id="left_program_text"></textarea>
-        <input type="button" value="Assemble" onclick="reloadAssemblyProgramA(document.getElementById('left_program_text').value)"/>
+        <textarea id="left_program_editor"></textarea>
+        <input type="button" value="Assemble" onclick="reloadAssemblyProgramA(document.getElementById('left_program_editor').value)"/>
       </div>
       <div id="center_panel">
         <div class="stack">
@@ -111,8 +115,8 @@
         </div>
       </div>
       <div id="right_panel" class="side_panel">
-        <textarea id="right_program_text"></textarea>
-        <input type="button" value="Assemble" onclick="reloadAssemblyProgramB(document.getElementById('right_program_text').value)"/>
+        <textarea id="right_program_editor"></textarea>
+        <input type="button" value="Assemble" onclick="reloadAssemblyProgramB(document.getElementById('right_program_editor').value)"/>
       </div>
     </div>
 
@@ -128,6 +132,15 @@
       <hr/>-->
       <textarea class="centered" id="output" rows="12" readonly></textarea>
     </div>
+
+    <script type='text/javascript'>
+      var leftEditor = CodeMirror.fromTextArea(document.getElementById("left_program_editor"), {
+        lineNumbers: true
+      });
+      var rightEditor = CodeMirror.fromTextArea(document.getElementById("right_program_editor"), {
+        lineNumbers: true
+      });
+    </script>
 
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
