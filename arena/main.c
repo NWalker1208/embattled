@@ -88,8 +88,8 @@ Font primaryFont = { 0 };
 
 
 // TODO:
-// - Add text boxes to web interface for writing programs
-// - Fix canvas scaling/resizing in web interface
+// - Fix backspace in editors
+// - Add links to documentation
 
 int main(int argc, char* argv[]) {
   // Get command line arguments
