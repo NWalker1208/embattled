@@ -20,6 +20,8 @@ emcmake cmake -S . -B ./build -DPLATFORM=Web
 cmake --build ./build
 ```
 
+TODO: Setup GitHub action to run web build on push.
+
 ## Running tests
 
 ```sh
