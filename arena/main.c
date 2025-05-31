@@ -89,7 +89,8 @@ Font primaryFont = { 0 };
 
 // TODO:
 // - Fix backspace in editors
-// - Add links to documentation
+// - Add links to documentation and text explaining controls
+// - Add button to restart game
 
 int main(int argc, char* argv[]) {
   // Get command line arguments
