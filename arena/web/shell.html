@@ -36,6 +36,7 @@
       }
       #center_panel {
         flex: 1;
+        padding: 0 2px;
       }
       .side_panel {
         height: 100%;
@@ -43,25 +44,55 @@
         display: flex;
         flex-direction: column;
       }
-      .side_panel > textarea {
-        font-family: monospace;
+      .side_panel > .CodeMirror {
         width: 100%;
         flex: 1;
         resize: none;
       }
+      .assemble_button {
+        margin: 0 5px;
+      }
+      .program_output {
+        font-family: monospace;
+      }
+      .program_output.success {
+        margin: 5px;
+      }
+      .program_output.error {
+        color: darkred;
+        margin: 5px;
+      }
 
       #bottom_container {
         position: absolute;
+        box-sizing: border-box;
         height: 200px;
         right: 0;
         bottom: 0;
         left: 0;
+        padding: 5px 0;
+        display: flex;
+        flex-direction: column;
       }
 
-      #canvas_container { border: 1px solid black; width: 100%; height: 100%; }
+      #canvas_container {
+        border: 1px solid black;
+        width: 100%;
+        height: 100%;
+      }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      #canvas { border: 0px none; background-color: black; width: 100%; height: 100%; }
-      #output { font-family: monospace; width: 80%; resize: none; }
+      #canvas {
+        border: 0px none;
+        background-color: black;
+        width: 100%;
+        height: 100%;
+      }
+      #output {
+        font-family: monospace;
+        width: 80%;
+        flex: 1;
+        resize: none;
+      }
 
       .spinner {
         height: 50px;
@@ -100,7 +131,8 @@
     <div id="main_container">
       <div id="left_panel" class="side_panel">
         <textarea id="left_program_editor"></textarea>
-        <input type="button" value="Assemble" onclick="reloadAssemblyProgramA(document.getElementById('left_program_editor').value)"/>
+        <input class="assemble_button" type="button" value="Assemble" onclick="reloadAssemblyProgramA(leftProgramEditor.getValue(), leftProgramOutput)"/>
+        <div id="left_program_output" class="program_output"></div>
       </div>
       <div id="center_panel">
         <div class="stack">
@@ -116,12 +148,12 @@
       </div>
       <div id="right_panel" class="side_panel">
         <textarea id="right_program_editor"></textarea>
-        <input type="button" value="Assemble" onclick="reloadAssemblyProgramB(document.getElementById('right_program_editor').value)"/>
+        <input class="assemble_button" type="button" value="Assemble" onclick="reloadAssemblyProgramB(rightProgramEditor.getValue(), rightProgramOutput)"/>
+        <div id="right_program_output" class="program_output"></div>
       </div>
     </div>
 
     <div id="bottom_container">
-      <hr/>
       <!--<div class="centered">
         <input type="checkbox" id="resize">Resize canvas
         <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
@@ -130,16 +162,18 @@
                                                                                   document.getElementById('resize').checked)">
       </div>
       <hr/>-->
-      <textarea class="centered" id="output" rows="12" readonly></textarea>
+      <textarea class="centered" id="output" readonly wrap="off"></textarea>
     </div>
 
     <script type='text/javascript'>
-      var leftEditor = CodeMirror.fromTextArea(document.getElementById("left_program_editor"), {
+      var leftProgramEditor = CodeMirror.fromTextArea(document.getElementById("left_program_editor"), {
         lineNumbers: true
       });
-      var rightEditor = CodeMirror.fromTextArea(document.getElementById("right_program_editor"), {
+      var leftProgramOutput = document.getElementById("left_program_output");
+      var rightProgramEditor = CodeMirror.fromTextArea(document.getElementById("right_program_editor"), {
         lineNumbers: true
       });
+      var rightProgramOutput = document.getElementById("right_program_output");
     </script>
 
     <script type='text/javascript'>
