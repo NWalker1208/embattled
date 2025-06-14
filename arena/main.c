@@ -88,7 +88,8 @@ Font primaryFont = { 0 };
 
 
 // TODO:
-// - Fix backspace in editors
+// - Fix backspace in editors https://stackoverflow.com/a/62914145
+// - Pick better font for regular DPI screens
 // - Add links to documentation and text explaining controls
 // - Add button to restart game
 
