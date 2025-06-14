@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "type": "module",
   "devDependencies": {
-    "@lezer/generator": "^1.7.3"
+    "@lezer/generator": "^1.7.3",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
   },
   "dependencies": {
     "@lezer/lr": "^1.4.2"
   },
   "scripts": {
-    "prepare": "lezer-generator easm.grammar -o ./easm.g.js"
+    "prepare": "lezer-generator easm.grammar -o ./src/easm.g.js"
   }
 }
