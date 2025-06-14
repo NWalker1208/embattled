@@ -45,4 +45,5 @@ Note: MSVC ins't quite compatible with Unity's parameterized tests.
 cd arena/js-parser
 npm install
 npm run prepare
+npx webpack
 ```
