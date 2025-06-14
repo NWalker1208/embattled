@@ -1,0 +1,32 @@
+@top Program { Line* }
+
+Line { (Label inlineSpace?)? (Instruction | Data)? Comment? inlineSpace '\n' anySpace }
+Comment { ';' ![\n]* }
+
+Label { (name ('@' address)? | '@' address) ':' }
+Instruction { mnemonic (inlineSpace operand (inlineSpace? ',' inlineSpace? operand)*)? }
+Data { '.data' (inlineSpace hexByte)* }
+
+mnemonic { word }
+operand { register | immediateValue | labelReference }
+
+immediateValue { hexValue | decValue }
+labelReference { '@' name }
+register { '$' word }
+
+@tokens {
+  inlineSpace { $[ \t]+ }
+  anySpace { $[ \t\n]+ }
+
+  address { hexDigit (hexDigit (hexDigit hexDigit?)?)? }
+
+  word { wordChar+ }
+  name { $[a-zA-Z_] wordChar* }
+
+  hexValue { "0x" hexDigit+ }
+  hexByte { hexDigit hexDigit }
+  decValue { ('-' | '+')? @digit+ }
+  
+  wordChar { $[0-9a-zA-Z_] }
+  hexDigit { $[0-9a-fA-F] }
+}
