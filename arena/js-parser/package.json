@@ -9,6 +9,6 @@
     "@lezer/lr": "^1.4.2"
   },
   "scripts": {
-    "prepare": "lezer-generator easm.grammar -o ../web/easm.js"
+    "prepare": "lezer-generator easm.grammar -o ./easm.g.js"
   }
 }
