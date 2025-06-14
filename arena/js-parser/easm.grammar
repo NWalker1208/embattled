@@ -1,32 +1,35 @@
-@top Program { Line* }
+@top Program { (Line (endOfLine Line )*)? }
 
-Line { (Label inlineSpace?)? (Instruction | Data)? Comment? inlineSpace '\n' anySpace }
-Comment { ';' ![\n]* }
+Line { space? (
+  Label (Instruction | Data)? Comment? |
+  (Instruction | Data) Comment? |
+  Comment
+)? }
 
-Label { (name ('@' address)? | '@' address) ':' }
-Instruction { mnemonic (inlineSpace operand (inlineSpace? ',' inlineSpace? operand)*)? }
-Data { '.data' (inlineSpace hexByte)* }
+Label { (word address? | address) ':' space? }
+Instruction { Mnemonic (space Operand (space? ',' space? Operand)*)? space? }
+Data { '.data' (space hexByte)* space? }
 
-mnemonic { word }
-operand { register | immediateValue | labelReference }
-
-immediateValue { hexValue | decValue }
-labelReference { '@' name }
-register { '$' word }
+Mnemonic { word }
+Operand { register | immediateValue | labelReference }
 
 @tokens {
-  inlineSpace { $[ \t]+ }
-  anySpace { $[ \t\n]+ }
-
-  address { hexDigit (hexDigit (hexDigit hexDigit?)?)? }
-
-  word { wordChar+ }
-  name { $[a-zA-Z_] wordChar* }
-
+  space { $[ \t]+ }
+  endOfLine { '\n' }
+  wordChar { $[0-9a-zA-Z_] }
+  hexDigit { $[0-9a-fA-F] }
+  
   hexValue { "0x" hexDigit+ }
   hexByte { hexDigit hexDigit }
   decValue { ('-' | '+')? @digit+ }
-  
-  wordChar { $[0-9a-zA-Z_] }
-  hexDigit { $[0-9a-fA-F] }
+
+  word { wordChar+ }
+  //name { $[a-zA-Z_] wordChar* }
+
+  immediateValue { hexValue | decValue }
+  labelReference { '@' word }
+  register { '$' word }
+  address { '@' hexDigit (hexDigit (hexDigit hexDigit?)?)? }
+
+  Comment { ';' ![\n]* }
 }
