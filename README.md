@@ -38,3 +38,11 @@ ruby ./build/_deps/unity-src/auto/generate_test_runner.rb ./processor/tests/inst
 ```
 
 Note: MSVC ins't quite compatible with Unity's parameterized tests.
+
+## Regenerating parser for web
+
+```sh
+cd arena/js-parser
+npm install
+npm run prepare
+```
