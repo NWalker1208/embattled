@@ -1,0 +1,11 @@
+{
+  "name": "easm-parser",
+  "version": "0.1.0",
+  "type": "module",
+  "devDependencies": {
+    "@lezer/generator": "^1.7.3"
+  },
+  "scripts": {
+    "prepare": "lezer-generator easm.grammar -o ../web/easm.js"
+  }
+}
