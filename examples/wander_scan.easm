@@ -7,8 +7,8 @@ loop:
   ldb $x0, @sensor_kind
   ldb $x1, @sensor_dist
 
-  ceq $x2, $x0, 1     ; If sensor is not detecting robot,
-  jmz $x2, @scan_left ; scan to the left.
+  ceq $x2, $x0, 1      ; If sensor is not detecting robot,
+  jmz $x2, @scan_right ; scan to the right.
 
   ; Otherwise, stop rotating and fire weapon.
   stb 0, @rotate
@@ -16,23 +16,23 @@ loop:
   stb 0, @weapon
   jmp @loop
 
-scan_left:
+scan_right:
   stb 30, @sensor_dir
   ldb $x3, @sensor_kind
-  ceq $x4, $x3, 1      ; If sensor is not detecting robot,
-  jmz $x4, @scan_right ; scan to the right.
+  ceq $x4, $x3, 1     ; If sensor is not detecting robot,
+  jmz $x4, @scan_left ; scan to the left.
 
-  ; Otherwise, rotate left.
+  ; Otherwise, rotate right.
   stb 127, @rotate
   jmp @loop
 
-scan_right:
+scan_left:
   stb -30, @sensor_dir
   ldb $x3, @sensor_kind
   ceq $x4, $x3, 1      ; If sensor is not detecting robot,
   jmz $x4, @wall_check ; check for a wall.
 
-  ; Otherwise, rotate right.
+  ; Otherwise, rotate left.
   stb -128, @rotate
   jmp @loop
 
