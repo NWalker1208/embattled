@@ -96,6 +96,129 @@ nop ; I don't do anything!
 
 ## EAL Instruction Set
 
-The following table lists all of the supported mnemonics, what kinds of operands they expect, and what actions they perform:
+The following tables list all of the supported mnemonics, what kinds of operands they accept, and what actions they perform.
 
-<!-- TODO -->
+### Control Flow 
+
+| Mnemonic | Operands*              | Action(s)** |
+|----------|------------------------|-------------|
+| `nop`    | None                   | No effect. |
+| `jmp`    | `regA`                 | `rt = ip`, `ip = regA` |
+|          | `immA[16]`             | `rt = ip`, `ip = immA` |
+| `jmz`    | `regA, regB`           | If `regA` equals 0, then `ip = regB`; otherwise, no effect. |
+|          | `regA, immA[16]`       | If `regA` equals 0, then `ip = immA`; otherwise, no effect. |
+
+### Memory
+
+| Mnemonic | Operands*              | Action(s)** |
+|----------|------------------------|-------------|
+| `set`    | `regA, regB`           | `regA = regB` |
+|          | `regA, immA[16]`       | `regA = immA` |
+| `ldb`    | `regA, regB`           | `regA = mem[regB]` |
+|          | `regA, immA[16]`       | `regA = mem[immA]` |
+| `ldw`    | `regA, regB`           | `regA = (mem[regB + 1] << 8) + mem[regB]` |
+|          | `regA, immA[16]`       | `regA = (mem[immA + 1] << 8) + mem[immA]` |
+| `stb`    | `regA, regB`           | `mem[regB] = regA & 0xFF` |
+|          | `regA, immA[16]`       | `mem[immA] = regA & 0xFF` |
+|          | `immA[8], regA`        | `mem[regA] = immA` |
+|          | `immA[8], immB[16]`    | `mem[immB] = immA` |
+| `stw`    | `regA, regB`           | `mem[regB] = regA & 0xFF`, `mem[regB + 1] = regA >> 8` |
+|          | `regA, immA[16]`       | `mem[immA] = regA & 0xFF`, `mem[immA + 1] = regA >> 8` |
+|          | `immA[16], regA`       | `mem[regA] = immA & 0xFF`, `mem[regA + 1] = immA >> 8` |
+|          | `immA[16], immB[16]`   | `mem[immB] = immA & 0xFF`, `mem[immB + 1] = immA >> 8` |
+| `pshb`   | `regA`                 | `mem[sp - 1] = regA & 0xFF`, `sp = sp - 1` |
+| `pshw`   | `regA`                 | `mem[sp - 2] = regA & 0xFF`, `mem[sp - 1] = regA >> 8`, `sp = sp - 2` |
+| `popb`   | `regA`                 | `sp = sp + 1`, `regA = mem[sp - 1]` |
+| `popw`   | `regA`                 | `sp = sp + 2`, `regA = (mem[sp - 1] << 8) + mem[sp - 2]` |
+
+### Math
+
+| Mnemonic | Operands*              | Action(s)** |
+|----------|------------------------|-------------|
+| `add`    | `regA, regB, regC`     | `regA = regB + regC` |
+|          | `regA, regB, immA[16]` | `regA = regB + immA` |
+|          | `regA, immA[16], regB` |                      |
+| `sub`    | `regA, regB, regC`     | `regA = regB - regC` |
+|          | `regA, regB, immA[16]` | `regA = regB - immA` |
+|          | `regA, immA[16], regB` | `regA = immA - regB` |
+| `mul`    | `regA, regB, regC`     | `regA = regB * regC` |
+|          | `regA, regB, immA[16]` | `regA = regB * immA` |
+|          | `regA, immA[16], regB` |                      |
+| `divs`   | `regA, regB, regC`     | `regA = regB (signed)   / regC (signed)` |
+|          | `regA, regB, immA[16]` | `regA = regB (signed)   / immA (signed)` |
+|          | `regA, immA[16], regB` | `regA = immA (signed)   / regB (signed)` |
+| `divu`   | `regA, regB, regC`     | `regA = regB (unsigned) / regC (unsigned)` |
+|          | `regA, regB, immA[16]` | `regA = regB (unsigned) / immA (unsigned)` |
+|          | `regA, immA[16], regB` | `regA = immA (unsigned) / regB (unsigned)` |
+| `rems`   | `regA, regB, regC`     | `regA = regB (signed)   % regC (signed)` |
+|          | `regA, regB, immA[16]` | `regA = regB (signed)   % immA (signed)` |
+|          | `regA, immA[16], regB` | `regA = immA (signed)   % regB (signed)` |
+| `remu`   | `regA, regB, regC`     | `regA = regB (unsigned) % regC (unsigned)` |
+|          | `regA, regB, immA[16]` | `regA = regB (unsigned) % immA (unsigned)` |
+|          | `regA, immA[16], regB` | `regA = immA (unsigned) % regB (unsigned)` |
+
+### Bitwise logic
+
+| Mnemonic | Operands*              | Action(s)** |
+|----------|------------------------|-------------|
+| `and`    | `regA, regB, regC`     | `regA = regB & regC` |
+|          | `regA, regB, immA[16]` | `regA = regB & immA` |
+|          | `regA, immA[16], regB` |                      |
+| `ior`    | `regA, regB, regC`     | `regA = regB \| regC` |
+|          | `regA, regB, immA[16]` | `regA = regB \| immA` |
+|          | `regA, immA[16], regB` |                       |
+| `xor`    | `regA, regB, regC`     | `regA = regB ^ regC` |
+|          | `regA, regB, immA[16]` | `regA = regB ^ immA` |
+|          | `regA, immA[16], regB` |                      |
+| `lsh`    | `regA, regB, regC`     | `regA = regB << regC (unsigned)` |
+|          | `regA, regB, immA[4]`  | `regA = regB << immA (unsigned)` |
+|          | `regA, immA[16], regB` | `regA = immA << regB (unsigned)` |
+| `rshs`   | `regA, regB, regC`     | `regA = regB (signed)   >> regC (unsigned)` |
+|          | `regA, regB, immA[4]`  | `regA = regB (signed)   >> immA (unsigned)` |
+|          | `regA, immA[16], regB` | `regA = immA (signed)   >> regB (unsigned)` |
+| `rshu`   | `regA, regB, regC`     | `regA = regB (unsigned) >> regC (unsigned)` |
+|          | `regA, regB, immA[4]`  | `regA = regB (unsigned) >> immA (unsigned)` |
+|          | `regA, immA[16], regB` | `regA = immA (unsigned) >> regB (unsigned)` |
+
+### Comparison
+
+| Mnemonic | Operands*              | Action(s)** |
+|----------|------------------------|-------------|
+| `ceq`    | `regA, regB, regC`     | If `regB` equals `regC`, `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, regB, immA[16]` | If `regB` equals `immA`, `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, immA[16], regB` | If `immA` equals `regB`, `regA = 1`; otherwise, `regA = 0`. |
+| `cne`    | `regA, regB, regC`     | If `regB` does not equal `regC`, `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, regB, immA[16]` | If `regB` does not equal `immA`, `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, immA[16], regB` | If `immA` does not equal `regB`, `regA = 1`; otherwise, `regA = 0`. |
+| `clts`   | `regA, regB, regC`     | If `regB` (signed) is less than `regC` (signed), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, regB, immA[16]` | If `regB` (signed) is less than `immA` (signed), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, immA[16], regB` | If `immA` (signed) is less than `regB` (signed), `regA = 1`; otherwise, `regA = 0`. |
+| `cltu`   | `regA, regB, regC`     | If `regB` (unsigned) is less than `regC` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, regB, immA[16]` | If `regB` (unsigned) is less than `immA` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, immA[16], regB` | If `immA` (unsigned) is less than `regB` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+| `cges`   | `regA, regB, regC`     | If `regB` (signed) is greater than or equal to `regC` (signed), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, regB, immA[16]` | If `regB` (signed) is greater than or equal to `immA` (signed), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, immA[16], regB` | If `immA` (signed) is greater than or equal to `regB` (signed), `regA = 1`; otherwise, `regA = 0`. |
+| `cgeu`   | `regA, regB, regC`     | If `regB` (unsigned) is greater than or equal to `regC` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, regB, immA[16]` | If `regB` (unsigned) is greater than or equal to `immA` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, immA[16], regB` | If `immA` (unsigned) is greater than or equal to `regB` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+| `cgts`   | `regA, regB, regC`     | If `regB` (signed) is greater than `regC` (signed), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, regB, immA[16]` | If `regB` (signed) is greater than `immA` (signed), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, immA[16], regB` | If `immA` (signed) is greater than `regB` (signed), `regA = 1`; otherwise, `regA = 0`. |
+| `cgtu`   | `regA, regB, regC`     | If `regB` (unsigned) is greater than `regC` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, regB, immA[16]` | If `regB` (unsigned) is greater than `immA` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, immA[16], regB` | If `immA` (unsigned) is greater than `regB` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+| `cles`   | `regA, regB, regC`     | If `regB` (signed) is less than or equal to `regC` (signed), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, regB, immA[16]` | If `regB` (signed) is less than or equal to `immA` (signed), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, immA[16], regB` | If `immA` (signed) is less than or equal to `regB` (signed), `regA = 1`; otherwise, `regA = 0`. |
+| `cleu`   | `regA, regB, regC`     | If `regB` (unsigned) is less than or equal to `regC` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, regB, immA[16]` | If `regB` (unsigned) is less than or equal to `immA` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+|          | `regA, immA[16], regB` | If `immA` (unsigned) is less than or equal to `regB` (unsigned), `regA = 1`; otherwise, `regA = 0`. |
+
+\* `regA`, `regB`, and `regC` represent register operands.
+`immA[...]` and `immB[...]` represent immediate value operands with the number in brackets next to them denoting the maximum size of the value in bits.
+Label references can only be used in place of 16-bit immediate value operands.
+
+\*\* Operands are referenced by the same names that appear in the "Operands" column.
+Any specific registers that are involved are referenced by their usual names.
+`mem[...]` represents a byte in memory with the value in brackets denoting the address.
