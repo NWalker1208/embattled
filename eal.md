@@ -28,13 +28,13 @@ With the concepts of memory and registers covered, it will now be easier to expl
 
 EAL programs list the instructions that the processor should execute. Each instruction represents both a type of operation to be performed, as well as the values on which to perform that operation. On each step of the simulation, the processor will read an instruction from memory, execute it, and move to the next instruction.
 
-The type of operation that an instruction represents is indicated by a 3-to-4-letter word called the **mnemonic**. For example, the `add` mnemonic is used to add two values together. In total, there are 36 different mnemonics representing all of the operations that can be performed. The table at the bottom of this page explains what action each mnemonic represents.
+The type of operation that an instruction represents is indicated by a 3-to-4-letter word called the **mnemonic**. For example, the `add` mnemonic is used to add two values together. In total, there are 35 different mnemonics representing all of the operations that the processor can perform. The [EAL Instruction Set](#eal-instruction-set) section lists these mnemonics along with what action each mnemonic represents.
 
-Most types of operations require one or more inputs or a place to store their output. Both the inputs and outputs of an instruction are represented as **operands**. In an EAL program, operands appear after the mnemonic, are listed one after another, and are separated by commas. Each operand can be one of three things: a register, an immediate value, or a label reference.
+Most types of operations require one or more inputs and/or a place to store their output. Both the inputs and outputs of an instruction are represented as **operands**. In an EAL program, operands appear after the mnemonic, are listed one after another, and are separated by commas. Each operand can be one of three things: a register, an immediate value, or a label reference.
 
-- **Registers** are used for outputs as well as inputs that might vary each time the instruction is executed. A register operand is indicated by a dollar sign (`$`) followed by the name of the register.
+- **Registers** are used as both inputs and outputs. A register operand is indicated by a dollar sign (`$`) followed by the name of the register.
 - **Immediate values** are used for inputs that never change. They represent a specific number that has been hard-coded into an instruction. Immediate values can be either a decimal number (e.g., `123`) or a hexadecimal number (e.g., `0xAB12`).
-- **Label references** are similar to immediate values, except their value is determined from the address of some other part of the EAL program. Label references are indicated by an at-sign (`@`) followed by the name of the label. The concept of labels is covered in more detail in a later section.
+- **Label references** are similar to immediate values, except their value is determined by the address of some other part of the EAL program. Label references are indicated by an at sign (`@`) followed by the name of the label. The [Labels](#labels) section covers the concept of labels in more detail.
 
 Here are some examples of each type of operand:
 
@@ -47,13 +47,13 @@ Here are some examples of each type of operand:
 
 Different mnemonics expect different numbers and kinds of operands. When you combine a mnemonic with a compatible list of operands, you get an instruction! Here are some examples:
 
-| Instruction        | Description                                           |
-|--------------------|-------------------------------------------------------|
-| `nop`              | Do nothing (`nop` doesn't expect any operands).       |
-| `add $x0, $x1, 12` | Add 12 to the x1 register and store the result in x0. |
-| `jmp @start`       | Jump to the instruction labeled `start`.              |
+| Instruction        | Description                                               |
+|--------------------|-----------------------------------------------------------|
+| `nop`              | Do nothing (`nop` doesn't expect any operands).           |
+| `add $x0, $x1, 12` | Add 12 to the `x1` register and store the result in `x0`. |
+| `jmp @start`       | Jump to the instruction labeled `start`.                  |
 
-## Data
+### Data
 
 EAL programs can also contain segments of raw bytes known as **data**. These parts of a program don't represent behavior, but instead are used to store useful values for instructions to interact with. A data segment is indicated by the text `.data` appearing at the start of a line. Each byte of data is then represented as a pair of hexadecimal digits with a space appearing between each pair. The following is an example of a data segment:
 
@@ -72,13 +72,13 @@ values:
   .data 12 34
 ```
 
-As previously mentioned, instruction operands can reference labels by name. When the program is assembled, label references are replaced with the memory address of the instruction or data to which the label was applied. For example, the following EAL instruction will jump to the memory address of whatever instruction has the `start` label:
+As previously mentioned, instruction operands can reference labels by name. When an EAL program is assembled, each label reference is replaced with the memory address of the instruction or data to which the label was applied. For example, the following EAL instruction will jump to the memory address of whatever instruction has the `start` label:
 
 ```
   jmp @start
 ```
 
-Labels can also be used to force the labeled instruction or data to begin at a particular memory address. In fact, a label can exist without a name, in which case it is only used to specify the address of the instruction or data after it.
+Labels can also be used to force the labeled instruction or data to begin at a particular memory address. This is done by placing an at sign (`@`) after the label name followed by the 16-bit hexadecimal address. If the name is blank (i.e., there is nothing before the at sign), then the label only specifies the address of the instruction or data to which it is applied without assigning that address a name.
 
 ```
 values@F000:
