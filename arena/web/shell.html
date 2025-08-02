@@ -31,7 +31,7 @@
         position: absolute;
         top: 0;
         right: 0;
-        bottom: 200px;
+        bottom: 2em;
         left: 0;
       }
       #center_panel {
@@ -66,7 +66,7 @@
       #bottom_container {
         position: absolute;
         box-sizing: border-box;
-        height: 200px;
+        height: 2em;
         right: 0;
         bottom: 0;
         left: 0;
@@ -92,6 +92,11 @@
         width: 80%;
         flex: 1;
         resize: none;
+
+        display: none; /* remove to see console output */
+      }
+      .help {
+        font-family: sans-serif;
       }
 
       .spinner {
@@ -154,6 +159,7 @@
     </div>
 
     <div id="bottom_container">
+      <div class="centered"><a class="help" href="eal.html">Documentation - How to Program Embattled Robots</a></div>
       <!--<div class="centered">
         <input type="checkbox" id="resize">Resize canvas
         <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
