@@ -96,6 +96,26 @@ EAL programs can be a bit cryptic. To help clarify what a program is doing or to
 nop ; I don't do anything!
 ```
 
+## Robot I/O
+
+Each robot has three different systems with which EAL programs can interact: movement, a laser weapon, and a sensor. EAL programs interact with these systems by reading from and writing to specific pre-defined memory addresses. Those memory addresses are listed in the following tables:
+
+### Inputs
+
+| Name             | Address  | Description |
+|------------------|----------|-------------|
+| Sensor Distance  | `0xE000` | An unsigned byte that ranges between 0 and 255 to denote the relative distance to the nearest obstacle (whether that be a wall or another robot). |
+| Sensor Kind      | `0xE001` | A byte indicating what kind of obstacle the sensor is detecting (0 = nothing, 1 = robot, 2 = wall). |
+
+### Outputs
+
+| Name             | Address  | Description |
+|------------------|----------|-------------|
+| Movement         | `0xF000` | A signed byte specifying how fast backwards (down to -128) or forwards (up to 127) the robot should move. |
+| Rotation         | `0xF001` | A signed byte specifying how fast counter-clockwise (down to -128) or clockwise (up to 127) the robot should rotate. |
+| Weapon Fire      | `0xF002` | An unsigned byte specifying whether the robot should fire its weapon (if greater than 0), and if so, how much power it should use (up to 255). |
+| Sensor Direction | `0xF003` | A byte specifying the relative direction in which the robot should point its sensor (0 = forwards, 64 = right, 128/-128 = backwards, 192/-64 = left). |
+
 ## EAL Instruction Set
 
 The following tables list all of the supported mnemonics, what kinds of operands they accept, and what actions they perform.
