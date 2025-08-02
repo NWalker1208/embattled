@@ -1,5 +1,7 @@
 # Embattled Assembly Language
 
+**[Example programs](https://github.com/NWalker1208/embattled/tree/master/examples)**
+
 Embattled robots are programmed using an artificial assembly language called Embattled Assembly Language (EAL). EAL programs describe step by step what actions a robot's processor should perform.
 
 However, before learning how to write EAL programs, it is important to understand the basics of how Embattled robot processors work.
