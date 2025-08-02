@@ -36,10 +36,12 @@
 #define ARENA_HEIGHT 1000.0
 #define ARENA_BORDER_THICKNESS 4
 #define ARENA_MARGIN 10
-#define ARENA_MIN_SCREEN_WIDTH 100
+#define ARENA_MIN_SCREEN_SIZE 100
 
 #define OBSTACLE_WIDTH (ROBOT_RADIUS)
 #define OBSTACLE_HEIGHT (ARENA_HEIGHT / 2)
+
+#define CONTROLS_HEIGHT 20
 
 #define STATE_PANEL_WIDTH 250
 #define STATE_PANEL_HEIGHT 300
@@ -75,6 +77,7 @@ void UpdateDpiAndMinWindowSize();
 void DrawArenaForeground();
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor, unsigned int layer);
 void DrawStaticBody(const PhysicsBody* body, unsigned int layer);
+void DrawControls(Vector2 position);
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 
 
@@ -239,10 +242,12 @@ int main(int argc, char* argv[]) {
     uiCamera.zoom = dpi;
 
     float statePanelScreenWidth = dpi * STATE_PANEL_WIDTH;
-    float arenaScreenWidth = fmaxf(screenWidth - statePanelScreenWidth, ARENA_MIN_SCREEN_WIDTH);
+    float controlsScreenHeight = dpi * CONTROLS_HEIGHT;
+    float arenaScreenWidth = fmaxf(screenWidth - statePanelScreenWidth, ARENA_MIN_SCREEN_SIZE);
+    float arenaScreenHeight = fmaxf(screenHeight - controlsScreenHeight * 2, ARENA_MIN_SCREEN_SIZE);
     arenaCamera.offset = (Vector2){ statePanelScreenWidth + (arenaScreenWidth / 2), screenHeight / 2 };
     arenaCamera.zoom = fmin((arenaScreenWidth - 2 * ARENA_MARGIN) / (ARENA_WIDTH + ARENA_BORDER_THICKNESS * 2),
-                            (screenHeight - 2 * ARENA_MARGIN) / (ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2));
+                            (arenaScreenHeight - 2 * ARENA_MARGIN) / (ARENA_HEIGHT + ARENA_BORDER_THICKNESS * 2));
 
     // Update blur shader uniforms
     float blurSize = SHADOW_BLUR_SIZE * arenaCamera.zoom;
@@ -346,7 +351,13 @@ int main(int argc, char* argv[]) {
 
       // Draw user interface
       BeginMode2D(uiCamera); {
-        DrawRectangleRec((Rectangle){ 0.0f, 0.0f, STATE_PANEL_WIDTH, screenHeight / dpi }, LIGHTGRAY);
+        float scaledScreenWidth = screenWidth / dpi;
+        float scaledScreenHeight = screenHeight / dpi;
+
+        DrawRectangleRec((Rectangle){ 0.0f, scaledScreenHeight - CONTROLS_HEIGHT, scaledScreenWidth, CONTROLS_HEIGHT }, WHITE);
+        DrawControls((Vector2){ (scaledScreenWidth + STATE_PANEL_WIDTH) / 2, scaledScreenHeight - CONTROLS_HEIGHT });
+        
+        DrawRectangleRec((Rectangle){ 0.0f, 0.0f, STATE_PANEL_WIDTH, scaledScreenHeight}, LIGHTGRAY);
         for (unsigned int i = 0; i < simulation.robotCount; i++) {
           DrawStatePanel(&simulation.robots[i], i, (Vector2){ 0, STATE_PANEL_HEIGHT * i });
         }
@@ -446,7 +457,7 @@ void UpdateDpiAndMinWindowSize() {
   if (newDpi != dpi) {
     dpi = newDpi;
     #if !defined(PLATFORM_WEB)
-    SetWindowMinSize(dpi * (ARENA_MARGIN * 2 + STATE_PANEL_WIDTH + ARENA_MIN_SCREEN_WIDTH), dpi * fmax(ARENA_MARGIN * 2, STATE_PANEL_HEIGHT * 2));
+    SetWindowMinSize(dpi * (ARENA_MARGIN * 2 + STATE_PANEL_WIDTH + ARENA_MIN_SCREEN_SIZE), dpi * fmax(ARENA_MARGIN * 2 + ARENA_MIN_SCREEN_SIZE, STATE_PANEL_HEIGHT * 2));
     #endif
   }
 }
@@ -575,6 +586,10 @@ void DrawStaticBody(const PhysicsBody* body, unsigned int layer) {
       } break;
     }
   }
+}
+
+void DrawControls(Vector2 position) {
+
 }
 
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
