@@ -92,7 +92,6 @@ Font primaryFont = { 0 };
 
 
 // TODO:
-// - Fix backspace in editors
 // - Add button to restart game
 
 int main(int argc, char* argv[]) {

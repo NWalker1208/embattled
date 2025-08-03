@@ -5,8 +5,8 @@
 #include "utilities/text.h"
 #include "processor/register.h"
 
-// TODO: Add support for storing references in data sections
-// TODO: Add support for relative references?
+// TODO: Add support for storing label references in data sections
+// TODO: Add support for relative label references?
 
 // A label represented by a line of assembly code.
 typedef struct AssemblyLabel {
