@@ -238,7 +238,7 @@ Opcode byteToOpcode(uint8_t byte) {
 }
 
 #pragma region Opcode execute function implementations
-// TODO: Implement these stubs
+
 void execute_nop(OpcodeExecuteArguments args) { (void)args; }
 
 void execute_jmp_r(OpcodeExecuteArguments args) { args.process->registers.rt = args.process->registers.ip; args.process->registers.ip = *args.registerAPtr; }
