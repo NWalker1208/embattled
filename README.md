@@ -1,6 +1,14 @@
 # Embattled
 
-## Requirements
+[Try the Embattled Arena in your browser!](https://nwalker1208.github.io/embattled/arena.html)
+
+Embattled is a simple robot simulator that allows users to program robots using an artificial assembly language.
+
+The parser and assembler for the language as well as the simulated processor are all written in C. The simulated robot arena is mostly written in C and can be compiled to either a native executable or to web assembly. The web interface, of course, involves some HTML, CSS, and JavaScript.
+
+Documentation of the assembly language/instruction set design can be found under [instruction-set.md](./instruction-set.md). Instructions on how to write programs in the language can be found on [a GitHub Pages site](https://nwalker1208.github.io/embattled/eal.html).
+
+## Requirements to build the project locally
 
 - CMake
 - Emscripten (for web build)
@@ -37,4 +45,4 @@ ruby ./build/_deps/unity-src/auto/generate_test_runner.rb ./processor/tests/proc
 ruby ./build/_deps/unity-src/auto/generate_test_runner.rb ./processor/tests/instruction_tests.c ./processor/tests/instruction_tests_Runner.c --use_param_tests=1
 ```
 
-Note: MSVC ins't quite compatible with Unity's parameterized tests.
+<!-- Note: MSVC ins't quite compatible with Unity's parameterized tests. -->
