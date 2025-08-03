@@ -41,7 +41,7 @@
 #define OBSTACLE_WIDTH (ROBOT_RADIUS)
 #define OBSTACLE_HEIGHT (ARENA_HEIGHT / 2)
 
-#define CONTROLS_HEIGHT 20
+#define CONTROLS_HEIGHT 60
 
 #define STATE_PANEL_WIDTH 250
 #define STATE_PANEL_HEIGHT 300
@@ -589,7 +589,11 @@ void DrawStaticBody(const PhysicsBody* body, unsigned int layer) {
 }
 
 void DrawControls(Vector2 position) {
-
+  const char* controls = "Sim. Speed Controls: 0 = pause, 1 = 0.001x, 2 = 0.25x, 3 = 0.5x, 4 = normal\n"
+                         "                     5 = 2x,    6 = 4x,     7 = max,   tab = step once\n"
+                         "Manual Robot Controls (purple): arrow keys = move, space = shoot";
+  float width = MeasureTextEx(primaryFont, controls, 15, 1.0).x;
+  DrawTextEx(primaryFont, controls, (Vector2){ position.x - width / 2, position.y }, 15, 1.0, DARKGRAY);
 }
 
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
