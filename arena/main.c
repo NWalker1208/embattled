@@ -77,6 +77,7 @@ void UpdateDpiAndMinWindowSize();
 void DrawArenaForeground();
 void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseColor, unsigned int layer);
 void DrawStaticBody(const PhysicsBody* body, unsigned int layer);
+void DrawSimSpeed(int64_t ticksPerSec, Vector2 position);
 void DrawControls(Vector2 position);
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 
@@ -352,6 +353,9 @@ int main(int argc, char* argv[]) {
       BeginMode2D(uiCamera); {
         float scaledScreenWidth = screenWidth / dpi;
         float scaledScreenHeight = screenHeight / dpi;
+  
+        DrawRectangleRec((Rectangle){ 0.0f, 0.0f, scaledScreenWidth, CONTROLS_HEIGHT }, WHITE);
+        DrawSimSpeed(simulation.timer.ticksPerSec, (Vector2){ (scaledScreenWidth + STATE_PANEL_WIDTH) / 2, STATE_PANEL_MARGIN });
 
         DrawRectangleRec((Rectangle){ 0.0f, scaledScreenHeight - CONTROLS_HEIGHT, scaledScreenWidth, CONTROLS_HEIGHT }, WHITE);
         DrawControls((Vector2){ (scaledScreenWidth + STATE_PANEL_WIDTH) / 2, scaledScreenHeight - CONTROLS_HEIGHT });
@@ -585,6 +589,21 @@ void DrawStaticBody(const PhysicsBody* body, unsigned int layer) {
       } break;
     }
   }
+}
+
+void DrawSimSpeed(int64_t ticksPerSec, Vector2 position) {
+  char buffer[1024];
+  if (ticksPerSec == 0) {
+    snprintf(buffer, sizeof(buffer), "Simulation Speed: Paused");
+  } else if (ticksPerSec == INT64_MAX) {
+    snprintf(buffer, sizeof(buffer), "Simulation Speed: Max   ");
+  } else {
+    double speed = (double)ticksPerSec / SIMULATION_DEFAULT_TICKS_PER_SECOND;
+    snprintf(buffer, sizeof(buffer), "Simulation Speed: %.3fx", speed);
+  }
+  
+  float width = MeasureTextEx(primaryFont, buffer, 18, 1.0).x;
+  DrawTextEx(primaryFont, buffer, (Vector2){ position.x - width / 2, position.y }, 18, 1.0, DARKGRAY);
 }
 
 void DrawControls(Vector2 position) {
