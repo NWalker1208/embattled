@@ -1,5 +1,6 @@
 # Embattled Assembly Language
 
+**[Arena](https://nwalker1208.github.io/embattled/arena.html)**  
 **[Example programs](https://github.com/NWalker1208/embattled/tree/master/examples)**
 
 Embattled robots are programmed using an artificial assembly language called Embattled Assembly Language (EAL). EAL programs describe step by step what actions a robot's processor should perform.
