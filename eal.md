@@ -219,11 +219,8 @@ The following table lists all of the supported mnemonics, what kinds of operands
 |                   |          | `regA, regB, immA[16]` | If `regB` is less than or equal to `immA` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
 |                   |          | `regA, immA[16], regB` | If `immA` is less than or equal to `regB` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
 
-[^1]: `regA`, `regB`, and `regC` represent register operands.
-`immA[...]` and `immB[...]` represent immediate value operands with the number in brackets next to them denoting the maximum size of the value in bits.
-Label references can only be used in place of 16-bit immediate value operands.
+[^1]: `regA`, `regB`, and `regC` represent register operands. `immA[...]` and `immB[...]` represent immediate value operands with the number in brackets next to them denoting the maximum size of the value in bits. Label references can only be used in place of 16-bit immediate value operands.
 
-[^2]: Operands are referenced by the same names that appear in the "Operands" column.
-Any specific registers that are involved are referenced by their usual names.
+[^2]: Operands are referenced by the same names that appear in the "Operands" column. Any specific registers that are involved are referenced by their usual names.
 
 [^3]: All two-byte (16-bit) values are read from and written to memory with the least-significant byte appearing first (little-endian order).
