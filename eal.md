@@ -104,17 +104,17 @@ Each robot has three different systems with which EAL programs can interact: mov
 
 | Name             | Address  | Description |
 |------------------|----------|-------------|
-| Sensor Distance  | `0xE000` | An unsigned byte that ranges between 0 and 255 to denote the relative distance to the nearest obstacle (whether that be a wall or another robot). |
-| Sensor Kind      | `0xE001` | A byte indicating what kind of obstacle the sensor is detecting (0 = nothing, 1 = robot, 2 = wall). |
+| Sensor Distance  | `0xE000` | An unsigned byte that ranges between 0 and 255 to indicate the distance to the nearest obstacle in the direction the sensor is pointing, whether that be a wall or another robot (0 = touching, 255 = edge of sensor's range or nothing in range). |
+| Sensor Kind      | `0xE001` | A byte indicating what kind of obstacle the sensor is detecting (0 = nothing in range, 1 = robot, 2 = wall). |
 
 ### Outputs
 
 | Name             | Address  | Description |
 |------------------|----------|-------------|
-| Movement         | `0xF000` | A signed byte specifying how fast backwards (down to -128) or forwards (up to 127) the robot should move. |
-| Rotation         | `0xF001` | A signed byte specifying how fast counter-clockwise (down to -128) or clockwise (up to 127) the robot should rotate. |
-| Weapon Fire      | `0xF002` | An unsigned byte specifying whether the robot should fire its weapon (if greater than 0), and if so, how much power it should use (up to 255). |
-| Sensor Direction | `0xF003` | A byte specifying the relative direction in which the robot should point its sensor (0 = forwards, 64 = right, 128/-128 = backwards, 192/-64 = left). |
+| Movement         | `0xF000` | A signed byte that specifies how fast backwards (down to -128) or forwards (up to 127) the robot should move. |
+| Rotation         | `0xF001` | A signed byte that specifies how fast counter-clockwise (down to -128) or clockwise (up to 127) the robot should rotate. |
+| Weapon Fire      | `0xF002` | An unsigned byte that specifies whether the robot should fire its weapon (if greater than 0), and if so, how much power it should use (up to 255). More power costs more energy but deals more damage. |
+| Sensor Direction | `0xF003` | An unsigned byte specifying the direction in which the robot should point its sensor (can be any value between 0 and 255; 0 = forwards, 64 = 90&deg; right, 128 = backwards, 192 = 90&deg; left, etc.). |
 
 ## EAL Instruction Set
 
