@@ -118,124 +118,106 @@ Each robot has three different systems with which EAL programs can interact: mov
 
 ## EAL Instruction Set
 
-The following tables list all of the supported mnemonics, what kinds of operands they accept, and what actions they perform.
+The following table lists all of the supported mnemonics, what kinds of operands they accept, and what actions they perform.
 
-### Control Flow 
-
-| Mnemonic | Operands[^1]           | Action(s)[^2] |
-|----------|------------------------|---------------|
-| `nop`    | None                   | No effect. |
-| `jmp`    | `regA`                 | Set `rt` to `ip`, then set `ip` to `regA` (i.e., jump to the address `regA`). |
-|          | `immA[16]`             | Set `rt` to `ip`, then set `ip` to `immA` (i.e., jump to the address `immA`). |
-| `jmz`    | `regA, regB`           | If `regA` equals 0, set `ip` to `regB`; otherwise, no effect. |
-|          | `regA, immA[16]`       | If `regA` equals 0, set `ip` to `immA`; otherwise, no effect. |
-
-### Memory
-
-| Mnemonic | Operands[^1]           | Action(s)[^2] |
-|----------|------------------------|---------------|
-| `set`    | `regA, regB`           | Set `regA` to `regB`. |
-|          | `regA, immA[16]`       | Set `regA` to `immA`. |
-| `ldb`    | `regA, regB`           | Load the byte at memory address `regB` into `regA`. |
-|          | `regA, immA[16]`       | Load the byte at memory address `immA` into `regA`. |
-| `ldw`    | `regA, regB`           | Load the 16-bit word at memory address `regB` into `regA`.[^3] |
-|          | `regA, immA[16]`       | Load the 16-bit word at memory address `immA` into `regA`.[^3] |
-| `stb`    | `regA, regB`           | Store the lower byte of `regA` in memory at address `regB`. |
-|          | `regA, immA[16]`       | Store the lower byte of `regA` in memory at address `immA`. |
-|          | `immA[8], regA`        | Store the byte `immA` in memory at address `regA`. |
-|          | `immA[8], immB[16]`    | Store the byte `immA` in memory at address `immB`. |
-| `stw`    | `regA, regB`           | Store the 16-bit word `regA` in memory at address `regB`.[^3] |
-|          | `regA, immA[16]`       | Store the 16-bit word `regA` in memory at address `immA`.[^3] |
-|          | `immA[16], regA`       | Store the 16-bit word `immA` in memory at address `regA`.[^3] |
-|          | `immA[16], immB[16]`   | Store the 16-bit word `immA` in memory at address `immB`.[^3] |
-| `pshb`   | `regA`                 | Store the lower byte of `regA` in memory at address `sp - 1`, then decrement `sp` by 1 (i.e., push the lower byte of `regA` onto the stack). |
-| `pshw`   | `regA`                 | Store the 16-bit word `regA` in memory at address `sp - 2`, then decrement `sp` by 2 (i.e., push `regA` onto the stack).[^3] |
-| `popb`   | `regA`                 | Increment `sp` by 1, then load the byte at memory address `sp - 1` into `regA` (i.e., pop a byte off of the stack and into `regA`). |
-| `popw`   | `regA`                 | Increment `sp` by 2, then load the 16-bit word at memory address `sp - 2` into `regA` (i.e., pop a 16-bit word off of the stack and into `regA`).[^3] |
-
-### Math
-
-| Mnemonic | Operands[^1]           | Action(s)[^2] |
-|----------|------------------------|---------------|
-| `add`    | `regA, regB, regC`     | Set `regA` to `regB + regC`. |
-|          | `regA, regB, immA[16]` | Set `regA` to `regB + immA`. |
-|          | `regA, immA[16], regB` | Set `regA` to `immA + regB`. |
-| `sub`    | `regA, regB, regC`     | Set `regA` to `regB - regC`. |
-|          | `regA, regB, immA[16]` | Set `regA` to `regB - immA`. |
-|          | `regA, immA[16], regB` | Set `regA` to `immA - regB`. |
-| `mul`    | `regA, regB, regC`     | Set `regA` to `regB * regC`. |
-|          | `regA, regB, immA[16]` | Set `regA` to `regB * immA`. |
-|          | `regA, immA[16], regB` | Set `regA` to `immA * regB`. |
-| `divs`   | `regA, regB, regC`     | Set `regA` to `regB / regC`, treating both values as signed integers. |
-|          | `regA, regB, immA[16]` | Set `regA` to `regB / immA`, treating both values as signed integers. |
-|          | `regA, immA[16], regB` | Set `regA` to `immA / regB`, treating both values as signed integers. |
-| `divu`   | `regA, regB, regC`     | Set `regA` to `regB / regC`, treating both values as unsigned integers. |
-|          | `regA, regB, immA[16]` | Set `regA` to `regB / immA`, treating both values as unsigned integers. |
-|          | `regA, immA[16], regB` | Set `regA` to `immA / regB`, treating both values as unsigned integers. |
-| `rems`   | `regA, regB, regC`     | Set `regA` to the remainder of `regB` divided by `regC`, treating both values as signed integers. |
-|          | `regA, regB, immA[16]` | Set `regA` to the remainder of `regB` divided by `immA`, treating both values as signed integers. |
-|          | `regA, immA[16], regB` | Set `regA` to the remainder of `immA` divided by `regB`, treating both values as signed integers. |
-| `remu`   | `regA, regB, regC`     | Set `regA` to the remainder of `regB` divided by `regC`, treating both values as unsigned integers. |
-|          | `regA, regB, immA[16]` | Set `regA` to the remainder of `regB` divided by `immA`, treating both values as unsigned integers. |
-|          | `regA, immA[16], regB` | Set `regA` to the remainder of `immA` divided by `regB`, treating both values as unsigned integers. |
-
-### Bitwise logic
-
-| Mnemonic | Operands[^1]           | Action(s)[^2] |
-|----------|------------------------|---------------|
-| `and`    | `regA, regB, regC`     | Set `regA` to the bitwise AND of `regB` and `regC`. |
-|          | `regA, regB, immA[16]` | Set `regA` to the bitwise AND of `regB` and `immA`. |
-|          | `regA, immA[16], regB` | Set `regA` to the bitwise AND of `immA` and `regB`. |
-| `ior`    | `regA, regB, regC`     | Set `regA` to the bitwise inclusive OR of `regB` and `regC`. |
-|          | `regA, regB, immA[16]` | Set `regA` to the bitwise inclusive OR of `regB` and `immA`. |
-|          | `regA, immA[16], regB` | Set `regA` to the bitwise inclusive OR of `immA` and `regB`. |
-| `xor`    | `regA, regB, regC`     | Set `regA` to the bitwise exclusive OR of `regB` and `regC`. |
-|          | `regA, regB, immA[16]` | Set `regA` to the bitwise exclusive OR of `regB` and `immA`. |
-|          | `regA, immA[16], regB` | Set `regA` to the bitwise exclusive OR of `immA` and `regB`. |
-| `lsh`    | `regA, regB, regC`     | Set `regA` to `regB` shifted left by `regC` bits. |
-|          | `regA, regB, immA[4]`  | Set `regA` to `regB` shifted left by `immA` bits. |
-|          | `regA, immA[16], regB` | Set `regA` to `immA` shifted left by `regB` bits. |
-| `rshs`   | `regA, regB, regC`     | Set `regA` to `regB` shifted right by `regC` bits, treating `regB` as a signed integer (i.e., sign-extend). |
-|          | `regA, regB, immA[4]`  | Set `regA` to `regB` shifted right by `immA` bits, treating `regB` as a signed integer (i.e., sign-extend). |
-|          | `regA, immA[16], regB` | Set `regA` to `immA` shifted right by `regB` bits, treating `immA` as a signed integer (i.e., sign-extend). |
-| `rshu`   | `regA, regB, regC`     | Set `regA` to `regB` shifted right by `regC` bits, treating `regB` as an unsigned integer (i.e., zero-extend). |
-|          | `regA, regB, immA[4]`  | Set `regA` to `regB` shifted right by `immA` bits, treating `regB` as an unsigned integer (i.e., zero-extend). |
-|          | `regA, immA[16], regB` | Set `regA` to `immA` shifted right by `regB` bits, treating `immA` as an unsigned integer (i.e., zero-extend). |
-
-### Comparison
-
-| Mnemonic | Operands[^1]           | Action(s)[^2] |
-|----------|------------------------|---------------|
-| `ceq`    | `regA, regB, regC`     | If `regB` equals `regC`, set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, regB, immA[16]` | If `regB` equals `immA`, set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, immA[16], regB` | If `immA` equals `regB`, set `regA` to 1; otherwise, set `regA` to 0. |
-| `cne`    | `regA, regB, regC`     | If `regB` does not equal `regC`, set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, regB, immA[16]` | If `regB` does not equal `immA`, set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, immA[16], regB` | If `immA` does not equal `regB`, set `regA` to 1; otherwise, set `regA` to 0. |
-| `clts`   | `regA, regB, regC`     | If `regB` is less than `regC` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, regB, immA[16]` | If `regB` is less than `immA` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, immA[16], regB` | If `immA` is less than `regB` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-| `cltu`   | `regA, regB, regC`     | If `regB` is less than `regC` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, regB, immA[16]` | If `regB` is less than `immA` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, immA[16], regB` | If `immA` is less than `regB` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-| `cges`   | `regA, regB, regC`     | If `regB` is greater than or equal to `regC` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, regB, immA[16]` | If `regB` is greater than or equal to `immA` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, immA[16], regB` | If `immA` is greater than or equal to `regB` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-| `cgeu`   | `regA, regB, regC`     | If `regB` is greater than or equal to `regC` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, regB, immA[16]` | If `regB` is greater than or equal to `immA` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, immA[16], regB` | If `immA` is greater than or equal to `regB` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-| `cgts`   | `regA, regB, regC`     | If `regB` is greater than `regC` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, regB, immA[16]` | If `regB` is greater than `immA` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, immA[16], regB` | If `immA` is greater than `regB` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-| `cgtu`   | `regA, regB, regC`     | If `regB` is greater than `regC` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, regB, immA[16]` | If `regB` is greater than `immA` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, immA[16], regB` | If `immA` is greater than `regB` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-| `cles`   | `regA, regB, regC`     | If `regB` is less than or equal to `regC` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, regB, immA[16]` | If `regB` is less than or equal to `immA` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, immA[16], regB` | If `immA` is less than or equal to `regB` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
-| `cleu`   | `regA, regB, regC`     | If `regB` is less than or equal to `regC` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, regB, immA[16]` | If `regB` is less than or equal to `immA` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
-|          | `regA, immA[16], regB` | If `immA` is less than or equal to `regB` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+| Category          | Mnemonic | Operands[^1]           | Action(s)[^2] |
+|-------------------|----------|------------------------|---------------|
+| **Control flow**  | `nop`    | None                   | No effect. |
+|                   | `jmp`    | `regA`                 | Set `rt` to `ip`, then set `ip` to `regA` (i.e., jump to the address `regA`). |
+|                   |          | `immA[16]`             | Set `rt` to `ip`, then set `ip` to `immA` (i.e., jump to the address `immA`). |
+|                   | `jmz`    | `regA, regB`           | If `regA` equals 0, set `ip` to `regB`; otherwise, no effect. |
+|                   |          | `regA, immA[16]`       | If `regA` equals 0, set `ip` to `immA`; otherwise, no effect. |
+|                   |          |                        |               |
+| **Memory**[^3]    | `set`    | `regA, regB`           | Set `regA` to `regB`. |
+|                   |          | `regA, immA[16]`       | Set `regA` to `immA`. |
+|                   | `ldb`    | `regA, regB`           | Load the byte at memory address `regB` into `regA`. |
+|                   |          | `regA, immA[16]`       | Load the byte at memory address `immA` into `regA`. |
+|                   | `ldw`    | `regA, regB`           | Load the 16-bit word at memory address `regB` into `regA`. |
+|                   |          | `regA, immA[16]`       | Load the 16-bit word at memory address `immA` into `regA`. |
+|                   | `stb`    | `regA, regB`           | Store the lower byte of `regA` in memory at address `regB`. |
+|                   |          | `regA, immA[16]`       | Store the lower byte of `regA` in memory at address `immA`. |
+|                   |          | `immA[8], regA`        | Store the byte `immA` in memory at address `regA`. |
+|                   |          | `immA[8], immB[16]`    | Store the byte `immA` in memory at address `immB`. |
+|                   | `stw`    | `regA, regB`           | Store the 16-bit word `regA` in memory at address `regB`. |
+|                   |          | `regA, immA[16]`       | Store the 16-bit word `regA` in memory at address `immA`. |
+|                   |          | `immA[16], regA`       | Store the 16-bit word `immA` in memory at address `regA`. |
+|                   |          | `immA[16], immB[16]`   | Store the 16-bit word `immA` in memory at address `immB`. |
+|                   | `pshb`   | `regA`                 | Store the lower byte of `regA` in memory at address `sp - 1`, then decrement `sp` by 1 (i.e., push the lower byte of `regA` onto the stack). |
+|                   | `pshw`   | `regA`                 | Store the 16-bit word `regA` in memory at address `sp - 2`, then decrement `sp` by 2 (i.e., push `regA` onto the stack). |
+|                   | `popb`   | `regA`                 | Increment `sp` by 1, then load the byte at memory address `sp - 1` into `regA` (i.e., pop a byte off of the stack and into `regA`). |
+|                   | `popw`   | `regA`                 | Increment `sp` by 2, then load the 16-bit word at memory address `sp - 2` into `regA` (i.e., pop a 16-bit word off of the stack and into `regA`). |
+|                   |          |                        |               |
+| **Math**          | `add`    | `regA, regB, regC`     | Set `regA` to `regB + regC`. |
+|                   |          | `regA, regB, immA[16]` | Set `regA` to `regB + immA`. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to `immA + regB`. |
+|                   | `sub`    | `regA, regB, regC`     | Set `regA` to `regB - regC`. |
+|                   |          | `regA, regB, immA[16]` | Set `regA` to `regB - immA`. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to `immA - regB`. |
+|                   | `mul`    | `regA, regB, regC`     | Set `regA` to `regB * regC`. |
+|                   |          | `regA, regB, immA[16]` | Set `regA` to `regB * immA`. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to `immA * regB`. |
+|                   | `divs`   | `regA, regB, regC`     | Set `regA` to `regB / regC`, treating both values as signed integers. |
+|                   |          | `regA, regB, immA[16]` | Set `regA` to `regB / immA`, treating both values as signed integers. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to `immA / regB`, treating both values as signed integers. |
+|                   | `divu`   | `regA, regB, regC`     | Set `regA` to `regB / regC`, treating both values as unsigned integers. |
+|                   |          | `regA, regB, immA[16]` | Set `regA` to `regB / immA`, treating both values as unsigned integers. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to `immA / regB`, treating both values as unsigned integers. |
+|                   | `rems`   | `regA, regB, regC`     | Set `regA` to the remainder of `regB` divided by `regC`, treating both values as signed integers. |
+|                   |          | `regA, regB, immA[16]` | Set `regA` to the remainder of `regB` divided by `immA`, treating both values as signed integers. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to the remainder of `immA` divided by `regB`, treating both values as signed integers. |
+|                   | `remu`   | `regA, regB, regC`     | Set `regA` to the remainder of `regB` divided by `regC`, treating both values as unsigned integers. |
+|                   |          | `regA, regB, immA[16]` | Set `regA` to the remainder of `regB` divided by `immA`, treating both values as unsigned integers. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to the remainder of `immA` divided by `regB`, treating both values as unsigned integers. |
+|                   |          |                        |               |
+| **Bitwise logic** | `and`    | `regA, regB, regC`     | Set `regA` to the bitwise AND of `regB` and `regC`. |
+|                   |          | `regA, regB, immA[16]` | Set `regA` to the bitwise AND of `regB` and `immA`. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to the bitwise AND of `immA` and `regB`. |
+|                   | `ior`    | `regA, regB, regC`     | Set `regA` to the bitwise inclusive OR of `regB` and `regC`. |
+|                   |          | `regA, regB, immA[16]` | Set `regA` to the bitwise inclusive OR of `regB` and `immA`. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to the bitwise inclusive OR of `immA` and `regB`. |
+|                   | `xor`    | `regA, regB, regC`     | Set `regA` to the bitwise exclusive OR of `regB` and `regC`. |
+|                   |          | `regA, regB, immA[16]` | Set `regA` to the bitwise exclusive OR of `regB` and `immA`. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to the bitwise exclusive OR of `immA` and `regB`. |
+|                   | `lsh`    | `regA, regB, regC`     | Set `regA` to `regB` shifted left by `regC` bits. |
+|                   |          | `regA, regB, immA[4]`  | Set `regA` to `regB` shifted left by `immA` bits. |
+|                   |          | `regA, immA[16], regB` | Set `regA` to `immA` shifted left by `regB` bits. |
+|                   | `rshs`   | `regA, regB, regC`     | Set `regA` to `regB` shifted right by `regC` bits, treating `regB` as a signed integer (i.e., sign-extend). |
+|                   |          | `regA, regB, immA[4]`  | Set `regA` to `regB` shifted right by `immA` bits, treating `regB` as a signed integer (i.e., sign-extend). |
+|                   |          | `regA, immA[16], regB` | Set `regA` to `immA` shifted right by `regB` bits, treating `immA` as a signed integer (i.e., sign-extend). |
+|                   | `rshu`   | `regA, regB, regC`     | Set `regA` to `regB` shifted right by `regC` bits, treating `regB` as an unsigned integer (i.e., zero-extend). |
+|                   |          | `regA, regB, immA[4]`  | Set `regA` to `regB` shifted right by `immA` bits, treating `regB` as an unsigned integer (i.e., zero-extend). |
+|                   |          | `regA, immA[16], regB` | Set `regA` to `immA` shifted right by `regB` bits, treating `immA` as an unsigned integer (i.e., zero-extend). |
+|                   |          |                        |               |
+| **Comparison**    | `ceq`    | `regA, regB, regC`     | If `regB` equals `regC`, set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, regB, immA[16]` | If `regB` equals `immA`, set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, immA[16], regB` | If `immA` equals `regB`, set `regA` to 1; otherwise, set `regA` to 0. |
+|                   | `cne`    | `regA, regB, regC`     | If `regB` does not equal `regC`, set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, regB, immA[16]` | If `regB` does not equal `immA`, set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, immA[16], regB` | If `immA` does not equal `regB`, set `regA` to 1; otherwise, set `regA` to 0. |
+|                   | `clts`   | `regA, regB, regC`     | If `regB` is less than `regC` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, regB, immA[16]` | If `regB` is less than `immA` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, immA[16], regB` | If `immA` is less than `regB` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   | `cltu`   | `regA, regB, regC`     | If `regB` is less than `regC` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, regB, immA[16]` | If `regB` is less than `immA` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, immA[16], regB` | If `immA` is less than `regB` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   | `cges`   | `regA, regB, regC`     | If `regB` is greater than or equal to `regC` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, regB, immA[16]` | If `regB` is greater than or equal to `immA` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, immA[16], regB` | If `immA` is greater than or equal to `regB` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   | `cgeu`   | `regA, regB, regC`     | If `regB` is greater than or equal to `regC` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, regB, immA[16]` | If `regB` is greater than or equal to `immA` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, immA[16], regB` | If `immA` is greater than or equal to `regB` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   | `cgts`   | `regA, regB, regC`     | If `regB` is greater than `regC` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, regB, immA[16]` | If `regB` is greater than `immA` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, immA[16], regB` | If `immA` is greater than `regB` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   | `cgtu`   | `regA, regB, regC`     | If `regB` is greater than `regC` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, regB, immA[16]` | If `regB` is greater than `immA` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, immA[16], regB` | If `immA` is greater than `regB` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   | `cles`   | `regA, regB, regC`     | If `regB` is less than or equal to `regC` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, regB, immA[16]` | If `regB` is less than or equal to `immA` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, immA[16], regB` | If `immA` is less than or equal to `regB` (treating both as signed integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   | `cleu`   | `regA, regB, regC`     | If `regB` is less than or equal to `regC` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, regB, immA[16]` | If `regB` is less than or equal to `immA` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
+|                   |          | `regA, immA[16], regB` | If `immA` is less than or equal to `regB` (treating both as unsigned integers), set `regA` to 1; otherwise, set `regA` to 0. |
 
 [^1]: `regA`, `regB`, and `regC` represent register operands.
 `immA[...]` and `immB[...]` represent immediate value operands with the number in brackets next to them denoting the maximum size of the value in bits.
