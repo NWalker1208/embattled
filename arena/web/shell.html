@@ -95,8 +95,11 @@
 
         display: none; /* remove to see console output */
       }
-      .help {
+      h1, h2, h3, .subtitle, .help {
         font-family: sans-serif;
+      }
+      h3, .subtitle {
+        margin: 0.2em 10px;
       }
 
       .spinner {
@@ -135,8 +138,10 @@
   <body>
     <div id="main_container">
       <div id="left_panel" class="side_panel">
+        <h3>Assembly Program 1</h3>
+        <p class="subtitle">(Purple Robot)</p>
         <textarea id="left_program_editor"></textarea>
-        <input class="assemble_button" type="button" value="Assemble" onclick="reloadAssemblyProgramA(leftProgramEditor.getValue(), leftProgramOutput)"/>
+        <input class="assemble_button" type="button" value="Assemble and Deploy Program" onclick="reloadAssemblyProgramA(leftProgramEditor.getValue(), leftProgramOutput)"/>
         <div id="left_program_output" class="program_output"></div>
       </div>
       <div id="center_panel">
@@ -152,8 +157,10 @@
         </div>
       </div>
       <div id="right_panel" class="side_panel">
+        <h3>Assembly Program 2</h3>
+        <p class="subtitle">(Green Robot)</p>
         <textarea id="right_program_editor"></textarea>
-        <input class="assemble_button" type="button" value="Assemble" onclick="reloadAssemblyProgramB(rightProgramEditor.getValue(), rightProgramOutput)"/>
+        <input class="assemble_button" type="button" value="Assemble and Deploy Program" onclick="reloadAssemblyProgramB(rightProgramEditor.getValue(), rightProgramOutput)"/>
         <div id="right_program_output" class="program_output"></div>
       </div>
     </div>
