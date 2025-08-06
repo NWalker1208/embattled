@@ -1,33 +1,37 @@
-# Embattled Assembly Language
+# Embattled Guide
 
-**[Arena](https://nwalker1208.github.io/embattled/arena.html)**  
-**[Example programs](https://github.com/NWalker1208/embattled/tree/master/examples)**
+**[Web Arena](https://nwalker1208.github.io/embattled/arena.html)**  
+**[Example Assembly Programs](https://github.com/NWalker1208/embattled/tree/master/examples)**
 
-Embattled robots are programmed using an artificial assembly language called Embattled Assembly Language (EAL). EAL programs describe step by step what actions a robot's processor should perform.
+## Embattled Robots
 
-However, before learning how to write EAL programs, it is important to understand the basics of how Embattled robot processors work.
+In the Embattled simulator, two autonomous robots go head-to-head in a battle to the death!
 
-## Key Concepts: Registers and Memory
+Okay, that's perhaps a bit dramatic. More accurately, each robot starts with the same amount of **energy**. Robots can move around, rotate, and fire a laser, but each of these actions consumes energy. Additionally, getting hit by another robot's laser will cause a large chunk of energy to be lost, much more than the attacker spent from their energy when they fired their weapon. When a robot runs out of energy, it dies. The last robot left alive wins the battle.
 
-Embattled robot processors operate on just two things: registers and memory. Both of these store binary data, but they are used in different ways.
+### Processors, Memory, and Registers 
 
-A robot's **memory** holds both the program that the processor is executing as well as any data that has been written by the program over the course of the simulation. It is essentially just a large array of bytes (65,536 bytes to be exact) that can be read from and written to. Any byte in that array can be located via its 16-bit address. However, the processor can't perform any operations on memory beyond just reading and writing bytes.
+As was previously mentioned, each robot is *autonomous*. That means it must make its own decisions about where to move and when to shoot. Before getting into how a robot can be programmed to behave a certain way, it is important to understand the essential components that allow a robot to make decisions in the first place.
 
-**Registers** are where the processor stores both the inputs and outputs of the actions it performs. Each register contains exactly 2 bytes (16 bits). The processor can read bytes (or pairs of bytes) from memory into registers, perform actions on the values in those registers, and write the values of registers back into memory. From the perspective of an EAL program, registers essentially act as variables.
+The **processor** is the brain of an Embattled robot. On each step of the simulation, the processor executes a single instruction. An **instruction**, in this context, represents an action and the data on which that action is performed. The instructions that the processor executes are represented as machine code in the robot's **memory**. That machine code is assembled from an assembly program before the simulation begins (the [Embattled Assembly Language](#embattled-assembly-language) section will explain how to write such programs).
+
+Memory is also a place where the processor can store data while the simulation is running. It is essentially just a large sequence of bytes (65,536 bytes to be exact) that can be read from and written to. Any byte in that sequence can be located via its 16-bit address. However, the processor can't perform any operations on memory beyond retrieving instructions and reading/writing bytes.
+
+**Registers** are where the processor stores both the inputs and outputs of the instructions it executes. Each register contains exactly 2 bytes (16 bits). The processor can read bytes (or pairs of bytes) from memory into registers, perform actions on the values in those registers, and write the values of registers back into memory. From the perspective of an assembly program, registers essentially act as variables.
 
 In total, there are sixteen different registers. Twelve of the registers are general purpose, meaning they can be used in whatever way an EAL program sees fit. The general purpose registers are named `x0`, `x1`, etc. all the way up to `x11`. The other four registers each have a special purpose:
 - `nl` is the null register. Its value is always zero and cannot be changed.
 - `ip` is the instruction pointer. Its value is the address in memory of the next instruction to be executed. It is updated after the current instruction has been loaded but before it is executed. This means that the current instruction can read the `ip` register to see the address of the next instruction, or it can set the `ip` register to change which instruction is next.
-- `sp` is the stack pointer. It interacts with specific instructions for pushing bytes into or popping bytes out of a particular region in memory. This makes it easier for EAL programs to implement a stack data structure.
+- `sp` is the stack pointer. It interacts with specific instructions for pushing bytes into or popping bytes out of a particular region in memory. This makes it easier for assembly programs to implement a stack data structure.
 - `rt` is the return pointer. It holds the address of whatever the next instruction would have been prior to a jump to some other instruction.
 
-## EAL Concepts
+## Embattled Assembly Language
+
+Embattled robots are programmed using an artificial assembly language called Embattled Assembly Language (EAL). EAL programs define the instructions and initial data that will be loaded into a robot's memory at the start of the simulation.
 
 ### Instructions
 
-With the concepts of memory and registers covered, it will now be easier to explain how EAL programs are written.
-
-EAL programs list the instructions that the processor should execute. Each instruction represents both a type of operation to be performed, as well as the values on which to perform that operation. On each step of the simulation, the processor will read an instruction from memory, execute it, and move to the next instruction.
+Each instruction in an EAL program represents both a type of operation to be performed as well as the values on which to perform that operation. On each step of the simulation, the processor will read an instruction from memory, execute it, and move to the next instruction.
 
 The type of operation that an instruction represents is indicated by a 3-to-4-letter word called the **mnemonic**. For example, the `add` mnemonic is used to add two values together. In total, there are 35 different mnemonics representing all of the operations that the processor can perform. The [EAL Instruction Set](#eal-instruction-set) section lists these mnemonics along with what action each mnemonic represents.
 
