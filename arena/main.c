@@ -264,21 +264,21 @@ int main(int argc, char* argv[]) {
     pthread_mutex_lock(&simulationWorker.stateMutex); {
     #endif
       // Temporary code for manipulating time scale
-      if (IsKeyPressed(KEY_ZERO)) {
+      if (IsKeyPressed(KEY_ZERO) || IsKeyPressed(KEY_KP_0)) {
         simulation.timer.ticksPerSec = 0;
-      } else if (IsKeyPressed(KEY_ONE)) {
+      } else if (IsKeyPressed(KEY_ONE) || IsKeyPressed(KEY_KP_1)) {
         simulation.timer.ticksPerSec = 1;
-      } else if (IsKeyPressed(KEY_TWO)) {
+      } else if (IsKeyPressed(KEY_TWO) || IsKeyPressed(KEY_KP_2)) {
         simulation.timer.ticksPerSec = SIMULATION_DEFAULT_TICKS_PER_SECOND / 4;
-      } else if (IsKeyPressed(KEY_THREE)) {
+      } else if (IsKeyPressed(KEY_THREE) || IsKeyPressed(KEY_KP_3)) {
         simulation.timer.ticksPerSec = SIMULATION_DEFAULT_TICKS_PER_SECOND / 2;
-      } else if (IsKeyPressed(KEY_FOUR)) {
+      } else if (IsKeyPressed(KEY_FOUR) || IsKeyPressed(KEY_KP_4)) {
         simulation.timer.ticksPerSec = SIMULATION_DEFAULT_TICKS_PER_SECOND;
-      } else if (IsKeyPressed(KEY_FIVE)) {
+      } else if (IsKeyPressed(KEY_FIVE) || IsKeyPressed(KEY_KP_5)) {
         simulation.timer.ticksPerSec = SIMULATION_DEFAULT_TICKS_PER_SECOND * 2;
-      } else if (IsKeyPressed(KEY_SIX)) {
+      } else if (IsKeyPressed(KEY_SIX) || IsKeyPressed(KEY_KP_6)) {
         simulation.timer.ticksPerSec = SIMULATION_DEFAULT_TICKS_PER_SECOND * 4;
-      } else if (IsKeyPressed(KEY_SEVEN)) {
+      } else if (IsKeyPressed(KEY_SEVEN) || IsKeyPressed(KEY_KP_7)) {
         simulation.timer.ticksPerSec = INT64_MAX;
       }
 
