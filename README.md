@@ -10,7 +10,7 @@ The parser and assembler for the language as well as the simulated processor are
 
 This project uses several open source libraries and tools, including [Raylib](https://github.com/raysan5/raylib), [Unity Test](https://github.com/raysan5/raylib), [Emscripten](https://github.com/emscripten-core/emscripten), and [CodeMirror](https://github.com/codemirror/dev/).
 
-Instructions on how to write programs for Embattled robots can be found on the following GitHub Pages site: https://nwalker1208.github.io/embattled/eal.html
+More details about the Embattled simulator and how to write programs for Embattled robots can be found on the following GitHub Pages site: https://nwalker1208.github.io/embattled/guide.html
 
 ## Requirements to build the project locally
 
