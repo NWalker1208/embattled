@@ -79,6 +79,7 @@ void DrawRobot(const PhysicsWorld* physicsWorld, const Robot* robot, Color baseC
 void DrawStaticBody(const PhysicsBody* body, unsigned int layer);
 void DrawSimSpeed(int64_t ticksPerSec, Vector2 position);
 void DrawControls(Vector2 position);
+void DrawWinner(Vector2 position, size_t index);
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position);
 
 
@@ -359,6 +360,10 @@ int main(int argc, char* argv[]) {
         DrawRectangleRec((Rectangle){ 0.0f, scaledScreenHeight - CONTROLS_HEIGHT, scaledScreenWidth, CONTROLS_HEIGHT }, WHITE);
         DrawControls((Vector2){ (scaledScreenWidth + STATE_PANEL_WIDTH) / 2, scaledScreenHeight - CONTROLS_HEIGHT });
         
+        if (simulation.battleEnded) {
+          DrawWinner((Vector2){ (scaledScreenWidth + STATE_PANEL_WIDTH) / 2, scaledScreenHeight / 2 }, simulation.lastSurvivingRobotIndex);
+        }
+
         DrawRectangleRec((Rectangle){ 0.0f, 0.0f, STATE_PANEL_WIDTH, scaledScreenHeight}, LIGHTGRAY);
         for (unsigned int i = 0; i < simulation.robotCount; i++) {
           DrawStatePanel(&simulation.robots[i], i, (Vector2){ 0, STATE_PANEL_HEIGHT * i });
@@ -611,6 +616,14 @@ void DrawControls(Vector2 position) {
                          "Manual Robot Controls (purple): arrow keys = move, space = shoot";
   float width = MeasureTextEx(primaryFont, controls, 15, 1.0).x;
   DrawTextEx(primaryFont, controls, (Vector2){ position.x - width / 2, position.y }, 15, 1.0, DARKGRAY);
+}
+
+void DrawWinner(Vector2 position, size_t index) {
+  char buffer[1024];
+  snprintf(buffer, sizeof(buffer), "Robot %zu wins!", index + 1);
+  
+  Vector2 size = MeasureTextEx(primaryFont, buffer, 24, 1.0);
+  DrawTextEx(primaryFont, buffer, (Vector2){ position.x - size.x / 2, position.y - size.y / 2 }, 24, 1.0, BLACK);
 }
 
 void DrawStatePanel(const Robot* robot, size_t index, Vector2 position) {
