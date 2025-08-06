@@ -96,6 +96,20 @@ void stepSimulation(Simulation* simulation) {
   for (unsigned int i = 0; i < simulation->robotCount; i++) {
     UpdateRobotSensor(&simulation->robots[i], &simulation->physicsWorld);
   }
+
+  // Check if there is only one robot left alive
+  size_t numRobotsAlive = 0;
+  size_t lastSurvivingRobotIndex = 0;
+  for (unsigned int i = 0; i < simulation->robotCount && numRobotsAlive < 2; i++) {
+    if (simulation->robots[i].energyRemaining > 0) {
+      numRobotsAlive++;
+      lastSurvivingRobotIndex = i;
+    }
+  }
+  if (numRobotsAlive == 1) {
+    simulation->battleEnded = true;
+    simulation->lastSurvivingRobotIndex = lastSurvivingRobotIndex;
+  }
 }
 
 void onWeaponDamage(void* context, size_t physicsBodyIndex, int damageAmount) {

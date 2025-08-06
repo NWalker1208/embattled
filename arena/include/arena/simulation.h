@@ -18,6 +18,10 @@ typedef struct {
   size_t robotCount;
   // The array of robots being simulated.
   Robot robots[SIMULATION_MAX_ROBOTS];
+  // Whether or not the battle has ended (one or fewer robots left standing).
+  bool battleEnded;
+  // If battleEnded is true, the index of the last surviving robot; otherwise, undefined.
+  size_t lastSurvivingRobotIndex;
 
   // Timer for tracking elapsed simulation time, where each tick represents a simulation step.
   Timer timer;
