@@ -1,7 +1,8 @@
 # Embattled Guide
 
 **[Web Arena](https://nwalker1208.github.io/embattled/arena.html)**  
-**[Example Assembly Programs](https://github.com/NWalker1208/embattled/tree/master/examples)**
+**[Example Assembly Programs](https://github.com/NWalker1208/embattled/tree/master/examples)**  
+**[GitHub Repository](https://github.com/NWalker1208/embattled)**
 
 ## Embattled Robots
 
